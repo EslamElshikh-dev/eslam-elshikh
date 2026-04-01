@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إسلام الشيخ | Eslam Elshikh</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Tajawal:wght@400;500;700;900&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- المتغيرات الديناميكية للمود --- */
+        :root {
+            /* وضع الدارك (الافتراضي) */
+            --bg-main: #070B14;
+            --bg-card: #111827;
+            --text-main: #F3F4F6;
+            --text-muted: #9CA3AF;
+            --border-color: rgba(255,255,255,0.05);
+            --input-bg: rgba(255,255,255,0.02);
+            --accent-gold: #D4AF37;
+            --accent-glow: rgba(212, 175, 55, 0.3);
+            --cyber-cyan: #00ffcc;
+            --font-primary: 'Tajawal', sans-serif;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* وضع السطوع (Light Mode) */
+        body.light-mode {
+            --bg-main: #F9FAFB;
+            --bg-card: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #4B5563;
+            --border-color: rgba(0,0,0,0.1);
+            --input-bg: rgba(0,0,0,0.02);
+            --accent-gold: #B8860B; 
+            --cyber-cyan: #009678;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        html[lang="en"] { --font-primary: 'Outfit', sans-serif; }
+        html[lang="ur"] { --font-primary: 'Noto Nastaliq Urdu', serif; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: var(--font-primary);
+            overflow-x: hidden;
+            padding-bottom: 90px;
+            position: relative;
+        }
+
+        /* --- اللمسة الإبداعية: الخلفية السيبرانية (Cyber Background) --- */
+        .cyber-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; overflow: hidden; pointer-events: none;
+        }
+        .cyber-grid {
+            position: absolute; width: 200%; height: 200%; top: -50%; left: -50%;
+            background-image: 
+                linear-gradient(rgba(212, 175, 55, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212, 175, 55, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+            animation: gridMove 20s linear infinite;
+            opacity: 0.6;
+        }
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(50px) translateZ(-200px); }
+        }
+        .glow-orb {
+            position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.15;
+            animation: floatOrb 12s infinite alternate ease-in-out;
+        }
+        .glow-orb.gold { width: 300px; height: 300px; background: var(--accent-gold); top: 10%; right: 20%; }
+        .glow-orb.cyan { width: 400px; height: 400px; background: var(--cyber-cyan); bottom: 10%; left: 10%; animation-delay: -5s; }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.2); }
+        }
+
+        body.light-mode .cyber-grid { opacity: 0.3; }
+        body.light-mode .glow-orb { opacity: 0.08; filter: blur(60px); }
+
+        /* --- الرأس (Header) --- */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 5%; position: fixed; top: 0; width: 100%;
+            background: rgba(var(--bg-main-rgb), 0.85); backdrop-filter: blur(15px);
+            z-index: 1000; border-bottom: 1px solid var(--border-color);
+        }
+        .logo {
+            font-size: clamp(1.2rem, 3vw, 1.6rem); font-weight: 900;
+            background: linear-gradient(45deg, var(--text-main), var(--accent-gold));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .header-controls { display: flex; gap: 10px; align-items: center; }
+        .control-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--input-bg); border: 1px solid rgba(212, 175, 55, 0.4);
+            padding: 8px 15px; border-radius: 12px; cursor: pointer;
+            color: var(--text-main); font-weight: 700; font-size: 0.9rem; font-family: inherit;
+        }
+        .control-btn:hover { background: rgba(212, 175, 55, 0.1); border-color: var(--accent-gold); }
+        .theme-btn { padding: 8px 12px; font-size: 1.1rem; }
+
+        /* --- الأقسام العامة --- */
+        section { padding: 120px 5% 50px; min-height: 100vh; position: relative; z-index: 1; }
+        .section-title {
+            text-align: center; font-size: clamp(2rem, 5vw, 2.5rem);
+            font-weight: 900; margin-bottom: 50px; color: var(--accent-gold);
+        }
+
+        /* --- البطل (Hero) و شارة الأمن السيبراني --- */
+        .hero { display: flex; flex-direction: column; justify-content: center; text-align: right; align-items: flex-start; }
+        html[dir="ltr"] .hero { text-align: left; }
+        
+        .cyber-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(0, 255, 204, 0.08); border: 1px solid rgba(0, 255, 204, 0.3);
+            color: var(--cyber-cyan); padding: 6px 16px; border-radius: 50px;
+            font-family: monospace; font-size: 0.9rem; margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
+            animation: pulse-badge 3s infinite alternate;
+        }
+        @keyframes pulse-badge { from { box-shadow: 0 0 5px rgba(0,255,204,0.1); } to { box-shadow: 0 0 15px rgba(0,255,204,0.3); } }
+        body.light-mode .cyber-badge { background: rgba(0, 150, 120, 0.08); border-color: rgba(0, 150, 120, 0.3); }
+
+        .hero h1 { font-size: clamp(2rem, 6vw, 4rem); font-weight: 900; margin-bottom: 20px; line-height: 1.2; }
+        .hero h1 span { color: var(--accent-gold); }
+        .hero p { font-size: clamp(1rem, 2vw, 1.2rem); color: var(--text-muted); line-height: 1.9; max-width: 800px; }
+
+        /* --- الخدمات (Services Grid) --- */
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        .service-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 20px; padding: 30px; text-align: right;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s, box-shadow 0.3s;
+            position: relative; overflow: hidden;
+        }
+        html[dir="ltr"] .service-card { text-align: left; }
+        .service-card:hover { transform: translateY(-10px); border-color: var(--accent-gold); box-shadow: 0 15px 35px var(--accent-glow); }
+        .service-card::before {
+            content: ''; position: absolute; top: 0; right: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+            transform: scaleX(0); transition: transform 0.4s;
+        }
+        .service-card:hover::before { transform: scaleX(1); }
+
+        .service-icon-wrapper {
+            width: 60px; height: 60px; background: rgba(212, 175, 55, 0.1);
+            border: 2px solid var(--accent-gold); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.8rem; color: var(--accent-gold); margin-bottom: 20px;
+            transition: transform 0.4s, background 0.4s;
+        }
+        .service-card:hover .service-icon-wrapper { transform: rotateY(180deg); background: var(--accent-gold); color: #000; }
+
+        .service-card h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 15px; }
+        .service-card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.8; margin-bottom: 25px; }
+        
+        .order-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: linear-gradient(45deg, #25D366, #128C7E);
+            color: #FFF; text-decoration: none; padding: 10px 20px; border-radius: 50px;
+            font-weight: 700; font-size: 0.9rem; transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .order-btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4); }
+
+        /* --- تواصل معي (Contact & Form) --- */
+        .contact-container {
+            max-width: 600px; margin: 0 auto; background: var(--bg-card);
+            padding: 40px; border-radius: 20px; border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow); position: relative;
+        }
+        .input-group { margin-bottom: 20px; }
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%; padding: 15px; background: var(--input-bg);
+            border: 1px solid var(--border-color); border-radius: 12px;
+            color: var(--text-main); font-family: inherit; font-size: 1rem; transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            outline: none; border-color: var(--accent-gold); box-shadow: 0 0 10px var(--accent-glow);
+        }
+        .submit-btn {
+            width: 100%; padding: 15px; background: var(--accent-gold);
+            color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1.1rem;
+            cursor: pointer; transition: 0.3s; font-family: inherit;
+        }
+        .submit-btn:hover { background: #FFF; box-shadow: 0 0 20px var(--accent-glow); transform: translateY(-3px); }
+
+        /* --- الفوتر والسوشيال ميديا --- */
+        footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border-color); background: var(--bg-card); position: relative; z-index: 1; }
+        .social-links { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .social-btn {
+            width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--border-color);
+            display: flex; justify-content: center; align-items: center; color: var(--text-main); font-size: 1.2rem;
+            text-decoration: none; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .social-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); transform: translateY(-5px) rotate(360deg); box-shadow: 0 5px 15px var(--accent-glow); }
+
+        /* --- الأزرار العائمة (WhatsApp & Call) --- */
+        .floating-action {
+            position: fixed; left: 20px; z-index: 999; width: 50px; height: 50px;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            color: #FFF; font-size: 1.5rem; text-decoration: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.3s;
+        }
+        .fab-call { bottom: 160px; background: #007BFF; animation: pulse-call 2s infinite; }
+        .fab-wa { bottom: 95px; background: #25D366; animation: pulse-wa 2s infinite 1s; }
+        .floating-action:hover { transform: scale(1.1); }
+        html[dir="ltr"] .floating-action { left: auto; right: 20px; }
+
+        @keyframes pulse-call { 0% { box-shadow: 0 0 0 0 rgba(0,123,255,0.7); } 70% { box-shadow: 0 0 0 10px rgba(0,123,255,0); } 100% { box-shadow: 0 0 0 0 transparent; } }
+        @keyframes pulse-wa { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,0.7); } 70% { box-shadow: 0 0 0 10px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+        /* --- البار السفلي للموبايل --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 75px;
+            background: var(--bg-card); display: flex; justify-content: space-around; align-items: center;
+            border-top-left-radius: 25px; border-top-right-radius: 25px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.2); z-index: 1000;
+        }
+        .nav-item {
+            color: var(--text-muted); text-decoration: none; display: flex; flex-direction: column;
+            align-items: center; font-size: 0.75rem; font-weight: 700; gap: 5px; transition: 0.3s; width: 20%;
+        }
+        .nav-item:hover, .nav-item.active { color: var(--accent-gold); }
+        .nav-item i { font-size: 1.3rem; }
+
+        .nav-center {
+            position: relative; top: -25px; width: 65px; height: 65px;
+            background: var(--bg-main); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 -5px 15px var(--accent-glow); border: 2.5px solid var(--accent-gold);
+        }
+        .nav-center::before, .nav-center::after {
+            content: ''; position: absolute; top: 28px; width: 20px; height: 20px; background: transparent; border-radius: 50%;
+        }
+        .nav-center::before { left: -21px; box-shadow: 10px -10px 0 var(--bg-card); }
+        .nav-center::after { right: -21px; box-shadow: -10px -10px 0 var(--bg-card); }
+        .nav-center i { font-size: 1.6rem; color: var(--accent-gold); }
+
+        @media (min-width: 1024px) { .bottom-nav { display: none; } body { padding-bottom: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="cyber-bg">
+        <div class="cyber-grid"></div>
+        <div class="glow-orb gold"></div>
+        <div class="glow-orb cyan"></div>
+    </div>
+
+    <header>
+        <div class="logo" id="logoText">إسلام الشيخ</div>
+        <div class="header-controls">
+            <button class="control-btn theme-btn" onclick="toggleTheme()" id="themeIcon">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            <button class="control-btn" onclick="toggleLanguage()">
+                <i class="fa-solid fa-globe"></i>
+                <span id="currentLang">English</span>
+            </button>
+        </div>
+    </header>
+
+    <a href="tel:0547194788" class="floating-action fab-call"><i class="fa-solid fa-phone"></i></a>
+    <a href="https://wa.me/966547194788" target="_blank" class="floating-action fab-wa"><i class="fa-brands fa-whatsapp"></i></a>
+
+    <section class="hero" id="home">
+        <div class="cyber-badge">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span id="cyberBadgeText">تم إنشاء اتصال آمن_</span>
+        </div>
+        
+        <h1 id="heroTitle">أنا المهندس <span>إسلام الشيخ</span></h1>
+        <p id="heroDesc">أُهندس لك التميز الرقمي. لا أكتفي بكتابة الأكواد، بل أصمم إمبراطوريات رقمية تتصدر المنافسة. أدمج بين دقة هندسة البرمجيات، قوة الأمن السيبراني، وذكاء التسويق الرقمي لأقدم حلولاً لا تُقهر. من المواقع السريعة إلى تطبيقات الجوال المستقرة والسيطرة التامة على خرائط جوجل.. أنت في المكان الصحيح للانطلاق.</p>
+    </section>
+
+    <section id="services">
+        <h2 class="section-title" id="servicesTitle">خدماتي الاحترافية</h2>
+        <div class="services-grid" id="servicesGrid">
+            </div>
+    </section>
+
+    <section id="contact">
+        <h2 class="section-title" id="contactTitle">ابدأ مشروعك الآن</h2>
+        <div class="contact-container">
+            <div class="input-group"><input type="text" id="formName" placeholder="الاسم الكريم"></div>
+            <div class="input-group"><input type="tel" id="formPhone" placeholder="رقم الجوال"></div>
+            <div class="input-group">
+                <select id="formService">
+                    <option value="" id="opt0">اختر الخدمة المطلوبة...</option>
+                    <option value="تصميم مواقع" id="opt1">تصميم وتطوير المواقع والمتاجر</option>
+                    <option value="تطبيقات جوال" id="opt2">تطبيقات الجوال</option>
+                    <option value="خرائط جوجل" id="opt3">إنشاء وتوثيق ملفات جوجل</option>
+                    <option value="أمن سيبراني" id="opt4">الأمن السيبراني والتأمين</option>
+                    <option value="أخرى" id="opt5">خدمات أخرى</option>
+                </select>
+            </div>
+            <div class="input-group"><textarea id="formDetails" rows="4" placeholder="تفاصيل المشروع..."></textarea></div>
+            <button class="submit-btn" onclick="sendToWhatsApp()" id="formBtn">إرسال الطلب عبر واتساب <i class="fa-brands fa-whatsapp"></i></button>
+        </div>
+    </section>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://www.facebook.com/remoesoo" target="_blank" class="social-btn"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com/remoesoo10" target="_blank" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+            <a href="https://x.com/remoesoo10" target="_blank" class="social-btn"><i class="fa-brands fa-x-twitter"></i></a>
+            <a href="https://www.threads.com/@remoesoo10" target="_blank" class="social-btn"><i class="fa-brands fa-threads"></i></a>
+            <a href="https://youtube.com/@remoesoo10" target="_blank" class="social-btn"><i class="fa-brands fa-youtube"></i></a>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.9rem;" id="footerText">جميع الحقوق محفوظة © المهندس إسلام الشيخ</p>
+    </footer>
+
+    <nav class="bottom-nav">
+        <a href="#about" class="nav-item"><i class="fa-solid fa-briefcase"></i><span id="navAbout">أعمالي</span></a>
+        <a href="#services" class="nav-item"><i class="fa-solid fa-laptop-code"></i><span id="navServices">خدماتي</span></a>
+        <a href="#home" class="nav-item nav-center active"><i class="fa-solid fa-house"></i></a>
+        <a href="https://blog.eslam-elshikh.com" class="nav-item"><i class="fa-solid fa-pen-nib"></i><span id="navBlog">مدونتي</span></a>
+        <a href="#contact" class="nav-item"><i class="fa-solid fa-envelope"></i><span id="navContact">تواصل</span></a>
+    </nav>
+
+    <script>
+        // --- إدارة الدارك/لايت مود ---
+        const themeIcon = document.getElementById('themeIcon');
+        const body = document.body;
+
+        function initTheme() {
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+            if (prefersLight) {
+                body.classList.add('light-mode');
+                themeIcon.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            } else {
+                themeIcon.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            }
+        }
+        function toggleTheme() {
+            body.classList.toggle('light-mode');
+            if(body.classList.contains('light-mode')) {
+                themeIcon.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            } else {
+                themeIcon.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            }
+        }
+        initTheme();
+
+        // --- محرك اللغات ---
+        const servicesData = {
+            ar: [
+                { icon: "fa-globe", title: "تطوير المواقع والمتاجر", desc: "نحول أفكارك إلى منصات رقمية تتصدر المنافسة. تصميم وتطوير مواقع ومتاجر بأحدث لغات البرمجة وأعلى معايير (UX/UI). نضمن سرعة تحميل فائقة، أمان تام، وتوافق 100% مع كافة الشاشات والـ SEO لمضاعفة مبيعاتك وترسيخ علامتك.", btn: "اطلب الخدمة" },
+                { icon: "fa-mobile-screen", title: "تطوير تطبيقات الجوال", desc: "برمجة تطبيقات Native و Cross-platform سريعة ومستقرة لأجهزة iOS و Android. نهتم بأدق تفاصيل الكود والواجهة لضمان تجربة مستخدم خالية من العيوب، لنجعل تطبيقك المفضل دائماً على هواتف عملائك.", btn: "اطلب الخدمة" },
+                { icon: "fa-map-location-dot", title: "ملفات وخرائط جوجل", desc: "الهيمنة على الخريطة تبدأ من هنا! نقوم بإنشاء، توثيق، وتحسين ملف نشاطك التجاري على جوجل. اجعل شركتك الخيار الأول للعملاء في منطقتك الجغرافية، واكتسب موثوقية عالية تزيد من الزيارات والاتصالات اليومية.", btn: "اطلب الخدمة" },
+                { icon: "fa-magnifying-glass-chart", title: "تحسين السيو المحلي", desc: "تصدر نتائج محركات البحث بكلمات مفتاحية دقيقة. نقوم بتحليل المنافسين، وبناء استراتيجية (Local SEO) هجومية تجعل نشاطك يظهر في الصفحة الأولى، مما يضمن لك تدفق مستمر للعملاء المهتمين بخدماتك.", btn: "اطلب الخدمة" },
+                { icon: "fa-bullhorn", title: "خدمات التسويق الرقمي", desc: "حملات إعلانية ذكية وموجهة بدقة على جوجل والسوشيال ميديا (PPC). ندير ميزانيتك التسويقية باحترافية لضمان أعلى عائد على الاستثمار (ROI)، وتحويل النقرات إلى عملاء حقيقيين وأرباح ملموسة.", btn: "اطلب الخدمة" },
+                { icon: "fa-share-nodes", title: "إدارة السوشيال ميديا", desc: "صناعة محتوى إبداعي وإدارة احترافية لحساباتك. نبني جسور التواصل بينك وبين جمهورك ونعزز الوعي بعلامتك التجارية من خلال تصاميم جذابة ورسائل تسويقية قوية تزيد من تفاعل وولاء العملاء.", btn: "اطلب الخدمة" },
+                { icon: "fa-server", title: "أنظمة وبرامج محاسبية", desc: "تصميم وتطوير أنظمة ERP وبرامج محاسبية داخلية مخصصة تناسب حجم ونوع عملك. أتمتة كاملة لعملياتك المالية والإدارية لضمان دقة التقارير، تقليل الأخطاء البشرية، وتسريع دورة العمل بفعالية مطلقة.", btn: "اطلب الخدمة" },
+                { icon: "fa-shield-halved", title: "الأمن السيبراني", desc: "حماية أصولك الرقمية ليست رفاهية. نقدم فحصاً شاملاً للثغرات، اختبار الاختراق، وتحصين الخوادم والمواقع ضد أعقد الهجمات السيبرانية. درعنا البرمجي يضمن سرية بياناتك واستقرار أعمالك على مدار الساعة.", btn: "اطلب الخدمة" }
+            ],
+            en: [
+                { icon: "fa-globe", title: "Web & E-Commerce Dev", desc: "Transforming ideas into leading digital platforms. High-speed, secure, and 100% responsive websites and stores with top-tier UX/UI and SEO standards to double your sales.", btn: "Order Now" },
+                { icon: "fa-mobile-screen", title: "Mobile Apps Dev", desc: "Building fast, stable Native and Cross-platform apps for iOS & Android. Flawless code and modern interfaces to ensure an outstanding user experience on every device.", btn: "Order Now" },
+                { icon: "fa-map-location-dot", title: "Google Maps & Business", desc: "Dominate local searches! We setup, verify, and optimize your Google Business Profile to make you the #1 choice in your area, driving daily traffic and calls.", btn: "Order Now" },
+                { icon: "fa-magnifying-glass-chart", title: "Local SEO Optimization", desc: "Rank on the first page of Google. We analyze competitors and build an aggressive Local SEO strategy targeting high-conversion keywords to bring you ready-to-buy clients.", btn: "Order Now" },
+                { icon: "fa-bullhorn", title: "Digital Marketing", desc: "Smart, targeted ad campaigns (PPC). We manage your marketing budget professionally to guarantee the highest ROI, turning clicks into real customers and profit.", btn: "Order Now" },
+                { icon: "fa-share-nodes", title: "Social Media Management", desc: "Creative content and professional account management. We build strong brand awareness and engaging communities through captivating designs and powerful marketing messages.", btn: "Order Now" },
+                { icon: "fa-server", title: "ERP & Accounting Sys", desc: "Custom ERP and internal accounting software tailored to your business. Full automation of financial operations to ensure accurate reporting and accelerate workflow.", btn: "Order Now" },
+                { icon: "fa-shield-halved", title: "Cybersecurity Services", desc: "Protecting your digital assets. We offer vulnerability assessments, penetration testing, and robust server hardening against complex cyber threats.", btn: "Order Now" }
+            ],
+            ur: [
+                { icon: "fa-globe", title: "ویب اور ای کامرس ڈیولپمنٹ", desc: "اپنے خیالات کو ڈیجیٹل پلیٹ فارمز میں بدلیں۔ تیز، محفوظ، اور 100% ریسپانسیو ویب سائٹس اور اسٹورز جو آپ کی فروخت کو دگنا کرنے کے لیے بہترین UX/UI اور SEO کے ساتھ بنائے گئے ہیں۔", btn: "ابھی آرڈر کریں" },
+                { icon: "fa-mobile-screen", title: "موبائل ایپس ڈیولپمنٹ", desc: "آئی او ایس اور اینڈرائیڈ کے لیے تیز اور مستحکم ایپس۔ بہترین کوڈنگ اور جدید انٹرفیس تاکہ ہر ڈیوائس پر صارفین کو بہترین تجربہ مل سکے۔", btn: "ابھی آرڈر کریں" },
+                { icon: "fa-map-location-dot", title: "گوگل میپس اور بزنس", desc: "مقامی تلاش میں غلبہ حاصل کریں! ہم آپ کے گوگل بزنس پروفائل کو بناتے اور تصدیق کرتے ہیں تاکہ آپ اپنے علاقے میں صارفین کی پہلی پسند بن سکیں۔", btn: "ابھی آرڈر کریں" },
+                { icon: "fa-magnifying-glass-chart", title: "لوکل SEO آپٹیمائزیشن", desc: "گوگل کے پہلے صفحے پر آئیں۔ ہم حریفوں کا تجزیہ کر کے ایک مضبوط لوکل SEO حکمت عملی بناتے ہیں تاکہ آپ کو روزانہ نئے گاہک مل سکیں۔", btn: "ابھی آرڈر کریں" },
+                { icon: "fa-bullhorn", title: "ڈیجیٹل مارکیٹنگ", desc: "اسمارٹ اشتہاری مہمات۔ ہم آپ کے مارکیٹنگ بجٹ کا پیشہ ورانہ انتظام کرتے ہیں تاکہ سب سے زیادہ منافع (ROI) یقینی بنایا جا سکے۔", btn: "ابھی آرڈر کریں" },
+                { icon: "fa-share-nodes", title: "سوشل میڈیا مینجمنٹ", desc: "تخلیقی مواد اور پیشہ ورانہ اکاؤنٹ مینجمنٹ۔ ہم دلکش ڈیزائن اور طاقتور پیغامات کے ذریعے آپ کے برانڈ کو مضبوط بناتے ہیں۔", btn: "ابھی آرڈر کریں" },
+                { icon: "fa-server", title: "اکاؤنٹنگ سسٹمز", desc: "آپ کے کاروبار کے لیے مخصوص ERP اور اکاؤنٹنگ سافٹ ویئر۔ مالیاتی کاموں کو خودکار بنائیں تاکہ وقت اور محنت کی بچت ہو۔", btn: "ابھی آرڈر کریں" },
+                { icon: "fa-shield-halved", title: "سائبر سیکیورٹی", desc: "اپنے ڈیجیٹل اثاثوں کی حفاظت کریں۔ ہم کمزوریوں کی جانچ اور سرورز کو پیچیدہ سائبر حملوں سے محفوظ رکھنے کی خدمات پیش کرتے ہیں۔", btn: "ابھی آرڈر کریں" }
+            ]
+        };
+
+        const translations = {
+            ar: {
+                dir: "rtl", nextLangName: "English", nextLangCode: "en",
+                logo: "إسلام الشيخ", cyberBadgeText: "تم إنشاء اتصال آمن_",
+                heroTitle: "أنا المهندس <span>إسلام الشيخ</span>",
+                heroDesc: "أُهندس لك التميز الرقمي. لا أكتفي بكتابة الأكواد، بل أصمم إمبراطوريات رقمية تتصدر المنافسة. أدمج بين دقة هندسة البرمجيات، قوة الأمن السيبراني، وذكاء التسويق الرقمي لأقدم حلولاً لا تُقهر. من المواقع السريعة إلى تطبيقات الجوال المستقرة والسيطرة التامة على خرائط جوجل.. أنت في المكان الصحيح للانطلاق.",
+                servicesTitle: "خدماتي الاحترافية", contactTitle: "ابدأ مشروعك الآن",
+                formName: "الاسم الكريم", formPhone: "رقم الجوال", formDetails: "تفاصيل المشروع...", formBtn: "إرسال الطلب عبر واتساب <i class='fa-brands fa-whatsapp'></i>",
+                navAbout: "أعمالي", navServices: "خدماتي", navBlog: "مدونتي", navContact: "تواصل", footerText: "جميع الحقوق محفوظة © المهندس إسلام الشيخ",
+                opts: ["اختر الخدمة المطلوبة...", "تصميم وتطوير المواقع والمتاجر", "تطبيقات الجوال", "إنشاء وتوثيق ملفات جوجل", "الأمن السيبراني والتأمين", "خدمات أخرى"]
+            },
+            en: {
+                dir: "ltr", nextLangName: "اردو", nextLangCode: "ur",
+                logo: "Eslam Elshikh", cyberBadgeText: "Secure Connection Established_",
+                heroTitle: "I am Engineer <span>Eslam Elshikh</span>",
+                heroDesc: "I engineer digital excellence. Integrating software precision, cybersecurity, and digital marketing intelligence to deliver unbeatable solutions. From blazing fast websites to local SEO dominance.. you are in the right place.",
+                servicesTitle: "Professional Services", contactTitle: "Start Your Project",
+                formName: "Full Name", formPhone: "Phone Number", formDetails: "Project Details...", formBtn: "Send via WhatsApp <i class='fa-brands fa-whatsapp'></i>",
+                navAbout: "Portfolio", navServices: "Services", navBlog: "Blog", navContact: "Contact", footerText: "All Rights Reserved © Eng. Eslam Elshikh",
+                opts: ["Select a service...", "Web & E-Commerce", "Mobile Apps", "Google Business Profile", "Cybersecurity", "Other Services"]
+            },
+            ur: {
+                dir: "rtl", nextLangName: "العربية", nextLangCode: "ar",
+                logo: "اسلام الشیخ", cyberBadgeText: "محفوظ کنکشن قائم ہو گیا_",
+                heroTitle: "میں انجینئر <span>اسلام الشیخ</span> ہوں",
+                heroDesc: "میں ڈیجیٹل کمال کی انجینئرنگ کرتا ہوں۔ سافٹ ویئر، سائبر سیکیورٹی اور مارکیٹنگ کو ملا کر بہترین حل پیش کرتا ہوں۔ تیز ترین ویب سائٹس سے لے کر گوگل میپس پر غلبہ تک، آپ صحیح جگہ پر ہیں۔",
+                servicesTitle: "پیشہ ورانہ خدمات", contactTitle: "اپنا پروجیکٹ شروع کریں",
+                formName: "پورا نام", formPhone: "فون نمبر", formDetails: "پروجیکٹ کی تفصیلات...", formBtn: "واٹس ایپ پر بھیجیں <i class='fa-brands fa-whatsapp'></i>",
+                navAbout: "پورٹ فولیو", navServices: "خدمات", navBlog: "بلاگ", navContact: "رابطہ", footerText: "جملہ حقوق محفوظ ہیں © انجینئر اسلام الشیخ",
+                opts: ["سروس منتخب کریں...", "ویب اور ای کامرس", "موبائل ایپس", "گوگل بزنس پروفائل", "سائبر سیکیورٹی", "دیگر خدمات"]
+            }
+        };
+
+        let currentLanguage = "ar";
+
+        function renderServices(lang) {
+            const grid = document.getElementById('servicesGrid');
+            grid.innerHTML = '';
+            servicesData[lang].forEach(srv => {
+                grid.innerHTML += `
+                    <div class="service-card">
+                        <div class="service-icon-wrapper"><i class="fa-solid ${srv.icon}"></i></div>
+                        <h3>${srv.title}</h3>
+                        <p>${srv.desc}</p>
+                        <a href="https://wa.me/966547194788?text=${encodeURIComponent('مرحباً مهندس إسلام، أريد الاستفسار عن خدمة: ' + srv.title)}" target="_blank" class="order-btn">${srv.btn} <i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                `;
+            });
+        }
+
+        function applyLanguage(lang) {
+            const data = translations[lang];
+            document.documentElement.lang = lang;
+            document.documentElement.dir = data.dir;
+
+            document.getElementById('currentLang').innerText = data.nextLangName;
+            document.getElementById('logoText').innerText = data.logo;
+            document.getElementById('cyberBadgeText').innerText = data.cyberBadgeText;
+            document.getElementById('heroTitle').innerHTML = data.heroTitle;
+            document.getElementById('heroDesc').innerText = data.heroDesc;
+            document.getElementById('servicesTitle').innerText = data.servicesTitle;
+            document.getElementById('contactTitle').innerText = data.contactTitle;
+            
+            document.getElementById('formName').placeholder = data.formName;
+            document.getElementById('formPhone').placeholder = data.formPhone;
+            document.getElementById('formDetails').placeholder = data.formDetails;
+            document.getElementById('formBtn').innerHTML = data.formBtn;
+            document.getElementById('footerText').innerText = data.footerText;
+
+            for(let i=0; i<=5; i++) { document.getElementById('opt'+i).innerText = data.opts[i]; }
+
+            document.getElementById('navAbout').innerText = data.navAbout;
+            document.getElementById('navServices').innerText = data.navServices;
+            document.getElementById('navBlog').innerText = data.navBlog;
+            document.getElementById('navContact').innerText = data.navContact;
+
+            renderServices(lang);
+        }
+
+        function toggleLanguage() {
+            currentLanguage = translations[currentLanguage].nextLangCode;
+            applyLanguage(currentLanguage);
+        }
+
+        window.onload = () => {
+            const userLang = navigator.language.slice(0, 2);
+            if(translations[userLang]) { currentLanguage = userLang; }
+            applyLanguage(currentLanguage);
+        };
+
+        // --- نظام إرسال الفورم للواتساب ---
+        function sendToWhatsApp() {
+            const name = document.getElementById('formName').value;
+            const phone = document.getElementById('formPhone').value;
+            const service = document.getElementById('formService');
+            const serviceText = service.options[service.selectedIndex].text;
+            const details = document.getElementById('formDetails').value;
+
+            if(!name || !phone) { alert("برجاء إدخال الاسم ورقم الجوال"); return; }
+
+            const msg = `مرحباً مهندس إسلام،\n\nالاسم: ${name}\nرقم التواصل: ${phone}\nالخدمة المطلوبة: ${serviceText}\nالتفاصيل: ${details}`;
+            const url = `https://wa.me/966547194788?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
