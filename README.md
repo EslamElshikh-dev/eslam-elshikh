@@ -6,7 +6,6 @@
   <a href="https://blog.eslam-elshikh.com"><img src="https://img.shields.io/badge/Blog-Tech_Articles-0B0F19?style=for-the-badge&logo=hashnode&logoColor=white" alt="Blog"></a>
 </p>
 
----
 
 ### 👨‍💻 نبذة عني (About Me)
 أُهندس لك التميز الرقمي. لا أكتفي بكتابة الأكواد، بل أصمم إمبراطوريات رقمية تتصدر المنافسة. أدمج بين دقة هندسة البرمجيات، قوة الأمن السيبراني، وذكاء التسويق الرقمي لأقدم حلولاً لا تُقهر.
