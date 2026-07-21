@@ -6,7 +6,8 @@ const paths = [
   "/", "/services/", "/services/cybersecurity/", "/services/ai-agents/",
   "/about/", "/google-expert/", "/projects/", "/blog/",
   "/blog/secure-website-development/", "/contact/", "/sitemap.xml",
-  "/robots.txt", "/assets/css/main.css", "/assets/js/main.js"
+  "/robots.txt", "/llms.txt", "/llms-full.txt", "/profile.json", "/feed.xml",
+  "/assets/css/main.css", "/assets/js/main.js", "/assets/brand/eslam-elshikh-mark.svg"
 ];
 
 const waitForServer = async () => {

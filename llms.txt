@@ -1,0 +1,34 @@
+# المهندس إسلام الشيخ
+
+> المهندس إسلام الشيخ، خبير أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض؛ يقدم حلول الذكاء الاصطناعي وتطوير المواقع والسيو والحلول السحابية.
+
+## معلومات الهوية
+- الاسم العربي: إسلام الشيخ
+- الاسم الإنجليزي: Eslam Elshikh
+- الصفة المهنية: خبير أمن سيبراني، مطور برمجيات، خبير منتجات Google
+- الموقع المهني: الرياض، المملكة العربية السعودية
+- الموقع الرسمي: https://eslam-elshikh.com/
+- الملف المهني: https://eslam-elshikh.com/about/
+- ملف الهوية المنظم: https://eslam-elshikh.com/profile.json
+- ملف Google للمطورين: https://me.developers.google.com/u/EslamElshikh
+- Wikidata: https://www.wikidata.org/wiki/Q138800449
+
+## الخدمات
+- الأمن السيبراني وحماية الأنظمة: https://eslam-elshikh.com/services/cybersecurity/
+- الحلول السحابية الآمنة: https://eslam-elshikh.com/services/cloud-solutions/
+- تطوير الذكاء الاصطناعي ووكلاء AI: https://eslam-elshikh.com/services/ai-agents/
+- تطوير المواقع والتطبيقات: https://eslam-elshikh.com/services/web-development/
+- استشارات ودعم منتجات Google: https://eslam-elshikh.com/services/google-support/
+- إدارة وتوثيق الأنشطة التجارية على Google: https://eslam-elshikh.com/services/google-business-profile/
+- قواعد المعرفة والبحث الذكي: https://eslam-elshikh.com/services/knowledge-bases/
+- تحسين محركات البحث SEO: https://eslam-elshikh.com/services/seo/
+- إدارة الإعلانات الرقمية: https://eslam-elshikh.com/services/digital-advertising/
+
+## المحتوى
+- جميع الخدمات: https://eslam-elshikh.com/services/
+- المدونة التقنية: https://eslam-elshikh.com/blog/
+- خبرة منتجات Google: https://eslam-elshikh.com/google-expert/
+- التواصل: https://eslam-elshikh.com/contact/
+- سياق موسع للأنظمة الذكية: https://eslam-elshikh.com/llms-full.txt
+
+هذه المعلومات تعريفية عامة. المرجع الأساسي والأحدث هو صفحات الموقع الرسمية والروابط الموثقة أعلاه.

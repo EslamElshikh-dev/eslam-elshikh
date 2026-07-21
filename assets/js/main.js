@@ -2,6 +2,24 @@
   const header = document.querySelector("[data-header]");
   const menuButton = document.querySelector("[data-menu-toggle]");
   const mobileMenu = document.querySelector("[data-mobile-menu]");
+  const themeButton = document.querySelector("[data-theme-toggle]");
+  const themeColor = document.querySelector("[data-theme-color]");
+
+  const applyTheme = (theme, persist = false) => {
+    const normalized = theme === "light" ? "light" : "dark";
+    document.documentElement.dataset.theme = normalized;
+    themeColor?.setAttribute("content", normalized === "light" ? "#f4f8fb" : "#07111b");
+    themeButton?.setAttribute("aria-pressed", String(normalized === "light"));
+    themeButton?.setAttribute("aria-label", normalized === "light" ? "تفعيل الوضع الداكن" : "تفعيل الوضع الفاتح");
+    if (persist) {
+      try { localStorage.setItem("es-theme", normalized); } catch {}
+    }
+  };
+
+  applyTheme(document.documentElement.dataset.theme || "dark");
+  themeButton?.addEventListener("click", () => {
+    applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light", true);
+  });
 
   const updateHeader = () => header?.classList.toggle("is-scrolled", window.scrollY > 16);
   updateHeader();
@@ -26,6 +44,10 @@
     if (event.key === "Escape") closeMenu();
   });
 
+  document.querySelectorAll(".services-grid, .projects-grid, .posts-grid, .values-grid, .google-stats").forEach((group) => {
+    [...group.children].forEach((element, index) => element.style.setProperty("--reveal-delay", `${Math.min(index, 6) * 55}ms`));
+  });
+
   const reveals = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     const observer = new IntersectionObserver((entries) => {
@@ -45,8 +67,8 @@
   const applyFilter = (group) => {
     filterButtons.forEach((button) => button.setAttribute("aria-selected", String(button.dataset.serviceFilter === group)));
     serviceCards.forEach((card) => {
-      const cardGroup = card.querySelector(".service-group")?.textContent?.trim();
-      card.hidden = cardGroup !== group;
+      const cardGroup = card.dataset.serviceGroup;
+      card.hidden = group !== "all" && cardGroup !== group;
     });
   };
   if (filterButtons.length && serviceCards.length) {
@@ -95,7 +117,7 @@
         "تفاصيل الهدف:",
         goal
       ].join("\n");
-      const url = `https://wa.me/966547194788?text=${encodeURIComponent(message)}`;
+      const url = `https://wa.me/966579395299?text=${encodeURIComponent(message)}`;
       const opened = window.open(url, "_blank", "noopener,noreferrer");
       const status = form.querySelector(".form-status");
       if (status) status.textContent = opened ? "تم تجهيز الرسالة. راجعها في WhatsApp قبل الإرسال." : "تعذر فتح نافذة جديدة. استخدم زر WhatsApp المباشر.";
