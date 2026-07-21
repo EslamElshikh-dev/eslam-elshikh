@@ -1,233 +1,122 @@
-<!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<!doctype html>
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إسلام الشيخ | Eslam Elshikh</title>
-    
-    <!-- خطوط جوجل (Tajawal) -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <!-- مكتبة الأيقونات FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- مكتبة Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { 
-                        darkBg: "#0a0f16", 
-                        panelBg: "#131a23",
-                        primaryCyan: "#38bdf8", 
-                        neonGreen: "#5bf4cc", 
-                        textGray: "#94a3b8" 
-                    },
-                    fontFamily: { sans: ['Tajawal', 'sans-serif'] },
-                }
-            }
-        }
-    </script>
-    <style>
-        body { background-color: #0a0f16; }
-        
-        /* تأثير الزجاج والخلفيات */
-        .glass-header {
-            background: rgba(19, 26, 35, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        
-        .glass-panel {
-            background: linear-gradient(145deg, #161e29 0%, #0d131b 100%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        /* الشبكة الإلكترونية (Grid) تحت الدرع */
-        .cyber-grid {
-            position: absolute;
-            width: 150%;
-            height: 150%;
-            top: -25%;
-            left: -25%;
-            background-image: 
-                linear-gradient(rgba(56, 189, 248, 0.2) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(56, 189, 248, 0.2) 1px, transparent 1px);
-            background-size: 30px 30px;
-            transform: rotateX(60deg) rotateZ(-45deg);
-            transform-origin: center center;
-            opacity: 0.5;
-            mask-image: radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%);
-            -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%);
-        }
-
-        /* تأثير التوهج */
-        .glow-text { text-shadow: 0 0 20px rgba(91, 244, 204, 0.6); }
-        .glow-box { box-shadow: 0 0 25px rgba(91, 244, 204, 0.4); }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>إسلام الشيخ | أمن سيبراني وتطوير برمجيات وخدمات Google</title>
+  <meta name="description" content="إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض. حلول للأمن السيبراني والذكاء الاصطناعي وتطوير المواقع وSEO وخدمات Google.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#08131f">
+  <link rel="canonical" href="https://eslam-elshikh.com/">
+  <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta property="og:locale" content="ar_SA">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="إسلام الشيخ | Eslam Elshikh">
+  <meta property="og:title" content="إسلام الشيخ | أمن سيبراني وتطوير برمجيات وخدمات Google">
+  <meta property="og:description" content="إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض. حلول للأمن السيبراني والذكاء الاصطناعي وتطوير المواقع وSEO وخدمات Google.">
+  <meta property="og:url" content="https://eslam-elshikh.com/">
+  <meta property="og:image" content="https://eslam-elshikh.com/assets/og/eslam-elshikh-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="إسلام الشيخ | أمن سيبراني وتطوير برمجيات وخدمات Google">
+  <meta name="twitter:description" content="إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض. حلول للأمن السيبراني والذكاء الاصطناعي وتطوير المواقع وSEO وخدمات Google.">
+  <meta name="twitter:image" content="https://eslam-elshikh.com/assets/og/eslam-elshikh-og.png">
+  <link rel="stylesheet" href="/assets/css/main.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","@id":"https://eslam-elshikh.com/#person","name":"إسلام الشيخ","alternateName":["Eslam Elshikh","Islam Elshikh","Eslam El Sheikh"],"url":"https://eslam-elshikh.com","image":"https://eslam-elshikh.com/assets/og/eslam-elshikh-og.png","jobTitle":["مهندس أمن سيبراني","مطور برمجيات","خبير منتجات Google"],"description":"إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض. حلول للأمن السيبراني والذكاء الاصطناعي وتطوير المواقع وSEO وخدمات Google.","email":"mailto:info@eslam-elshikh.com","telephone":"+966547194788","workLocation":{"@type":"Place","name":"الرياض"},"knowsAbout":["Cybersecurity","Software Development","Artificial Intelligence Agents","Google Business Profile","Search Engine Optimization","Cloud Solutions"],"sameAs":["https://github.com/EslamElshikh-dev","https://www.linkedin.com/in/eslam-elshikh","https://facebook.com/remesoo","https://x.com/remoesoo10","https://www.instagram.com/remoesoo10","https://www.threads.net/@remoesoo10","https://www.youtube.com/@remoesoo10","https://www.tiktok.com/@remoesoo","https://www.wikidata.org/wiki/Q138800449","https://me.developers.google.com/u/EslamElshikh","https://blog.eslam-elshikh.com"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","@id":"https://eslam-elshikh.com/#website","url":"https://eslam-elshikh.com","name":"إسلام الشيخ | Eslam Elshikh","inLanguage":"ar-SA","publisher":{"@id":"https://eslam-elshikh.com/#person"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"ما نوع المشروعات التي تعمل عليها؟","acceptedAnswer":{"@type":"Answer","text":"أعمل مع الشركات وأصحاب الأعمال على مشروعات الأمن السيبراني، تطوير المواقع والتطبيقات، وكلاء الذكاء الاصطناعي، حلول Google والسيو والإعلانات، مع تحديد نطاق مناسب لكل مشروع."}},{"@type":"Question","name":"هل يمكن جمع أكثر من خدمة في مشروع واحد؟","acceptedAnswer":{"@type":"Answer","text":"نعم، وهذه إحدى نقاط القوة الرئيسية. يمكن مثلًا بناء موقع آمن، ثم تهيئته للسيو وربطه بملف Google ونظام قياس وحملة تسويق ضمن خطة مترابطة."}},{"@type":"Question","name":"كيف تبدأ الاستشارة؟","acceptedAnswer":{"@type":"Answer","text":"ترسل وصفًا مختصرًا للهدف والوضع الحالي والموعد المتوقع. بعد ذلك نحدد مكالمة أو محادثة تشخيصية، ثم نطاق العمل والمخرجات والخطوات."}},{"@type":"Question","name":"هل تقدم خدماتك داخل الرياض فقط؟","acceptedAnswer":{"@type":"Answer","text":"أعمل من الرياض وأقدم معظم الخدمات التقنية عن بُعد داخل السعودية وخارجها، بينما تختلف متطلبات الزيارات الميدانية حسب نوع المشروع."}}]}</script>
 </head>
-<body class="text-white font-sans overflow-x-hidden relative">
-
-    <!-- إضاءة خلفية عامة -->
-    <div class="fixed top-1/3 left-0 w-96 h-96 bg-primaryCyan/10 rounded-full blur-[150px] pointer-events-none z-0"></div>
-    <div class="fixed bottom-0 right-0 w-96 h-96 bg-neonGreen/5 rounded-full blur-[150px] pointer-events-none z-0"></div>
-
-    <!-- 1. شريط التنقل العلوي (Header) -->
-    <header class="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl glass-header rounded-2xl px-6 py-4 flex items-center justify-between z-50">
-        <!-- Logo -->
-        <div class="flex flex-col text-left">
-            <span class="text-xl font-bold leading-tight" dir="rtl">إسلام الشيخ</span>
-            <span class="text-xs text-textGray tracking-wider font-semibold">Eslam Elshikh</span>
-        </div>
-
-        <!-- Links -->
-        <nav class="hidden lg:flex gap-8 text-sm font-semibold text-textGray">
-            <a href="#" class="hover:text-white transition-colors">Services</a>
-            <a href="#" class="hover:text-white transition-colors">Projects</a>
-            <a href="#" class="hover:text-white transition-colors">About</a>
-            <a href="#" class="hover:text-white transition-colors">Google Expert</a>
-            <a href="#" class="hover:text-white transition-colors">Blog</a>
-            <a href="#" class="hover:text-white transition-colors">Contact</a>
-        </nav>
-
-        <!-- CTA Button -->
-        <a href="https://wa.me/966547194788" target="_blank" class="bg-neonGreen text-black px-6 py-2 rounded-lg font-bold text-sm glow-box hover:scale-105 transition-transform" dir="rtl">
-            احجز استشارتك التقنية مجاناً
+<body>
+<a class="skip-link" href="#main">انتقل إلى المحتوى</a>
+    <header class="site-header" data-header>
+      <div class="container header-inner">
+        <a class="brand" href="/" aria-label="إسلام الشيخ — الصفحة الرئيسية">
+          <span class="brand-mark" aria-hidden="true"><span>ES</span></span>
+          <span><strong>إسلام الشيخ</strong><small>Eslam Elshikh</small></span>
         </a>
+        <nav class="desktop-nav" aria-label="التنقل الرئيسي"><a href="/" aria-current="page" class="is-active">الرئيسية</a><a href="/services/">الخدمات</a><a href="/projects/">الأعمال</a><a href="/about/">عن إسلام</a><a href="/google-expert/">خبرة Google</a><a href="/blog/">المدونة</a></nav>
+        <a class="button button-small header-cta" href="/contact/">ابدأ مشروعك <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a>
+        <button class="menu-toggle" type="button" aria-label="فتح القائمة" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
+          <span class="menu-open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><span class="menu-close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m6 6 12 12M18 6 6 18"/></svg></span>
+        </button>
+      </div>
+      <nav class="mobile-menu" id="mobile-menu" aria-label="قائمة الجوال" data-mobile-menu><a href="/" aria-current="page" class="is-active">الرئيسية</a><a href="/services/">الخدمات</a><a href="/projects/">الأعمال</a><a href="/about/">عن إسلام</a><a href="/google-expert/">خبرة Google</a><a href="/blog/">المدونة</a><a class="button" href="/contact/">ابدأ مشروعك</a></nav>
     </header>
-
-    <!-- 2. القسم الرئيسي (Hero Section) -->
-    <section class="relative min-h-screen pt-40 pb-20 max-w-6xl mx-auto px-6 flex flex-col lg:flex-row items-center justify-between z-10">
-        
-        <!-- الجزء النصي (يسار الشاشة، محاذاة النص يمين) -->
-        <div class="w-full lg:w-1/2 flex flex-col items-end text-right mt-10 lg:mt-0" dir="rtl">
-            <h1 class="text-4xl md:text-5xl lg:text-[2.75rem] font-bold leading-tight mb-4">
-                أهندس لك التميز الرقمي ك<span class="text-textGray">...</span>
-            </h1>
-            <h2 class="text-xl md:text-2xl font-bold text-primaryCyan mb-10 leading-relaxed">
-                | مهندس أمن سيبراني | مهندس برمجيات | مطور ويب | خبير جوجل
-            </h2>
-            <a href="#services" class="bg-neonGreen text-black px-8 py-3 rounded-lg font-bold text-lg glow-box hover:scale-105 transition-transform">
-                استكشف الخدمات الآمنة
-            </a>
+  <main id="main">
+      <section class="hero section-pad">
+        <div class="hero-grid container">
+          <div class="hero-copy reveal">
+            <span class="eyebrow"><span></span>مهندس أمن سيبراني · مطور برمجيات · خبير منتجات Google</span>
+            <h1>أهندس حلولًا رقمية <span>آمنة وذكية</span> تنمو مع أعمالك</h1>
+            <p class="hero-lead">أنا إسلام الشيخ. أجمع الأمن السيبراني والبرمجة والذكاء الاصطناعي وخبرة Google والسيو لبناء أنظمة وتجارب رقمية متماسكة من الاستراتيجية إلى الإطلاق.</p>
+            <div class="hero-actions"><a class="button" href="/contact/">ناقش مشروعك <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a><a class="button button-ghost" href="/services/">استكشف الخدمات</a></div>
+            <div class="hero-proof"><a href="https://me.developers.google.com/u/EslamElshikh" target="_blank" rel="noopener"><span class="proof-dot proof-google"></span>ملف Google للمطورين</a><a href="https://www.wikidata.org/wiki/Q138800449" target="_blank" rel="noopener"><span class="proof-dot"></span>Wikidata Q138800449</a></div>
+          </div>
+          <div class="hero-visual reveal" aria-label="تصور يجمع الأمن السيبراني والبرمجة والذكاء الاصطناعي">
+            <div class="visual-grid" aria-hidden="true"></div>
+            <div class="orbit orbit-one"><span>AI</span><span>SEO</span><span>Cloud</span></div>
+            <div class="orbit orbit-two"><span>Secure</span><span>Google</span></div>
+            <div class="core-mark"><div class="core-shield"><svg class="core-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.7 2.8 8.1 7 10 4.2-1.9 7-5.3 7-10V6l-7-3Z"/><path d="m9.4 12 1.7 1.7 3.8-4"/></svg><strong>ES</strong></div><p>Secure Digital<br>Engineering</p></div>
+          </div>
         </div>
-
-        <!-- الجزء البصري للدرع (يمين الشاشة) -->
-        <div class="w-full lg:w-1/2 h-[400px] md:h-[500px] relative flex justify-center items-center perspective-1000 mt-16 lg:mt-0">
-            <!-- القاعدة (الشبكة) -->
-            <div class="absolute inset-0 flex justify-center items-center" style="perspective: 800px;">
-                <div class="cyber-grid"></div>
-            </div>
-            
-            <!-- إضاءة خلف الدرع -->
-            <div class="absolute bg-primaryCyan/30 w-64 h-64 rounded-full blur-[80px]"></div>
-
-            <!-- الدرع السيبراني (SVG يحاكي الـ 3D) -->
-            <svg viewBox="0 0 24 24" fill="none" class="w-64 h-64 relative z-10 drop-shadow-[0_0_25px_rgba(56,189,248,0.6)]">
-                <!-- هيكل الدرع الخارجي -->
-                <path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z" fill="rgba(19,26,35,0.9)" stroke="#38bdf8" stroke-width="0.5"/>
-                <!-- التوهج الداخلي -->
-                <path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z" fill="url(#shield-gradient)" stroke="#5bf4cc" stroke-width="1"/>
-                <!-- خط التقسيم ثلاثي الأبعاد -->
-                <path d="M12 2v20" stroke="#38bdf8" stroke-width="0.5" opacity="0.5"/>
-                <!-- علامة الحماية -->
-                <path d="M9 12l2 2 4-4" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-[0_0_10px_#ffffff]"/>
-                <defs>
-                    <linearGradient id="shield-gradient" x1="0" y1="0" x2="24" y2="24">
-                        <stop offset="0%" stop-color="rgba(56, 189, 248, 0.4)" />
-                        <stop offset="100%" stop-color="rgba(91, 244, 204, 0.1)" />
-                    </linearGradient>
-                </defs>
-            </svg>
-            
-            <!-- منصة الدرع المربعة (Base) -->
-            <div class="absolute bottom-16 w-48 h-48 border border-primaryCyan/40 bg-panelBg/50 backdrop-blur-sm shadow-[0_0_30px_rgba(56,189,248,0.2)] transform rotate-x-[60deg] rotate-z-[-45deg] rounded-lg"></div>
+        <div class="container stats-bar reveal">
+          <div><strong>472</strong><span>مساهمة في توثيق ملفات Google</span></div>
+          <div><strong>233</strong><span>مشكلة ملف تجاري تمت معالجتها</span></div>
+          <div><strong>9</strong><span>مسارات خدمة مترابطة</span></div>
+          <div><strong>360°</strong><span>رؤية أمنية وتقنية وتسويقية</span></div>
         </div>
-    </section>
-
-    <!-- 3. شريط الشركات (Trust Banner) -->
-    <section class="max-w-6xl mx-auto px-6 mb-20 relative z-10">
-        <div class="glass-panel rounded-2xl p-6 flex flex-col md:flex-row items-center gap-8">
-            <!-- موثق من جوجل (يسار البانر) -->
-            <div class="flex flex-col items-center md:items-end md:w-1/4 border-b md:border-b-0 md:border-r border-white/10 pb-4 md:pb-0 md:pr-8" dir="rtl">
-                <span class="text-white font-bold text-xl mb-1">موثق من جوجل</span>
-                <span class="text-textGray text-sm tracking-wide">Google Product Expert</span>
-            </div>
-            
-            <!-- اللوجوهات (يمين البانر) -->
-            <div class="w-full md:w-3/4 flex flex-wrap justify-center md:justify-start items-center gap-8 opacity-80 pl-4">
-                <i class="fa-brands fa-google text-3xl"></i>
-                <div class="flex items-center gap-2"><i class="fa-brands fa-github text-3xl"></i><span class="font-bold text-xl">GitHub</span></div>
-                <i class="fa-brands fa-amazon text-4xl mt-1"></i>
-                <!-- Shopify Icon -->
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-white text-black rounded flex items-center justify-center font-bold text-xl"><i class="fa-brands fa-shopify"></i></div>
-                    <span class="font-bold">Shopify</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-mountain-sun text-2xl"></i>
-                    <span class="font-bold">PreviousClient</span>
-                </div>
-            </div>
+      </section>
+      <section class="section-pad services-section" id="services">
+        <div class="container">
+          <div class="section-head reveal"><span class="eyebrow"><span></span>الخدمات</span><h2>خبرة متعددة التخصصات حول هدف واحد</h2><p>بدل التعامل مع الأمن والتطوير والتسويق كجزر منفصلة، تُبنى الحلول ضمن رحلة رقمية واحدة قابلة للقياس والتوسع.</p></div>
+          <div class="service-filters" role="tablist" aria-label="تصنيفات الخدمات"><button type="button" role="tab" aria-selected="true" data-service-filter="الأمن والحلول المتقدمة">الأمن والحلول المتقدمة</button><button type="button" role="tab" aria-selected="false" data-service-filter="البرمجة والذكاء الاصطناعي">البرمجة والذكاء الاصطناعي</button><button type="button" role="tab" aria-selected="false" data-service-filter="خدمات Google">خدمات Google</button><button type="button" role="tab" aria-selected="false" data-service-filter="التسويق والبحث الذكي">التسويق والبحث الذكي</button></div>
+          <div class="services-grid" data-services-grid><article class="service-card reveal"><div class="service-card-top"><span class="service-number">01</span><span class="service-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.7 2.8 8.1 7 10 4.2-1.9 7-5.3 7-10V6l-7-3Z"/><path d="m9.4 12 1.7 1.7 3.8-4"/></svg></span></div><p class="service-group">الأمن والحلول المتقدمة</p><h3><a href="/services/cybersecurity/">الأمن السيبراني وحماية الأنظمة</a></h3><p>فحص المخاطر والثغرات وتقوية الأنظمة والبنية الرقمية ضمن نطاق عمل مصرح وواضح.</p><a class="text-link" href="/services/cybersecurity/">تفاصيل الخدمة <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></article><article class="service-card reveal"><div class="service-card-top"><span class="service-number">02</span><span class="service-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 18h9.7a3.8 3.8 0 0 0 .5-7.6 6 6 0 0 0-11.5-1.7A4.7 4.7 0 0 0 7.5 18Z"/><path d="M12 11v5m-2-2 2 2 2-2"/></svg></span></div><p class="service-group">الأمن والحلول المتقدمة</p><h3><a href="/services/cloud-solutions/">الحلول السحابية الآمنة</a></h3><p>تصميم وتهيئة بيئات سحابية مستقرة وقابلة للتوسع مع ضبط الصلاحيات والنسخ الاحتياطي.</p><a class="text-link" href="/services/cloud-solutions/">تفاصيل الخدمة <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></article><article class="service-card reveal"><div class="service-card-top"><span class="service-number">03</span><span class="service-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 .9 3.1A4.2 4.2 0 0 0 15.8 9l3.2 1-3.2 1a4.2 4.2 0 0 0-2.9 2.9L12 17l-.9-3.1A4.2 4.2 0 0 0 8.2 11L5 10l3.2-1a4.2 4.2 0 0 0 2.9-2.9L12 3Z"/><path d="m18.5 15 .4 1.2a2 2 0 0 0 1.3 1.3l1.3.5-1.3.4a2 2 0 0 0-1.3 1.3l-.4 1.3-.5-1.3a2 2 0 0 0-1.3-1.3l-1.2-.4 1.2-.5a2 2 0 0 0 1.3-1.3l.5-1.2Z"/></svg></span></div><p class="service-group">البرمجة والذكاء الاصطناعي</p><h3><a href="/services/ai-agents/">تطوير الذكاء الاصطناعي ووكلاء AI</a></h3><p>بناء مساعدين ووكلاء ذكاء اصطناعي مرتبطين ببيانات العمل وأدواته مع ضوابط دقيقة.</p><a class="text-link" href="/services/ai-agents/">تفاصيل الخدمة <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></article><article class="service-card reveal"><div class="service-card-top"><span class="service-number">04</span><span class="service-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m8.5 8-4 4 4 4M15.5 8l4 4-4 4M14 5l-4 14"/></svg></span></div><p class="service-group">البرمجة والذكاء الاصطناعي</p><h3><a href="/services/web-development/">تطوير المواقع والتطبيقات</a></h3><p>مواقع وتطبيقات سريعة وآمنة ومتجاوبة تضع تجربة المستخدم والنتائج التجارية في المقدمة.</p><a class="text-link" href="/services/web-development/">تفاصيل الخدمة <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></article><article class="service-card reveal"><div class="service-card-top"><span class="service-number">05</span><span class="service-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.2c0-.7-.1-1.4-.2-2.1H12v4h4.5a3.9 3.9 0 0 1-1.7 2.5v2.6h2.8c1.7-1.6 2.4-3.9 2.4-7Z"/><path d="M12 20.3c2.4 0 4.4-.8 5.9-2.1l-3-2.4c-.8.6-1.8.9-2.9.9a5.2 5.2 0 0 1-4.9-3.6H4v2.7a8.9 8.9 0 0 0 8 4.5Z"/><path d="M7.1 13.1a5.4 5.4 0 0 1 0-3.3V7.1H4a8.8 8.8 0 0 0 0 8.7l3.1-2.7Z"/><path d="M12 6.3c1.3 0 2.5.5 3.4 1.4L18 5.1A8.7 8.7 0 0 0 4 7.1l3.1 2.7A5.2 5.2 0 0 1 12 6.3Z"/></svg></span></div><p class="service-group">خدمات Google</p><h3><a href="/services/google-support/">استشارات ودعم منتجات Google</a></h3><p>تشخيص مشكلات منتجات Google وتوجيه المستخدم نحو المسار الرسمي والحل القابل للتنفيذ.</p><a class="text-link" href="/services/google-support/">تفاصيل الخدمة <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></article><article class="service-card reveal"><div class="service-card-top"><span class="service-number">06</span><span class="service-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span></div><p class="service-group">خدمات Google</p><h3><a href="/services/google-business-profile/">إدارة وتوثيق الأنشطة التجارية على Google</a></h3><p>إنشاء وتحسين ملفات الأنشطة التجارية وحل مشكلات التحقق والتعليق والظهور وفق الإرشادات.</p><a class="text-link" href="/services/google-business-profile/">تفاصيل الخدمة <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></article><article class="service-card reveal"><div class="service-card-top"><span class="service-number">07</span><span class="service-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="7" r="2.5"/><circle cx="18" cy="7" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="m8.1 8.4 2.5 7.2m5.3-7.2-2.5 7.2M8.5 7h7"/></svg></span></div><p class="service-group">التسويق والبحث الذكي</p><h3><a href="/services/knowledge-bases/">قواعد المعرفة والبحث الذكي</a></h3><p>تنظيم المحتوى والكيانات والبيانات لتسهيل الاسترجاع والبحث الدلالي وتجارب الذكاء الاصطناعي.</p><a class="text-link" href="/services/knowledge-bases/">تفاصيل الخدمة <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></article><article class="service-card reveal"><div class="service-card-top"><span class="service-number">08</span><span class="service-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/><path d="m4 8 5-4 6 5 5-4"/></svg></span></div><p class="service-group">التسويق والبحث الذكي</p><h3><a href="/services/seo/">تحسين محركات البحث SEO</a></h3><p>استراتيجية سيو تقنية ومحتوى مبنية على نية البحث والكيانات وتجربة المستخدم لا على الحشو.</p><a class="text-link" href="/services/seo/">تفاصيل الخدمة <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></article><article class="service-card reveal"><div class="service-card-top"><span class="service-number">09</span><span class="service-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-2a2 2 0 0 1 2-2h3l8-4v14l-8-4H6a2 2 0 0 1-2-2Z"/><path d="m9 15 1 5H7l-1-5m14-6a4 4 0 0 1 0 6"/></svg></span></div><p class="service-group">التسويق والبحث الذكي</p><h3><a href="/services/digital-advertising/">إدارة الإعلانات الرقمية</a></h3><p>حملات Google والسوشيال مبنية على هدف واضح وقياس التحويل وجودة صفحة الهبوط.</p><a class="text-link" href="/services/digital-advertising/">تفاصيل الخدمة <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></article></div>
+          <div class="section-action"><a class="button button-ghost" href="/services/">عرض جميع الخدمات <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></div>
         </div>
-    </section>
-
-    <!-- 4. قسم الخدمات (Services) -->
-    <section id="services" class="max-w-6xl mx-auto px-6 pb-32 relative z-10">
-        <h2 class="text-3xl font-bold text-center mb-10">Services</h2>
-        
-        <div class="flex flex-col md:flex-row gap-6">
-            <!-- كارت 1: الأمن السيبراني -->
-            <div class="flex-1 glass-panel rounded-2xl p-6 flex items-center justify-between hover:border-primaryCyan/50 transition-colors cursor-pointer">
-                <!-- الأيقونة (يسار) -->
-                <div class="w-16 h-16 bg-primaryCyan/10 rounded-2xl flex items-center justify-center text-neonGreen text-2xl border border-primaryCyan/20 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <!-- النصوص (يمين) -->
-                <div class="text-right" dir="rtl">
-                    <h3 class="text-2xl font-bold mb-2">1. الأمن السيبراني</h3>
-                    <p class="text-textGray text-sm">حماية شاملة لأعمالك وبياناتك</p>
-                </div>
-            </div>
-
-            <!-- كارت 2: تطوير برمجيات -->
-            <div class="flex-1 glass-panel rounded-2xl p-6 flex items-center justify-between hover:border-primaryCyan/50 transition-colors cursor-pointer">
-                <!-- الأيقونة (يسار) -->
-                <div class="w-16 h-16 bg-primaryCyan/10 rounded-2xl flex items-center justify-center text-neonGreen text-2xl border border-primaryCyan/20 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-                    <i class="fa-solid fa-code"></i>
-                </div>
-                <!-- النصوص (يمين) -->
-                <div class="text-right" dir="rtl">
-                    <h3 class="text-2xl font-bold mb-2">2. تطوير برمجيات آمنة</h3>
-                    <p class="text-textGray text-sm">حلول برمجية متكاملة تتصدّر محركات البحث</p>
-                </div>
-            </div>
+      </section>
+      <section class="section-pad approach-section">
+        <div class="container approach-grid">
+          <div class="approach-copy reveal"><span class="eyebrow"><span></span>لماذا هذا النهج؟</span><h2>المشروع القوي لا يكتفي بواجهة جميلة</h2><p>يجب أن يكون مفهومًا للمستخدم، آمنًا في التشغيل، قابلًا للفهرسة، ومهيأً للتحسين بعد الإطلاق. لذلك أتعامل مع كل طبقة بوصفها جزءًا من المنتج نفسه.</p><a class="text-link" href="/about/">تعرف على منهجية العمل <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></div>
+          <div class="pillars">
+            <article class="pillar reveal"><span>01</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.7 2.8 8.1 7 10 4.2-1.9 7-5.3 7-10V6l-7-3Z"/><path d="m9.4 12 1.7 1.7 3.8-4"/></svg><h3>Secure by design</h3><p>الأمان والصلاحيات والبيانات تُراجع من البداية، لا بعد حدوث المشكلة.</p></article>
+            <article class="pillar reveal"><span>02</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m8.5 8-4 4 4 4M15.5 8l4 4-4 4M14 5l-4 14"/></svg><h3>Built for people</h3><p>بنية واضحة وتجربة متجاوبة تجعل الوصول إلى القرار أسهل على كل جهاز.</p></article>
+            <article class="pillar reveal"><span>03</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/><path d="m4 8 5-4 6 5 5-4"/></svg><h3>Ready to grow</h3><p>قياس وسيو ومحتوى يجعل التحسين المستمر جزءًا من التشغيل.</p></article>
+          </div>
         </div>
-    </section>
-
-    <!-- 5. الشريط الجانبي العائم (Right Sidebar) -->
-    <div class="fixed top-1/2 -translate-y-1/2 right-0 bg-neonGreen rounded-l-2xl py-4 px-3 flex flex-col gap-6 text-black text-xl z-50 shadow-[0_0_20px_rgba(91,244,204,0.4)]">
-        <a href="tel:+966547194788" class="hover:scale-110 transition-transform"><i class="fa-solid fa-phone"></i></a>
-        <a href="mailto:info@eslam-elshikh.com" class="hover:scale-110 transition-transform"><i class="fa-solid fa-envelope"></i></a>
-        <a href="#" class="hover:scale-110 transition-transform"><i class="fa-solid fa-headset"></i></a>
-        <a href="https://sa.linkedin.com/in/eslam-elshikh-48a708412" target="_blank" class="hover:scale-110 transition-transform"><i class="fa-brands fa-linkedin-in"></i></a>
-    </div>
-
-    <!-- 6. زر الواتساب العائم (Bottom Right) -->
-    <div class="fixed bottom-8 right-8 z-50 flex items-center gap-4">
-        <!-- النصوص -->
-        <div class="text-right hidden sm:block" dir="rtl">
-            <div class="font-bold tracking-wider text-white" dir="ltr">+966 54 719 4788</div>
-            <div class="text-neonGreen text-sm font-bold glow-text mt-1">تواصل مباشر</div>
+      </section>
+      <section class="section-pad projects-section"><div class="container"><div class="section-head reveal"><span class="eyebrow"><span></span>مختارات من الأعمال</span><h2>مشروعات تحوّل الهدف التجاري إلى تجربة رقمية</h2><p>نماذج عامة من مشروعات منشورة في تطوير المواقع وتحسين البحث المحلي وبناء بنية محتوى قابلة للتوسع.</p></div><div class="projects-grid"><article class="project-card reveal"><div class="project-visual"><span>منصة شركة ومحتوى خدمات</span><div class="project-lines" aria-hidden="true"></div></div><div class="project-content"><h3>شركة تعاود للمقاولات</h3><p>تطوير تجربة رقمية عربية لشركة مقاولات، مع صفحات خدمات ومقالات وبنية محتوى قابلة للتوسع وتحسين محلي للبحث.</p><div class="tag-row"><span>Web Development</span><span>Technical SEO</span><span>Content Architecture</span></div><a class="text-link" href="https://github.com/EslamElshikh-dev/tawod" target="_blank" rel="noopener">معاينة المشروع <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6m0-6-9 9"/><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/></svg></a></div></article><article class="project-card reveal"><div class="project-visual"><span>موقع خدمات محلية</span><div class="project-lines" aria-hidden="true"></div></div><div class="project-content"><h3>مؤسسة العنود للديكور الخشبي</h3><p>هيكلة خدمات نجارة وديكور متعددة، وتجربة متجاوبة، وصفحات بحث محلية تربط المحتوى بالتواصل والتحويل.</p><div class="tag-row"><span>Local SEO</span><span>Responsive UI</span><span>Schema</span></div><a class="text-link" href="https://github.com/EslamElshikh-dev/alanood-contracting" target="_blank" rel="noopener">معاينة المشروع <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6m0-6-9 9"/><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/></svg></a></div></article><article class="project-card reveal"><div class="project-visual"><span>صفحة هبوط تحويلية</span><div class="project-lines" aria-hidden="true"></div></div><div class="project-content"><h3>أمين لخدمات الصيانة</h3><p>واجهة سريعة لخدمات منزلية في الرياض، محسنة للجوال مع اتصالات مباشرة ومحتوى خدمات وأحياء يخدم البحث المحلي.</p><div class="tag-row"><span>Landing Page</span><span>Conversion UX</span><span>Local Search</span></div><a class="text-link" href="https://ameenservse.vercel.app/" target="_blank" rel="noopener">معاينة المشروع <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6m0-6-9 9"/><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/></svg></a></div></article></div><div class="section-action"><a class="button button-ghost" href="/projects/">كل الأعمال <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></div></div></section>
+      <section class="section-pad process-section"><div class="container"><div class="section-head reveal"><span class="eyebrow"><span></span>مسار العمل</span><h2>وضوح من أول سؤال حتى ما بعد الإطلاق</h2></div><ol class="process-list"><li class="reveal"><span>01</span><h3>تشخيص الهدف</h3><p>نفهم المستخدم والنتيجة والقيود والمخاطر قبل اختيار الأدوات.</p></li><li class="reveal"><span>02</span><h3>تصميم الحل</h3><p>نحدد البنية والمحتوى والنطاق والمخرجات ومعيار القبول.</p></li><li class="reveal"><span>03</span><h3>تنفيذ قابل للمراجعة</h3><p>نبني على مراحل قصيرة مع اختبارات وقرارات موثقة.</p></li><li class="reveal"><span>04</span><h3>إطلاق وتحسين</h3><p>نراقب المؤشرات ونغلق الملاحظات ونرتب فرص التطوير.</p></li></ol></div></section>
+      <section class="section-pad blog-section"><div class="container"><div class="section-head reveal"><span class="eyebrow"><span></span>من المدونة</span><h2>معرفة عملية للقرارات التقنية المعقدة</h2></div><div class="posts-grid"><article class="post-card reveal"><a class="post-art post-art-ai-agents" href="/blog/ai-agent-business/" aria-label="اقرأ: كيف تبدأ مشروع وكيل ذكاء اصطناعي داخل شركتك دون مخاطرة؟"><span>الذكاء الاصطناعي</span><svg class="post-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 .9 3.1A4.2 4.2 0 0 0 15.8 9l3.2 1-3.2 1a4.2 4.2 0 0 0-2.9 2.9L12 17l-.9-3.1A4.2 4.2 0 0 0 8.2 11L5 10l3.2-1a4.2 4.2 0 0 0 2.9-2.9L12 3Z"/><path d="m18.5 15 .4 1.2a2 2 0 0 0 1.3 1.3l1.3.5-1.3.4a2 2 0 0 0-1.3 1.3l-.4 1.3-.5-1.3a2 2 0 0 0-1.3-1.3l-1.2-.4 1.2-.5a2 2 0 0 0 1.3-1.3l.5-1.2Z"/></svg></a><div class="post-meta"><time datetime="2026-07-21">٢١‏/٠٧‏/٢٠٢٦</time><span>8 دقائق</span></div><h3><a href="/blog/ai-agent-business/">كيف تبدأ مشروع وكيل ذكاء اصطناعي داخل شركتك دون مخاطرة؟</a></h3><p>من اختيار الحالة المناسبة إلى البيانات والتقييم والرقابة البشرية: إطار عملي يحول فكرة الوكيل الذكي إلى مشروع قابل للقياس.</p><a class="text-link" href="/blog/ai-agent-business/">اقرأ المقال <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></article><article class="post-card reveal"><a class="post-art post-art-google-business-profile" href="/blog/google-business-profile-suspension/" aria-label="اقرأ: تعليق ملف Google التجاري: خطوات التشخيص قبل إرسال الاستئناف"><span>ملفات Google التجارية</span><svg class="post-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></a><div class="post-meta"><time datetime="2026-07-20">٢٠‏/٠٧‏/٢٠٢٦</time><span>7 دقائق</span></div><h3><a href="/blog/google-business-profile-suspension/">تعليق ملف Google التجاري: خطوات التشخيص قبل إرسال الاستئناف</a></h3><p>قائمة عملية لمراجعة الأهلية والاسم والعنوان والفئات والأدلة قبل تعديل الملف أو إرسال طلب استئناف متسرع.</p><a class="text-link" href="/blog/google-business-profile-suspension/">اقرأ المقال <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></article><article class="post-card reveal"><a class="post-art post-art-web-development" href="/blog/secure-website-development/" aria-label="اقرأ: بناء موقع سريع وآمن ومتوافق مع السيو: ما الذي يجب أن يجتمع؟"><span>تطوير الويب</span><svg class="post-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m8.5 8-4 4 4 4M15.5 8l4 4-4 4M14 5l-4 14"/></svg></a><div class="post-meta"><time datetime="2026-07-19">١٩‏/٠٧‏/٢٠٢٦</time><span>9 دقائق</span></div><h3><a href="/blog/secure-website-development/">بناء موقع سريع وآمن ومتوافق مع السيو: ما الذي يجب أن يجتمع؟</a></h3><p>قائمة قرارات تقنية وتصميمية تجعل الموقع قابلًا للاستخدام والفهرسة والحماية، بدل معالجة كل محور بعد الإطلاق.</p><a class="text-link" href="/blog/secure-website-development/">اقرأ المقال <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></article></div><div class="section-action"><a class="button button-ghost" href="/blog/">استكشف المدونة <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></div></div></section>
+      <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal"><span class="eyebrow"><span></span>الأسئلة الشائعة</span><h2>إجابات واضحة قبل بدء المشروع</h2><p>إذا كانت حالتك مختلفة، أرسل ملخصًا وسأقترح نقطة البداية المناسبة.</p><a class="button button-ghost" href="/contact/">أرسل تفاصيل مشروعك</a></div><div class="accordion"><details class="reveal" open><summary>ما نوع المشروعات التي تعمل عليها؟<span>+</span></summary><p>أعمل مع الشركات وأصحاب الأعمال على مشروعات الأمن السيبراني، تطوير المواقع والتطبيقات، وكلاء الذكاء الاصطناعي، حلول Google والسيو والإعلانات، مع تحديد نطاق مناسب لكل مشروع.</p></details><details class="reveal"><summary>هل يمكن جمع أكثر من خدمة في مشروع واحد؟<span>+</span></summary><p>نعم، وهذه إحدى نقاط القوة الرئيسية. يمكن مثلًا بناء موقع آمن، ثم تهيئته للسيو وربطه بملف Google ونظام قياس وحملة تسويق ضمن خطة مترابطة.</p></details><details class="reveal"><summary>كيف تبدأ الاستشارة؟<span>+</span></summary><p>ترسل وصفًا مختصرًا للهدف والوضع الحالي والموعد المتوقع. بعد ذلك نحدد مكالمة أو محادثة تشخيصية، ثم نطاق العمل والمخرجات والخطوات.</p></details><details class="reveal"><summary>هل تقدم خدماتك داخل الرياض فقط؟<span>+</span></summary><p>أعمل من الرياض وأقدم معظم الخدمات التقنية عن بُعد داخل السعودية وخارجها، بينما تختلف متطلبات الزيارات الميدانية حسب نوع المشروع.</p></details></div></div></section>
+      <section class="section-pad final-cta"><div class="container"><div class="cta-panel reveal"><div><span class="eyebrow"><span></span>لديك تحدٍ تقني؟</span><h2>لنحوّل التعقيد إلى خطة واضحة قابلة للتنفيذ</h2><p>أرسل الهدف، الوضع الحالي، والموعد المتوقع. ستحصل على تشخيص أولي ونقطة بداية مناسبة.</p></div><div class="cta-actions"><a class="button button-light" href="/contact/">ابدأ الآن <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a><a class="cta-phone" href="tel:+966547194788" dir="ltr">+966 54 719 4788</a></div></div></div></section></main>
+<footer class="site-footer">
+      <div class="container footer-grid">
+        <div class="footer-intro">
+          <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><span>ES</span></span><span><strong>إسلام الشيخ</strong><small>Eslam Elshikh</small></span></a>
+          <p>حلول رقمية تجمع الأمن السيبراني والبرمجة والذكاء الاصطناعي وخبرة Google والسيو في تجربة واحدة مترابطة.</p>
+          <div class="social-row">
+            <a href="https://github.com/EslamElshikh-dev" target="_blank" rel="noopener" aria-label="GitHub">GH</a>
+            <a href="https://www.linkedin.com/in/eslam-elshikh" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>
+            <a href="https://x.com/remoesoo10" target="_blank" rel="noopener" aria-label="X">X</a>
+            <a href="https://www.youtube.com/@remoesoo10" target="_blank" rel="noopener" aria-label="YouTube">YT</a>
+          </div>
         </div>
-        <!-- الزر المضيء -->
-        <a href="https://wa.me/966547194788" target="_blank" class="relative w-16 h-16 bg-neonGreen rounded-full flex items-center justify-center text-panelBg text-3xl glow-box hover:scale-110 transition-transform">
-            <div class="absolute inset-0 rounded-full border-2 border-neonGreen animate-ping"></div>
-            <i class="fa-brands fa-whatsapp"></i>
-        </a>
-    </div>
-
+        <div><h2>روابط سريعة</h2><a href="/about/">عن إسلام</a><a href="/projects/">الأعمال</a><a href="/google-expert/">خبرة Google</a><a href="/blog/">المدونة</a></div>
+        <div><h2>خدمات رئيسية</h2><a href="/services/cybersecurity/">الأمن السيبراني</a><a href="/services/ai-agents/">وكلاء الذكاء الاصطناعي</a><a href="/services/web-development/">تطوير المواقع والتطبيقات</a><a href="/services/google-business-profile/">ملفات Google التجارية</a><a href="/services/seo/">تحسين محركات البحث</a></div>
+        <div><h2>تواصل</h2><a dir="ltr" href="tel:+966547194788">+966 54 719 4788</a><a href="mailto:info@eslam-elshikh.com">info@eslam-elshikh.com</a><span>الرياض، المملكة العربية السعودية</span><a href="https://wa.me/966547194788" target="_blank" rel="noopener">تواصل عبر WhatsApp</a></div>
+      </div>
+      <div class="container footer-bottom"><p>© 2026 إسلام الشيخ. جميع الحقوق محفوظة.</p><p>تصميم وتطوير Eslam Elshikh</p></div>
+    </footer>
+    <a class="floating-whatsapp" href="https://wa.me/966547194788?text=%D9%85%D8%B1%D8%AD%D8%A8%D9%8B%D8%A7%20%D9%85.%20%D8%A5%D8%B3%D9%84%D8%A7%D9%85%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D9%85%D9%86%D8%A7%D9%82%D8%B4%D8%A9%20%D8%AE%D8%AF%D9%85%D8%A9%20%D8%AA%D9%82%D9%86%D9%8A%D8%A9" target="_blank" rel="noopener" aria-label="تواصل مع إسلام الشيخ عبر WhatsApp"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.4-4A8 8 0 1 1 20 11.5Z"/><path d="M8.5 8.2c.3 3 2.4 5.4 5.5 6.2.8.2 1.6-.5 1.8-1.2l-2.2-1-1 1c-1.4-.7-2.5-1.8-3.2-3.2l1-1-1-2.2c-.5.2-1 .7-.9 1.4Z"/></svg><span>تواصل مباشر</span></a>
+    <nav class="mobile-bottom-nav" aria-label="تنقل سريع للجوال">
+      <a href="/"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10M9 20v-6h6v6"/></svg><span>الرئيسية</span></a>
+      <a href="/services/"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2m-12 5h18M10 12v2h4v-2"/></svg><span>الخدمات</span></a>
+      <a href="/projects/"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg><span>الأعمال</span></a>
+      <a href="/contact/"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><span>تواصل</span></a>
+    </nav>
+  <script src="/assets/js/main.js" defer></script>
 </body>
 </html>

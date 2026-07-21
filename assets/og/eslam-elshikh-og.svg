@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#07111b"/>
+      <stop offset=".55" stop-color="#0a1927"/>
+      <stop offset="1" stop-color="#102b38"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="790" y1="95" x2="1085" y2="525" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#66f2c5"/>
+      <stop offset="1" stop-color="#53d8ff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(945 315) rotate(90) scale(290)">
+      <stop stop-color="#53d8ff" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#53d8ff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0v42" fill="none" stroke="#9fdff2" stroke-opacity=".06"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" rx="40" fill="url(#bg)"/>
+  <rect width="1200" height="630" rx="40" fill="url(#grid)"/>
+  <circle cx="945" cy="315" r="290" fill="url(#glow)"/>
+  <circle cx="945" cy="315" r="213" fill="none" stroke="#53d8ff" stroke-opacity=".18"/>
+  <circle cx="945" cy="315" r="163" fill="none" stroke="#66f2c5" stroke-opacity=".14" stroke-dasharray="8 14"/>
+  <path d="M945 144 1065 195v84c0 89-46 150-120 188-74-38-120-99-120-188v-84l120-51Z" fill="#0d1c2a" fill-opacity=".92" stroke="url(#accent)" stroke-width="4"/>
+  <path d="M889 270h112M889 315h78M889 360h112" stroke="url(#accent)" stroke-width="9" stroke-linecap="round"/>
+  <text x="93" y="170" fill="#66f2c5" font-family="Segoe UI,Tahoma,Arial,sans-serif" font-size="22" font-weight="700">SECURE DIGITAL ENGINEERING</text>
+  <text x="93" y="282" fill="#f4f8fb" font-family="Segoe UI,Tahoma,Arial,sans-serif" font-size="74" font-weight="800">إسلام الشيخ</text>
+  <text x="93" y="345" fill="#a3b5c3" font-family="Segoe UI,Tahoma,Arial,sans-serif" font-size="30" font-weight="600">Eslam Elshikh</text>
+  <text x="93" y="415" fill="#f4f8fb" font-family="Segoe UI,Tahoma,Arial,sans-serif" font-size="26" font-weight="600">أمن سيبراني  ·  تطوير برمجيات  ·  ذكاء اصطناعي  ·  Google</text>
+  <rect x="93" y="471" width="362" height="56" rx="28" fill="#66f2c5" fill-opacity=".1" stroke="#66f2c5" stroke-opacity=".35"/>
+  <text x="274" y="507" text-anchor="middle" fill="#66f2c5" font-family="Segoe UI,Tahoma,Arial,sans-serif" font-size="21" font-weight="700">eslam-elshikh.com</text>
+</svg>

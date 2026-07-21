@@ -1,5 +1,5 @@
 <h1 align="center">مرحباً بك في عالمي الرقمي 👋 أنا إسلام الشيخ</h1>
-<h3 align="center">مهندس أمن سيبراني | مطور ويب | خبير منتجات جوجل (GDE)</h3>
+<h3 align="center">مهندس أمن سيبراني | مطور برمجيات | خبير منتجات Google</h3>
 
 <p align="center">
   <a href="https://eslam-elshikh.com"><img src="https://img.shields.io/badge/Website-eslam--elshikh.com-00FFCC?style=for-the-badge&logo=google-chrome&logoColor=black" alt="Website"></a>
