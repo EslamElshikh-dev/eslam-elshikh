@@ -44,7 +44,7 @@
     if (event.key === "Escape") closeMenu();
   });
 
-  document.querySelectorAll(".services-grid, .projects-grid, .posts-grid, .values-grid, .google-stats").forEach((group) => {
+  document.querySelectorAll(".services-grid, .projects-grid, .maps-portfolio-grid, .posts-grid, .values-grid, .google-stats").forEach((group) => {
     [...group.children].forEach((element, index) => element.style.setProperty("--reveal-delay", `${Math.min(index, 6) * 55}ms`));
   });
 

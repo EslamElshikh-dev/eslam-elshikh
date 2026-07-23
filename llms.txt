@@ -26,6 +26,7 @@
 
 ## المحتوى
 - جميع الخدمات: https://eslam-elshikh.com/services/
+- الأعمال ونماذج ملفات Google التجارية: https://eslam-elshikh.com/projects/
 - المدونة التقنية: https://eslam-elshikh.com/blog/
 - خبرة منتجات Google: https://eslam-elshikh.com/google-expert/
 - التواصل: https://eslam-elshikh.com/contact/

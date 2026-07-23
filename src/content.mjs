@@ -306,6 +306,37 @@ export const projects = [
   }
 ];
 
+export const mapsProjects = [
+  {
+    title: "مؤسسة حزمة شقافي للديكور وتفصيل الخزاين",
+    category: "ديكور وخزائن",
+    address: "حي المصيف، الرياض 12466",
+    tags: ["Google Maps", "ملف تجاري", "بحث محلي"],
+    url: "https://maps.app.goo.gl/TjT2ba7LujYBsLt26?g_st=awb"
+  },
+  {
+    title: "مؤسسة ريم كوم تفصيل خزائن حديثة",
+    category: "خزائن وديكور",
+    address: "حي المصيف، الرياض 12467",
+    tags: ["Google Maps", "Business Profile", "ظهور محلي"],
+    url: "https://maps.app.goo.gl/5pnvovGrafDXuZpUA?g_st=awb"
+  },
+  {
+    title: "مؤسسة حزمه ابراهيم محسن للديكور وتفصيل الخزاين",
+    category: "نجارة وديكور خشبي",
+    address: "حي المصيف، الرياض 12466",
+    tags: ["Google Maps", "ملف تجاري", "Local SEO"],
+    url: "https://maps.app.goo.gl/hJqqyNAvxmd5F7SR7?g_st=awb"
+  },
+  {
+    title: "مؤسسة عبدالله صالح عبدالله للألمونيوم والزجاج",
+    category: "ألمنيوم وزجاج",
+    address: "حي المصيف، الرياض 12467",
+    tags: ["Google Maps", "Business Profile", "بحث محلي"],
+    url: "https://maps.app.goo.gl/XhGYH5fSrPGV7wYW8?g_st=awb"
+  }
+];
+
 export const posts = [
   {
     slug: "ai-agent-business",
