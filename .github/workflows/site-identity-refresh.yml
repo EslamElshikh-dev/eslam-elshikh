@@ -1,0 +1,189 @@
+name: One-time site identity refresh
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/site-identity-refresh.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply identity, SEO, responsive and map-loading updates
+        shell: bash
+        run: |
+          cat > /tmp/refresh_site.py <<'PY'
+          from pathlib import Path
+          import json
+          import re
+
+          ROOT = Path('.')
+          TODAY = '2026-07-25'
+          PRIMARY_PHONE = '+966579395299'
+          PRIMARY_PHONE_PLAIN = '966579395299'
+          OLD_PHONE_PLAIN = '966547194788'
+          HOME_TITLE = 'المهندس إسلام الشيخ | أمن سيبراني وبرمجيات وخبير Google'
+          HOME_DESCRIPTION = 'المهندس إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات، خبير منتجات Google وGoogle Developer Expert في الرياض، يقدم حلول المواقع والذكاء الاصطناعي والسيو.'
+          PERSON_DESCRIPTION = 'المهندس إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات، خبير منتجات Google وGoogle Developer Expert في الرياض؛ يقدم حلول الذكاء الاصطناعي وتطوير المواقع والسيو والحلول السحابية.'
+          FONT_LINKS = '''  <link rel="preconnect" href="https://fonts.googleapis.com">\n  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">\n'''
+
+          def type_has(obj, expected):
+              value = obj.get('@type') if isinstance(obj, dict) else None
+              return value == expected or isinstance(value, list) and expected in value
+
+          def update_schema(obj, is_home=False):
+              if isinstance(obj, dict):
+                  if type_has(obj, 'Person'):
+                      obj['jobTitle'] = ['مهندس أمن سيبراني', 'مطور برمجيات', 'خبير منتجات Google', 'Google Developer Expert']
+                      obj['hasOccupation'] = [
+                          {'@type': 'Occupation', 'name': 'مهندس أمن سيبراني'},
+                          {'@type': 'Occupation', 'name': 'مطور برمجيات'},
+                          {'@type': 'Occupation', 'name': 'خبير منتجات Google'},
+                          {'@type': 'Occupation', 'name': 'Google Developer Expert'},
+                      ]
+                      obj['description'] = PERSON_DESCRIPTION
+                      obj['telephone'] = PRIMARY_PHONE
+                      obj['contactPoint'] = [{
+                          '@type': 'ContactPoint',
+                          'telephone': PRIMARY_PHONE,
+                          'contactType': 'customer service',
+                          'availableLanguage': ['ar', 'en'],
+                          'areaServed': 'SA',
+                      }]
+                      knows = obj.get('knowsAbout', [])
+                      if isinstance(knows, list) and 'Google Developer Expert' not in knows:
+                          knows.append('Google Developer Expert')
+                      obj['knowsAbout'] = knows
+                  if 'dateModified' in obj:
+                      obj['dateModified'] = TODAY
+                  if is_home and type_has(obj, 'WebPage'):
+                      obj['name'] = HOME_TITLE
+                      obj['description'] = HOME_DESCRIPTION
+                  for value in obj.values():
+                      update_schema(value, is_home=is_home)
+              elif isinstance(obj, list):
+                  for item in obj:
+                      update_schema(item, is_home=is_home)
+
+          def set_meta(html, selector_name, value, prop=False):
+              attr = 'property' if prop else 'name'
+              pattern = rf'(<meta\s+{attr}="{re.escape(selector_name)}"\s+content=")[^"]*(")'
+              return re.sub(pattern, lambda m: m.group(1) + value + m.group(2), html, count=1)
+
+          def update_html(path):
+              html = path.read_text(encoding='utf-8')
+              original = html
+              is_home = path.as_posix() == 'index.html'
+
+              if 'fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic' not in html:
+                  html = html.replace('  <link rel="stylesheet" href="/assets/css/main.css">', FONT_LINKS + '  <link rel="stylesheet" href="/assets/css/main.css">', 1)
+
+              if is_home:
+                  html = re.sub(r'<title>.*?</title>', f'<title>{HOME_TITLE}</title>', html, count=1, flags=re.S)
+                  html = set_meta(html, 'description', HOME_DESCRIPTION)
+                  html = set_meta(html, 'og:title', HOME_TITLE, prop=True)
+                  html = set_meta(html, 'og:description', HOME_DESCRIPTION, prop=True)
+                  html = set_meta(html, 'og:image:alt', HOME_TITLE, prop=True)
+                  html = set_meta(html, 'twitter:title', HOME_TITLE)
+                  html = set_meta(html, 'twitter:description', HOME_DESCRIPTION)
+                  html = set_meta(html, 'twitter:image:alt', HOME_TITLE)
+                  html = html.replace('ملف Google للمطورين', 'Google Developer Expert')
+
+              script_pattern = re.compile(r'(<script\s+type="application/ld\+json">)(.*?)(</script>)', re.S)
+              def replace_schema(match):
+                  try:
+                      data = json.loads(match.group(2))
+                  except json.JSONDecodeError:
+                      return match.group(0)
+                  update_schema(data, is_home=is_home)
+                  return match.group(1) + json.dumps(data, ensure_ascii=False, separators=(',', ':')) + match.group(3)
+              html = script_pattern.sub(replace_schema, html)
+
+              html = re.sub(r'<a\s+dir="ltr"\s+href="tel:\+966547194788">.*?</a>', '', html, flags=re.S)
+              html = html.replace(OLD_PHONE_PLAIN, PRIMARY_PHONE_PLAIN)
+              html = html.replace('+966547194788', PRIMARY_PHONE)
+              html = html.replace('054 719 4788 — بديل', '057 939 5299')
+
+              if 'data-map-src=' not in html:
+                  html = re.sub(r'src="(https://www\.google\.com/maps\?[^\"]+)"', r'src="about:blank" data-map-src="\1"', html)
+
+              if html != original:
+                  path.write_text(html, encoding='utf-8')
+
+          for html_file in ROOT.rglob('*.html'):
+              if '.git' not in html_file.parts:
+                  update_html(html_file)
+
+          css_path = ROOT / 'assets/css/main.css'
+          if css_path.exists():
+              css = css_path.read_text(encoding='utf-8')
+              css = css.replace('font-family: "Segoe UI", Tahoma, Arial, sans-serif;', 'font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;')
+              css = css.replace('.hero-copy h1 { font-size: clamp(2.4rem,12vw,3.7rem); }', '.hero-copy h1 { font-size: clamp(2.15rem,9.5vw,3.25rem); line-height: 1.16; letter-spacing: -.04em; }')
+              if 'iframe[data-map-src][src="about:blank"]' not in css:
+                  css += '\n/* Progressive loading for Google Maps embeds */\n.maps-project-preview iframe[data-map-src][src="about:blank"] { opacity: .55; }\n.maps-project-preview iframe[data-map-src] { transition: opacity .35s ease, transform .45s ease; }\n'
+              css_path.write_text(css, encoding='utf-8')
+
+          js_path = ROOT / 'assets/js/main.js'
+          if js_path.exists():
+              js = js_path.read_text(encoding='utf-8')
+              marker = 'Progressive Google Maps loading'
+              if marker not in js:
+                  addition = '''\n\n  // Progressive Google Maps loading\n  const mapFrames = document.querySelectorAll("iframe[data-map-src]");\n  const loadMapFrame = (frame) => {\n    if (!frame.dataset.mapSrc || frame.src !== "about:blank") return;\n    frame.src = frame.dataset.mapSrc;\n    frame.addEventListener("load", () => { frame.style.opacity = "1"; }, { once: true });\n  };\n  if ("IntersectionObserver" in window) {\n    const mapObserver = new IntersectionObserver((entries) => {\n      entries.forEach((entry) => {\n        if (!entry.isIntersecting) return;\n        loadMapFrame(entry.target);\n        mapObserver.unobserve(entry.target);\n      });\n    }, { rootMargin: "350px 0px" });\n    mapFrames.forEach((frame) => mapObserver.observe(frame));\n  } else {\n    mapFrames.forEach(loadMapFrame);\n  }\n'''
+                  pos = js.rfind('})();')
+                  if pos != -1:
+                      js = js[:pos] + addition + js[pos:]
+              js_path.write_text(js, encoding='utf-8')
+
+          sitemap = ROOT / 'sitemap.xml'
+          if sitemap.exists():
+              text = sitemap.read_text(encoding='utf-8')
+              text = re.sub(r'<lastmod>[^<]+</lastmod>', f'<lastmod>{TODAY}</lastmod>', text)
+              sitemap.write_text(text, encoding='utf-8')
+
+          manifest = ROOT / 'manifest.webmanifest'
+          if manifest.exists():
+              try:
+                  data = json.loads(manifest.read_text(encoding='utf-8'))
+                  data['description'] = PERSON_DESCRIPTION
+                  manifest.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+              except json.JSONDecodeError:
+                  pass
+
+          profile = ROOT / 'profile.json'
+          if profile.exists():
+              try:
+                  data = json.loads(profile.read_text(encoding='utf-8'))
+                  update_schema(data, is_home=False)
+                  profile.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+              except json.JSONDecodeError:
+                  pass
+          PY
+
+          python /tmp/refresh_site.py
+          rm -f .github/workflows/site-identity-refresh.yml
+
+          echo 'Changed files:'
+          git status --short
+          git diff --check
+
+      - name: Commit and push refreshed site
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes were required."
+            exit 0
+          fi
+          git commit -m "Refresh personal identity, SEO and responsive performance"
+          git push origin HEAD:main
