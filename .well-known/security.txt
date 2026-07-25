@@ -1,0 +1,5 @@
+Contact: mailto:info@eslam-elshikh.com
+Canonical: https://eslam-elshikh.com/.well-known/security.txt
+Preferred-Languages: ar, en
+Policy: https://eslam-elshikh.com/terms/
+Expires: 2027-07-25T23:59:59Z
