@@ -18,7 +18,8 @@
   "jobTitle": [
     "مهندس أمن سيبراني",
     "مطور برمجيات",
-    "خبير منتجات Google"
+    "خبير منتجات Google",
+    "Google Developer Expert"
   ],
   "hasOccupation": [
     {
@@ -32,6 +33,10 @@
     {
       "@type": "Occupation",
       "name": "خبير منتجات Google"
+    },
+    {
+      "@type": "Occupation",
+      "name": "Google Developer Expert"
     }
   ],
   "identifier": {
@@ -40,7 +45,7 @@
     "value": "Q138800449",
     "url": "https://www.wikidata.org/wiki/Q138800449"
   },
-  "description": "المهندس إسلام الشيخ، خبير أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض؛ يقدم حلول الذكاء الاصطناعي وتطوير المواقع والسيو والحلول السحابية.",
+  "description": "المهندس إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات، خبير منتجات Google وGoogle Developer Expert في الرياض؛ يقدم حلول الذكاء الاصطناعي وتطوير المواقع والسيو والحلول السحابية.",
   "email": "mailto:info@eslam-elshikh.com",
   "telephone": "+966579395299",
   "contactPoint": [
@@ -48,16 +53,6 @@
       "@type": "ContactPoint",
       "telephone": "+966579395299",
       "contactType": "customer service",
-      "availableLanguage": [
-        "ar",
-        "en"
-      ],
-      "areaServed": "SA"
-    },
-    {
-      "@type": "ContactPoint",
-      "telephone": "+966547194788",
-      "contactType": "alternative contact",
       "availableLanguage": [
         "ar",
         "en"
@@ -90,7 +85,8 @@
     "Cloud Solutions",
     "Firebase",
     "Knowledge Bases",
-    "Structured Data"
+    "Structured Data",
+    "Google Developer Expert"
   ],
   "sameAs": [
     "https://github.com/EslamElshikh-dev",

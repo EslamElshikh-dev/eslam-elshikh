@@ -130,4 +130,25 @@
     const active = path === "/" ? currentPath === "/" : currentPath.startsWith(path);
     if (active) link.setAttribute("aria-current", "page");
   });
+
+
+  // Progressive Google Maps loading
+  const mapFrames = document.querySelectorAll("iframe[data-map-src]");
+  const loadMapFrame = (frame) => {
+    if (!frame.dataset.mapSrc || frame.src !== "about:blank") return;
+    frame.src = frame.dataset.mapSrc;
+    frame.addEventListener("load", () => { frame.style.opacity = "1"; }, { once: true });
+  };
+  if ("IntersectionObserver" in window) {
+    const mapObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        loadMapFrame(entry.target);
+        mapObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: "350px 0px" });
+    mapFrames.forEach((frame) => mapObserver.observe(frame));
+  } else {
+    mapFrames.forEach(loadMapFrame);
+  }
 })();

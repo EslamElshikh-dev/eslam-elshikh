@@ -56,7 +56,7 @@ body {
     radial-gradient(circle at 10% 35%, rgba(102, 242, 197, 0.06), transparent 26rem),
     var(--bg);
   color: var(--text);
-  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.75;
   text-rendering: optimizeLegibility;
@@ -623,7 +623,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .theme-toggle, .menu-toggle { width: 40px; height: 40px; }
   .brand strong { font-size: .9rem; }
   .hero { padding-top: calc(var(--header-height) + 3.2rem); }
-  .hero-copy h1 { font-size: clamp(2.4rem,12vw,3.7rem); }
+  .hero-copy h1 { font-size: clamp(2.15rem,9.5vw,3.25rem); line-height: 1.16; letter-spacing: -.04em; }
   .hero-lead { font-size: .98rem; }
   .hero-actions { flex-direction: column; align-items: stretch; }
   .hero-actions .button { width: 100%; }
@@ -721,3 +721,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .page-hero, .article-header, .service-hero { padding-top:2rem; background:none; }
   p { color:#333 !important; }
 }
+
+/* Progressive loading for Google Maps embeds */
+.maps-project-preview iframe[data-map-src][src="about:blank"] { opacity: .55; }
+.maps-project-preview iframe[data-map-src] { transition: opacity .35s ease, transform .45s ease; }
