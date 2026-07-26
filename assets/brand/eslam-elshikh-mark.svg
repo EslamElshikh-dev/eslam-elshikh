@@ -1,6 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
-  <title id="title">شعار المهندس إسلام الشيخ</title>
-  <desc id="desc">الهوية الرسمية للأمن السيبراني وتطوير البرمجيات وخبرة Google</desc>
-  <rect width="512" height="512" rx="86" fill="#020407"/>
-  <image x="0" y="0" width="512" height="512" href="/assets/brand/eslam-elshikh-logo.webp" preserveAspectRatio="xMidYMid meet"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-labelledby="title desc">
+  <title id="title">إسلام الشيخ</title>
+  <desc id="desc">الأيقونة الرسمية للمهندس إسلام الشيخ</desc>
+  <defs>
+    <linearGradient id="frame" x1="20" y1="10" x2="170" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f4f7fa"/><stop offset=".22" stop-color="#ef2334"/><stop offset=".72" stop-color="#38a9ff"/><stop offset="1" stop-color="#e8edf1"/>
+    </linearGradient>
+    <linearGradient id="letters" x1="52" y1="65" x2="140" y2="130" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff"/><stop offset=".55" stop-color="#c7d0d8"/><stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+  </defs>
+  <path d="M96 8 169 35v58c0 45-25 75-73 93C48 168 23 138 23 93V35L96 8Z" fill="#03070c" stroke="url(#frame)" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M41 48 96 27l55 21" fill="none" stroke="#ef2334" stroke-width="5" stroke-linecap="round" opacity=".9"/>
+  <path d="M54 65h45v17H72v15h25v16H72v14h30v17H54V65Zm90 8c-9-7-34-10-34 5 0 8 8 11 18 14 15 4 24 11 24 26 0 21-20 29-42 22v-18c11 6 25 7 25-3 0-7-7-10-17-13-16-5-24-13-24-27 0-20 19-29 38-24 5 1 9 3 12 5v13Z" fill="url(#letters)"/>
+  <circle cx="154" cy="142" r="11" fill="#38a9ff" opacity=".95"/>
 </svg>
