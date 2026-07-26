@@ -27,6 +27,12 @@ jobs:
       - name: Checkout current main branch
         uses: actions/checkout@v6
 
+      - name: Install official brand image tooling
+        run: python3 -m pip install --disable-pip-version-check pillow
+
+      - name: Generate and integrate the official brand
+        run: python3 scripts/apply-primary-logo.py
+
       - name: Configure and enable GitHub Pages
         uses: actions/configure-pages@v5
         with:
