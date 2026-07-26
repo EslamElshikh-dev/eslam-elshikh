@@ -1,0 +1,54 @@
+name: Apply official primary brand logo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.brand-source/**'
+      - 'scripts/apply-primary-brand.py'
+      - '.github/workflows/apply-primary-brand.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-primary-brand
+  cancel-in-progress: false
+
+jobs:
+  apply-brand:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decode and integrate official brand assets
+        run: python3 scripts/apply-primary-brand.py
+
+      - name: Create multi-size favicon
+        shell: bash
+        run: |
+          if command -v magick >/dev/null 2>&1; then
+            magick assets/icons/icon-512.png -define icon:auto-resize=64,48,32,16 favicon.ico
+          elif command -v convert >/dev/null 2>&1; then
+            convert assets/icons/icon-512.png -define icon:auto-resize=64,48,32,16 favicon.ico
+          else
+            cp assets/icons/icon-192.png favicon.ico
+          fi
+
+      - name: Commit integrated identity
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No brand changes to commit."
+            exit 0
+          fi
+          git commit -m "اعتماد ودمج الشعار الرسمي في جميع صفحات الموقع"
+          git push origin HEAD:main
