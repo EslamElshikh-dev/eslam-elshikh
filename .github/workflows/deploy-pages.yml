@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: read
@@ -20,17 +22,18 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout current main branch
+        uses: actions/checkout@v6
 
-      - name: Configure and enable Pages
+      - name: Configure and enable GitHub Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
 
       - name: Upload static website
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: .
 
