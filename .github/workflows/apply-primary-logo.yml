@@ -1,0 +1,45 @@
+name: Apply official Eslam Elshikh logo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/brand/eslam-elshikh-logo.webp'
+      - 'scripts/apply-primary-logo.py'
+      - '.github/workflows/apply-primary-logo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-official-logo
+  cancel-in-progress: false
+
+jobs:
+  integrate-logo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install image tooling
+        run: python3 -m pip install --disable-pip-version-check pillow
+
+      - name: Generate and integrate official brand assets
+        run: python3 scripts/apply-primary-logo.py
+
+      - name: Commit integrated identity
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No brand changes to commit."
+            exit 0
+          fi
+          git commit -m "اعتماد ودمج الشعار الرسمي في جميع صفحات الموقع"
+          git push origin HEAD:main
