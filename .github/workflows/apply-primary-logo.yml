@@ -7,6 +7,8 @@ on:
       - 'assets/brand/eslam-elshikh-logo.webp'
       - 'scripts/apply-primary-logo.py'
       - '.github/workflows/apply-primary-logo.yml'
+  schedule:
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
