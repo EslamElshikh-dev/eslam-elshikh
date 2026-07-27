@@ -1,4 +1,4 @@
-name: Apply official Eslam Elshikh logo
+name: Apply official full Eslam Elshikh logo
 
 on:
   push:
@@ -7,20 +7,19 @@ on:
       - 'assets/brand/eslam-elshikh-logo.webp'
       - 'scripts/apply-primary-logo.py'
       - '.github/workflows/apply-primary-logo.yml'
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: apply-official-logo
+  group: apply-official-full-logo
   cancel-in-progress: false
 
 jobs:
   integrate-logo:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,18 +29,30 @@ jobs:
       - name: Install image tooling
         run: python3 -m pip install --disable-pip-version-check pillow
 
-      - name: Generate and integrate official brand assets
+      - name: Generate full logo assets and update all pages
         run: python3 scripts/apply-primary-logo.py
 
-      - name: Commit integrated identity
+      - name: Validate generated identity
+        shell: bash
+        run: |
+          test -s assets/brand/eslam-elshikh-logo.webp
+          test -s assets/brand/eslam-elshikh-mark.svg
+          test -s assets/icons/favicon.svg
+          test -s assets/icons/icon-192.png
+          test -s assets/icons/icon-512.png
+          test -s assets/og/eslam-elshikh-og.png
+          grep -q 'full uploaded logo' assets/css/improvements.css
+          ! grep -R 'content:"ES"' --include='*.css' assets/css/improvements.css
+
+      - name: Commit generated identity
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           if git diff --cached --quiet; then
-            echo "No brand changes to commit."
+            echo "No identity changes to commit."
             exit 0
           fi
-          git commit -m "اعتماد ودمج الشعار الرسمي في جميع صفحات الموقع"
+          git commit -m "تطبيق الشعار الكامل في الموقع والتبويب والمشاركة"
           git push origin HEAD:main
