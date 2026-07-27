@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "python3 -m pip install --disable-pip-version-check pillow",
+  "installCommand": "python3 -m pip install --disable-pip-version-check --break-system-packages pillow",
   "buildCommand": "python3 scripts/build-vercel.py",
   "outputDirectory": "dist",
   "cleanUrls": true,
