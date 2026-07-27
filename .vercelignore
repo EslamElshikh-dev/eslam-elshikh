@@ -1,0 +1,9 @@
+.git
+.github
+.vercel
+.brand-source
+dist
+node_modules
+*.pdf
+*.zip
+__pycache__
