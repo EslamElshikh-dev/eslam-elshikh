@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node build.mjs",
+    "assets": "python3 scripts/apply-primary-logo.py",
+    "lint": "node --check build.mjs && node --check assets/js/main.js",
+    "build": "npm run assets && node build.mjs",
     "validate": "node scripts/validate.mjs",
     "smoke": "node scripts/smoke.mjs",
-    "check": "npm run build && npm run validate && npm run smoke",
+    "check": "npm run lint && npm run build && npm run validate && npm run smoke",
     "serve": "python3 -m http.server 4173"
   }
 }

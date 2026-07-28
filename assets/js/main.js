@@ -234,9 +234,38 @@
     if (active) link.setAttribute('aria-current', 'page');
   });
 
-  document.querySelectorAll('.footer-bottom').forEach((footerBottom) => {
-    if (footerBottom.querySelector('.footer-legal')) return;
-    footerBottom.insertAdjacentHTML('beforeend', '<div class="footer-legal"><a href="/privacy/">سياسة الخصوصية</a><a href="/terms/">شروط الاستخدام</a><a href="/.well-known/security.txt">الإبلاغ الأمني</a></div>');
+  const agentOpen = document.querySelector('[data-ai-agent-open]');
+  const agentPanel = document.querySelector('[data-ai-agent-panel]');
+  const agentClose = document.querySelector('[data-ai-agent-close]');
+  const agentAnswer = document.querySelector('[data-ai-agent-answer] p');
+  const agentWhatsApp = document.querySelector('[data-ai-whatsapp]');
+  const setAgentOpen = (open) => {
+    if (!agentOpen || !agentPanel) return;
+    agentOpen.setAttribute('aria-expanded', String(open));
+    agentPanel.setAttribute('aria-hidden', String(!open));
+    agentPanel.classList.toggle('is-open', open);
+    if (open) agentClose?.focus();
+    else agentOpen.focus();
+  };
+  agentOpen?.addEventListener('click', () => setAgentOpen(agentOpen.getAttribute('aria-expanded') !== 'true'));
+  agentClose?.addEventListener('click', () => setAgentOpen(false));
+  document.querySelectorAll('[data-ai-question]').forEach((question) => {
+    question.addEventListener('click', () => {
+      document.querySelectorAll('[data-ai-question]').forEach((item) => item.setAttribute('aria-pressed', String(item === question)));
+      const answer = question.dataset.aiAnswer || '';
+      if (agentAnswer) agentAnswer.textContent = answer;
+      if (agentWhatsApp) {
+        const isEnglish = document.documentElement.lang === 'en';
+        const message = isEnglish
+          ? `Hello Eng. Eslam Elshikh,\nTopic: ${(question.textContent || '').trim()}\nContext prepared by the website assistant: ${answer}`
+          : `مرحبًا م. إسلام الشيخ،\nالموضوع: ${(question.textContent || '').trim()}\nالمعلومات التي جهزها مساعد الموقع: ${answer}`;
+        agentWhatsApp.href = `https://wa.me/${PRIMARY_PHONE}?text=${encodeURIComponent(message)}`;
+      }
+      trackConversion('ai_assistant_topic', { topic: question.dataset.aiQuestion || 'unknown' });
+    });
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && agentPanel?.classList.contains('is-open')) setAgentOpen(false);
   });
 
   const mapFrames = document.querySelectorAll('iframe[data-map-src]');

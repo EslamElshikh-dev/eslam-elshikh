@@ -3,11 +3,15 @@ import { spawn } from "node:child_process";
 const port = 4173;
 const server = spawn("python3", ["-u", "-m", "http.server", String(port)], { cwd: new URL("../", import.meta.url), stdio: ["ignore", "pipe", "pipe"] });
 const paths = [
-  "/", "/services/", "/services/cybersecurity/", "/services/ai-agents/",
+  "/", "/en/", "/services/", "/services/cybersecurity/", "/services/ai-agents/",
+  "/services/google-business-profile/", "/local-seo/", "/local-seo/riyadh/",
   "/about/", "/google-expert/", "/projects/", "/blog/",
-  "/blog/secure-website-development/", "/contact/", "/sitemap.xml",
+  "/blog/secure-website-development/", "/blog/topics/local-seo-saudi/",
+  "/contact/", "/privacy/", "/terms/", "/sitemap.xml",
   "/robots.txt", "/llms.txt", "/llms-full.txt", "/profile.json", "/feed.xml",
-  "/assets/css/main.css", "/assets/js/main.js", "/assets/brand/eslam-elshikh-mark.svg"
+  "/assets/css/main.css", "/assets/css/seo-cro.css", "/assets/js/main.js",
+  "/assets/brand/eslam-elshikh-logo-transparent.png",
+  "/assets/og/eslam-elshikh-og-transparent.png"
 ];
 
 const waitForServer = async () => {

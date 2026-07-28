@@ -1,15 +1,124 @@
-/* Official Eslam Elshikh visual identity — 2026 */
-:root{--brand-red:#ef2334;--brand-red-dark:#8d111b;--brand-blue:#38a9ff;--brand-green:#34d399;--brand-silver:#eef3f7;--brand-black:#020407}
-.brand-logo{width:62px!important;height:62px!important;object-fit:contain!important;flex:0 0 auto;border-radius:18px;background:var(--brand-black);padding:2px;box-shadow:0 0 0 1px rgba(239,35,52,.28),0 10px 28px rgba(0,0,0,.35),0 0 22px rgba(56,169,255,.13);transition:transform .24s ease,box-shadow .24s ease}
-.brand:hover .brand-logo{transform:translateY(-2px) scale(1.025);box-shadow:0 0 0 1px rgba(239,35,52,.5),0 14px 34px rgba(0,0,0,.42),0 0 28px rgba(56,169,255,.22)}
-.site-header .brand{position:relative;gap:13px}.site-header .brand:after{content:"";position:absolute;inset-inline-start:76px;bottom:-8px;width:86px;height:2px;border-radius:20px;background:linear-gradient(90deg,var(--brand-red),var(--brand-blue),var(--brand-green));opacity:.72;transition:width .25s ease}.site-header .brand:hover:after{width:124px}
-.hero{position:relative;overflow:hidden}.hero:before{content:"";position:absolute;z-index:0;width:min(58vw,760px);aspect-ratio:1;inset-inline-end:-13vw;top:-17%;background:url('/assets/brand/eslam-elshikh-logo.webp') center/contain no-repeat;opacity:.038;filter:grayscale(.18) drop-shadow(0 0 45px rgba(239,35,52,.2));pointer-events:none}.hero-grid,.stats-bar{position:relative;z-index:1}
-.profile-hero-card:before{content:"";position:absolute;z-index:0;width:78%;aspect-ratio:1;inset-inline-end:-25%;bottom:-28%;background:url('/assets/brand/eslam-elshikh-logo.webp') center/contain no-repeat;opacity:.075;filter:saturate(.82);pointer-events:none}.profile-photo-wrap:after{content:"";position:absolute;z-index:4;inset-inline-end:17px;bottom:17px;width:112px;aspect-ratio:1;background:rgba(2,4,7,.9) url('/assets/brand/eslam-elshikh-logo.webp') center/92% no-repeat;border:1px solid rgba(239,35,52,.38);border-radius:24px;box-shadow:0 16px 34px rgba(0,0,0,.45),0 0 24px rgba(56,169,255,.12);backdrop-filter:blur(10px)}
-.page-hero{position:relative;overflow:hidden}.page-hero:after{content:"";position:absolute;z-index:0;width:440px;aspect-ratio:1;inset-inline-end:-96px;top:50%;transform:translateY(-50%);background:url('/assets/brand/eslam-elshikh-logo.webp') center/contain no-repeat;opacity:.06;filter:grayscale(.25);pointer-events:none}.page-hero>.container{position:relative;z-index:1}
-.site-footer{position:relative;overflow:hidden}.site-footer:before{content:"";position:absolute;width:430px;aspect-ratio:1;inset-inline-start:-180px;bottom:-230px;background:url('/assets/brand/eslam-elshikh-logo.webp') center/contain no-repeat;opacity:.035;filter:grayscale(.45);pointer-events:none}.site-footer>.container{position:relative;z-index:1}
-.credential-card,.primary-service-card,.service-card,.case-study-card,.knowledge-hub-card,.project-card,.post-card{position:relative;overflow:hidden}.credential-card:before,.primary-service-card:before,.service-card:before,.case-study-card:before,.knowledge-hub-card:before,.project-card:before,.post-card:before{content:"";position:absolute;inset:0 auto auto 0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--brand-red),var(--brand-blue),transparent);opacity:.46;pointer-events:none}
-.button:not(.button-ghost){box-shadow:0 10px 28px rgba(56,169,255,.13),inset 0 0 0 1px rgba(255,255,255,.05)}.button:not(.button-ghost):hover{box-shadow:0 12px 34px rgba(239,35,52,.16),0 0 22px rgba(56,169,255,.12)}
-:root[data-theme="light"] .brand-logo{background:#05080d;box-shadow:0 0 0 1px rgba(141,17,27,.22),0 10px 28px rgba(5,15,25,.15)}:root[data-theme="light"] .hero:before,:root[data-theme="light"] .page-hero:after,:root[data-theme="light"] .site-footer:before{opacity:.04;mix-blend-mode:multiply}
-@media(max-width:820px){.brand-logo{width:52px!important;height:52px!important;border-radius:15px}.site-header .brand:after{inset-inline-start:64px}.profile-photo-wrap:after{width:92px;border-radius:20px}.page-hero:after{width:330px;inset-inline-end:-130px}}
-@media(max-width:620px){.brand-logo{width:46px!important;height:46px!important;border-radius:13px}.site-header .brand:after{display:none}.hero:before{width:112vw;inset-inline-end:-48vw;top:-5%;opacity:.025}.profile-photo-wrap:after{width:76px;inset-inline-end:12px;bottom:12px;border-radius:17px}.page-hero:after{width:270px;inset-inline-end:-145px;opacity:.045}.site-footer:before{width:300px;inset-inline-start:-150px;bottom:-165px}}
-@media(prefers-reduced-motion:reduce){.brand-logo{transition:none!important}.brand:hover .brand-logo{transform:none!important}}
+/* Official transparent Eslam Elshikh identity — 2026 */
+:root {
+  --brand-red: #ef2334;
+  --brand-blue: #38a9ff;
+  --brand-green: #34d399;
+}
+
+.brand-logo {
+  width: 68px !important;
+  height: 68px !important;
+  flex: 0 0 68px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, .35)) !important;
+  box-shadow: none !important;
+  transition: transform .24s ease, filter .24s ease !important;
+}
+
+.brand:hover .brand-logo {
+  transform: translateY(-2px) scale(1.025) !important;
+  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, .42)) drop-shadow(0 0 16px rgba(56, 169, 255, .16)) !important;
+}
+
+.site-header .brand {
+  position: relative;
+  gap: 12px;
+}
+
+.site-header .brand::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 80px;
+  bottom: -5px;
+  width: 94px;
+  height: 2px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, var(--brand-red), var(--brand-blue), var(--brand-green));
+  opacity: .74;
+}
+
+.hero,
+.page-hero,
+.site-footer {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before,
+.page-hero::after,
+.site-footer::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  width: min(58vw, 760px);
+  aspect-ratio: 1;
+  background: url("/assets/brand/eslam-elshikh-logo-transparent.png") center / contain no-repeat;
+  opacity: .035;
+  filter: grayscale(.15);
+  pointer-events: none;
+}
+
+.hero::before {
+  inset-inline-end: -13vw;
+  top: -17%;
+}
+
+.page-hero::after {
+  width: 430px;
+  inset-inline-end: -110px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: .045;
+}
+
+.site-footer::before {
+  width: 410px;
+  inset-inline-start: -180px;
+  bottom: -220px;
+  opacity: .028;
+}
+
+.hero-grid,
+.stats-bar,
+.page-hero > .container,
+.site-footer > .container {
+  position: relative;
+  z-index: 1;
+}
+
+.core-logo,
+.bio-logo {
+  object-fit: contain !important;
+  background: transparent !important;
+  filter: drop-shadow(0 20px 36px rgba(0, 0, 0, .36));
+}
+
+.cta-panel::after {
+  content: "" !important;
+  width: 300px !important;
+  height: 300px !important;
+  left: 2% !important;
+  bottom: -38% !important;
+  background: url("/assets/brand/eslam-elshikh-logo-transparent.png") center / contain no-repeat !important;
+  opacity: .07 !important;
+}
+
+@media (max-width: 820px) {
+  .brand-logo { width: 58px !important; height: 58px !important; flex-basis: 58px; }
+  .site-header .brand::after { inset-inline-start: 70px; width: 76px; }
+}
+
+@media (max-width: 620px) {
+  .brand-logo { width: 50px !important; height: 50px !important; flex-basis: 50px; }
+  .site-header .brand::after { display: none; }
+  .hero::before { width: 112vw; inset-inline-end: -48vw; top: -5%; opacity: .025; }
+  .page-hero::after { width: 270px; inset-inline-end: -145px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo { transition: none !important; }
+  .brand:hover .brand-logo { transform: none !important; }
+}

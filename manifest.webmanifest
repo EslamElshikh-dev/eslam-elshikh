@@ -2,25 +2,25 @@
   "id": "/",
   "name": "المهندس إسلام الشيخ",
   "short_name": "إسلام الشيخ",
-  "description": "المهندس إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات، خبير منتجات Google وGoogle Developer Expert في الرياض؛ يقدم حلول الذكاء الاصطناعي وتطوير المواقع والسيو والحلول السحابية.",
+  "description": "المهندس إسلام الشيخ، خبير أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض؛ يقدم حلول الذكاء الاصطناعي وتطوير المواقع والسيو والحلول السحابية.",
   "start_url": "/",
   "display": "standalone",
   "lang": "ar",
   "dir": "rtl",
-  "background_color": "#020407",
+  "background_color": "#07111b",
   "theme_color": "#07111b",
   "icons": [
     {
-      "src": "/assets/icons/icon-192.png?v=20260726",
+      "src": "/assets/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/assets/icons/favicon.svg?v=20260726",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

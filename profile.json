@@ -18,8 +18,7 @@
   "jobTitle": [
     "مهندس أمن سيبراني",
     "مطور برمجيات",
-    "خبير منتجات Google",
-    "Google Developer Expert"
+    "خبير منتجات Google"
   ],
   "hasOccupation": [
     {
@@ -33,10 +32,6 @@
     {
       "@type": "Occupation",
       "name": "خبير منتجات Google"
-    },
-    {
-      "@type": "Occupation",
-      "name": "Google Developer Expert"
     }
   ],
   "identifier": {
@@ -45,7 +40,7 @@
     "value": "Q138800449",
     "url": "https://www.wikidata.org/wiki/Q138800449"
   },
-  "description": "المهندس إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات، خبير منتجات Google وGoogle Developer Expert في الرياض؛ يقدم حلول الذكاء الاصطناعي وتطوير المواقع والسيو والحلول السحابية.",
+  "description": "المهندس إسلام الشيخ، خبير أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض؛ يقدم حلول الذكاء الاصطناعي وتطوير المواقع والسيو والحلول السحابية.",
   "email": "mailto:info@eslam-elshikh.com",
   "telephone": "+966579395299",
   "contactPoint": [
@@ -53,6 +48,16 @@
       "@type": "ContactPoint",
       "telephone": "+966579395299",
       "contactType": "customer service",
+      "availableLanguage": [
+        "ar",
+        "en"
+      ],
+      "areaServed": "SA"
+    },
+    {
+      "@type": "ContactPoint",
+      "telephone": "+966547194788",
+      "contactType": "alternative contact",
       "availableLanguage": [
         "ar",
         "en"
@@ -85,20 +90,17 @@
     "Cloud Solutions",
     "Firebase",
     "Knowledge Bases",
-    "Structured Data",
-    "Google Developer Expert"
+    "Structured Data"
   ],
+  "image": "https://eslam-elshikh.com/assets/brand/eslam-elshikh-logo-transparent.png",
   "sameAs": [
-    "https://github.com/EslamElshikh-dev",
-    "https://www.linkedin.com/in/eslam-elshikh",
-    "https://facebook.com/remesoo",
-    "https://x.com/remoesoo10",
-    "https://www.instagram.com/remoesoo10",
-    "https://www.threads.net/@remoesoo10",
-    "https://www.youtube.com/@remoesoo10",
-    "https://www.tiktok.com/@remoesoo",
     "https://www.wikidata.org/wiki/Q138800449",
     "https://me.developers.google.com/u/EslamElshikh",
-    "https://blog.eslam-elshikh.com"
+    "https://github.com/EslamElshikh-dev",
+    "https://x.com/remoesoo10",
+    "https://www.linkedin.com/in/eslam-elshikh",
+    "https://facebook.com/remesoo",
+    "https://www.instagram.com/remoesoo10",
+    "https://www.youtube.com/@remoesoo10"
   ]
 }

@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
+subprocess.run(["node", str(ROOT / "build.mjs")], cwd=ROOT, check=True)
 subprocess.run([sys.executable, str(ROOT / "scripts/apply-primary-logo.py")], cwd=ROOT, check=True)
 
 dist = ROOT / "dist"
@@ -36,13 +37,17 @@ for source in ROOT.iterdir():
 
 required = [
     dist / "index.html",
-    dist / "assets/brand/eslam-elshikh-logo.webp",
+    dist / "assets/brand/eslam-elshikh-logo-transparent.png",
     dist / "assets/icons/favicon.svg",
-    dist / "assets/og/eslam-elshikh-og.png",
+    dist / "assets/og/eslam-elshikh-og-transparent.png",
     dist / "assets/css/improvements.css",
+    dist / "assets/css/brand.css",
+    dist / "assets/css/seo-cro.css",
+    dist / "local-seo/riyadh/index.html",
+    dist / "services/google-business-profile/index.html",
 ]
 missing = [str(path.relative_to(dist)) for path in required if not path.is_file() or path.stat().st_size == 0]
 if missing:
     raise SystemExit(f"Vercel output is incomplete: {', '.join(missing)}")
 
-print(f"Vercel static output generated at {dist} with the complete official logo.")
+print(f"Vercel static output generated at {dist} with transparent identity and SEO routes.")
