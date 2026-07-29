@@ -1,20 +1,24 @@
-# Eslam Elshikh — Personal Website
+# المهندس إسلام الشيخ — الموقع الرسمي
 
-Static, Arabic-first personal website for `eslam-elshikh.com`. The site is generated with Node.js and deployed as plain HTML, CSS, JavaScript, and image assets, making it suitable for GitHub Pages without runtime dependencies.
+موقع عربي أولًا، سريع وثابت، للمهندس إسلام الشيخ. يجمع الأمن السيبراني وتطوير المواقع والتطبيقات ووكلاء الذكاء الاصطناعي وخدمات Google والسيو والحلول السحابية في بنية محتوى واحدة قابلة للتوسع.
 
-## Commands
+## البنية
 
-- `npm run build` — generate all pages, sitemap, robots, manifest, and CNAME.
-- `npm run validate` — check page metadata, H1 usage, JSON-LD, internal links, and required assets.
-- `npm run smoke` — start a temporary local server and verify important routes and assets.
-- `npm run serve` — preview the site locally on port 4173.
+- `src/content.mjs`: المحتوى المركزي للخدمات والأعمال والمقالات والأسئلة.
+- `build.mjs`: مولد الصفحات والبيانات المنظمة وملفات الفهرسة.
+- `assets/css/main.css`: نظام التصميم المتجاوب والوضعيْن الداكن والفاتح.
+- `assets/js/main.js`: القائمة والثيم والفلاتر والحركات ونموذج التواصل.
+- `scripts/validate.mjs`: تدقيق الصفحات والميتا والروابط وJSON-LD.
+- `scripts/smoke.mjs`: فحوص سريعة للتجاوب والأصول والمحتوى.
 
-## Content structure
+## التشغيل
 
-- `src/content.mjs` — site identity, services, projects, and blog content.
-- `build.mjs` — templates, layouts, structured data, and page generation.
-- `assets/css/main.css` — responsive design system.
-- `assets/js/main.js` — navigation, filtering, reveals, FAQ behavior, and WhatsApp brief form.
-- `services/`, `blog/`, `about/`, `projects/`, `google-expert/`, `contact/` — generated public pages.
+```bash
+npm run check
+```
 
-Generated HTML files are committed because GitHub Pages serves the repository directly.
+ينشئ الأمر مجلد `dist` الجاهز للنشر على Vercel، ثم ينفذ اختبارات البنية والسيو والدخان.
+
+## النشر
+
+يرتبط المستودع بمشروع Vercel، ويستخدم `vercel.json` الأمر `npm run build:vercel` وينشر محتويات `dist`.

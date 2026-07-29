@@ -1,15 +1,27 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { cp, mkdir, rm, writeFile } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { site, services, projects, mapsProjects, posts } from "./src/content.mjs";
+import { site, services, projects, mapsProjects, posts, homeFaq, localSeoFaq } from "./src/content.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
+const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
+const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
+const isDistBuild = outDir !== root;
+const generatedRoutes = [];
+const version = "3.0.0";
 
 const esc = (value = "") => String(value)
   .replaceAll("&", "&amp;")
   .replaceAll("<", "&lt;")
   .replaceAll(">", "&gt;")
-  .replaceAll('"', "&quot;");
+  .replaceAll('"', "&quot;")
+  .replaceAll("'", "&#39;");
+
+const safeJson = (value) => JSON.stringify(value).replaceAll("<", "\\u003c");
+const absolute = (path = "/") => new URL(path, `${site.url}/`).href;
+const routeFile = (path) => path === "/" ? "index.html" : join(path.replace(/^\//, "").replace(/\/$/, ""), "index.html");
+const serviceBySlug = (slug) => services.find((service) => service.slug === slug);
+const postBySlug = (slug) => posts.find((post) => post.slug === slug);
 
 const icons = {
   shield: '<path d="M12 3 5 6v5c0 4.7 2.8 8.1 7 10 4.2-1.9 7-5.3 7-10V6l-7-3Z"/><path d="m9.4 12 1.7 1.7 3.8-4"/>',
@@ -32,75 +44,157 @@ const icons = {
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
   book: '<path d="M4 4h10a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4Z"/><path d="M7 16h10m0-9h3v13h-3"/>',
   external: '<path d="M14 4h6v6m0-6-9 9"/><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/>',
-  whatsapp: '<path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.4-4A8 8 0 1 1 20 11.5Z"/><path d="M8.5 8.2c.3 3 2.4 5.4 5.5 6.2.8.2 1.6-.5 1.8-1.2l-2.2-1-1 1c-1.4-.7-2.5-1.8-3.2-3.2l1-1-1-2.2c-.5.2-1 .7-.9 1.4Z"/>',
-  eye: '<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>',
-  moon: '<path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5 8.5 8.5 0 1 0 20.5 14.3Z"/>'
+  moon: '<path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5 8.5 8.5 0 1 0 20.5 14.3Z"/>',
+  target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>',
+  layers: '<path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.5 3.7 5.5 3.7 9S14.4 18.5 12 21c-2.4-2.5-3.7-5.5-3.7-9S9.6 5.5 12 3Z"/>',
+  chevron: '<path d="m9 18 6-6-6-6"/>',
+  quote: '<path d="M7 17H4a1 1 0 0 1-1-1v-4c0-4 2-7 6-9v3c-2 1-3 3-3 5h1a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2Zm10 0h-3a1 1 0 0 1-1-1v-4c0-4 2-7 6-9v3c-2 1-3 3-3 5h1a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2Z"/>',
+  whatsapp: '<path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.4-4A8 8 0 1 1 20 11.5Z"/><path d="M8.5 8.2c.3 3 2.4 5.4 5.5 6.2.8.2 1.6-.5 1.8-1.2l-2.2-1-1 1c-1.4-.7-2.5-1.8-3.2-3.2l1-1-1-2.2c-.5.2-1 .7-.9 1.4Z"/>'
 };
 
-const brandIcons = {
-  github: "M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12",
-  linkedin: "M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5ZM.34 8h4.32v13.66H.34V8Zm7 0h4.14v1.87h.06c.58-1.09 1.99-2.24 4.09-2.24 4.37 0 5.18 2.88 5.18 6.62v7.41H16.5v-6.57c0-1.57-.03-3.59-2.19-3.59-2.19 0-2.53 1.71-2.53 3.48v6.68H7.34V8Z",
-  facebook: "M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.673 3.667h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z",
-  x: "M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z",
-  instagram: "M7.03.084C5.753.144 4.881.348 4.119.647 3.33.955 2.662 1.367 1.997 2.035.75 3.285.126 5.053.063 8.077.007 9.354-.006 9.765 0 13.023c.006 3.259.021 3.667.083 4.947.061 1.277.264 2.148.563 2.911.308.789.72 1.457 1.388 2.123.668.665 1.337 1.074 2.129 1.38.763.295 1.636.496 2.913.552 1.277.056 1.688.069 4.946.063 3.258-.006 3.668-.021 4.948-.081 1.28-.061 2.147-.266 2.91-.564.789-.308 1.458-.72 2.123-1.388 1.247-1.254 1.87-3.021 1.933-6.049.056-1.281.069-1.69.063-4.948-.006-3.258-.021-3.667-.082-4.946-.061-1.28-.264-2.149-.563-2.912C21.047 2.667 19.278.92 16.924.065 15.647.009 15.236-.005 11.977.001 8.718.008 8.31.022 7.03.084Zm.141 21.693c-1.17-.051-1.806-.245-2.229-.408-.561-.216-.96-.477-1.382-.895-.422-.418-.681-.819-.9-1.378-.164-.423-.362-1.058-.417-2.228-.06-1.265-.072-1.644-.079-4.848-.007-3.204.005-3.583.061-4.848.05-1.169.246-1.805.408-2.228.216-.561.476-.96.895-1.382.419-.422.818-.681 1.378-.9.423-.165 1.058-.361 2.227-.417 1.266-.06 1.645-.072 4.848-.079 3.203-.007 3.584.005 4.85.061 1.169.051 1.805.245 2.228.408.561.216.96.475 1.382.895.422.419.682.818.901 1.379.165.422.362 1.056.417 2.226.06 1.266.074 1.645.08 4.848.006 3.203-.006 3.583-.061 4.848-.051 1.17-.245 1.806-.408 2.229-.216.56-.476.96-.895 1.381-.419.422-.818.681-1.378.9-.422.165-1.058.362-2.226.417-1.266.06-1.645.072-4.85.079-3.204.007-3.582-.006-4.848-.061ZM16.953 5.586a1.44 1.44 0 1 0 2.88-.006 1.44 1.44 0 0 0-2.88.006ZM5.839 12.012c.007 3.403 2.771 6.156 6.173 6.149 3.403-.006 6.157-2.77 6.151-6.173-.007-3.403-2.771-6.157-6.174-6.15-3.403.007-6.156 2.771-6.15 6.174ZM8 12.008a4 4 0 1 1 8-.016 4 4 0 0 1-8 .016Z",
-  threads: "M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 0 1 3.02.142c-.126-.742-.375-1.332-.75-1.757-.513-.586-1.308-.883-2.359-.89h-.029c-.844 0-1.992.232-2.721 1.32L7.734 7.847c.98-1.454 2.568-2.256 4.478-2.256h.044c3.194.02 5.097 1.975 5.287 5.388.108.046.216.094.321.142 1.49.7 2.58 1.761 3.154 3.07.797 1.82.871 4.79-1.548 7.158-1.85 1.81-4.094 2.628-7.277 2.65Zm1.003-11.69c-.242 0-.487.007-.739.021-1.836.103-2.98.946-2.916 2.143.067 1.256 1.452 1.839 2.784 1.767 1.224-.065 2.818-.543 3.086-3.71a10.5 10.5 0 0 0-2.215-.221Z",
-  youtube: "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814ZM9.545 15.568V8.432L15.818 12l-6.273 3.568Z",
-  tiktok: "M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07Z",
-  whatsapp: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"
-};
+const icon = (name, className = "icon") => `<svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${icons[name] ?? icons.shield}</svg>`;
+const logo = (className = "brand-logo", alt = "") => `<img class="${className}" src="${site.logo}" width="512" height="512" alt="${esc(alt)}" decoding="async">`;
 
-function icon(name, className = "icon") {
-  return `<svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${icons[name] ?? icons.shield}</svg>`;
+const socialLinks = [
+  ["GitHub", site.social.github, "GH"],
+  ["LinkedIn", site.social.linkedin, "in"],
+  ["X", site.social.x, "X"],
+  ["Instagram", site.social.instagram, "IG"],
+  ["YouTube", site.social.youtube, "YT"]
+];
+
+const baseGraph = () => ([
+  {
+    "@type": "Person",
+    "@id": `${site.url}/#person`,
+    name: site.nameAr,
+    honorificPrefix: "المهندس",
+    alternateName: [site.brandName, site.nameEn, "Islam Elshikh", "Eslam El Sheikh"],
+    url: site.url,
+    image: absolute(site.logo),
+    description: site.description,
+    jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"],
+    email: `mailto:${site.email}`,
+    telephone: site.phone,
+    workLocation: { "@type": "Place", name: site.city, address: { "@type": "PostalAddress", addressLocality: site.city, addressRegion: site.region, addressCountry: site.countryCode } },
+    areaServed: { "@type": "Country", name: site.country },
+    knowsAbout: services.map((service) => service.title),
+    sameAs: [site.social.wikidata, site.social.googleDeveloper, site.social.github, site.social.linkedin, site.social.x, site.social.instagram, site.social.youtube]
+  },
+  {
+    "@type": "WebSite",
+    "@id": `${site.url}/#website`,
+    url: site.url,
+    name: site.brandName,
+    alternateName: [site.nameAr, site.nameEn],
+    inLanguage: ["ar-SA", "en"],
+    publisher: { "@id": `${site.url}/#person` }
+  },
+  {
+    "@type": "ProfessionalService",
+    "@id": `${site.url}/#professional-service`,
+    name: "خدمات المهندس إسلام الشيخ التقنية والاستشارية",
+    alternateName: "Eslam Elshikh Digital Engineering Services",
+    url: site.url,
+    logo: absolute(site.logo),
+    image: absolute(site.shareImage),
+    email: site.email,
+    telephone: site.phone,
+    founder: { "@id": `${site.url}/#person` },
+    address: { "@type": "PostalAddress", addressLocality: site.city, addressRegion: site.region, addressCountry: site.countryCode },
+    areaServed: [{ "@type": "City", name: site.city }, { "@type": "Country", name: site.country }],
+    availableLanguage: ["ar", "en"],
+    priceRange: "$$"
+  }
+]);
+
+const breadcrumbSchema = (items) => ({
+  "@type": "BreadcrumbList",
+  itemListElement: items.map((item, index) => ({ "@type": "ListItem", position: index + 1, name: item.name, item: absolute(item.path) }))
+});
+
+const faqSchema = (faq) => ({
+  "@type": "FAQPage",
+  mainEntity: faq.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } }))
+});
+
+function head({ title, description, path = "/", lang = "ar", schema = [], image = site.shareImage, type = "website", published, modified }) {
+  const isEnglish = lang === "en";
+  const canonical = absolute(path);
+  const titleHasBrand = title.includes(site.nameAr) || title.includes(site.nameEn) || title.includes(site.brandName);
+  const fullTitle = title === site.brandName || titleHasBrand ? title : `${title} | ${site.brandName}`;
+  const graph = [
+    ...baseGraph(),
+    {
+      "@type": type === "article" ? "Article" : "WebPage",
+      "@id": `${canonical}#${type === "article" ? "article" : "webpage"}`,
+      url: canonical,
+      name: fullTitle,
+      description,
+      inLanguage: isEnglish ? "en" : "ar-SA",
+      isPartOf: { "@id": `${site.url}/#website` },
+      about: { "@id": `${site.url}/#person` },
+      ...(published ? { datePublished: published } : {}),
+      dateModified: modified || site.lastUpdated,
+      ...(type === "article" ? { author: { "@id": `${site.url}/#person` }, publisher: { "@id": `${site.url}/#person` }, image: absolute(image) } : {})
+    },
+    ...schema
+  ];
+  return `<!doctype html>
+<html lang="${lang}" dir="${isEnglish ? "ltr" : "rtl"}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>${esc(fullTitle)}</title>
+  <meta name="description" content="${esc(description)}">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="author" content="${esc(site.nameAr)}">
+  <meta name="application-name" content="${esc(site.brandName)}">
+  <meta name="theme-color" content="#06131f" data-theme-color>
+  <meta name="color-scheme" content="dark light">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="format-detection" content="telephone=yes">
+  <meta name="geo.region" content="SA-01">
+  <meta name="geo.placename" content="${esc(site.city)}">
+  <link rel="canonical" href="${canonical}">
+  ${path === "/" || path === "/en/" ? `<link rel="alternate" hreflang="ar" href="${site.url}/"><link rel="alternate" hreflang="ar-SA" href="${site.url}/"><link rel="alternate" hreflang="en" href="${site.url}/en/"><link rel="alternate" hreflang="x-default" href="${site.url}/">` : `<link rel="alternate" hreflang="ar-SA" href="${canonical}"><link rel="alternate" hreflang="x-default" href="${canonical}">`}
+  <link rel="me" href="${site.social.googleDeveloper}">
+  <link rel="me" href="${site.social.wikidata}">
+  <link rel="me" href="${site.social.github}">
+  <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml" sizes="any">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="alternate" type="application/rss+xml" title="مدونة ${esc(site.brandName)}" href="/feed.xml">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="${esc(site.brandName)}">
+  <meta property="og:locale" content="${isEnglish ? "en_US" : "ar_SA"}">
+  <meta property="og:type" content="${type}">
+  <meta property="og:site_name" content="${esc(site.brandName)}">
+  <meta property="og:title" content="${esc(fullTitle)}">
+  <meta property="og:description" content="${esc(description)}">
+  <meta property="og:url" content="${canonical}">
+  <meta property="og:image" content="${absolute(image)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${esc(fullTitle)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@remoesoo10">
+  <meta name="twitter:creator" content="@remoesoo10">
+  <meta name="twitter:title" content="${esc(fullTitle)}">
+  <meta name="twitter:description" content="${esc(description)}">
+  <meta name="twitter:image" content="${absolute(image)}">
+  <script>document.documentElement.classList.add("js");try{const s=localStorage.getItem("es-theme");const t=s||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.dataset.theme=t;document.querySelector("meta[data-theme-color]")?.setAttribute("content",t==="light"?"#f5f8fb":"#06131f")}catch(e){}</script>
+  <link rel="stylesheet" href="/assets/css/main.css?v=${version}">
+  <noscript><style>.reveal{opacity:1!important;transform:none!important}.mobile-menu{display:none!important}</style></noscript>
+  <script type="application/ld+json">${safeJson({ "@context": "https://schema.org", "@graph": graph })}</script>
+</head>`;
 }
 
-function brandIcon(name, className = "brand-icon") {
-  return `<svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="${brandIcons[name]}"/></svg>`;
-}
-
-function logoMark(className = "brand-logo") {
-  return `<img class="${className}" src="${site.logo}" width="96" height="96" alt="">`;
-}
-
-function contextualCopy(path = "/") {
-  if (path.startsWith("/services/google-business-profile/")) return {
-    eyebrow: "تشخيص ملفات Google التجارية",
-    title: "هل ملفك معلق أو تعذر إثبات ملكيته؟",
-    text: "أرسل رابط الملف ونص الإشعار وتسلسل المحاولات السابقة للحصول على تشخيص أولي منظم دون مشاركة كلمات المرور أو رموز التحقق.",
-    button: "هل ملفك معلق؟ تواصل الآن للتشخيص",
-    message: "مرحبًا م. إسلام، ملفي التجاري على Google معلق أو يواجه مشكلة في إثبات الملكية، وأرغب في تشخيص الحالة."
-  };
-  if (path.startsWith("/local-seo/")) return {
-    eyebrow: "السيو المحلي",
-    title: "هل تريد تحسين ظهور شركتك في خرائط Google؟",
-    text: "ابدأ بتدقيق الموقع والملف التجاري والمنافسة المحلية، ثم حوّل النتائج إلى خريطة تنفيذ قابلة للقياس.",
-    button: "اطلب تدقيق السيو المحلي",
-    message: "مرحبًا م. إسلام، أريد تحسين السيو المحلي وظهور نشاطي في خرائط Google."
-  };
-  if (path.startsWith("/services/cybersecurity/")) return {
-    eyebrow: "الأمن السيبراني",
-    title: "هل تحتاج تقييمًا واضحًا للمخاطر قبل أن تتوسع؟",
-    text: "حدّد النظام والأصول الحساسة والهدف من التقييم، وسنرتب نطاقًا مصرحًا ومخرجات عملية حسب الأولوية.",
-    button: "اطلب تشخيصًا أمنيًا",
-    message: "مرحبًا م. إسلام، أريد مناقشة تقييم أمني مصرح لنظام أو موقع."
-  };
-  if (path.startsWith("/services/ai-agents/")) return {
-    eyebrow: "وكلاء الذكاء الاصطناعي",
-    title: "لديك عملية متكررة تريد تحويلها إلى وكيل ذكي؟",
-    text: "أرسل وصف العملية ومصادر المعرفة والأدوات المتاحة لنحدد حالة استخدام قابلة للقياس وآمنة.",
-    button: "ناقش وكيل الذكاء الاصطناعي",
-    message: "مرحبًا م. إسلام، أريد دراسة حالة استخدام لوكيل ذكاء اصطناعي في شركتي."
-  };
-  return {
-    eyebrow: "لديك تحدٍ تقني؟",
-    title: "لنحوّل التعقيد إلى خطة واضحة قابلة للتنفيذ",
-    text: "أرسل الهدف، الوضع الحالي، والموعد المتوقع. ستحصل على تشخيص أولي ونقطة بداية مناسبة.",
-    button: "ابدأ الآن",
-    message: "مرحبًا م. إسلام، أريد مناقشة خدمة تقنية."
-  };
-}
-
-function header(active = "", path = "/", language = "ar") {
+function header(active = "", language = "ar") {
   const isEnglish = language === "en";
   const nav = isEnglish ? [
     ["home", "/en/", "Home"],
@@ -108,7 +202,7 @@ function header(active = "", path = "/", language = "ar") {
     ["projects", "/projects/", "Work"],
     ["about", "/about/", "About"],
     ["google", "/google-expert/", "Google expertise"],
-    ["blog", "/blog/", "Blog"]
+    ["blog", "/blog/", "Insights"]
   ] : [
     ["home", "/", "الرئيسية"],
     ["services", "/services/", "الخدمات"],
@@ -117,812 +211,382 @@ function header(active = "", path = "/", language = "ar") {
     ["google", "/google-expert/", "خبرة Google"],
     ["blog", "/blog/", "المدونة"]
   ];
-  const links = nav.map(([key, href, label]) => `<a href="${href}"${active === key ? ' aria-current="page" class="is-active"' : ""}>${label}</a>`).join("");
-  const context = contextualCopy(path);
-  const languageLink = isEnglish
-    ? `<a class="language-switch" href="/" lang="ar" dir="rtl" aria-label="النسخة العربية">عربي</a>`
-    : `<a class="language-switch" href="/en/" lang="en" dir="ltr" aria-label="English version">EN</a>`;
-  return `
-    <a class="skip-link" href="#main">${isEnglish ? "Skip to content" : "انتقل إلى المحتوى"}</a>
-    <header class="site-header" data-header>
-      <div class="container header-inner">
-        <a class="brand" href="${isEnglish ? "/en/" : "/"}" aria-label="${isEnglish ? "Eng. Eslam Elshikh — Home" : `${site.brandName} — الصفحة الرئيسية`}">
-          ${logoMark()}
-          <span><strong>${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}</strong><small>${isEnglish ? "Cybersecurity & Digital Engineering" : site.nameEn}</small></span>
-        </a>
-        <nav class="desktop-nav" aria-label="${isEnglish ? "Main navigation" : "التنقل الرئيسي"}">${links}</nav>
-        <div class="header-tools">
-          ${languageLink}
-          <button class="theme-toggle" type="button" aria-label="${isEnglish ? "Enable light mode" : "تفعيل الوضع الفاتح"}" aria-pressed="false" data-theme-toggle>
-            <span class="theme-sun">${icon("sun")}</span><span class="theme-moon">${icon("moon")}</span>
-          </button>
-          <a class="button button-small header-cta" href="${isEnglish ? site.whatsapp : `${site.whatsapp}?text=${encodeURIComponent(context.message)}`}"${isEnglish ? ' target="_blank" rel="noopener"' : ' target="_blank" rel="noopener"'}>${isEnglish ? "Start a project" : context.button} ${icon("arrow", "button-icon")}</a>
-          <button class="menu-toggle" type="button" aria-label="${isEnglish ? "Open menu" : "فتح القائمة"}" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
-            <span class="menu-open">${icon("menu")}</span><span class="menu-close">${icon("close")}</span>
-          </button>
-        </div>
-      </div>
-      <nav class="mobile-menu" id="mobile-menu" aria-label="${isEnglish ? "Mobile navigation" : "قائمة الجوال"}" data-mobile-menu>${links}${languageLink}<a class="button" href="${isEnglish ? site.whatsapp : `${site.whatsapp}?text=${encodeURIComponent(context.message)}`}" target="_blank" rel="noopener">${isEnglish ? "Start a project" : context.button}</a></nav>
-    </header>`;
-}
-
-function aiAgentWidget(path = "/", language = "ar") {
-  const isEnglish = language === "en";
-  const context = contextualCopy(path);
-  const questions = isEnglish ? [
-    ["security", "I need a cybersecurity assessment", "Start by identifying the system, sensitive assets, current concern, and whether you can authorize the assessment scope."],
-    ["seo", "I want better local visibility", "Share your website, Google Business Profile, target city, and the services you want qualified customers to find."],
-    ["google", "My Google profile has an issue", "Prepare the profile URL, the exact notice, a timeline of recent changes, and the verification attempts already made."]
-  ] : [
-    ["security", "أحتاج تقييمًا للأمن السيبراني", "ابدأ بتحديد النظام والأصول الحساسة والمشكلة الحالية، مع التأكد من وجود تصريح واضح لأي فحص تقني."],
-    ["seo", "أريد تحسين السيو والظهور المحلي", "أرسل رابط الموقع والملف التجاري والمدينة والخدمات المستهدفة لنحدد نقطة البداية المناسبة."],
-    ["google", "ملفي التجاري معلق أو لم يقبل التحقق", "جهّز رابط الملف ونص الإشعار وتسلسل التعديلات ومحاولات التحقق السابقة دون إرسال كلمة مرور أو رمز تحقق."]
-  ];
-  return `
-    <button class="ai-agent-launcher" type="button" aria-controls="ai-agent-panel" aria-expanded="false" data-ai-agent-open>
-      ${logoMark("ai-agent-logo")}
-      <span>${isEnglish ? "Smart assistant" : "المساعد الذكي"}</span>
-    </button>
-    <aside class="ai-agent-panel" id="ai-agent-panel" aria-hidden="true" aria-label="${isEnglish ? "Eslam's smart assistant" : "المساعد الذكي للمهندس إسلام الشيخ"}" data-ai-agent-panel>
-      <div class="ai-agent-head">
-        ${logoMark("ai-agent-avatar")}
-        <div><strong>${isEnglish ? "Welcome — I am Eslam's digital assistant" : "مرحبًا، أنا المساعد الرقمي لإسلام"}</strong><span>${isEnglish ? "Choose a topic for a quick starting point" : "اختر موضوعًا للحصول على نقطة بداية سريعة"}</span></div>
-        <button type="button" aria-label="${isEnglish ? "Close assistant" : "إغلاق المساعد"}" data-ai-agent-close>${icon("close")}</button>
-      </div>
-      <div class="ai-agent-options">${questions.map(([key, question, answer]) => `<button type="button" data-ai-question="${key}" data-ai-answer="${esc(answer)}">${question}</button>`).join("")}</div>
-      <div class="ai-agent-answer" role="status" aria-live="polite" data-ai-agent-answer>
-        <p>${isEnglish ? "I can help you prepare the right details before contacting Eslam." : "أساعدك في تجهيز المعلومات الصحيحة قبل التواصل مع م. إسلام."}</p>
-      </div>
-      <a class="button ai-agent-whatsapp" href="${site.whatsapp}?text=${encodeURIComponent(context.message)}" target="_blank" rel="noopener" data-ai-whatsapp>${brandIcon("whatsapp", "button-icon")}<span>${isEnglish ? "Continue on WhatsApp" : context.button}</span></a>
-      <small>${isEnglish ? "Never send passwords, verification codes, or API keys." : "لا ترسل كلمات مرور أو رموز تحقق أو مفاتيح API."}</small>
-    </aside>`;
-}
-
-function footer(path = "/", language = "ar") {
-  const isEnglish = language === "en";
-  const social = [
-    ["github", site.social.github, "GitHub"],
-    ["linkedin", site.social.linkedin, "LinkedIn"],
-    ["facebook", site.social.facebook, "Facebook"],
-    ["x", site.social.x, "X"],
-    ["instagram", site.social.instagram, "Instagram"],
-    ["threads", site.social.threads, "Threads"],
-    ["youtube", site.social.youtube, "YouTube"],
-    ["tiktok", site.social.tiktok, "TikTok"]
-  ];
-  if (isEnglish) {
-    return `
-      <footer class="site-footer">
-        <div class="container footer-grid footer-grid-en">
-          <div class="footer-intro">
-            <a class="brand" href="/en/">${logoMark()}<span><strong>Eng. ${site.nameEn}</strong><small>Cybersecurity & Digital Engineering</small></span></a>
-            <p>Secure software, practical AI agents, Google product expertise, and search visibility for businesses in Saudi Arabia and beyond.</p>
-            <div class="social-row" aria-label="Social profiles">${social.map(([key,url,label])=>`<a href="${url}" target="_blank" rel="noopener" aria-label="${label}" title="${label}">${brandIcon(key)}</a>`).join("")}</div>
-          </div>
-          <div><h2>Explore</h2><a href="/services/">Services</a><a href="/projects/">Selected work</a><a href="/about/">Professional profile</a><a href="/blog/">Arabic blog</a></div>
-          <div class="footer-contact"><h2>Contact</h2><a dir="ltr" href="tel:${site.phone}">${icon("phone")}<span>${site.phoneDisplay}</span></a><a href="${site.whatsapp}" target="_blank" rel="noopener">${brandIcon("whatsapp")}<span>WhatsApp</span></a><a href="mailto:${site.email}">${icon("mail")}<span>${site.email}</span></a><span class="footer-location">${icon("pin")}<span>Riyadh, Saudi Arabia</span></span></div>
-        </div>
-        <div class="container footer-bottom"><p>© ${new Date().getFullYear()} Eng. ${site.nameEn}.</p><div class="footer-legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/.well-known/security.txt">Security</a></div></div>
-      </footer>
-      ${aiAgentWidget(path, language)}
-      <div class="floating-contact" role="group" aria-label="Quick contact">
-        <a class="floating-action floating-call" href="tel:${site.phone}" aria-label="Call Eng. Eslam Elshikh">${icon("phone")}<span>Call</span></a>
-        <a class="floating-action floating-whatsapp" href="${site.whatsapp}" target="_blank" rel="noopener" aria-label="Contact Eng. Eslam Elshikh on WhatsApp">${brandIcon("whatsapp")}<span>WhatsApp</span></a>
-      </div>`;
-  }
-  return `
-    <footer class="site-footer">
-      <div class="container footer-grid">
-        <div class="footer-intro">
-          <a class="brand" href="/">${logoMark()}<span><strong>${site.brandName}</strong><small>${site.nameEn}</small></span></a>
-          <p>حلول رقمية تجمع الأمن السيبراني والبرمجة والذكاء الاصطناعي وخبرة Google والسيو في تجربة واحدة مترابطة.</p>
-          <div class="social-row" aria-label="حسابات التواصل الاجتماعي">${social.map(([key,url,label])=>`<a href="${url}" target="_blank" rel="noopener" aria-label="${label}" title="${label}">${brandIcon(key)}</a>`).join("")}</div>
-        </div>
-        <div><h2>روابط سريعة</h2><a href="/about/">عن إسلام</a><a href="/projects/">الأعمال</a><a href="/google-expert/">خبرة Google</a><a href="/blog/">المدونة</a></div>
-        <div class="footer-services"><h2>جميع الخدمات</h2><div>${services.map(s=>`<a href="/services/${s.slug}/">${s.title}</a>`).join("")}</div></div>
-        <div class="footer-contact"><h2>تواصل</h2><a dir="ltr" href="tel:${site.phone}">${icon("phone")}<span>${site.phoneDisplay}</span></a><a href="${site.whatsapp}" target="_blank" rel="noopener">${brandIcon("whatsapp")}<span>WhatsApp الأساسي</span></a><a dir="ltr" href="tel:${site.secondaryPhone}">${icon("phone")}<span>${site.secondaryPhoneDisplay} — بديل</span></a><a href="mailto:${site.email}">${icon("mail")}<span>${site.email}</span></a><span class="footer-location">${icon("pin")}<span>${site.city}، ${site.country}</span></span></div>
-      </div>
-      <div class="container footer-bottom"><p>© ${new Date().getFullYear()} ${site.brandName}. جميع الحقوق محفوظة.</p><div class="footer-legal"><a href="/privacy/">سياسة الخصوصية</a><a href="/terms/">شروط الاستخدام</a><a href="/.well-known/security.txt">الإبلاغ الأمني</a></div></div>
-    </footer>
-    ${aiAgentWidget(path, language)}
-    <div class="floating-contact" role="group" aria-label="تواصل سريع">
-      <a class="floating-action floating-call" href="tel:${site.phone}" aria-label="اتصال مباشر بالمهندس إسلام الشيخ على ${site.phoneDisplay}">${icon("phone")}<span>اتصال مباشر</span></a>
-      <a class="floating-action floating-whatsapp" href="${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، أريد مناقشة خدمة تقنية")}" target="_blank" rel="noopener" aria-label="تواصل مع المهندس إسلام الشيخ عبر WhatsApp">${brandIcon("whatsapp")}<span>WhatsApp</span></a>
+  const links = nav.map(([key, href, label]) => `<a href="${href}"${active === key ? ' class="is-active" aria-current="page"' : ""}>${label}</a>`).join("");
+  return `<a class="skip-link" href="#main">${isEnglish ? "Skip to content" : "انتقل إلى المحتوى"}</a>
+<header class="site-header" data-header>
+  <div class="container header-inner">
+    <a class="brand" href="${isEnglish ? "/en/" : "/"}" aria-label="${isEnglish ? `Eng. ${site.nameEn} home` : `${site.brandName} — الصفحة الرئيسية`}">
+      ${logo("brand-logo")}
+      <span class="brand-copy"><strong>${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}</strong><small>${isEnglish ? "Cybersecurity & Digital Engineering" : "أمن سيبراني · برمجيات · ذكاء اصطناعي"}</small></span>
+    </a>
+    <nav class="desktop-nav" aria-label="${isEnglish ? "Main navigation" : "التنقل الرئيسي"}">${links}</nav>
+    <div class="header-tools">
+      <a class="language-switch" href="${isEnglish ? "/" : "/en/"}" lang="${isEnglish ? "ar" : "en"}" dir="${isEnglish ? "rtl" : "ltr"}" aria-label="${isEnglish ? "النسخة العربية" : "English version"}">${isEnglish ? "عربي" : "EN"}</a>
+      <button class="theme-toggle" type="button" aria-label="${isEnglish ? "Change color theme" : "تغيير نمط الألوان"}" aria-pressed="false" data-theme-toggle><span class="theme-sun">${icon("sun")}</span><span class="theme-moon">${icon("moon")}</span></button>
+      <a class="button button-small header-cta" href="${site.whatsapp}?text=${encodeURIComponent(isEnglish ? "Hello Eng. Eslam, I would like to discuss a digital project." : "مرحبًا م. إسلام، أرغب في مناقشة مشروع تقني.")}" target="_blank" rel="noopener">${isEnglish ? "Start a project" : "ناقش مشروعك"} ${icon("arrow", "button-icon")}</a>
+      <button class="menu-toggle" type="button" aria-label="${isEnglish ? "Open menu" : "فتح القائمة"}" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle><span class="menu-open">${icon("menu")}</span><span class="menu-close">${icon("close")}</span></button>
     </div>
-    <nav class="mobile-bottom-nav" aria-label="تنقل سريع للجوال">
-      <a href="/">${icon("home")}<span>الرئيسية</span></a>
-      <a href="/services/">${icon("briefcase")}<span>الخدمات</span></a>
-      <a href="/projects/">${icon("eye")}<span>الأعمال</span></a>
-      <a href="/contact/">${icon("mail")}<span>تواصل</span></a>
-    </nav>`;
+  </div>
+  <nav class="mobile-menu" id="mobile-menu" aria-label="${isEnglish ? "Mobile navigation" : "قائمة الجوال"}" data-mobile-menu>
+    <div class="mobile-menu-inner">${links}<a class="mobile-language" href="${isEnglish ? "/" : "/en/"}">${isEnglish ? "النسخة العربية" : "English version"}</a><a class="button" href="${site.whatsapp}?text=${encodeURIComponent(isEnglish ? "Hello Eng. Eslam, I would like to discuss a digital project." : "مرحبًا م. إسلام، أرغب في مناقشة مشروع تقني.")}" target="_blank" rel="noopener">${isEnglish ? "Start a project" : "ابدأ محادثة"}</a></div>
+  </nav>
+</header>`;
 }
 
-function schemaScript(data) {
-  return `<script type="application/ld+json">${JSON.stringify(data).replaceAll("<", "\\u003c")}</script>`;
-}
-
-function layout({
-  title,
-  description,
-  path = "/",
-  active = "",
-  body,
-  schema = [],
-  type = "website",
-  image = site.shareImage,
-  robots = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
-  publishedTime = "",
-  modifiedTime = "2026-07-28",
-  exactTitle = "",
-  language = "ar",
-  alternateAr = "",
-  alternateEn = ""
-}) {
+function footer(language = "ar") {
   const isEnglish = language === "en";
-  const canonical = `${site.url}${path === "/" ? "/" : path}`;
-  const pageTitle = exactTitle || (path === "/" ? site.brandName : title.includes(isEnglish ? site.nameEn : site.brandName) ? title : `${title} | ${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}`);
-  const arPath = alternateAr || (!isEnglish ? path : "/");
-  const enPath = alternateEn || (isEnglish ? path : "");
-  const pageSchema = {
-    "@type": "WebPage",
-    "@id": `${canonical}#webpage`,
-    url: canonical,
-    name: pageTitle,
-    description,
-    inLanguage: isEnglish ? "en" : "ar-SA",
-    isPartOf: { "@id": `${site.url}/#website` },
-    about: { "@id": `${site.url}/#person` },
-    dateModified: modifiedTime
-  };
-  const rawSchema = [pageSchema, personSchema, websiteSchema, professionalServiceSchema, localBusinessSchema, ...schema]
-    .flatMap(item => item?.["@graph"] ?? [item])
-    .filter(Boolean)
-    .map(item => {
-      const { "@context": _context, ...node } = item;
-      return node;
-    });
-  const seenSchema = new Set();
-  const graph = rawSchema.filter(node => {
-    const key = node["@id"] || `${node["@type"]}:${node.name || node.headline || JSON.stringify(node).slice(0, 160)}`;
-    if (seenSchema.has(key)) return false;
-    seenSchema.add(key);
-    return true;
-  });
-  return `<!doctype html>
-<html lang="${isEnglish ? "en" : "ar"}" dir="${isEnglish ? "ltr" : "rtl"}">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>${esc(pageTitle)}</title>
-  <meta name="description" content="${esc(description)}">
-  <meta name="robots" content="${robots}">
-  <meta name="author" content="${isEnglish ? site.nameEn : site.nameAr}">
-  <meta name="application-name" content="${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}">
-  <meta name="color-scheme" content="dark light">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="format-detection" content="telephone=yes">
-  <meta name="geo.region" content="SA-01">
-  <meta name="geo.placename" content="${isEnglish ? "Riyadh" : "الرياض"}">
-  <meta name="theme-color" content="#07111b" data-theme-color>
-  <script>try{const s=localStorage.getItem("es-theme");const t=s||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.dataset.theme=t;document.querySelector("meta[data-theme-color]")?.setAttribute("content",t==="light"?"#f4f8fb":"#07111b")}catch(e){}</script>
-  <link rel="canonical" href="${canonical}">
-  <link rel="alternate" hreflang="ar" href="${site.url}${arPath}">
-  <link rel="alternate" hreflang="ar-SA" href="${site.url}${arPath}">
-  ${enPath ? `<link rel="alternate" hreflang="en" href="${site.url}${enPath}">` : ""}
-  <link rel="alternate" hreflang="x-default" href="${site.url}${arPath}">
-  <link rel="me" href="${site.social.googleDeveloper}">
-  <link rel="me" href="${site.social.wikidata}">
-  <link rel="me" href="${site.social.github}">
-  <link rel="alternate" type="application/ld+json" href="/profile.json" title="${isEnglish ? "Eslam Elshikh professional profile" : "الملف المهني للمهندس إسلام الشيخ"}">
-  <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml" sizes="any">
-  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="alternate" type="application/rss+xml" title="${isEnglish ? "Eslam Elshikh technical blog" : `مدونة ${site.brandName}`}" href="/feed.xml">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="${isEnglish ? site.nameEn : site.brandName}">
-  <meta property="og:locale" content="${isEnglish ? "en_US" : "ar_SA"}">
-  ${isEnglish ? '<meta property="og:locale:alternate" content="ar_SA">' : '<meta property="og:locale:alternate" content="en_US">'}
-  <meta property="og:type" content="${type}">
-  <meta property="og:site_name" content="${site.brandName}">
-  <meta property="og:title" content="${esc(pageTitle)}">
-  <meta property="og:description" content="${esc(description)}">
-  <meta property="og:url" content="${canonical}">
-  <meta property="og:image" content="${site.url}${image}">
-  <meta property="og:image:type" content="image/png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="${esc(pageTitle)}">
-  ${publishedTime ? `<meta property="article:published_time" content="${publishedTime}">` : ""}
-  ${modifiedTime && type === "article" ? `<meta property="article:modified_time" content="${modifiedTime}">` : ""}
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:site" content="@remoesoo10">
-  <meta name="twitter:creator" content="@remoesoo10">
-  <meta name="twitter:title" content="${esc(pageTitle)}">
-  <meta name="twitter:description" content="${esc(description)}">
-  <meta name="twitter:image" content="${site.url}${image}">
-  <meta name="twitter:image:alt" content="${esc(pageTitle)}">
-  <link rel="stylesheet" href="/assets/css/main.css">
-  <link rel="stylesheet" href="/assets/css/improvements.css">
-  <link rel="stylesheet" href="/assets/css/brand.css">
-  <link rel="stylesheet" href="/assets/css/seo-cro.css">
-  <noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
-${schemaScript({ "@context": "https://schema.org", "@graph": graph })}
-</head>
-<body>
-${header(active, path, language).trim()}
-  <main id="main">${body}</main>
-${footer(path, language).trim()}
-  <script src="/assets/js/main.js" defer></script>
-</body>
-</html>`;
-}
-
-const personSchema = {
-  "@type": "Person",
-  "@id": `${site.url}/#person`,
-  name: site.nameAr,
-  honorificPrefix: "المهندس",
-  alternateName: [site.brandName, "اسلام الشيخ", site.nameEn, "Islam Elshikh", "Eslam El Sheikh"],
-  url: site.url,
-  mainEntityOfPage: { "@id": `${site.url}/about/#profile` },
-  jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"],
-  hasOccupation: [
-    { "@type":"Occupation", name:"مهندس أمن سيبراني" },
-    { "@type":"Occupation", name:"مطور برمجيات" },
-    { "@type":"Occupation", name:"خبير منتجات Google" }
-  ],
-  identifier: { "@type":"PropertyValue", propertyID:"Wikidata", value:"Q138800449", url:site.social.wikidata },
-  description: site.description,
-  email: `mailto:${site.email}`,
-  telephone: site.phone,
-  contactPoint: [
-    { "@type":"ContactPoint", telephone:site.phone, contactType:"customer service", availableLanguage:["ar","en"], areaServed:"SA" },
-    { "@type":"ContactPoint", telephone:site.secondaryPhone, contactType:"alternative contact", availableLanguage:["ar","en"], areaServed:"SA" }
-  ],
-  workLocation: { "@type": "Place", name: site.city, address:{ "@type":"PostalAddress", addressLocality:site.city, addressCountry:"SA" } },
-  areaServed: { "@type":"Country", name:site.country },
-  knowsAbout: ["Cybersecurity", "Software Development", "Artificial Intelligence Agents", "AI Agents", "Google Business Profile", "Google Product Support", "Search Engine Optimization", "Local SEO", "Cloud Solutions", "Firebase", "Knowledge Bases", "Structured Data"],
-  image: `${site.url}${site.logo}`,
-  sameAs: [
-    site.social.wikidata,
-    site.social.googleDeveloper,
-    site.social.github,
-    site.social.x,
-    site.social.linkedin,
-    site.social.facebook,
-    site.social.instagram,
-    site.social.youtube
-  ]
-};
-
-const websiteSchema = {
-  "@type": "WebSite",
-  "@id": `${site.url}/#website`,
-  url: site.url,
-  name: site.brandName,
-  alternateName: [site.nameAr, site.nameEn],
-  inLanguage: "ar-SA",
-  publisher: { "@id": `${site.url}/#person` }
-};
-
-const professionalServiceSchema = {
-  "@type": "ProfessionalService",
-  "@id": `${site.url}/#professional-service`,
-  name: "خدمات المهندس إسلام الشيخ التقنية والاستشارية",
-  alternateName: "Eslam Elshikh Digital Engineering Services",
-  url: site.url,
-  image: `${site.url}${site.logo}`,
-  email: site.email,
-  telephone: site.phone,
-  founder: { "@id": `${site.url}/#person` },
-  employee: { "@id": `${site.url}/#person` },
-  address: { "@type":"PostalAddress", addressLocality:"الرياض", addressRegion:"منطقة الرياض", addressCountry:"SA" },
-  areaServed: [
-    { "@type":"City", name:"الرياض", sameAs:"https://www.wikidata.org/wiki/Q3692" },
-    { "@type":"Country", name:"المملكة العربية السعودية", sameAs:"https://www.wikidata.org/wiki/Q851" }
-  ],
-  contactPoint: { "@type":"ContactPoint", telephone:site.phone, email:site.email, contactType:"customer service", availableLanguage:["ar","en"], areaServed:"SA" },
-  priceRange: "$$"
-};
-
-const localBusinessSchema = {
-  "@type": "LocalBusiness",
-  "@id": `${site.url}/#local-business`,
-  name: "المهندس إسلام الشيخ",
-  url: site.url,
-  logo: `${site.url}${site.logo}`,
-  image: `${site.url}${site.shareImage}`,
-  email: site.email,
-  telephone: site.phone,
-  founder: { "@id": `${site.url}/#person` },
-  parentOrganization: { "@id": `${site.url}/#professional-service` },
-  address: { "@type":"PostalAddress", addressLocality:"الرياض", addressRegion:"منطقة الرياض", addressCountry:"SA" },
-  areaServed: [
-    { "@type":"City", name:"الرياض" },
-    { "@type":"Country", name:"المملكة العربية السعودية" }
-  ],
-  sameAs: [site.social.wikidata, site.social.googleDeveloper, site.social.github, site.social.x],
-  priceRange: "$$"
-};
-
-const profilePageSchema = {
-  "@type": "ProfilePage",
-  "@id": `${site.url}/about/#profile`,
-  url: `${site.url}/about/`,
-  dateCreated: "2026-07-21",
-  dateModified: "2026-07-23",
-  mainEntity: { "@id": `${site.url}/#person` }
-};
-
-const breadcrumbs = (items) => ({
-  "@type": "BreadcrumbList",
-  itemListElement: items.map((item, index) => ({ "@type": "ListItem", position: index + 1, name: item.name, item: `${site.url}${item.path}` }))
-});
-
-function eyebrow(text) { return `<span class="eyebrow"><span></span>${text}</span>`; }
-function sectionHead(kicker, title, text = "") { return `<div class="section-head reveal">${eyebrow(kicker)}<h2>${title}</h2>${text ? `<p>${text}</p>` : ""}</div>`; }
-function serviceCard(s) {
-  return `<article class="service-card reveal" data-service-group="${s.group}"><div class="service-card-top"><span class="service-number">${s.number}</span><span class="service-icon">${icon(s.icon)}</span></div><p class="service-group">${s.group}</p><h3><a href="/services/${s.slug}/">${s.title}</a></h3><p>${s.short}</p><a class="text-link" href="/services/${s.slug}/">تفاصيل الخدمة ${icon("arrow")}</a></article>`;
-}
-function projectCard(p) {
-  return `<article class="project-card reveal"><div class="project-visual"><span>${p.category}</span><div class="project-lines" aria-hidden="true"></div></div><div class="project-content"><h3>${p.title}</h3><p>${p.description}</p><div class="tag-row">${p.tags.map(tag => `<span>${tag}</span>`).join("")}</div><a class="text-link" href="${p.url}" target="_blank" rel="noopener">معاينة المشروع ${icon("external")}</a></div></article>`;
-}
-function mapsProjectCard(p) {
-  const embedQuery = encodeURIComponent(`${p.title}، ${p.address}`);
-  const embedUrl = `https://www.google.com/maps?output=embed&hl=ar&gl=sa&q=${embedQuery}`;
-  return `<article class="maps-project-card reveal">
-    <div class="maps-project-preview">
-      <iframe src="${esc(embedUrl)}" title="معاينة موقع ${esc(p.title)} على خرائط Google" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" allowfullscreen></iframe>
-      <a class="maps-preview-link" href="${esc(p.url)}" target="_blank" rel="noopener" aria-label="فتح ملف ${esc(p.title)} على خرائط Google">
-        <span class="maps-live-badge">${icon("google")} مباشر من خرائط Google</span>
-        <span class="maps-open-chip">فتح على الخريطة ${icon("external")}</span>
-      </a>
+  const social = socialLinks.map(([label, href, mark]) => `<a href="${href}" target="_blank" rel="noopener" aria-label="${label}" title="${label}">${mark}</a>`).join("");
+  return `<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-intro">
+      <a class="brand" href="${isEnglish ? "/en/" : "/"}">${logo("brand-logo")}<span class="brand-copy"><strong>${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}</strong><small>${isEnglish ? "Cybersecurity & Digital Engineering" : site.nameEn}</small></span></a>
+      <p>${isEnglish ? "Secure digital products, practical AI systems, Google product expertise, and search visibility for ambitious businesses." : site.positioning}</p>
+      <div class="social-row" aria-label="${isEnglish ? "Social profiles" : "الحسابات الاجتماعية"}">${social}</div>
     </div>
-    <div class="maps-project-content">
-      <div class="maps-project-heading"><span class="maps-project-pin">${icon("pin")}</span><div><p>${esc(p.category)}</p><h3><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a></h3></div></div>
-      <p class="maps-project-address">${icon("pin")}<span>${esc(p.address)}</span></p>
-      <div class="tag-row">${p.tags.map(tag => `<span>${esc(tag)}</span>`).join("")}</div>
-      <a class="text-link" href="${esc(p.url)}" target="_blank" rel="noopener">عرض الملف التجاري ${icon("external")}</a>
-    </div>
+    <div class="footer-column"><h2>${isEnglish ? "Explore" : "روابط سريعة"}</h2><a href="/about/">${isEnglish ? "About" : "عن إسلام"}</a><a href="/projects/">${isEnglish ? "Selected work" : "الأعمال"}</a><a href="/google-expert/">${isEnglish ? "Google expertise" : "خبرة Google"}</a><a href="/blog/">${isEnglish ? "Insights" : "المدونة"}</a><a href="/contact/">${isEnglish ? "Contact" : "تواصل"}</a></div>
+    <div class="footer-column footer-services"><h2>${isEnglish ? "Core services" : "الخدمات الرئيسية"}</h2>${services.slice(0, 6).map((service) => `<a href="/services/${service.slug}/">${service.title}</a>`).join("")}<a class="footer-more" href="/services/">${isEnglish ? "View all services" : "عرض جميع الخدمات"}</a></div>
+    <div class="footer-column footer-contact"><h2>${isEnglish ? "Contact" : "بيانات التواصل"}</h2><a dir="ltr" href="tel:${site.phone}">${icon("phone")}<span>${site.phoneDisplay}</span></a><a href="${site.whatsapp}" target="_blank" rel="noopener">${icon("whatsapp")}<span>WhatsApp</span></a><a href="mailto:${site.email}">${icon("mail")}<span>${site.email}</span></a><span>${icon("pin")}<span>${isEnglish ? "Riyadh, Saudi Arabia" : `${site.city}، ${site.country}`}</span></span></div>
+  </div>
+  <div class="container footer-bottom"><p>© ${new Date().getFullYear()} ${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}. ${isEnglish ? "All rights reserved." : "جميع الحقوق محفوظة."}</p><div><a href="/privacy/">${isEnglish ? "Privacy" : "الخصوصية"}</a><a href="/terms/">${isEnglish ? "Terms" : "الشروط"}</a><a href="/.well-known/security.txt">${isEnglish ? "Security" : "الإبلاغ الأمني"}</a></div></div>
+</footer>
+<div class="floating-contact" role="group" aria-label="${isEnglish ? "Quick contact" : "تواصل سريع"}">
+  <a class="floating-action floating-call" href="tel:${site.phone}" aria-label="${isEnglish ? "Call Eng. Eslam" : "اتصال مباشر بالمهندس إسلام الشيخ"}">${icon("phone")}<span>${isEnglish ? "Call" : "اتصال"}</span></a>
+  <a class="floating-action floating-whatsapp" href="${site.whatsapp}?text=${encodeURIComponent(isEnglish ? "Hello Eng. Eslam, I would like to discuss a project." : "مرحبًا م. إسلام، أرغب في مناقشة مشروع.")}" target="_blank" rel="noopener" aria-label="${isEnglish ? "WhatsApp Eng. Eslam" : "تواصل عبر واتساب"}">${icon("whatsapp")}<span>WhatsApp</span></a>
+</div>
+<nav class="mobile-bottom-nav" aria-label="${isEnglish ? "Mobile quick navigation" : "التنقل السريع للجوال"}"><a href="${isEnglish ? "/en/" : "/"}">${icon("home")}<span>${isEnglish ? "Home" : "الرئيسية"}</span></a><a href="/services/">${icon("briefcase")}<span>${isEnglish ? "Services" : "الخدمات"}</span></a><a href="/projects/">${icon("layers")}<span>${isEnglish ? "Work" : "الأعمال"}</span></a><a href="/contact/">${icon("mail")}<span>${isEnglish ? "Contact" : "تواصل"}</span></a></nav>
+<button class="back-to-top" type="button" aria-label="${isEnglish ? "Back to top" : "العودة إلى أعلى الصفحة"}" data-back-to-top>${icon("chevron")}</button>
+<script src="/assets/js/main.js?v=${version}" defer></script>`;
+}
+
+function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image }) {
+  return `${head({ title, description, path, lang, schema, type, published, modified, image })}
+<body>${header(active, lang)}<main id="main">${body}</main>${footer(lang)}</body></html>`;
+}
+
+const eyebrow = (text) => `<span class="eyebrow"><span aria-hidden="true"></span>${esc(text)}</span>`;
+const button = (href, label, variant = "", external = false) => `<a class="button${variant ? ` ${variant}` : ""}" href="${href}"${external ? ' target="_blank" rel="noopener"' : ""}>${esc(label)} ${icon(external ? "external" : "arrow", "button-icon")}</a>`;
+const checkList = (items, className = "check-list") => `<ul class="${className}">${items.map((item) => `<li>${icon("check")}<span>${esc(item)}</span></li>`).join("")}</ul>`;
+const faqBlock = (faq) => `<div class="accordion">${faq.map(([question, answer], index) => `<details class="reveal"${index === 0 ? " open" : ""}><summary>${esc(question)}<span aria-hidden="true">+</span></summary><div><p>${esc(answer)}</p></div></details>`).join("")}</div>`;
+
+function serviceCard(service) {
+  return `<article class="service-card reveal" data-service-group="${esc(service.group)}">
+    <div class="service-card-top"><span class="service-number">${service.number}</span><span class="service-icon">${icon(service.icon)}</span></div>
+    <p class="service-group">${esc(service.group)}</p>
+    <h3><a href="/services/${service.slug}/">${esc(service.title)}</a></h3>
+    <p>${esc(service.short)}</p>
+    <a class="text-link" href="/services/${service.slug}/">تفاصيل الخدمة ${icon("arrow")}</a>
   </article>`;
 }
-function postCard(p) {
-  return `<article class="post-card reveal"><a class="post-art post-art-${p.relatedService}" href="/blog/${p.slug}/" aria-label="اقرأ: ${p.title}"><span>${p.category}</span>${icon(services.find(s => s.slug === p.relatedService)?.icon ?? "book", "post-icon")}</a><div class="post-meta"><time datetime="${p.date}">${new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium" }).format(new Date(`${p.date}T12:00:00Z`))}</time><span>${p.readTime}</span></div><h3><a href="/blog/${p.slug}/">${p.title}</a></h3><p>${p.excerpt}</p><a class="text-link" href="/blog/${p.slug}/">اقرأ المقال ${icon("arrow")}</a></article>`;
+
+function projectCard(project) {
+  return `<article class="project-card reveal"><div class="project-visual"><span>${esc(project.category)}</span><strong>${esc(project.title.split(" ").slice(0, 2).join(" "))}</strong><div aria-hidden="true"></div></div><div class="project-content"><h3>${esc(project.title)}</h3><p>${esc(project.description)}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div><a class="text-link" href="${project.url}" target="_blank" rel="noopener">معاينة المشروع ${icon("external")}</a></div></article>`;
+}
+
+function postCard(post) {
+  return `<article class="post-card reveal"><a class="post-art post-art-${post.relatedService}" href="/blog/${post.slug}/" aria-label="اقرأ: ${esc(post.title)}"><span>${esc(post.category)}</span>${icon(serviceBySlug(post.relatedService)?.icon || "book", "post-icon")}</a><div class="post-meta"><time datetime="${post.date}">${new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium" }).format(new Date(`${post.date}T12:00:00Z`))}</time><span>${esc(post.readTime)}</span></div><h3><a href="/blog/${post.slug}/">${esc(post.title)}</a></h3><p>${esc(post.excerpt)}</p><a class="text-link" href="/blog/${post.slug}/">اقرأ المقال ${icon("arrow")}</a></article>`;
 }
 
 function homePage() {
-  const grouped = [{ key:"all", label:"كل الخدمات" }, ...["الأمن والحلول المتقدمة", "البرمجة والذكاء الاصطناعي", "خدمات Google", "التسويق والبحث الذكي"].map(label=>({key:label,label}))];
-  const groupTabs = grouped.map((g, i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-service-filter="${g.key}">${g.label}</button>`).join("");
-  const faq = [
-    ["ما نوع المشروعات التي تعمل عليها؟", "أعمل مع الشركات وأصحاب الأعمال على مشروعات الأمن السيبراني، تطوير المواقع والتطبيقات، وكلاء الذكاء الاصطناعي، حلول Google والسيو والإعلانات، مع تحديد نطاق مناسب لكل مشروع."],
-    ["هل يمكن جمع أكثر من خدمة في مشروع واحد؟", "نعم، وهذه إحدى نقاط القوة الرئيسية. يمكن مثلًا بناء موقع آمن، ثم تهيئته للسيو وربطه بملف Google ونظام قياس وحملة تسويق ضمن خطة مترابطة."],
-    ["كيف تبدأ الاستشارة؟", "ترسل وصفًا مختصرًا للهدف والوضع الحالي والموعد المتوقع. بعد ذلك نحدد مكالمة أو محادثة تشخيصية، ثم نطاق العمل والمخرجات والخطوات."],
-    ["هل تقدم خدماتك داخل الرياض فقط؟", "أعمل من الرياض وأقدم معظم الخدمات التقنية عن بُعد داخل السعودية وخارجها، بينما تختلف متطلبات الزيارات الميدانية حسب نوع المشروع."]
-  ];
-  return layout({
-    title: site.brandName,
-    description: site.description,
-    active: "home",
-    alternateEn: "/en/",
-    schema: [{ "@type":"FAQPage", "@id":`${site.url}/#faq`, mainEntity: faq.map(([q,a])=>({"@type":"Question",name:q,acceptedAnswer:{"@type":"Answer",text:a}})) }],
-    body: `
-      <section class="hero section-pad">
-        <div class="hero-grid container">
-          <div class="hero-copy reveal">
-            ${eyebrow("مهندس أمن سيبراني · مطور برمجيات · خبير منتجات Google")}
-            <h1>أهندس حلولًا رقمية <span>آمنة وذكية</span> تنمو مع أعمالك</h1>
-            <p class="hero-lead">أنا إسلام الشيخ. أجمع الأمن السيبراني والبرمجة والذكاء الاصطناعي وخبرة Google والسيو لبناء أنظمة وتجارب رقمية متماسكة من الاستراتيجية إلى الإطلاق.</p>
-            <div class="hero-actions"><a class="button" href="/contact/">ناقش مشروعك ${icon("arrow", "button-icon")}</a><a class="button button-ghost" href="/services/">استكشف الخدمات</a></div>
-            <div class="hero-proof"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="proof-dot proof-google"></span>ملف Google للمطورين</a><a href="${site.social.wikidata}" target="_blank" rel="noopener"><span class="proof-dot"></span>Wikidata Q138800449</a></div>
-          </div>
-          <div class="hero-visual reveal" aria-label="هوية المهندس إسلام الشيخ للأمن السيبراني والبرمجيات والحلول الذكية">
-            <div class="visual-grid" aria-hidden="true"></div>
-            <div class="orbit orbit-one"><span>AI</span><span>SEO</span><span>Cloud</span></div>
-            <div class="orbit orbit-two"><span>Secure</span><span>Google</span></div>
-            <div class="core-mark"><span class="core-scan" aria-hidden="true"></span><img class="core-logo" src="${site.logo}" width="176" height="176" alt="شعار المهندس إسلام الشيخ"><p><strong>SECURE · BUILD · GROW</strong><span>Cybersecurity & Digital Engineering</span></p></div>
-          </div>
-        </div>
-        <div class="container stats-bar reveal">
-          <div><strong>472</strong><span>مساهمة في توثيق ملفات Google</span></div>
-          <div><strong>233</strong><span>مشكلة ملف تجاري تمت معالجتها</span></div>
-          <div><strong>9</strong><span>مسارات خدمة مترابطة</span></div>
-          <div><strong>360°</strong><span>رؤية أمنية وتقنية وتسويقية</span></div>
-        </div>
-      </section>
-      <section class="section-pad services-section" id="services">
-        <div class="container">
-          ${sectionHead("الخدمات", "خبرة متعددة التخصصات حول هدف واحد", "بدل التعامل مع الأمن والتطوير والتسويق كجزر منفصلة، تُبنى الحلول ضمن رحلة رقمية واحدة قابلة للقياس والتوسع.")}
-          <div class="service-filters" role="tablist" aria-label="تصنيفات الخدمات">${groupTabs}</div>
-          <div class="services-grid services-grid-home" data-services-grid>${services.map(serviceCard).join("")}</div>
-          <div class="section-action"><a class="button button-ghost" href="/services/">عرض جميع الخدمات ${icon("arrow", "button-icon")}</a></div>
-        </div>
-      </section>
-      <section class="section-pad approach-section">
-        <div class="container approach-grid">
-          <div class="approach-copy reveal">${eyebrow("لماذا هذا النهج؟")}<h2>المشروع القوي لا يكتفي بواجهة جميلة</h2><p>يجب أن يكون مفهومًا للمستخدم، آمنًا في التشغيل، قابلًا للفهرسة، ومهيأً للتحسين بعد الإطلاق. لذلك أتعامل مع كل طبقة بوصفها جزءًا من المنتج نفسه.</p><a class="text-link" href="/about/">تعرف على منهجية العمل ${icon("arrow")}</a></div>
-          <div class="pillars">
-            <article class="pillar reveal"><span>01</span>${icon("shield")}<h3>Secure by design</h3><p>الأمان والصلاحيات والبيانات تُراجع من البداية، لا بعد حدوث المشكلة.</p></article>
-            <article class="pillar reveal"><span>02</span>${icon("code")}<h3>Built for people</h3><p>بنية واضحة وتجربة متجاوبة تجعل الوصول إلى القرار أسهل على كل جهاز.</p></article>
-            <article class="pillar reveal"><span>03</span>${icon("chart")}<h3>Ready to grow</h3><p>قياس وسيو ومحتوى يجعل التحسين المستمر جزءًا من التشغيل.</p></article>
-          </div>
-        </div>
-      </section>
-      <section class="section-pad projects-section"><div class="container">${sectionHead("مختارات من الأعمال", "مشروعات تحوّل الهدف التجاري إلى تجربة رقمية", "نماذج عامة من مشروعات منشورة في تطوير المواقع وتحسين البحث المحلي وبناء بنية محتوى قابلة للتوسع.")}<div class="projects-grid">${projects.map(projectCard).join("")}</div><div class="section-action"><a class="button button-ghost" href="/projects/">كل الأعمال ${icon("arrow", "button-icon")}</a></div></div></section>
-      <section class="section-pad maps-showcase-section"><div class="container">${sectionHead("أعمال خرائط Google", "ملفات تجارية تظهر كما يراها العميل", "نماذج منشورة من أعمال إدارة وتحسين حضور الأنشطة المحلية، بمعاينات مباشرة وروابط تفتح الملفات الأصلية على خرائط Google.")}<div class="maps-portfolio-grid maps-portfolio-home">${mapsProjects.slice(0,2).map(mapsProjectCard).join("")}</div><div class="section-action"><a class="button button-ghost" href="/projects/#google-maps-work">عرض كل أعمال خرائط Google ${icon("arrow", "button-icon")}</a></div></div></section>
-      <section class="section-pad process-section"><div class="container">${sectionHead("مسار العمل", "وضوح من أول سؤال حتى ما بعد الإطلاق")}<ol class="process-list"><li class="reveal"><span>01</span><h3>تشخيص الهدف</h3><p>نفهم المستخدم والنتيجة والقيود والمخاطر قبل اختيار الأدوات.</p></li><li class="reveal"><span>02</span><h3>تصميم الحل</h3><p>نحدد البنية والمحتوى والنطاق والمخرجات ومعيار القبول.</p></li><li class="reveal"><span>03</span><h3>تنفيذ قابل للمراجعة</h3><p>نبني على مراحل قصيرة مع اختبارات وقرارات موثقة.</p></li><li class="reveal"><span>04</span><h3>إطلاق وتحسين</h3><p>نراقب المؤشرات ونغلق الملاحظات ونرتب فرص التطوير.</p></li></ol></div></section>
-      <section class="section-pad blog-section"><div class="container">${sectionHead("من المدونة", "معرفة عملية للقرارات التقنية المعقدة")}<div class="posts-grid">${posts.map(postCard).join("")}</div><div class="section-action"><a class="button button-ghost" href="/blog/">استكشف المدونة ${icon("arrow", "button-icon")}</a></div></div></section>
-      <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>إجابات واضحة قبل بدء المشروع</h2><p>إذا كانت حالتك مختلفة، أرسل ملخصًا وسأقترح نقطة البداية المناسبة.</p><a class="button button-ghost" href="/contact/">أرسل تفاصيل مشروعك</a></div><div class="accordion">${faq.map(([q,a],i)=>`<details class="reveal"${i===0?" open":""}><summary>${q}<span>+</span></summary><p>${a}</p></details>`).join("")}</div></div></section>
-      ${ctaSection()}`
-  });
+  const faq = homeFaq;
+  const body = `
+<section class="hero section-pad">
+  <div class="container hero-grid">
+    <div class="hero-copy reveal">
+      ${eyebrow("مهندس أمن سيبراني · مطور برمجيات · خبير منتجات Google")}
+      <h1>أبني حضورك الرقمي ليكون <span>آمنًا، سريعًا، ومؤثرًا</span></h1>
+      <p class="hero-lead">أنا المهندس إسلام الشيخ. أوحّد الأمن السيبراني وتطوير المواقع ووكلاء الذكاء الاصطناعي وخبرة Google والسيو في حلول عملية تساعد الشركات على حماية أعمالها، تحسين تجربة عملائها، وزيادة ظهورها بثقة.</p>
+      <p class="hero-support">من التشخيص والاستراتيجية إلى التصميم والتطوير والقياس، تحصل على مسار واضح ومخرجات قابلة للمراجعة بدل حلول متفرقة يصعب تشغيلها أو تطويرها.</p>
+      <div class="hero-actions">${button("/contact/", "ناقش مشروعك")}${button("/services/", "استكشف الخدمات", "button-ghost")}</div>
+      <div class="hero-trust"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>ملف Google للمطورين</a><a href="${site.social.wikidata}" target="_blank" rel="noopener"><span class="trust-dot"></span>Wikidata Q138800449</a><span><span class="trust-dot trust-live"></span>متاح للمشروعات في السعودية</span></div>
+    </div>
+    <div class="hero-visual reveal" aria-label="منظومة خدمات المهندس إسلام الشيخ">
+      <div class="visual-glow" aria-hidden="true"></div>
+      <div class="visual-shell">
+        <div class="visual-top"><span>Digital Engineering</span><span class="visual-status"><i></i> Operational</span></div>
+        <div class="visual-core">${logo("hero-logo", `شعار ${site.brandName}`)}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div>
+        <div class="visual-capabilities"><span>${icon("shield")}Cybersecurity</span><span>${icon("code")}Web & Apps</span><span>${icon("spark")}AI Agents</span><span>${icon("google")}Google</span><span>${icon("chart")}SEO</span><span>${icon("cloud")}Cloud</span></div>
+        <div class="visual-metric"><span>Approach</span><strong>360°</strong><p>أمان وتجربة مستخدم وظهور رقمي داخل قرار واحد.</p></div>
+      </div>
+      <div class="visual-orbit orbit-a" aria-hidden="true"></div><div class="visual-orbit orbit-b" aria-hidden="true"></div>
+    </div>
+  </div>
+  <div class="container stats-bar reveal">${site.stats.map((stat) => `<div><strong>${esc(stat.value)}</strong><span>${esc(stat.label)}</span></div>`).join("")}</div>
+</section>
+<section class="section-pad services-section" id="services"><div class="container">
+  <div class="section-heading reveal">${eyebrow("الخدمات المتخصصة")}<h2>حلول مترابطة تبدأ من المشكلة وتنتهي بنتيجة قابلة للقياس</h2><p>كل خدمة لها نطاق واضح ومخرجات محددة، ويمكن دمج المسارات عند الحاجة لبناء مشروع متكامل يجمع الحماية والتطوير والظهور والنمو.</p></div>
+  <div class="service-filters" role="tablist" aria-label="تصفية الخدمات"><button type="button" role="tab" aria-selected="true" data-service-filter="all">كل الخدمات</button>${[...new Set(services.map((s) => s.group))].map((group) => `<button type="button" role="tab" aria-selected="false" data-service-filter="${esc(group)}">${esc(group)}</button>`).join("")}</div>
+  <div class="services-grid" data-services-grid>${services.map(serviceCard).join("")}</div>
+</div></section>
+<section class="section-pad promise-section"><div class="container promise-grid"><div class="promise-copy reveal">${eyebrow("منهجية التنفيذ")}<h2>واجهة جميلة وحدها لا تصنع مشروعًا ناجحًا</h2><p>المشروع الاحترافي يجب أن يكون مفهومًا للعميل، متينًا تقنيًا، آمنًا في التشغيل، قابلًا للفهرسة، وسهل التطوير بعد الإطلاق. لذلك تُراجع جميع الطبقات باعتبارها منتجًا واحدًا.</p>${button("/about/", "تعرف على منهجية العمل", "button-ghost")}</div><div class="principles-grid">
+  <article class="principle reveal"><span>01</span>${icon("target")}<h3>هدف تجاري واضح</h3><p>نحدد القرار أو التحويل المطلوب قبل اختيار التقنية أو شكل الواجهة.</p></article>
+  <article class="principle reveal"><span>02</span>${icon("shield")}<h3>أمان من التصميم</h3><p>الصلاحيات والبيانات والمخاطر تُراجع من البداية، لا بعد وقوع المشكلة.</p></article>
+  <article class="principle reveal"><span>03</span>${icon("user")}<h3>تجربة لكل جهاز</h3><p>Mobile First مع اختبار iOS وAndroid وHuawei والتابلت والكمبيوتر.</p></article>
+  <article class="principle reveal"><span>04</span>${icon("chart")}<h3>قياس وتحسين</h3><p>السيو والأداء والتحويلات جزء من التشغيل، وليست إضافات لاحقة.</p></article>
+</div></div></section>
+<section class="section-pad results-section"><div class="container"><div class="section-heading reveal">${eyebrow("ما الذي تحصل عليه؟")}<h2>مخرجات تساعدك على اتخاذ القرار والتشغيل بثقة</h2></div><div class="result-grid"><article class="result-card reveal">${icon("layers")}<h3>بنية قابلة للتوسع</h3><p>محتوى وكود ومسارات واضحة تقلل إعادة العمل وتسمح بإضافة خدمات وصفحات وتكاملات دون فوضى.</p></article><article class="result-card reveal">${icon("search")}<h3>وضوح لمحركات البحث والعملاء</h3><p>عناوين ومحتوى وروابط وبيانات منظمة تشرح من أنت، ماذا تقدم، ولمن، وأين، دون حشو أو تكرار.</p></article><article class="result-card reveal">${icon("shield")}<h3>مخاطر أقل وتشغيل أفضل</h3><p>قرارات أمنية وتقنية موثقة، وأولويات قابلة للمتابعة، وتجربة متجاوبة لا تعتمد على جهاز واحد.</p></article></div></div></section>
+<section class="section-pad projects-section"><div class="container"><div class="section-heading reveal">${eyebrow("مختارات من الأعمال")}<h2>مشروعات تربط التصميم بالنتيجة التجارية</h2><p>نماذج من مواقع وصفحات ومنظومات محتوى محلية تم تطويرها مع التركيز على تجربة الجوال والسيو والتحويل.</p></div><div class="projects-grid">${projects.slice(0, 3).map(projectCard).join("")}</div><div class="section-action">${button("/projects/", "عرض جميع الأعمال", "button-ghost")}</div></div></section>
+<section class="section-pad google-proof-section"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>خبرة منتجات Google</span><h2>تشخيص منظم بدل التجارب العشوائية</h2><p>مراجعة أهلية ملفات Google التجارية، مشكلات التحقق والتعليق، اتساق البيانات، والسيو المحلي وفق المسارات الرسمية، مع توضيح ما يمكن تنفيذه وما يبقى قرارًا لدى Google.</p><div class="proof-numbers"><span><strong>472+</strong> مساهمة في توثيق وإدارة الملفات</span><span><strong>233+</strong> حالة تمت معالجتها</span></div></div><div class="proof-actions">${button("/google-expert/", "استكشف خبرة Google")}${button(site.social.googleDeveloper, "عرض الملف الرسمي", "button-ghost", true)}</div></div></section>
+<section class="section-pad process-section"><div class="container"><div class="section-heading reveal">${eyebrow("مسار العمل")}<h2>وضوح من أول سؤال حتى ما بعد الإطلاق</h2></div><ol class="process-list"><li class="reveal"><span>01</span><h3>تشخيص الهدف</h3><p>فهم المستخدم والنتيجة والقيود والمخاطر والبيانات المتاحة قبل اختيار الأدوات.</p></li><li class="reveal"><span>02</span><h3>تصميم الحل</h3><p>تحديد البنية والمحتوى والنطاق والمخرجات ومعايير القبول وخطة التنفيذ.</p></li><li class="reveal"><span>03</span><h3>تنفيذ ومراجعة</h3><p>بناء على مراحل قصيرة قابلة للاختبار، مع توثيق القرارات والملاحظات.</p></li><li class="reveal"><span>04</span><h3>إطلاق وتحسين</h3><p>فحص الأداء والأجهزة والفهرسة والروابط، ثم متابعة المؤشرات وفرص التطوير.</p></li></ol></div></section>
+<section class="section-pad blog-section"><div class="container"><div class="section-heading reveal">${eyebrow("معرفة عملية")}<h2>مقالات تساعدك على اتخاذ قرارات تقنية أكثر وضوحًا</h2></div><div class="posts-grid">${posts.map(postCard).join("")}</div><div class="section-action">${button("/blog/", "استكشف المدونة", "button-ghost")}</div></div></section>
+<section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>إجابات صريحة قبل بدء المشروع</h2><p>لا توجد باقة واحدة تناسب الجميع؛ لذلك أوضح الحدود والمخرجات والاعتماديات من البداية.</p>${button("/contact/", "أرسل تفاصيل مشروعك", "button-ghost")}</div>${faqBlock(faq)}</div></section>
+${finalCta()}`;
+  return page({ title: site.brandName, description: site.description, path: "/", active: "home", body, schema: [faqSchema(faq)] });
 }
 
-function ctaSection(path = "/") {
-  const context = contextualCopy(path);
-  return `<section class="section-pad final-cta"><div class="container"><div class="cta-panel reveal"><div>${eyebrow(context.eyebrow)}<h2>${context.title}</h2><p>${context.text}</p></div><div class="cta-actions"><a class="button button-light" href="${site.whatsapp}?text=${encodeURIComponent(context.message)}" target="_blank" rel="noopener">${context.button} ${icon("arrow", "button-icon")}</a><a class="cta-phone" href="tel:${site.phone}" dir="ltr">${site.phoneDisplay}</a></div></div></div></section>`;
+function finalCta(title = "لنحوّل فكرتك أو مشكلتك إلى خطة واضحة قابلة للتنفيذ", text = "أرسل الهدف والوضع الحالي والروابط المتاحة والموعد المتوقع. ستحصل على نقطة بداية منظمة تساعدك على اتخاذ القرار الصحيح.") {
+  return `<section class="section-pad final-cta"><div class="container"><div class="cta-panel reveal"><div>${eyebrow("ابدأ من تشخيص صحيح")}<h2>${esc(title)}</h2><p>${esc(text)}</p></div><div class="cta-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، أرغب في مناقشة مشروع تقني.")}`, "ابدأ عبر واتساب", "button-light", true)}<a class="cta-phone" href="tel:${site.phone}" dir="ltr">${site.phoneDisplay}</a></div></div></div></section>`;
 }
 
-function pageHero(kicker, title, description, extra = "") {
-  return `<section class="page-hero"><div class="container page-hero-grid"><div class="reveal">${eyebrow(kicker)}<h1>${title}</h1><p>${description}</p>${extra}</div><div class="page-hero-mark reveal">${logoMark("page-hero-logo")}</div></div></section>`;
+function innerHero({ eyebrowText, title, lead, path, crumbs = [], aside }) {
+  const breadcrumb = [{ name: "الرئيسية", path: "/" }, ...crumbs];
+  return `<section class="inner-hero"><div class="container"><nav class="breadcrumbs" aria-label="مسار الصفحة">${breadcrumb.map((item, index) => `${index ? icon("chevron") : ""}<a href="${item.path}"${index === breadcrumb.length - 1 ? ' aria-current="page"' : ""}>${esc(item.name)}</a>`).join("")}</nav><div class="inner-hero-grid"><div class="inner-hero-copy reveal">${eyebrow(eyebrowText)}<h1>${title}</h1><p>${esc(lead)}</p></div>${aside ? `<div class="inner-hero-aside reveal">${aside}</div>` : ""}</div></div></section>`;
 }
 
-function caseStudyTemplate(items) {
-  return `<div class="case-studies-grid">${items.map((item, index) => `
-    <article class="case-study-card reveal">
-      <div class="case-study-head"><span>${String(index + 1).padStart(2, "0")}</span><div><p>${item.type}</p><h3>${item.title}</h3></div></div>
-      <dl>
-        <div><dt>المشكلة</dt><dd>${item.problem}</dd></div>
-        <div><dt>التدخل التقني (Schema وSEO)</dt><dd>${item.intervention}</dd></div>
-        <div><dt>النتائج</dt><dd>${item.result}</dd></div>
-      </dl>
-      <a class="button button-ghost button-small" href="${site.whatsapp}?text=${encodeURIComponent(item.message)}" target="_blank" rel="noopener">ناقش حالة مشابهة</a>
-    </article>`).join("")}</div>`;
+function servicesIndexPage() {
+  const groups = [...new Set(services.map((service) => service.group))];
+  const body = `${innerHero({ eyebrowText: "خدمات هندسية واستشارية", title: "خدمات رقمية متكاملة للأمان والتطوير والظهور والنمو", lead: "اختر خدمة مستقلة أو ابنِ مشروعًا متعدد المسارات يجمع الأمن السيبراني والبرمجيات والذكاء الاصطناعي وخبرة Google والسيو في خطة واضحة ومخرجات قابلة للقياس.", path: "/services/", crumbs: [{ name: "الخدمات", path: "/services/" }], aside: `<span class="aside-kicker">9 مسارات متخصصة</span><strong>من التشخيص إلى الإطلاق والتحسين</strong><p>كل صفحة توضح النطاق والمخرجات والخطوات والأسئلة الشائعة قبل التواصل.</p>` })}
+<section class="section-pad"><div class="container"><div class="service-filters" role="tablist" aria-label="تصفية الخدمات"><button type="button" role="tab" aria-selected="true" data-service-filter="all">كل الخدمات</button>${groups.map((group) => `<button type="button" role="tab" aria-selected="false" data-service-filter="${esc(group)}">${esc(group)}</button>`).join("")}</div><div class="services-grid services-grid-index" data-services-grid>${services.map(serviceCard).join("")}</div></div></section>
+<section class="section-pad muted-section"><div class="container decision-grid"><div class="decision-copy reveal">${eyebrow("كيف تختار نقطة البداية؟")}<h2>ابدأ بالمشكلة والنتيجة، لا باسم الأداة</h2><p>قد يكون بطء الموقع سببه التصميم أو الاستضافة أو الصور أو JavaScript، وقد يكون ضعف الظهور سببه الفهرسة أو المحتوى أو الملف التجاري أو القياس. التشخيص الصحيح يمنع الإنفاق على حل لا يعالج السبب.</p></div><div class="decision-steps"><article class="reveal"><span>01</span><h3>صف الوضع الحالي</h3><p>الرابط، المشكلة، أثرها، وما الذي جُرّب سابقًا.</p></article><article class="reveal"><span>02</span><h3>حدد النتيجة المطلوبة</h3><p>تحسين أمان، إطلاق منتج، ظهور محلي، أو أتمتة عملية.</p></article><article class="reveal"><span>03</span><h3>رتب القيود</h3><p>الموعد والميزانية والفريق والأنظمة والاعتماديات.</p></article><article class="reveal"><span>04</span><h3>اختر النطاق</h3><p>تدقيق، تنفيذ كامل، تحسين مرحلي، أو متابعة مستمرة.</p></article></div></div></section>
+${finalCta("لست متأكدًا أي خدمة تناسب حالتك؟", "أرسل المشكلة والهدف والروابط المتاحة، وسنحدد نقطة البداية والنطاق الأكثر منطقية دون إضافة خدمات لا تحتاجها.")}`;
+  return page({ title: "الخدمات التقنية والاستشارية", description: "خدمات المهندس إسلام الشيخ في الأمن السيبراني وتطوير المواقع ووكلاء الذكاء الاصطناعي وخدمات Google والسيو والحلول السحابية والإعلانات في السعودية.", path: "/services/", active: "services", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الخدمات", path: "/services/" }])] });
 }
 
-function servicesPage() {
-  return layout({ title:"الخدمات التقنية المتكاملة", description:"خدمات إسلام الشيخ في الأمن السيبراني والحلول السحابية ووكلاء الذكاء الاصطناعي وتطوير المواقع وخدمات Google والسيو والإعلانات.", path:"/services/", active:"services", schema:[breadcrumbs([{name:"الرئيسية",path:"/"},{name:"الخدمات",path:"/services/"}])], body:`${pageHero("الخدمات", "حلول تقنية مترابطة من الحماية إلى النمو", "اختر الخدمة الأقرب لهدفك، أو ابدأ باستشارة تشخيصية إذا كان التحدي يجمع أكثر من مسار.", `<a class="button" href="/contact/">اطلب تشخيصًا أوليًا ${icon("arrow", "button-icon")}</a>`)}<section class="section-pad"><div class="container"><div class="services-grid services-grid-all">${services.map(serviceCard).join("")}</div></div></section><section class="section-pad compact-section"><div class="container split-callout reveal"><div><h2>لا تعرف أي خدمة تحتاج؟</h2><p>قد يكون أصل المشكلة في البنية أو البيانات أو تجربة المستخدم لا في الأداة الظاهرة. ابدأ بوصف النتيجة المطلوبة وسأساعدك على تحديد النطاق.</p></div><a class="button button-ghost" href="/contact/">ناقش التحدي</a></div></section>${ctaSection("/services/")}` });
-}
-
-function serviceKnowledgeSection(s, path) {
-  if (s.slug === "google-business-profile") {
-    const cases = [
-      {
-        type: "حالة تعليق",
-        title: "ملف تجاري ببيانات متعارضة قبل الاستئناف",
-        problem: "تغييرات متكررة في الاسم والعنوان والفئة مع أدلة غير مرتبة، ما جعل سبب التعليق ومسار المعالجة غير واضحين.",
-        intervention: "تدقيق الأهلية والاتساق، توحيد بيانات الموقع والملف، تنظيم الأدلة، وربط صفحة الخدمة ببيانات LocalBusiness وProfessionalService المطابقة للمحتوى الظاهر.",
-        result: "حالة موثقة وجاهزة لمسار الاستئناف الرسمي مع إزالة التناقضات وتقليل التعديلات العشوائية. القرار النهائي يظل لدى Google.",
-        message: "مرحبًا م. إسلام، لدي ملف Google تجاري معلق وبياناته تحتاج مراجعة قبل الاستئناف."
-      },
-      {
-        type: "إثبات ملكية",
-        title: "رفض فيديو التحقق لنشاط يخدم العملاء ميدانيًا",
-        problem: "الفيديو السابق لم يوضح موقع التشغيل ومعدات الخدمة وإثبات إدارة النشاط بالترتيب المطلوب.",
-        intervention: "تشخيص سبب الرفض، إعداد قائمة لقطات تناسب نموذج نشاط منطقة الخدمة، ومراجعة الموقع والفئات وبيانات التواصل قبل إعادة المحاولة.",
-        result: "خطة تحقق أوضح وملف أدلة متسق يقلل أسباب الرفض القابلة للمعالجة دون تقديم ضمان لقرار المنصة.",
-        message: "مرحبًا م. إسلام، لم يتم قبول فيديو إثبات ملكية ملفي التجاري وأحتاج تشخيص السبب."
-      }
-    ];
-    return `
-      <section class="section-pad keyword-section"><div class="container">
-        ${sectionHead("إثبات الملكية بالفيديو", "حل مشكلة إثبات الملكية بعد عدم قبول الفيديو", "رفض الفيديو لا يعني إعادة التصوير بالطريقة نفسها. يجب أولًا معرفة الجزء غير الواضح: موقع النشاط، اللافتة، معدات التشغيل، أو إثبات أنك تدير النشاط بالفعل.")}
-        <div class="evidence-grid">
-          <article class="reveal"><span>01</span><h3>راجع نموذج النشاط الحقيقي</h3><p>هل يستقبل العملاء في موقع معلن، أم يذهب إليهم كنشاط منطقة خدمة؟ طريقة عرض العنوان ونوع الأدلة تختلف وفق الواقع.</p></article>
-          <article class="reveal"><span>02</span><h3>صوّر تسلسلًا يثبت التشغيل والإدارة</h3><p>أظهر البيئة المحيطة، العلامة أو مواد النشاط، أدوات ومعدات العمل، ثم وصولك لما يثبت صلاحية الإدارة دون كشف بيانات حساسة.</p></article>
-          <article class="reveal"><span>03</span><h3>أوقف التعديلات المتكررة</h3><p>وثّق ما تم رفضه وما تغيّر، ثم نفّذ محاولة مدروسة أو استخدم مسار الدعم الرسمي المتاح بدل تكرار محاولات متعارضة.</p></article>
-        </div>
-        <div class="proof-panel reveal"><strong>إنجاز موثق</strong><p>ساهم المهندس إسلام الشيخ في معالجة ومراجعة أكثر من <b>472 ملفًا تجاريًا</b>، مع تشخيص <b>233 مشكلة تعليق أو ملكية</b> مرتبطة بالتحقق والبيانات والظهور.</p><a class="text-link" href="/google-expert/">راجع خبرة منتجات Google ${icon("arrow")}</a></div>
-      </div></section>
-      <section class="section-pad muted-section"><div class="container">${sectionHead("قالب دراسات الحالة", "كيف تُعرض مشروعات التعليق بوضوح؟", "القالب يفصل بين المشكلة والتدخل التقني والنتيجة حتى تبقى الادعاءات قابلة للمراجعة ولا تختلط النتيجة بقرار المنصة.")}${caseStudyTemplate(cases)}</div></section>
-      <section class="section-pad compact-section"><div class="container related-links">
-        <a href="/blog/google-business-profile-suspension/"><strong>خطوات تشخيص تعليق الملف قبل الاستئناف</strong><span>اقرأ المقال</span></a>
-        <a href="/local-seo/"><strong>تحسين السيو المحلي في السعودية</strong><span>صفحة محورية</span></a>
-        <a href="/local-seo/riyadh/"><strong>شركة سيو في الرياض</strong><span>صفحة الرياض</span></a>
-      </div></section>`;
-  }
-  if (s.slug === "cybersecurity") {
-    return `<section class="section-pad keyword-section"><div class="container">${sectionHead("الأمن حسب المخاطر", "من تشخيص الثغرات إلى تقوية الأنظمة", "تبدأ الخدمة بتحديد الأصول الحساسة والتهديدات الواقعية ونطاق مصرح، ثم تتحول النتائج إلى أولويات معالجة يمكن للفريق تنفيذها وإعادة التحقق منها.")}<div class="evidence-grid"><article class="reveal"><h3>أمن تطبيقات الويب وواجهات API</h3><p>مراجعة المصادقة والصلاحيات والمدخلات والتكوين والأسرار حسب النطاق المتفق عليه.</p></article><article class="reveal"><h3>تقوية البنية والحسابات</h3><p>مراجعة الوصول والنسخ الاحتياطي والسجلات والتحديثات وتقليل الصلاحيات غير الضرورية.</p></article><article class="reveal"><h3>تقارير قابلة للتنفيذ</h3><p>فصل الأثر التجاري عن التفاصيل الفنية وترتيب المعالجة حسب الخطورة وإمكانية الاستغلال.</p></article></div></div></section>`;
-  }
-  if (s.slug === "ai-agents") {
-    return `<section class="section-pad keyword-section"><div class="container">${sectionHead("وكلاء AI للشركات", "وكيل ذكاء اصطناعي مرتبط بالمعرفة والأدوات مع رقابة بشرية", "يُبنى الوكيل حول مهمة قابلة للقياس، ويصل فقط إلى مصادر وأدوات مصرح بها، مع تقييم للإجابات ومسار موافقة بشرية للقرارات الحساسة.")}<div class="evidence-grid"><article class="reveal"><h3>مساعد معرفة داخلي</h3><p>يسترجع الإجابات من مصادر محددة مع إظهار المرجع وسياسة واضحة لتحديث المحتوى.</p></article><article class="reveal"><h3>وكيل تنفيذ مهام</h3><p>ينفذ خطوات محدودة عبر أدوات وواجهات API بصلاحيات دقيقة وسجل يمكن مراجعته.</p></article><article class="reveal"><h3>اختبارات جودة وأمان</h3><p>حالات واقعية لقياس الاسترجاع والالتزام والرفض الصحيح والحاجة إلى تدخل بشري.</p></article></div></div></section>`;
-  }
-  return "";
-}
-
-function servicePage(s) {
-  const path = `/services/${s.slug}/`;
-  const serviceSchema = { "@type":"Service", "@id":`${site.url}${path}#service`, name:s.title, description:s.meta, provider:{"@id":`${site.url}/#professional-service`}, areaServed:[{"@type":"City",name:"الرياض"},{"@type":"Country",name:"المملكة العربية السعودية"}], url:`${site.url}${path}` };
-  const faqSchema = { "@type":"FAQPage", "@id":`${site.url}${path}#faq`, mainEntity:s.faq.map(([q,a])=>({"@type":"Question",name:q,acceptedAnswer:{"@type":"Answer",text:a}})) };
-  return layout({ title:s.seoTitle ?? s.title, exactTitle:s.exactTitle ?? "", description:s.meta, path, active:"services", schema:[serviceSchema,faqSchema,breadcrumbs([{name:"الرئيسية",path:"/"},{name:"الخدمات",path:"/services/"},{name:s.title,path}])], body:`
-    <section class="service-hero"><div class="container service-hero-grid"><div class="reveal">${eyebrow(s.group)}<span class="service-hero-number">${s.number}</span><h1>${s.h1 ?? s.title}</h1><p>${s.intro}</p><div class="hero-actions"><a class="button" href="${site.whatsapp}?text=${encodeURIComponent(contextualCopy(path).message)}" target="_blank" rel="noopener">${contextualCopy(path).button} ${icon("arrow", "button-icon")}</a><a class="button button-ghost" href="tel:${site.phone}">اتصال مباشر</a></div></div><div class="service-emblem reveal">${logoMark("service-emblem-logo")}<p>${s.group}</p></div></div></section>
-    <section class="section-pad"><div class="container detail-grid"><div class="detail-copy reveal">${eyebrow("القيمة التي تحصل عليها")}<h2>مخرجات مفهومة وقابلة للمتابعة</h2><p>يُضبط النطاق بعد فهم حالتك، مع تعريف واضح للمخرجات والمسؤوليات وحدود الخدمة قبل بدء التنفيذ.</p></div><ul class="check-list">${s.outcomes.map(x=>`<li class="reveal">${icon("check")}<span>${x}</span></li>`).join("")}</ul></div></section>
-    ${serviceKnowledgeSection(s, path)}
-    <section class="section-pad muted-section"><div class="container">${sectionHead("نطاق الخدمة", "ما الذي يمكن أن يشمله المشروع؟", "تُختار العناصر المناسبة فقط وفق الاحتياج، حتى يبقى المشروع مركزًا وقابلًا للقياس.")}<div class="scope-grid">${s.scope.map((x,i)=>`<article class="scope-card reveal"><span>${String(i+1).padStart(2,"0")}</span><h3>${x}</h3></article>`).join("")}</div></div></section>
-    <section class="section-pad"><div class="container">${sectionHead("آلية التنفيذ", "أربع مراحل تبقي القرار واضحًا")}<ol class="service-steps">${s.steps.map((x,i)=>`<li class="reveal"><span>${String(i+1).padStart(2,"0")}</span><h3>${x}</h3></li>`).join("")}</ol></div></section>
-    <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة الخدمة")}<h2>قبل أن تبدأ</h2><p>تفاصيل النطاق والمدة تعتمد على حجم النظام والوضع الحالي والأطراف المشاركة.</p></div><div class="accordion">${s.faq.map(([q,a],i)=>`<details class="reveal"${i===0?" open":""}><summary>${q}<span>+</span></summary><p>${a}</p></details>`).join("")}</div></div></section>
-    ${ctaSection(path)}` });
+function serviceDetailPage(service) {
+  const path = `/services/${service.slug}/`;
+  const related = services.filter((item) => item.slug !== service.slug && (item.group === service.group || ["web-development", "seo", "cybersecurity"].includes(item.slug))).slice(0, 3);
+  const serviceSchema = {
+    "@type": "Service",
+    "@id": `${absolute(path)}#service`,
+    name: service.title,
+    serviceType: service.title,
+    description: service.meta,
+    url: absolute(path),
+    provider: { "@id": `${site.url}/#professional-service` },
+    areaServed: [{ "@type": "City", name: site.city }, { "@type": "Country", name: site.country }],
+    availableChannel: { "@type": "ServiceChannel", serviceUrl: absolute("/contact/"), availableLanguage: ["ar", "en"] },
+    hasOfferCatalog: { "@type": "OfferCatalog", name: `نطاق ${service.title}`, itemListElement: service.scope.map((item) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: item } })) }
+  };
+  const body = `${innerHero({ eyebrowText: service.group, title: esc(service.h1), lead: service.short, path, crumbs: [{ name: "الخدمات", path: "/services/" }, { name: service.title, path }], aside: `<span class="service-hero-number">${service.number}</span><span class="service-hero-icon">${icon(service.icon)}</span><strong>${esc(service.value)}</strong>` })}
+<section class="section-pad service-intro-section"><div class="container service-intro-grid"><div class="rich-copy reveal">${service.intro.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}</div><aside class="service-quick-card reveal"><span>نقطة البداية</span><h2>وصف مختصر يساعد على التشخيص</h2>${checkList(["الهدف أو المشكلة الحالية", "الأنظمة أو الروابط المتأثرة", "الأثر على العملاء أو التشغيل", "الموعد المتوقع والقيود الرئيسية"])}${button(`${site.whatsapp}?text=${encodeURIComponent(`مرحبًا م. إسلام، أرغب في مناقشة خدمة ${service.title}.`)}`, "ناقش الخدمة عبر واتساب", "", true)}</aside></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("نطاق الخدمة")}<h2>ما الذي يمكن أن يشمله العمل؟</h2><p>يُحدد النطاق النهائي بعد التشخيص؛ وتوضح العناصر التالية المجالات التي يمكن دمجها حسب احتياج المشروع.</p></div><div class="scope-grid">${service.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon(service.icon)}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("المخرجات")}<h2>ما الذي تستلمه في نهاية النطاق؟</h2><p>المخرجات تُكتب بصورة عملية لتكون قابلة للمراجعة والمتابعة، لا مجرد وصف عام للعمل.</p></div><div class="deliverables-panel reveal">${checkList(service.deliverables, "deliverables-list")}</div></div></section>
+<section class="section-pad audience-section"><div class="container"><div class="section-heading reveal">${eyebrow("لمن تناسب الخدمة؟")}<h2>حالات تستفيد من هذا المسار</h2></div><div class="audience-grid">${service.forWho.map((item, index) => `<article class="audience-card reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad process-section"><div class="container"><div class="section-heading reveal">${eyebrow("خطوات التنفيذ")}<h2>من التشخيص إلى التسليم والمتابعة</h2></div><ol class="process-list service-process">${service.steps.map((step, index) => `<li class="reveal"><span>${String(index + 1).padStart(2, "0")}</span><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p></li>`).join("")}</ol></div></section>
+<section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة الخدمة")}<h2>تفاصيل مهمة قبل بدء العمل</h2><p>الإجابات التالية توضح الحدود والتوقعات. النطاق الفعلي يعتمد على حالة المشروع والأنظمة المتاحة.</p>${button("/contact/", "أرسل تفاصيل حالتك", "button-ghost")}</div>${faqBlock(service.faq)}</div></section>
+<section class="section-pad related-section"><div class="container"><div class="section-heading reveal">${eyebrow("خدمات مترابطة")}<h2>مسارات قد تكمل المشروع</h2></div><div class="services-grid related-services">${related.map(serviceCard).join("")}</div></div></section>
+${finalCta(`هل تحتاج ${service.title} ضمن مشروع واضح؟`, `أرسل الوضع الحالي والنتيجة المطلوبة، وسنحدد نطاقًا واقعيًا ومخرجات واضحة وخطوات قابلة للمتابعة.`)}`;
+  return page({ title: service.seoTitle || service.title, description: service.meta, path, active: "services", body, schema: [serviceSchema, faqSchema(service.faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الخدمات", path: "/services/" }, { name: service.title, path }])] });
 }
 
 function aboutPage() {
-  return layout({
-    title:"الملف المهني",
-    description:"الملف المهني للمهندس إسلام الشيخ في الرياض: خبير أمن سيبراني، مطور برمجيات، وخبير منتجات Google متخصص في الذكاء الاصطناعي والسيو والحلول الرقمية.",
-    path:"/about/",
-    active:"about",
-    type:"profile",
-    schema:[personSchema,profilePageSchema,breadcrumbs([{name:"الرئيسية",path:"/"},{name:"عن إسلام",path:"/about/"}])],
-    body:`${pageHero("عن إسلام", "أربط التقنية بالقرار التجاري، دون فقدان الدقة", "أنا المهندس إسلام الشيخ؛ خبير أمن سيبراني ومطور برمجيات وخبير منتجات Google أعمل من الرياض على تحويل المشكلات المعقدة إلى حلول قابلة للفهم والتنفيذ والقياس.")}
-    <section class="section-pad identity-section"><div class="container identity-panel reveal"><div class="identity-intro">${eyebrow("تعريف واضح وموثق")}<h2>من هو المهندس إسلام الشيخ؟</h2><p>مرجع مختصر للمعلومات المهنية الأساسية، مدعوم بروابط الهوية العامة والصفحات الرسمية المرتبطة بالاسم.</p></div><dl class="identity-facts"><div><dt>الاسم</dt><dd>إسلام الشيخ — Eslam Elshikh</dd></div><div><dt>الموقع</dt><dd>الرياض، المملكة العربية السعودية</dd></div><div><dt>الصفة المهنية</dt><dd>خبير أمن سيبراني، مطور برمجيات، وخبير منتجات Google</dd></div><div><dt>مجالات التخصص</dt><dd>الأمن السيبراني، تطوير المواقع والتطبيقات، وكلاء الذكاء الاصطناعي، حلول Google، السيو والحلول السحابية</dd></div><div><dt>مراجع الهوية</dt><dd><a href="${site.social.wikidata}" target="_blank" rel="noopener">Wikidata Q138800449</a> · <a href="${site.social.googleDeveloper}" target="_blank" rel="noopener">ملف Google للمطورين</a></dd></div></dl></div></section>
-    <section class="section-pad"><div class="container bio-grid"><div class="bio-panel reveal"><img class="bio-logo" src="${site.logo}" width="260" height="260" alt="شعار المهندس إسلام الشيخ"><p>Cybersecurity<br>Software Engineering<br>Google Products<br>AI & Search</p></div><div class="bio-copy reveal">${eyebrow("الملف المهني")}<h2>خبرة تقنية عابرة للتخصصات</h2><p>لا أنظر إلى الموقع أو النظام بوصفه كودًا فقط. الأمان، تجربة المستخدم، البنية السحابية، طريقة ظهور المحتوى في البحث، ومسار تواصل العميل كلها أجزاء تؤثر في النتيجة النهائية.</p><p>عملي يركز على الحلول القابلة للتطبيق: نطاق واضح، قرارات موثقة، أقل تعقيد ممكن، واختبارات مناسبة للمخاطر. وعندما يكون القرار بيد منصة خارجية مثل Google، ألتزم بالمسارات الرسمية دون تقديم وعود لا يمكن ضمانها.</p><div class="credentials"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener">ملف Google للمطورين ${icon("external")}</a><a href="${site.social.wikidata}" target="_blank" rel="noopener">Wikidata ${icon("external")}</a><a href="${site.social.github}" target="_blank" rel="noopener">GitHub ${icon("external")}</a></div></div></div></section>
-    <section class="section-pad muted-section"><div class="container">${sectionHead("مبادئ العمل", "ما الذي يحكم القرارات داخل المشروع؟")}<div class="values-grid"><article class="reveal"><span>01</span><h3>الدليل قبل الانطباع</h3><p>أفصل بين ما تم التحقق منه، وما هو استنتاج، وما يحتاج اختبارًا إضافيًا.</p></article><article class="reveal"><span>02</span><h3>الأمان حسب المخاطر</h3><p>لا أضيف تعقيدًا بلا سبب، ولا أتنازل عن الضوابط التي تحمي الأصول الحساسة.</p></article><article class="reveal"><span>03</span><h3>المستخدم في المركز</h3><p>جودة الحل تظهر في سهولة فهمه واستخدامه والوصول إلى نتيجته.</p></article><article class="reveal"><span>04</span><h3>قابلية التطوير</h3><p>التوثيق والبنية النظيفة والقياس تجعل التحسين اللاحق أسرع وأقل مخاطرة.</p></article></div></div></section>
-    <section class="section-pad"><div class="container skills-panel reveal"><div>${eyebrow("مجالات الخبرة")}<h2>من الدفاع الرقمي إلى تجربة البحث</h2></div><div class="skills-cloud">${["Cybersecurity","Secure Web Development","Cloud Solutions","AI Agents","RAG & Knowledge Bases","Google Business Profile","Technical SEO","Local SEO","GitHub","Firebase","Digital Advertising","Structured Data"].map(x=>`<span>${x}</span>`).join("")}</div></div></section>${ctaSection()}`
-  });
+  const body = `${innerHero({ eyebrowText: "الملف المهني", title: "المهندس إسلام الشيخ: هندسة رقمية تجمع الأمان والتطوير والظهور", lead: "أعمل عند نقطة التقاء الأمن السيبراني والبرمجيات والذكاء الاصطناعي ومنتجات Google والسيو، لأحوّل المشكلات التقنية والتجارية إلى خطط واضحة وحلول قابلة للتشغيل والقياس.", path: "/about/", crumbs: [{ name: "عن إسلام", path: "/about/" }], aside: `${logo("profile-logo", `شعار ${site.brandName}`)}<strong>${site.nameEn}</strong><span>Cybersecurity Engineer · Web Developer · Google Product Expert</span>` })}
+<section class="section-pad"><div class="container bio-grid"><div class="rich-copy reveal"><h2>خبرة متعددة التخصصات بهدف واحد: بناء أنظمة رقمية موثوقة</h2><p>لا أتعامل مع الموقع بوصفه واجهة فقط، ولا مع السيو بوصفه كلمات، ولا مع الأمن بوصفه أداة منفصلة. أي مشروع رقمي ناجح يحتاج فهم المستخدم والبيانات والصلاحيات والبنية والمحتوى والقياس في وقت واحد.</p><p>هذه الرؤية تساعدني على ربط القرارات التي غالبًا ما تُدار بصورة منفصلة: كيف تؤثر بنية الموقع في الفهرسة؟ كيف تؤثر تجربة الجوال في التحويل؟ كيف تؤثر صلاحيات التكامل في المخاطر؟ وكيف يمكن لوكيل ذكاء اصطناعي أن يستخدم معرفة الشركة دون تجاوز حدوده؟</p><p>أعمل من الرياض مع شركات وأصحاب أعمال داخل السعودية وخارجها، وأبدأ كل تعاون بتحديد المشكلة والنطاق والمخرجات ومعيار النجاح، مع توضيح ما يمكن ضمانه وما يعتمد على جهات أو منصات خارجية.</p></div><aside class="profile-facts reveal"><h2>مجالات العمل</h2>${checkList(["الأمن السيبراني وتقييم المخاطر", "تطوير المواقع والتطبيقات وتجربة المستخدم", "وكلاء الذكاء الاصطناعي وقواعد المعرفة", "منتجات Google والملفات التجارية", "السيو التقني والمحلي وهندسة المحتوى", "الحلول السحابية والقياس والإعلانات"])}<a class="text-link" href="${site.social.googleDeveloper}" target="_blank" rel="noopener">ملف Google للمطورين ${icon("external")}</a><a class="text-link" href="${site.social.wikidata}" target="_blank" rel="noopener">سجل Wikidata ${icon("external")}</a></aside></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("مبادئ العمل")}<h2>جودة يمكن شرحها ومراجعتها</h2></div><div class="values-grid"><article class="value-card reveal">${icon("target")}<h3>الوضوح قبل التنفيذ</h3><p>لا يبدأ العمل قبل فهم الهدف والمستخدم والقيود والمخرجات ونقطة القياس.</p></article><article class="value-card reveal">${icon("shield")}<h3>الأمان والمسؤولية</h3><p>الفحص ضمن نطاق مصرح، والبيانات الحساسة لا تُطلب أو تُخزن دون حاجة واضحة.</p></article><article class="value-card reveal">${icon("layers")}<h3>حل قابل للصيانة</h3><p>أفضل بنية ليست الأعقد، بل التي تحقق الهدف ويمكن لفريقك تشغيلها وتطويرها.</p></article><article class="value-card reveal">${icon("chart")}<h3>قياس بلا ادعاءات</h3><p>لا وعود بترتيب مضمون أو قرار من منصة خارجية؛ بل منهجية ومؤشرات وتحسين مستمر.</p></article></div></div></section>
+<section class="section-pad"><div class="container experience-grid"><div class="experience-stat reveal"><strong>472+</strong><span>مساهمة في توثيق وإدارة ملفات Google التجارية</span></div><div class="experience-stat reveal"><strong>233+</strong><span>حالة ومشكلة ملفات تجارية تمت معالجتها</span></div><div class="experience-stat reveal"><strong>9</strong><span>مسارات خدمة تقنية وتسويقية مترابطة</span></div><div class="experience-stat reveal"><strong>RTL</strong><span>تصميم عربي أصيل ومتجاوب عبر الأجهزة</span></div></div></section>
+${finalCta("لديك مشروع يحتاج رؤية تقنية وتجارية متكاملة؟", "ابدأ بوصف الهدف والتحدي الحالي، وسنحوّل التفاصيل المتفرقة إلى نطاق واضح وقرار قابل للتنفيذ.")}`;
+  return page({ title: "عن المهندس إسلام الشيخ", description: "تعرف على المهندس إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google يقدم حلول الذكاء الاصطناعي وتطوير المواقع والسيو في الرياض والسعودية.", path: "/about/", active: "about", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "عن إسلام", path: "/about/" }])] });
 }
 
-function googlePage() {
-  return layout({ title:"خبير منتجات Google", description:"خبرة المهندس إسلام الشيخ في دعم منتجات Google وملفات الأنشطة التجارية: تشخيص المشكلات والتوثيق والظهور على الخرائط وفق الإرشادات الرسمية.", path:"/google-expert/", active:"google", schema:[personSchema,breadcrumbs([{name:"الرئيسية",path:"/"},{name:"خبرة Google",path:"/google-expert/"}])], body:`${pageHero("خبرة Google", "تشخيص منظم بدل التجارب العشوائية", "خبرة عملية في ملفات Google التجارية ودعم المستخدمين، مع التزام واضح بالسياسات والمسارات الرسمية وشرح ما يمكن التحكم فيه وما يظل قرارًا للمنصة.", `<a class="button" href="${site.social.googleDeveloper}" target="_blank" rel="noopener">عرض ملف Google ${icon("external", "button-icon")}</a>`)}<section class="section-pad"><div class="container google-stats"><article class="reveal"><strong>472</strong><h2>مساهمة في التوثيق</h2><p>خبرة تراكمية في تجهيز ومراجعة حالات ملفات الأنشطة التجارية.</p></article><article class="reveal"><strong>233</strong><h2>مشكلة تمت معالجتها</h2><p>تشخيص حالات تتعلق بالتحقق والتعليق والتكرار والبيانات والظهور.</p></article><article class="reveal"><strong>100%</strong><h2>شفافية في المسار</h2><p>لا كلمات مرور، لا ضمان لقرارات Google، ولا وعود بتجاوز السياسات.</p></article></div><div class="google-work-link reveal"><div>${icon("pin")}<span><small>نماذج منشورة</small><strong>شاهد ملفات تجارية ضمن أعمالي على خرائط Google</strong></span></div><a class="button button-ghost" href="/projects/#google-maps-work">عرض الأعمال ${icon("arrow", "button-icon")}</a></div></section><section class="section-pad muted-section"><div class="container approach-grid"><div class="approach-copy reveal">${eyebrow("حدود الدور")}<h2>خبرة مستقلة موثقة، وليست تمثيلًا لشركة Google</h2><p>أقدّم استشارات مستقلة اعتمادًا على الخبرة في المنتجات والإرشادات العامة. لا يعني ذلك أنني موظف لدى Google أو أتحكم في قرارات المراجعة أو الاستعادة. هذا الفصل مهم لحماية العميل وبناء توقعات صحيحة.</p><a class="text-link" href="/services/google-support/">استشارات منتجات Google ${icon("arrow")}</a></div><div class="pillars"><article class="pillar reveal">${icon("google")}<h3>قراءة الحالة</h3><p>فهم الإشعار والتغييرات السابقة وما إذا كانت المشكلة سياسة أم بيانات أم صلاحيات.</p></article><article class="pillar reveal">${icon("nodes")}<h3>تنظيم الأدلة</h3><p>تحديد المستندات والصور والروابط المطلوبة وربطها بالنقطة التي تثبتها.</p></article><article class="pillar reveal">${icon("chart")}<h3>متابعة واعية</h3><p>تسجيل ما تم إرساله ومتى، وتجنب التعديلات المتكررة التي تربك الحالة.</p></article></div></div></section><section class="section-pad"><div class="container split-callout reveal"><div><h2>لديك مشكلة في ملف Google التجاري؟</h2><p>لا ترسل كلمات مرور أو رموز تحقق. جهّز رابط الملف، نص الإشعار، وتسلسل ما حدث، ثم أرسل ملخص الحالة.</p></div><a class="button" href="/contact/?service=google-business-profile">ابدأ التشخيص</a></div></section>${ctaSection()}` });
+function googleExpertPage() {
+  const service = serviceBySlug("google-business-profile");
+  const faq = service.faq;
+  const body = `${innerHero({ eyebrowText: "خبرة منتجات Google", title: "دعم واستشارات ملفات Google التجارية والظهور المحلي", lead: "تشخيص تعليق الملفات ومشكلات إثبات الملكية والبيانات والفئات والاتساق، مع تجهيز الأدلة واتباع المسارات الرسمية دون وعود مضللة أو تعديلات عشوائية.", path: "/google-expert/", crumbs: [{ name: "خبرة Google", path: "/google-expert/" }], aside: `<span class="google-mark">G</span><strong>خبرة عملية موثقة</strong><p>مساهمات في توثيق وإدارة الملفات وحل الحالات المعقدة لأصحاب الأنشطة.</p>` })}
+<section class="section-pad"><div class="container google-stats"><div class="google-stat reveal"><strong>472+</strong><span>مساهمة في توثيق وإدارة ملفات Google التجارية</span></div><div class="google-stat reveal"><strong>233+</strong><span>حالة ومشكلة تم تحليلها ومعالجتها</span></div><div class="google-stat reveal"><strong>رسمي</strong><span>الاعتماد على الإرشادات ومسارات الدعم المتاحة</span></div></div></section>
+<section class="section-pad muted-section"><div class="container service-intro-grid"><div class="rich-copy reveal"><h2>ما الذي أقدمه لأصحاب الأنشطة؟</h2><p>أبدأ بفهم نموذج النشاط: هل يستقبل العملاء في موقع فعلي؟ هل يعمل في نطاق خدمة؟ ما الاسم المستخدم في الواقع؟ وما الأدلة التي تثبت الإدارة والموقع والنشاط؟ ثم أراجع إشعار Google والتغييرات السابقة وحالة الحسابات المرتبطة.</p><p>بعد التشخيص، أوضح المخالفات أو التناقضات المحتملة، وما يجب تصحيحه، وما الأدلة المناسبة، وأي مسار رسمي ينطبق على الحالة. الهدف هو طلب منظم ومتوافق، وليس زيادة المحاولات أو تغيير البيانات دون فهم أثرها.</p>${button("/services/google-business-profile/", "تفاصيل خدمة الملفات التجارية")}</div><aside class="disclaimer-card reveal"><span>تنبيه مهم</span><h2>استشارة مستقلة وليست تمثيلًا لـ Google</h2><p>أنا لست موظفًا لدى Google ولا أضمن قرار التحقق أو الاستعادة أو الترتيب. أقدم تشخيصًا وتنظيمًا للحالة وتوجيهًا للمسار الرسمي بناءً على المعلومات المتاحة.</p></aside></div></section>
+<section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("الحالات التي أتعامل معها")}<h2>من إنشاء الملف إلى استعادة الاستقرار والظهور</h2></div><div class="scope-grid"><article class="scope-card reveal"><span>01</span>${icon("pin")}<p>إعداد ملف مؤهل يعكس نموذج النشاط الحقيقي والفئة والخدمات ونطاق العمل.</p></article><article class="scope-card reveal"><span>02</span>${icon("shield")}<p>تشخيص تعليق الملف أو تعطيله ومراجعة التغييرات والمخاطر والملكية.</p></article><article class="scope-card reveal"><span>03</span>${icon("google")}<p>تجهيز إثبات الملكية بالفيديو أو الأدلة المتاحة بصورة منظمة ومتوافقة.</p></article><article class="scope-card reveal"><span>04</span>${icon("search")}<p>ربط الملف بالموقع والسيو المحلي والاتساق والمحتوى والقياس.</p></article><article class="scope-card reveal"><span>05</span>${icon("layers")}<p>مراجعة الملفات المكررة والملكية والمستخدمين والمواقع والفروع.</p></article><article class="scope-card reveal"><span>06</span>${icon("chart")}<p>تحليل الظهور والاستفسارات وجودة التحويل بعد استقرار الملف.</p></article></div></div></section>
+<section class="section-pad maps-section"><div class="container"><div class="section-heading reveal">${eyebrow("نماذج منشورة")}<h2>ملفات تجارية يمكن فتحها على خرائط Google</h2><p>روابط مباشرة لأعمال عامة في أنشطة محلية بمدينة الرياض.</p></div><div class="maps-grid">${mapsProjects.map((item) => mapCard(item)).join("")}</div></div></section>
+<section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة Google")}<h2>قبل إرسال التحقق أو الاستئناف</h2><p>الدقة والاتساق والأهلية أهم من كثرة المحاولات.</p>${button(`${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، لدي مشكلة في ملف Google التجاري وأرغب في تشخيصها.")}`, "أرسل تفاصيل الحالة", "button-ghost", true)}</div>${faqBlock(faq)}</div></section>
+${finalCta("ملفك التجاري معلق أو تعذر إثبات ملكيته؟", "أرسل رابط الملف ونص الإشعار وتسلسل التعديلات والمحاولات السابقة دون مشاركة كلمة مرور أو رمز تحقق.")}`;
+  return page({ title: "خبير منتجات Google وحل مشكلات الملفات التجارية", description: "استشارات المهندس إسلام الشيخ لملفات Google التجارية في السعودية: تعليق الملف وإثبات الملكية والفئات والبيانات والسيو المحلي وفق المسارات الرسمية.", path: "/google-expert/", active: "google", body, schema: [faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "خبرة Google", path: "/google-expert/" }])] });
 }
 
-function localSeoPage() {
-  const path = "/local-seo/";
-  const faq = [
-    ["ما الفرق بين السيو المحلي والسيو التقليدي؟", "السيو المحلي يربط الموقع بملف Google التجاري والموقع الجغرافي والاتساق والمراجعات والصفحات المحلية، بينما يغطي السيو التقليدي نطاقًا أوسع من البحث والمحتوى والروابط."],
-    ["هل يمكن ضمان تصدر خرائط جوجل؟", "لا يمكن ضمان ترتيب ثابت لأن النتائج تتغير حسب الصلة والمسافة والسمعة والمنافسة، لكن يمكن تحسين الإشارات التي تقع تحت سيطرة النشاط وقياس أثرها."],
-    ["هل تخدم الشركات خارج الرياض؟", "نعم. أقدم خدمات تحسين السيو المحلي للشركات في الرياض وكافة مدن المملكة، مع تخصيص خريطة الكلمات والصفحات وفق المدينة والخدمة والمنافسة الفعلية."]
-  ];
-  const serviceSchema = { "@type":"Service", "@id":`${site.url}${path}#service`, name:"تحسين السيو المحلي في السعودية", serviceType:"Local SEO", provider:{"@id":`${site.url}/#professional-service`}, areaServed:[{"@type":"City",name:"الرياض"},{"@type":"Country",name:"المملكة العربية السعودية"}], url:`${site.url}${path}` };
-  const faqSchema = { "@type":"FAQPage", "@id":`${site.url}${path}#faq`, mainEntity:faq.map(([q,a])=>({"@type":"Question",name:q,acceptedAnswer:{"@type":"Answer",text:a}})) };
-  return layout({
-    title:"خبير سيو محلي في الرياض وتحسين السيو المحلي في السعودية",
-    description:"خبير سيو محلي في الرياض يقدم تحسين السيو المحلي في السعودية، تدقيق ملف Google التجاري، بناء صفحات المدن، وتحسين فرص تصدر خرائط جوجل.",
-    path,
-    active:"services",
-    schema:[serviceSchema,faqSchema,breadcrumbs([{name:"الرئيسية",path:"/"},{name:"السيو المحلي",path}])],
-    body:`${pageHero("السيو المحلي في السعودية", "خبير سيو محلي في الرياض لتحسين ظهور الشركات في خرائط Google", "أقدم خدمات تحسين السيو المحلي للشركات في الرياض وكافة مدن المملكة، لضمان أفضل فرصة ممكنة لتصدر نتائج بحث خرائط جوجل عبر موقع تقني سليم وملف تجاري متوافق ومحتوى يخدم نية العميل.", `<a class="button" href="${site.whatsapp}?text=${encodeURIComponent(contextualCopy(path).message)}" target="_blank" rel="noopener">${contextualCopy(path).button} ${icon("arrow", "button-icon")}</a>`)}
-    <section class="section-pad"><div class="container">${sectionHead("خريطة الكلمات والصفحات", "تحسين السيو المحلي في السعودية يبدأ من ربط الخدمة بالمكان والنية", "تُوزع الكلمات على صفحات الخدمات والمدن والمقالات دون تكرار أو تنافس داخلي، ثم تُربط ببيانات Google التجارية والكيانات المنظمة.")}<div class="evidence-grid"><article class="reveal"><span>01</span><h3>تدقيق الموقع والملف التجاري</h3><p>مراجعة الفئات والخدمات والاتساق والروابط والصفحات المفهرسة والأخطاء التي تمنع الفهم أو التحويل.</p></article><article class="reveal"><span>02</span><h3>خريطة كلمات محلية</h3><p>ربط كل خدمة بمدينة أو نطاق جغرافي مناسب، مع تحديد الصفحة المحورية والصفحات الداعمة والروابط الداخلية.</p></article><article class="reveal"><span>03</span><h3>قياس الظهور والتحويل</h3><p>متابعة الاستعلامات والزيارات والنقر للاتصال وWhatsApp واتجاهات الظهور بدل الاعتماد على ترتيب لقطة واحدة.</p></article></div></div></section>
-    <section class="section-pad muted-section"><div class="container detail-grid"><div class="detail-copy reveal">${eyebrow("صفحات المواقع")}<h2>صفحة مخصصة لخدمات السيو في الرياض</h2><p>تخدم صفحة الرياض نية البحث عن شركة سيو في الرياض، وتوضح نطاق الخدمة والمخرجات وتربطها بالصفحة المحورية دون نسخ المحتوى.</p><a class="button button-ghost" href="/local-seo/riyadh/">شركة سيو في الرياض ${icon("arrow","button-icon")}</a></div><div class="proof-panel reveal"><strong>تكامل Google Business Profile</strong><p>السيو المحلي لا ينفصل عن أهلية الملف التجاري والتحقق والاسم والفئات. إذا كانت المشكلة تعليقًا أو إثبات ملكية، ابدأ بالصفحة المخصصة لذلك.</p><a class="text-link" href="/services/google-business-profile/">حل مشكلات ملفات Google التجارية ${icon("arrow")}</a></div></div></section>
-    <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>قبل بدء تحسين الظهور المحلي</h2><p>النتائج تعتمد على حالة الموقع والملف والمنافسة والمسافة ومدى تنفيذ التحسينات.</p></div><div class="accordion">${faq.map(([q,a],i)=>`<details class="reveal"${i===0?" open":""}><summary>${q}<span>+</span></summary><p>${a}</p></details>`).join("")}</div></div></section>
-    ${ctaSection(path)}`
-  });
-}
-
-function riyadhLocalSeoPage() {
-  const path = "/local-seo/riyadh/";
-  const faq = [
-    ["ماذا تقدم شركة سيو في الرياض؟", "تشمل الخدمة تدقيق السيو التقني والمحلي، خريطة الكلمات، صفحات الخدمات والمناطق، تحسين ملف Google التجاري، Schema، الروابط الداخلية، وقياس التحويلات."],
-    ["هل أحتاج صفحة لكل حي في الرياض؟", "ليس تلقائيًا. تُنشأ صفحة فقط عندما توجد نية بحث ومحتوى وخدمة حقيقية تبررها؛ تكرار نفس النص على عشرات الأحياء قد يضعف الجودة."],
-    ["كيف تختار الكلمات المحلية؟", "من خلال نوع الخدمة، لغة العميل، نتائج البحث الفعلية، المنافسين، وبيانات Search Console والملف التجاري عند توفرها."]
-  ];
-  const serviceSchema = { "@type":"Service", "@id":`${site.url}${path}#service`, name:"شركة سيو في الرياض", serviceType:"Local SEO Riyadh", provider:{"@id":`${site.url}/#professional-service`}, areaServed:{"@type":"City",name:"الرياض"}, url:`${site.url}${path}` };
-  const faqSchema = { "@type":"FAQPage", "@id":`${site.url}${path}#faq`, mainEntity:faq.map(([q,a])=>({"@type":"Question",name:q,acceptedAnswer:{"@type":"Answer",text:a}})) };
-  return layout({
-    title:"شركة سيو في الرياض لتحسين الظهور المحلي",
-    description:"شركة سيو في الرياض بقيادة المهندس إسلام الشيخ: تحسين السيو المحلي، السيو التقني، صفحات الخدمات، ملف Google التجاري، وقياس تصدر خرائط جوجل.",
-    path,
-    active:"services",
-    schema:[serviceSchema,faqSchema,breadcrumbs([{name:"الرئيسية",path:"/"},{name:"السيو المحلي",path:"/local-seo/"},{name:"الرياض",path}])],
-    body:`${pageHero("الرياض", "شركة سيو في الرياض تربط الموقع بملف Google ورحلة العميل", "خدمة مخصصة للشركات والأنشطة في الرياض تجمع السيو التقني وهندسة المحتوى وتهيئة ملف Google التجاري، بهدف زيادة الظهور المؤهل وتحويل البحث المحلي إلى اتصالات واستفسارات قابلة للقياس.", `<a class="button" href="${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، أبحث عن شركة سيو في الرياض لتحسين ظهور نشاطي المحلي.")}" target="_blank" rel="noopener">اطلب تدقيقًا محليًا ${icon("arrow","button-icon")}</a>`)}
-    <section class="section-pad"><div class="container">${sectionHead("نطاق التنفيذ", "ما الذي يشمله مشروع السيو في الرياض؟", "يُختار النطاق بعد تدقيق الموقع والملف التجاري والبيانات المتاحة، ثم تُرتب الأولويات حسب الأثر والجهد.")}<div class="scope-grid"><article class="scope-card reveal"><span>01</span><h3>تدقيق الزحف والفهرسة والأداء والميتا والـSchema</h3></article><article class="scope-card reveal"><span>02</span><h3>خريطة كلمات تربط خدمات النشاط بنية البحث في الرياض</h3></article><article class="scope-card reveal"><span>03</span><h3>تحسين صفحات الخدمة والمدينة والروابط الداخلية</h3></article><article class="scope-card reveal"><span>04</span><h3>مراجعة ملف Google التجاري والاتساق وقياس التحويلات</h3></article></div></div></section>
-    <section class="section-pad muted-section"><div class="container related-links"><a href="/local-seo/"><strong>تحسين السيو المحلي في السعودية</strong><span>الصفحة المحورية</span></a><a href="/services/google-business-profile/"><strong>حل تعليق وإثبات ملكية Google Business Profile</strong><span>خدمة Google</span></a><a href="/services/seo/"><strong>تحسين محركات البحث SEO</strong><span>السيو الشامل</span></a></div></section>
-    <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة الرياض")}<h2>قرارات سيو محلي مبنية على الواقع</h2><p>لا تُستخدم صفحات الأحياء أو الكلمات الجغرافية إلا عندما تضيف قيمة فعلية للمستخدم.</p></div><div class="accordion">${faq.map(([q,a],i)=>`<details class="reveal"${i===0?" open":""}><summary>${q}<span>+</span></summary><p>${a}</p></details>`).join("")}</div></div></section>
-    ${ctaSection(path)}`
-  });
-}
-
-function englishHomePage() {
-  const path = "/en/";
-  return layout({
-    exactTitle:"Eng. Eslam Elshikh | Cybersecurity, Software and AI",
-    title:"Eng. Eslam Elshikh",
-    description:"Eng. Eslam Elshikh helps businesses build secure websites and systems, deploy practical AI agents, and improve visibility across Google and search.",
-    path,
-    active:"home",
-    language:"en",
-    alternateAr:"/",
-    alternateEn:path,
-    schema:[profilePageSchema],
-    body:`${pageHero("Cybersecurity Engineer · Software Developer · Google Product Expert", "Secure digital engineering for software, AI and search growth", "I help businesses in Saudi Arabia and beyond assess cyber risk, build responsive web solutions, deploy practical AI agents, and improve visibility across Google and search.", `<a class="button" href="${site.whatsapp}" target="_blank" rel="noopener">Discuss your project ${icon("arrow","button-icon")}</a>`)}
-    <section class="section-pad"><div class="container">${sectionHead("Core capabilities", "Four connected paths from risk to growth")}<div class="primary-services-grid"><article class="primary-service-card reveal"><span class="service-number">01</span><h2>Cybersecurity & Cloud</h2><p>Risk assessment, hardening, access controls, backups, and secure cloud foundations.</p><a class="text-link" href="/services/cybersecurity/">View cybersecurity service ${icon("arrow")}</a></article><article class="primary-service-card reveal"><span class="service-number">02</span><h2>Web & Software Development</h2><p>Fast, responsive websites and web systems with clean technical and SEO foundations.</p><a class="text-link" href="/services/web-development/">View development service ${icon("arrow")}</a></article><article class="primary-service-card reveal"><span class="service-number">03</span><h2>AI Agents & Automation</h2><p>Business assistants connected to approved knowledge and tools with human oversight.</p><a class="text-link" href="/services/ai-agents/">View AI agent service ${icon("arrow")}</a></article><article class="primary-service-card reveal"><span class="service-number">04</span><h2>Google & Local SEO</h2><p>Google Business Profile support, technical SEO, structured data, and local visibility.</p><a class="text-link" href="/local-seo/">View local SEO service ${icon("arrow")}</a></article></div></div></section>
-    <section class="section-pad final-cta"><div class="container"><div class="cta-panel reveal"><div><span class="eyebrow"><span></span>Start with a clear brief</span><h2>Share your goal, current situation and expected timeline</h2><p>Never send passwords, verification codes, or API keys.</p></div><div class="cta-actions"><a class="button button-light" href="${site.whatsapp}" target="_blank" rel="noopener">Continue on WhatsApp</a><a class="cta-phone" href="mailto:${site.email}">${site.email}</a></div></div></div></section>`
-  });
+function mapCard(item) {
+  return `<article class="map-card reveal"><div class="map-visual"><span>${icon("pin")}</span><div><small>Google Maps</small><strong>${esc(item.category)}</strong></div></div><div class="map-content"><p class="map-category">${esc(item.category)}</p><h3>${esc(item.title)}</h3><p class="map-address">${icon("pin")}<span>${esc(item.address)}</span></p><div class="tag-row">${item.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div><a class="text-link" href="${item.url}" target="_blank" rel="noopener">فتح الملف على خرائط Google ${icon("external")}</a></div></article>`;
 }
 
 function projectsPage() {
-  const mapsWorkSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "نماذج أعمال إدارة ملفات الأنشطة التجارية على خرائط Google",
-    numberOfItems: mapsProjects.length,
-    itemListElement: mapsProjects.map((project, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      item: {
-        "@type": "Organization",
-        name: project.title,
-        url: project.url,
-        address: { "@type": "PostalAddress", addressLocality: "الرياض", addressCountry: "SA" }
-      }
-    }))
-  };
-  return layout({ title:"أعمال Google Maps والمشروعات الرقمية", description:"نماذج من أعمال إسلام الشيخ في إدارة ملفات Google التجارية والظهور على الخرائط، إلى جانب تطوير المواقع وتجربة المستخدم والسيو المحلي.", path:"/projects/", active:"projects", schema:[personSchema,mapsWorkSchema,breadcrumbs([{name:"الرئيسية",path:"/"},{name:"الأعمال",path:"/projects/"}])], body:`${pageHero("الأعمال", "مشروعات رقمية وملفات تجارية مبنية حول النتيجة", "مختارات منشورة من تطوير المواقع وتجربة الجوال والسيو التقني والمحلي، إلى جانب نماذج مباشرة من ملفات الأنشطة التجارية على خرائط Google.")}<section class="section-pad"><div class="container">${sectionHead("المشروعات الرقمية", "تجارب ويب تربط التصميم بالأداء والظهور")}<div class="projects-grid projects-grid-page">${projects.map(projectCard).join("")}</div></div></section><section class="section-pad maps-portfolio-section" id="google-maps-work"><div class="container">${sectionHead("نماذج أعمال Google Maps", "ملفات تجارية حقيقية بمعاينة مباشرة", "اضغط على أي معاينة أو اسم لفتح الملف التجاري الأصلي على خرائط Google. تظهر الأسماء والعناوين كنص واضح لدعم الوصول والفهرسة.")}<div class="maps-portfolio-grid">${mapsProjects.map(mapsProjectCard).join("")}</div><p class="maps-portfolio-note reveal">${icon("google")} المعاينات مقدمة مباشرة من خرائط Google وقد يتغير محتواها وفق تحديثات أصحاب الأنشطة والمنصة.</p></div></section><section class="section-pad muted-section"><div class="container">${sectionHead("ما وراء الواجهة", "ما الذي أراجعه في كل مشروع ويب؟")}<div class="values-grid"><article class="reveal"><span>UX</span><h3>رحلة المستخدم</h3><p>وضوح الخدمة والثقة ودعوة الإجراء وترتيب المعلومات على الجوال.</p></article><article class="reveal"><span>SEO</span><h3>قابلية الاكتشاف</h3><p>بنية العناوين والروابط والميتا والـSchema والفهرسة والأداء.</p></article><article class="reveal"><span>SEC</span><h3>أساس آمن</h3><p>تقليل التبعيات وضبط النشر وعدم تعريض الأسرار أو المدخلات.</p></article><article class="reveal"><span>OPS</span><h3>قابلية التشغيل</h3><p>ملفات مشروع منظمة وتوثيق وتشغيل وتحديث يمكن متابعتهما.</p></article></div></div></section>${ctaSection()}` });
+  const body = `${innerHero({ eyebrowText: "الأعمال والمشروعات", title: "نماذج من تطوير المواقع والسيو المحلي والحضور الرقمي", lead: "مشروعات عامة توضح كيف يتحول الهدف التجاري إلى بنية محتوى وتجربة متجاوبة ومسارات تواصل وقياس، مع الاهتمام بالتفاصيل التي تظهر على الجوال قبل سطح المكتب.", path: "/projects/", crumbs: [{ name: "الأعمال", path: "/projects/" }], aside: `<span class="aside-kicker">Selected Work</span><strong>تصميم وتطوير وسيو في منظومة واحدة</strong><p>كل مشروع يعالج سياقًا مختلفًا؛ من المقاولات والخدمات المحلية إلى شركات التقنية والذكاء الاصطناعي.</p>` })}
+<section class="section-pad"><div class="container"><div class="projects-grid projects-grid-all">${projects.map(projectCard).join("")}</div></div></section>
+<section class="section-pad muted-section" id="google-maps-work"><div class="container"><div class="section-heading reveal">${eyebrow("أعمال خرائط Google")}<h2>نماذج من ملفات الأنشطة المحلية في الرياض</h2><p>ملفات عامة يمكن فتحها مباشرة لمعاينة الحضور على خرائط Google.</p></div><div class="maps-grid">${mapsProjects.map(mapCard).join("")}</div></div></section>
+<section class="section-pad"><div class="container case-method reveal"><div><span>منهج المشروع</span><h2>لا توجد نسخة واحدة تُكرر على كل نشاط</h2></div><p>تختلف بنية الموقع والمحتوى والدعوات والبيانات المنظمة حسب نموذج النشاط ورحلة العميل والمنافسة والقدرة التشغيلية. الهدف هو حل يناسب العمل الحقيقي، لا قالبًا يغير الألوان والشعار فقط.</p>${button("/contact/", "ناقش مشروعًا مشابهًا")}</div></section>
+${finalCta("هل تريد تحويل نشاطك إلى تجربة رقمية احترافية؟", "أرسل رابط الموقع أو الملف التجاري والخدمات المستهدفة والمدينة والهدف، وسنحدد ما يحتاج إعادة بناء وما يمكن تحسينه تدريجيًا.")}`;
+  return page({ title: "أعمال ومشروعات المهندس إسلام الشيخ", description: "نماذج أعمال المهندس إسلام الشيخ في تطوير المواقع وتجربة المستخدم والسيو التقني والمحلي وملفات Google التجارية للشركات والأنشطة في السعودية.", path: "/projects/", active: "projects", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }])] });
 }
 
-function blogPage() {
-  return layout({ title:"المدونة التقنية", description:"مقالات إسلام الشيخ عن الأمن السيبراني ووكلاء الذكاء الاصطناعي وتطوير المواقع وخدمات Google وSEO والبحث الذكي.", path:"/blog/", active:"blog", schema:[websiteSchema,breadcrumbs([{name:"الرئيسية",path:"/"},{name:"المدونة",path:"/blog/"}])], body:`${pageHero("المدونة", "محتوى تقني يساعدك على اتخاذ قرار أفضل", "مقالات عملية تشرح المخاطر والخيارات والخطوات في الأمن السيبراني والذكاء الاصطناعي وتطوير الويب ومنتجات Google والسيو.")}<section class="section-pad"><div class="container posts-grid posts-grid-page">${posts.map(postCard).join("")}</div></section><section class="section-pad compact-section"><div class="container external-blog reveal"><div>${eyebrow("الأرشيف السابق")}<h2>مقالات إضافية على المدونة الخارجية</h2><p>يمكنك أيضًا استكشاف المقالات المنشورة سابقًا حول خرائط Google وملفات الأنشطة التجارية والممارسات الرقمية.</p></div><a class="button button-ghost" href="${site.social.blog}" target="_blank" rel="noopener">زيارة الأرشيف ${icon("external", "button-icon")}</a></div></section>${ctaSection()}` });
+function localSeoPage(citySpecific = false) {
+  const path = citySpecific ? "/local-seo/riyadh/" : "/local-seo/";
+  const title = citySpecific ? "خدمات السيو المحلي في الرياض وتحسين الظهور على خرائط Google" : "السيو المحلي في السعودية: الموقع وملف Google والمحتوى المحلي";
+  const lead = citySpecific
+    ? "خطة متكاملة للشركات والأنشطة في الرياض تربط الموقع بملف Google التجاري والصفحات المحلية والاتساق والسمعة والقياس؛ بهدف جذب استفسارات أكثر صلة بدل مطاردة ترتيب مؤقت."
+    : "السيو المحلي ليس تعديل ملف Google أو تكرار اسم المدينة؛ بل منظومة تربط أهلية النشاط وموقعه الإلكتروني وبياناته وسمعته ومحتواه وقياس التحويلات ضمن نية بحث محلية واضحة.";
+  const faq = localSeoFaq;
+  const body = `${innerHero({ eyebrowText: citySpecific ? "سيو محلي لمدينة الرياض" : "الظهور المحلي في السعودية", title, lead, path, crumbs: [{ name: "السيو المحلي", path: "/local-seo/" }, ...(citySpecific ? [{ name: "الرياض", path }] : [])], aside: `<span class="service-hero-icon">${icon("pin")}</span><strong>${citySpecific ? "الرياض سوق واسع ومنافسة تختلف حسب الخدمة والحي ونموذج النشاط." : "الموقع والملف التجاري والمحتوى والسمعة تعمل كمنظومة واحدة."}</strong><p>نبدأ من البيانات الفعلية ونية العميل، ثم نحدد الصفحات والإصلاحات والأولويات القابلة للقياس.</p>` })}
+<section class="section-pad"><div class="container service-intro-grid"><div class="rich-copy reveal"><h2>${citySpecific ? "كيف نبني حضورًا محليًا أقوى في الرياض؟" : "ما الذي يجعل السيو المحلي مختلفًا؟"}</h2><p>${citySpecific ? "مدينة الرياض تضم كثافة عالية من الأنشطة ومناطق خدمة واسعة وسلوك بحث متنوع. لا يكفي ذكر أسماء الأحياء أو إنشاء صفحات متشابهة؛ يجب أن تعكس بنية الموقع الخدمات الفعلية، وتجيب عن أسئلة العميل، وتدعم الملف التجاري ببيانات متسقة ومحتوى مفيد." : "عندما يبحث العميل عن خدمة قريبة، يجمع محرك البحث بين معنى الخدمة والموقع والملاءمة والثقة وتجربة الصفحة والبيانات المتاحة عن النشاط. لذلك قد لا ينجح تحسين الملف وحده إذا كان الموقع ضعيفًا أو البيانات متناقضة أو المحتوى لا يجيب عن نية البحث."}</p><p>أبدأ بمراجعة الفهرسة والأداء والصفحات الحالية وملف Google والفئات والخدمات والروابط والمنصات الأخرى. ثم نبني خريطة موضوعات ومناطق ذات قيمة حقيقية، ونربطها بمؤشرات مثل المكالمات والنماذج والاتجاهات وجودة الاستفسارات.</p></div><aside class="service-quick-card reveal"><span>تدقيق البداية</span><h2>المصادر التي نراجعها</h2>${checkList(["الموقع والصفحات المفهرسة", "ملف Google التجاري والفئات والخدمات", "اتساق الاسم والهاتف والموقع", "المنافسون ونتائج البحث المحلية", "المحتوى والمراجعات والروابط", "المكالمات والنماذج وبيانات القياس"])}${button(`${site.whatsapp}?text=${encodeURIComponent(citySpecific ? "مرحبًا م. إسلام، أريد تحسين السيو المحلي لنشاطي في الرياض." : "مرحبًا م. إسلام، أريد تدقيق السيو المحلي لنشاطي.")}`, "اطلب تدقيقًا أوليًا", "", true)}</aside></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("محاور العمل")}<h2>من الأساس التقني إلى الظهور والتحويل</h2></div><div class="scope-grid"><article class="scope-card reveal"><span>01</span>${icon("search")}<p>تدقيق الزحف والفهرسة والعناوين والسرعة وتجربة الجوال والروابط الداخلية.</p></article><article class="scope-card reveal"><span>02</span>${icon("pin")}<p>مراجعة أهلية ملف Google والفئات والخدمات ونطاق الخدمة والبيانات.</p></article><article class="scope-card reveal"><span>03</span>${icon("layers")}<p>خريطة صفحات وخدمات وموضوعات محلية تمنع التكرار والتنافس الداخلي.</p></article><article class="scope-card reveal"><span>04</span>${icon("globe")}<p>اتساق الاسم والهاتف والعنوان أو نطاق الخدمة عبر المنصات والمصادر المهمة.</p></article><article class="scope-card reveal"><span>05</span>${icon("quote")}<p>استراتيجية سمعة ومراجعات ومحتوى يجيب عن اعتراضات العميل الحقيقية.</p></article><article class="scope-card reveal"><span>06</span>${icon("chart")}<p>قياس الظهور والنقرات والمكالمات والنماذج وجودة الفرص حسب الخدمة والمنطقة.</p></article></div></div></section>
+<section class="section-pad"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("الخطة العملية")}<h2>أولويات تُنفذ على مراحل بدل قائمة إصلاحات بلا ترتيب</h2><p>نرتب العمل حسب أثره واحتمال نجاحه واعتمادياته، ونفصل بين إصلاح مشكلة أساسية وفرصة نمو طويلة المدى.</p></div><div class="deliverables-panel reveal">${checkList(["تقرير تدقيق مع المشكلات والأدلة والأولوية", "خريطة كلمات وموضوعات وخدمات ومناطق", "تحسين صفحات الخدمة والميتا والروابط والبيانات المنظمة", "خطة ملف Google والاتساق والمحتوى والمراجعات", "لوحة مؤشرات للظهور والتحويل وجودة الاستفسارات"] , "deliverables-list")}</div></div></section>
+${citySpecific ? `<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("خدمة مدينة الرياض")}<h2>تغطية محلية دون حشو أسماء الأحياء</h2><p>يمكن ذكر أحياء ومناطق الرياض عندما تضيف معنى حقيقيًا للتغطية أو الخدمة، مع تجنب إنشاء صفحات متطابقة. من المناطق الشائعة التي قد تدخل ضمن تحليل الطلب: شمال الرياض، وسط الرياض، شرق الرياض، غرب الرياض، جنوب الرياض، وأحياء مثل الملقا والياسمين والنرجس وحطين والعقيق والصحافة وقرطبة والروابي، حسب نطاق النشاط الحقيقي.</p></div><div class="neighborhood-cloud" aria-label="مناطق وأحياء الرياض"><span>شمال الرياض</span><span>الملقا</span><span>الياسمين</span><span>النرجس</span><span>حطين</span><span>العقيق</span><span>الصحافة</span><span>قرطبة</span><span>شرق الرياض</span><span>وسط الرياض</span><span>غرب الرياض</span><span>جنوب الرياض</span></div></div></section>` : `<section class="section-pad muted-section"><div class="container local-paths"><article class="reveal"><span>للأنشطة ذات الموقع</span><h3>متجر أو مكتب يستقبل العملاء</h3><p>نراجع أهلية العنوان والواجهة والساعات والفئات والصفحات المحلية والاتساق والاتجاهات.</p></article><article class="reveal"><span>لأنشطة نطاق الخدمة</span><h3>خدمة تصل إلى العميل</h3><p>نضبط إخفاء العنوان ونطاق الخدمة والمحتوى الذي يوضح التغطية دون إنشاء مواقع وهمية.</p></article><article class="reveal"><span>للشركات متعددة الفروع</span><h3>فروع حقيقية وتجارب محلية</h3><p>بنية صفحات وملفات وصلاحيات ومحتوى واتساق تقلل التكرار وتوضح كل موقع.</p></article></div></section>`}
+<section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة السيو المحلي")}<h2>قرارات تمنع التكرار والوعود غير الواقعية</h2><p>الظهور المحلي نتيجة تراكمية تعتمد على السوق وحالة الموقع والملف وسرعة التنفيذ.</p>${button(citySpecific ? "/local-seo/" : "/local-seo/riyadh/", citySpecific ? "دليل السيو المحلي" : "السيو المحلي في الرياض", "button-ghost")}</div>${faqBlock(faq)}</div></section>
+${finalCta(citySpecific ? "هل تريد تحسين ظهور نشاطك داخل الرياض؟" : "هل تريد بناء حضور محلي أقوى في السعودية؟", "أرسل رابط الموقع وملف Google والمدينة والخدمات المستهدفة، وسنحدد أين تضيع الفرص وما الأولويات الأكثر تأثيرًا.")}`;
+  const schema = [{ "@type": "Service", name: title, serviceType: "Local SEO", provider: { "@id": `${site.url}/#professional-service` }, areaServed: citySpecific ? { "@type": "City", name: "الرياض" } : { "@type": "Country", name: site.country }, description: lead }, faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "السيو المحلي", path: "/local-seo/" }, ...(citySpecific ? [{ name: "الرياض", path }] : [])])];
+  return page({ title, description: lead, path, active: "services", body, schema });
 }
 
-function articlePage(p) {
-  const path = `/blog/${p.slug}/`;
-  const service = services.find(s=>s.slug===p.relatedService);
-  const articleSchema = { "@type":"BlogPosting", headline:p.title, description:p.description, datePublished:p.date, dateModified:p.date, inLanguage:"ar-SA", mainEntityOfPage:`${site.url}${path}`, author:{"@id":`${site.url}/#person`}, publisher:{"@id":`${site.url}/#person`}, image:`${site.url}${site.shareImage}` };
-  return layout({ title:p.seoTitle ?? p.title, description:p.description, path, active:"blog", type:"article", publishedTime:p.date, modifiedTime:p.date, schema:[personSchema,articleSchema,breadcrumbs([{name:"الرئيسية",path:"/"},{name:"المدونة",path:"/blog/"},{name:p.title,path}])], body:`<article class="article"><header class="article-header"><div class="container article-head-inner reveal">${eyebrow(p.category)}<h1>${p.title}</h1><p>${p.excerpt}</p><div class="article-byline"><span>بقلم ${site.brandName}</span><time datetime="${p.date}">${new Intl.DateTimeFormat("ar-SA",{dateStyle:"long"}).format(new Date(`${p.date}T12:00:00Z`))}</time><span>${p.readTime}</span></div></div></header><div class="container article-layout"><aside class="article-aside reveal"><p>في هذا المقال</p><ol>${p.sections.map(([h])=>`<li><a href="#${slugify(h)}">${h}</a></li>`).join("")}</ol><a class="aside-service" href="/services/${service.slug}/">${icon(service.icon)}<span><small>الخدمة المرتبطة</small><strong>${service.title}</strong></span></a></aside><div class="article-body">${p.sections.map(([h,c],i)=>`<section id="${slugify(h)}" class="reveal"><span class="article-section-number">${String(i+1).padStart(2,"0")}</span><h2>${h}</h2><p>${c}</p></section>`).join("")}<div class="article-note reveal"><h2>الخلاصة</h2><p>ابدأ بنطاق صغير يمكن قياسه، وثّق الافتراضات، وافصل بين ما يمكنك التحكم فيه وقرارات الأطراف الخارجية. الاستراتيجية الجيدة تجعل الخطوة التالية أوضح وأقل مخاطرة.</p></div></div></div></article>${ctaSection()}` });
-}
-
-const topicHubs = [
-  {
-    slug:"google-business-profile",
-    title:"ملفات Google التجارية: التحقق والتعليق والظهور",
-    description:"مركز معرفة عن ملفات Google التجارية في السعودية: التحقق بالفيديو، التعليق، الأهلية، اتساق البيانات، والاستئناف وفق المسارات الرسمية.",
-    intro:"ابدأ من الصفحة المحورية لحل التعليق وإثبات الملكية، ثم انتقل إلى المقالات التي تشرح خطوات التشخيص وتجهيز الأدلة.",
-    links:[
-      ["/services/google-business-profile/","حل تعليق جوجل بزنس وإثبات الملكية"],
-      ["/blog/google-business-profile-suspension/","تشخيص تعليق الملف قبل الاستئناف"],
-      ["/local-seo/","تحسين السيو المحلي في السعودية"]
-    ]
-  },
-  {
-    slug:"local-seo-saudi",
-    title:"السيو المحلي في السعودية وخرائط Google",
-    description:"مركز معرفة للسيو المحلي في السعودية: خرائط Google، صفحات المدن، البيانات المنظمة، الاتساق، الكلمات المحلية، وقياس التحويلات.",
-    intro:"اربط الموقع والملف التجاري والمحتوى المحلي في بنية واحدة، ثم قِس الظهور والنقر والاتصال بدل متابعة ترتيب منفرد.",
-    links:[
-      ["/local-seo/","خبير سيو محلي في الرياض"],
-      ["/local-seo/riyadh/","شركة سيو في الرياض"],
-      ["/services/seo/","تحسين محركات البحث SEO"]
-    ]
-  },
-  {
-    slug:"cybersecurity",
-    title:"الأمن السيبراني وتطوير الويب الآمن",
-    description:"مركز معرفة عن الأمن السيبراني للمواقع والأنظمة: تقييم المخاطر، الصلاحيات، تقوية البنية، أمن الويب، والاستجابة العملية.",
-    intro:"اجعل الأمن جزءًا من قرار التصميم والتطوير والتشغيل، مع نطاق مصرح وتقارير قابلة للمعالجة وإعادة التحقق.",
-    links:[
-      ["/services/cybersecurity/","خدمات الأمن السيبراني"],
-      ["/blog/secure-website-development/","بناء موقع سريع وآمن ومحسن للسيو"],
-      ["/services/cloud-solutions/","الحلول السحابية الآمنة"]
-    ]
-  },
-  {
-    slug:"ai-agents",
-    title:"وكلاء الذكاء الاصطناعي والأتمتة الآمنة",
-    description:"مركز معرفة عن وكلاء الذكاء الاصطناعي للشركات: حالات الاستخدام، RAG، الأدوات، التقييم، الصلاحيات، والرقابة البشرية.",
-    intro:"ابدأ بمهمة محددة وبيانات موثوقة وصلاحيات ضيقة، ثم وسّع الوكيل بعد اجتياز حالات تقييم واقعية.",
-    links:[
-      ["/services/ai-agents/","تطوير وكلاء الذكاء الاصطناعي"],
-      ["/blog/ai-agent-business/","كيف تبدأ مشروع وكيل ذكاء اصطناعي؟"],
-      ["/services/knowledge-bases/","قواعد المعرفة والبحث الذكي"]
-    ]
-  },
-  {
-    slug:"web-development",
-    title:"تطوير المواقع وتجربة المستخدم والسيو التقني",
-    description:"مركز معرفة لتطوير مواقع سريعة وآمنة ومتجاوبة تجمع تجربة المستخدم والأداء والسيو التقني والبيانات المنظمة والتحويل.",
-    intro:"الموقع الجيد منتج متكامل: محتوى مفهوم، أداء، أمان، قابلية فهرسة، ومسار تواصل واضح على كل جهاز.",
-    links:[
-      ["/services/web-development/","تطوير المواقع والتطبيقات"],
-      ["/blog/secure-website-development/","بناء موقع سريع وآمن ومتوافق مع السيو"],
-      ["/services/seo/","السيو التقني وهندسة المحتوى"]
-    ]
-  }
-];
-
-function topicHubPage(hub) {
-  const path = `/blog/topics/${hub.slug}/`;
-  const itemList = { "@type":"ItemList", "@id":`${site.url}${path}#topics`, name:hub.title, itemListElement:hub.links.map(([url,name],index)=>({"@type":"ListItem",position:index+1,name,item:`${site.url}${url}`})) };
-  return layout({
-    title:hub.title,
-    description:hub.description,
-    path,
-    active:"blog",
-    schema:[itemList,breadcrumbs([{name:"الرئيسية",path:"/"},{name:"المدونة",path:"/blog/"},{name:hub.title,path}])],
-    body:`${pageHero("مركز معرفة", hub.title, hub.intro)}<section class="section-pad"><div class="container"><div class="knowledge-hubs-grid topic-links">${hub.links.map(([url,name],index)=>`<a class="knowledge-hub-card reveal" href="${url}"><span>${String(index+1).padStart(2,"0")}</span><strong>${name}</strong><small>افتح الدليل ${icon("arrow")}</small></a>`).join("")}</div></div></section>${ctaSection()}`
-  });
-}
-
-function legalPage(kind) {
-  const privacy = kind === "privacy";
-  const path = privacy ? "/privacy/" : "/terms/";
-  const title = privacy ? "سياسة الخصوصية" : "شروط الاستخدام";
-  const description = privacy
-    ? "سياسة خصوصية موقع المهندس إسلام الشيخ: البيانات التي تُجمع، التحليلات بموافقة المستخدم، التواصل، الحماية، وحقوق الزائر."
-    : "شروط استخدام موقع المهندس إسلام الشيخ: طبيعة المحتوى والخدمات الاستشارية، حدود المسؤولية، الملكية الفكرية، والتواصل الآمن.";
-  const sections = privacy ? [
-    ["البيانات التي يرسلها الزائر", "لا يطلب الموقع إنشاء حساب. عند فتح رسالة WhatsApp أو البريد، تتحكم منصة التواصل المختارة في البيانات التي ترسلها. لا ترسل كلمات مرور أو رموز تحقق أو مفاتيح API."],
-    ["التحليلات والموافقة", "لا تُفعّل التحليلات إلا بعد اختيار السماح من شريط الموافقة. تُستخدم بيانات تفاعل عامة لتحسين الموقع، ولا يُرسل نص ملخص المشروع إلى التحليلات."],
-    ["الحماية والاحتفاظ", "تُستخدم البيانات المرسلة فقط لفهم الاستفسار والتواصل بشأنه، ويُقلل الاحتفاظ بما لا يلزم. لا يمكن ضمان أمان أي قناة خارجية بصورة مطلقة."],
-    ["حقوقك والتواصل", `يمكن طلب الاستفسار عن بيانات التواصل أو حذفها عبر البريد ${site.email}، مع مراعاة الالتزامات النظامية أو السجلات اللازمة لحماية الحقوق.`]
-  ] : [
-    ["طبيعة المحتوى", "المحتوى تعريفي وتعليمي ولا يمثل ضمانًا لنتيجة تقنية أو ترتيب بحث أو قرار صادر من Google أو أي منصة خارجية."],
-    ["نطاق الخدمات", "يُحدد نطاق كل مشروع ومخرجاته ومسؤولياته قبل التنفيذ. لا يبدأ أي فحص أمني نشط دون تصريح مكتوب ونطاق واضح."],
-    ["الملكية الفكرية", "النصوص والهوية والأصول الأصلية للموقع محمية، ولا يجوز إعادة استخدامها تجاريًا دون إذن. تبقى العلامات الخارجية ملكًا لأصحابها."],
-    ["الاستخدام الآمن", "يحظر استخدام الموقع لإرسال بيانات اعتماد أو محتوى غير مشروع أو طلب تنفيذ نشاط غير مصرح. استخدم قنوات التواصل لإرسال ملخص منزوع البيانات الحساسة."]
+function blogIndexPage() {
+  const topics = [
+    ["google-business-profile", "ملفات Google التجارية", "pin"],
+    ["local-seo-saudi", "السيو المحلي في السعودية", "search"],
+    ["cybersecurity", "الأمن السيبراني", "shield"],
+    ["ai-agents", "وكلاء الذكاء الاصطناعي", "spark"],
+    ["web-development", "تطوير الويب", "code"]
   ];
-  return layout({
-    title,
-    description,
-    path,
-    schema:[breadcrumbs([{name:"الرئيسية",path:"/"},{name:title,path}])],
-    body:`${pageHero("معلومات قانونية", title, privacy ? "توضح هذه الصفحة كيف تُستخدم بيانات التواصل والتحليلات باحترام وشفافية." : "توضح هذه الصفحة حدود المحتوى والخدمات والاستخدام المسؤول للموقع.")}<article class="legal-content section-pad"><div class="container article-body">${sections.map(([heading,text],index)=>`<section class="reveal"><span class="article-section-number">${String(index+1).padStart(2,"0")}</span><h2>${heading}</h2><p>${text}</p></section>`).join("")}<p class="legal-updated">آخر تحديث: 28 يوليو 2026.</p></div></article>`
-  });
+  const body = `${innerHero({ eyebrowText: "المدونة والمعرفة", title: "أدلة عملية للأمن والتطوير والذكاء الاصطناعي وGoogle والسيو", lead: "مقالات تشرح القرارات والمخاطر والخطوات بلغة مباشرة، وتربط بين الجانب التقني والنتيجة التجارية بدل الاكتفاء بنصائح عامة أو وعود سريعة.", path: "/blog/", crumbs: [{ name: "المدونة", path: "/blog/" }], aside: `<span class="aside-kicker">Practical Insights</span><strong>محتوى طويل مبني على مشكلات واقعية</strong><p>أطر عمل وقوائم مراجعة تساعد أصحاب الأعمال والفرق التقنية على اتخاذ قرار أفضل.</p>` })}
+<section class="section-pad"><div class="container"><div class="posts-grid">${posts.map(postCard).join("")}</div></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("مسارات المعرفة")}<h2>استكشف المحتوى حسب الموضوع</h2></div><div class="topics-grid">${topics.map(([slug, title, iconName]) => `<a class="topic-card reveal" href="/blog/topics/${slug}/">${icon(iconName)}<strong>${esc(title)}</strong><span>مقالات وخدمات مرتبطة ${icon("arrow")}</span></a>`).join("")}</div></div></section>
+${finalCta("لديك سؤال يحتاج تشخيصًا يخص حالتك؟", "المقالات توضح الإطار العام، بينما يعتمد القرار الصحيح على بيانات مشروعك ووضعه الحالي والهدف المطلوب.")}`;
+  return page({ title: "مدونة المهندس إسلام الشيخ", description: "مقالات المهندس إسلام الشيخ حول الأمن السيبراني وتطوير المواقع ووكلاء الذكاء الاصطناعي وملفات Google والسيو المحلي والتقني.", path: "/blog/", active: "blog", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "المدونة", path: "/blog/" }])] });
 }
 
-function slugify(text) {
-  return text.normalize("NFKD").replace(/[\u064B-\u065F\u0670]/g,"").replace(/[^\p{L}\p{N}]+/gu,"-").replace(/^-|-$/g,"").toLowerCase();
+function articlePage(post) {
+  const path = `/blog/${post.slug}/`;
+  const service = serviceBySlug(post.relatedService);
+  const reading = post.sections.map(([heading]) => heading);
+  const articleSchema = {
+    "@type": "Article",
+    headline: post.title,
+    description: post.description,
+    datePublished: post.date,
+    dateModified: post.modified,
+    inLanguage: "ar-SA",
+    mainEntityOfPage: absolute(path),
+    author: { "@id": `${site.url}/#person` },
+    publisher: { "@id": `${site.url}/#person` },
+    image: absolute(site.shareImage),
+    articleSection: post.category,
+    about: service?.title
+  };
+  const body = `${innerHero({ eyebrowText: post.category, title: esc(post.title), lead: post.excerpt, path, crumbs: [{ name: "المدونة", path: "/blog/" }, { name: post.title, path }], aside: `<div class="article-meta-card"><span>${new Intl.DateTimeFormat("ar-SA", { dateStyle: "long" }).format(new Date(`${post.date}T12:00:00Z`))}</span><strong>${esc(post.readTime)}</strong><p>آخر تحديث: ${new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium" }).format(new Date(`${post.modified}T12:00:00Z`))}</p></div>` })}
+<section class="section-pad article-section"><div class="container article-layout"><article class="article-content reveal"><p class="article-intro">${esc(post.description)}</p>${post.sections.map(([heading, text], index) => `<section id="section-${index + 1}"><span class="article-number">${String(index + 1).padStart(2, "0")}</span><h2>${esc(heading)}</h2><p>${esc(text)}</p></section>`).join("")}<div class="article-conclusion"><h2>الخلاصة العملية</h2><p>ابدأ بنطاق صغير يمكن قياسه، ووثق القرارات والمصادر، ولا تفصل الأمان وتجربة المستخدم والقياس عن التنفيذ. جودة النتيجة تأتي من وضوح النظام واستمرار المراجعة، لا من اختيار أداة مشهورة فقط.</p></div></article><aside class="article-sidebar"><div class="toc-card reveal"><span>في هذا الدليل</span><nav aria-label="محتويات المقال">${reading.map((heading, index) => `<a href="#section-${index + 1}"><span>${String(index + 1).padStart(2, "0")}</span>${esc(heading)}</a>`).join("")}</nav></div><div class="related-service-card reveal"><span>الخدمة المرتبطة</span><div>${icon(service?.icon || "briefcase")}<h2>${esc(service?.title || "الخدمات التقنية")}</h2></div><p>${esc(service?.short || site.positioning)}</p>${button(service ? `/services/${service.slug}/` : "/services/", "تفاصيل الخدمة", "button-ghost")}</div></aside></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("مقالات أخرى")}<h2>استمر في استكشاف الموضوعات المرتبطة</h2></div><div class="posts-grid">${posts.filter((item) => item.slug !== post.slug).map(postCard).join("")}</div></div></section>
+${finalCta("هل تريد تطبيق هذا الإطار على مشروعك؟", "أرسل الحالة الحالية والهدف والبيانات المتاحة، وسنحدد خطوة أولى صغيرة وواضحة وقابلة للقياس.")}`;
+  return page({ title: post.seoTitle, description: post.description, path, active: "blog", body, type: "article", published: post.date, modified: post.modified, schema: [articleSchema, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "المدونة", path: "/blog/" }, { name: post.title, path }])] });
+}
+
+const topicDefinitions = {
+  "google-business-profile": { title: "ملفات Google التجارية", description: "مقالات وخدمات حول إنشاء ملفات Google التجارية والتحقق والتعليق والأهلية والبيانات والظهور المحلي.", icon: "pin", services: ["google-business-profile", "google-support", "seo"] },
+  "local-seo-saudi": { title: "السيو المحلي في السعودية", description: "أدلة عملية لربط الموقع بملف Google والمحتوى المحلي والاتساق والسمعة والقياس داخل السوق السعودي.", icon: "search", services: ["seo", "google-business-profile", "web-development"] },
+  cybersecurity: { title: "الأمن السيبراني", description: "محتوى يشرح تقييم المخاطر وحماية المواقع والأنظمة والصلاحيات والاستجابة والمسؤولية في الاختبارات الأمنية.", icon: "shield", services: ["cybersecurity", "cloud-solutions", "web-development"] },
+  "ai-agents": { title: "وكلاء الذكاء الاصطناعي", description: "أطر عملية لبناء وكلاء ومساعدين يعتمدون على بيانات الشركة مع أدوات محدودة وتقييم وأمان ورقابة بشرية.", icon: "spark", services: ["ai-agents", "knowledge-bases", "cloud-solutions"] },
+  "web-development": { title: "تطوير المواقع والتطبيقات", description: "مقالات حول التصميم المتجاوب والأداء والأمان والسيو وتجربة المستخدم وبناء مواقع قابلة للتوسع والصيانة.", icon: "code", services: ["web-development", "cybersecurity", "seo"] }
+};
+
+function topicPage(slug) {
+  const topic = topicDefinitions[slug];
+  const matchingPosts = posts.filter((post) => post.topic === slug || (slug === "local-seo-saudi" && post.topic === "google-business-profile"));
+  const relatedServices = topic.services.map(serviceBySlug).filter(Boolean);
+  const path = `/blog/topics/${slug}/`;
+  const body = `${innerHero({ eyebrowText: "مسار معرفي", title: esc(topic.title), lead: topic.description, path, crumbs: [{ name: "المدونة", path: "/blog/" }, { name: topic.title, path }], aside: `<span class="service-hero-icon">${icon(topic.icon)}</span><strong>${matchingPosts.length} ${matchingPosts.length === 1 ? "مقال رئيسي" : "مقالات وأدلة"}</strong><p>روابط مباشرة للخدمات التي تساعد على تحويل المعرفة إلى تنفيذ.</p>` })}
+<section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("المقالات")}<h2>أدلة مرتبطة بموضوع ${esc(topic.title)}</h2></div>${matchingPosts.length ? `<div class="posts-grid">${matchingPosts.map(postCard).join("")}</div>` : `<div class="empty-state"><h2>يتم تطوير هذا المسار</h2><p>يمكنك البدء بالخدمات المرتبطة أو قراءة بقية المقالات.</p></div>`}</div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("الخدمات المرتبطة")}<h2>حوّل المعرفة إلى خطة تنفيذ</h2></div><div class="services-grid related-services">${relatedServices.map(serviceCard).join("")}</div></div></section>
+${slug === "local-seo-saudi" ? `<section class="section-pad"><div class="container case-method reveal"><div><span>دليل محلي</span><h2>السيو المحلي في الرياض والسعودية</h2></div><p>استكشف منهجًا يربط الموقع بملف Google والصفحات المحلية والمحتوى والاتساق والقياس دون حشو أو صفحات متكررة.</p>${button("/local-seo/", "دليل السيو المحلي")}</div></section>` : ""}
+${finalCta("لديك حالة تحتاج تطبيقًا عمليًا؟", "أرسل تفاصيل المشروع والروابط والنتيجة المطلوبة لنحدد النطاق والخطوات المناسبة.")}`;
+  return page({ title: topic.title, description: topic.description, path, active: "blog", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "المدونة", path: "/blog/" }, { name: topic.title, path }])] });
 }
 
 function contactPage() {
-  return layout({
-    title:"تواصل وطلب خدمة",
-    description:"تواصل مع المهندس إسلام الشيخ في الرياض عبر الاتصال أو WhatsApp لطلب خدمات الأمن السيبراني والبرمجة والذكاء الاصطناعي وخدمات Google والسيو.",
-    path:"/contact/",
-    active:"contact",
-    schema:[personSchema,breadcrumbs([{name:"الرئيسية",path:"/"},{name:"تواصل",path:"/contact/"}])],
-    body:`${pageHero("تواصل", "ابدأ بوصف الهدف، وسنرتب الطريق إليه", "اختر الخدمة واكتب ملخصًا موجزًا عن الوضع الحالي والنتيجة المطلوبة. لن يطلب منك الموقع كلمات مرور أو مفاتيح سرية أو رموز تحقق.")}
-    <section class="section-pad contact-section"><div class="container contact-grid"><div class="contact-options reveal">
-      <article>${brandIcon("whatsapp", "icon brand-contact-icon")}<div><small>WhatsApp الأساسي</small><h2>محادثة مباشرة</h2><a href="${site.whatsapp}" target="_blank" rel="noopener" dir="ltr">${site.phoneDisplay}</a></div></article>
-      <article>${icon("phone")}<div><small>اتصال مباشر</small><h2>الرقم الأساسي</h2><a href="tel:${site.phone}" dir="ltr">${site.phoneDisplay}</a></div></article>
-      <article>${icon("phone")}<div><small>خيار تواصل ثانٍ</small><h2>الرقم البديل</h2><a href="tel:${site.secondaryPhone}" dir="ltr">${site.secondaryPhoneDisplay}</a></div></article>
-      <article>${icon("mail")}<div><small>البريد الإلكتروني</small><h2>تفاصيل رسمية</h2><a href="mailto:${site.email}">${site.email}</a></div></article>
-      <article>${icon("pin")}<div><small>نطاق العمل</small><h2>${site.city}</h2><p>خدمات رقمية داخل السعودية وعن بُعد</p></div></article>
-      <div class="security-note">${icon("shield")}<p><strong>تنبيه أمني:</strong> لا ترسل كلمة مرور أو رمز تحقق أو مفتاح API. يمكن مناقشة المشكلة باستخدام وصف أو لقطات منزوعة البيانات الحساسة.</p></div>
-    </div><form class="contact-form reveal" data-contact-form><div class="form-head"><span>ملخص المشروع</span><h2>جهّز رسالة واضحة خلال دقيقة</h2><p>عند الإرسال ستفتح رسالة WhatsApp على الرقم الأساسي، ويمكنك مراجعتها قبل الإرسال.</p></div><label>الاسم أو اسم النشاط<input type="text" name="name" autocomplete="name" maxlength="80" placeholder="مثال: محمد / شركة ..." required></label><label>الخدمة المطلوبة<select name="service" required><option value="">اختر الخدمة</option>${services.map(s=>`<option value="${s.slug}">${s.title}</option>`).join("")}</select></label><label>ما النتيجة التي تريد الوصول إليها؟<textarea name="goal" rows="5" maxlength="800" placeholder="اكتب الوضع الحالي والهدف والموعد المتوقع دون بيانات حساسة" required></textarea></label><button class="button" type="submit">فتح الرسالة في WhatsApp ${brandIcon("whatsapp", "button-icon brand-contact-icon")}</button><p class="form-status" role="status" aria-live="polite"></p></form></div></section>`
-  });
+  const body = `${innerHero({ eyebrowText: "ابدأ التواصل", title: "أرسل تفاصيل تساعد على تشخيص مشروعك من أول رسالة", lead: "كلما كان وصف الهدف والوضع الحالي والروابط والموعد أوضح، كان من الأسهل تحديد نقطة البداية والنطاق والمخرجات دون جولات طويلة من الأسئلة العامة.", path: "/contact/", crumbs: [{ name: "تواصل", path: "/contact/" }], aside: `<span class="aside-kicker">Response Ready</span><strong>ابدأ عبر WhatsApp أو الاتصال أو البريد</strong><p>لا ترسل كلمات مرور أو رموز تحقق أو مفاتيح API أو بيانات حساسة في الرسالة الأولى.</p>` })}
+<section class="section-pad"><div class="container contact-grid"><div class="contact-options"><a class="contact-card reveal" href="${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، أرغب في مناقشة مشروع تقني.")}" target="_blank" rel="noopener"><span class="contact-icon contact-whatsapp">${icon("whatsapp")}</span><div><small>الأسرع لبدء التشخيص</small><h2>WhatsApp</h2><p dir="ltr">${site.phoneDisplay}</p></div>${icon("external")}</a><a class="contact-card reveal" href="tel:${site.phone}"><span class="contact-icon contact-call">${icon("phone")}</span><div><small>اتصال مباشر</small><h2>الهاتف</h2><p dir="ltr">${site.phoneDisplay}</p></div>${icon("arrow")}</a><a class="contact-card reveal" href="mailto:${site.email}"><span class="contact-icon contact-mail">${icon("mail")}</span><div><small>للتفاصيل والمرفقات</small><h2>البريد الإلكتروني</h2><p dir="ltr">${site.email}</p></div>${icon("arrow")}</a><div class="contact-note reveal"><span>${icon("shield")}</span><div><h2>حماية معلوماتك</h2><p>أرسل وصفًا عامًا وروابط عامة في البداية. تُحدد قناة آمنة عند الحاجة إلى معلومات حساسة أو وصول تقني.</p></div></div></div>
+<form class="project-form reveal" data-project-form novalidate><div class="form-head"><span>نموذج تجهيز رسالة المشروع</span><h2>كوّن رسالة WhatsApp منظمة</h2><p>لن تُرسل البيانات إلى خادم؛ يُفتح WhatsApp برسالة جاهزة بعد مراجعتك.</p></div><label><span>الاسم أو اسم الشركة</span><input type="text" name="name" autocomplete="name" maxlength="80" required placeholder="مثال: شركة ..."></label><label><span>الخدمة الأقرب</span><select name="service" required><option value="">اختر الخدمة</option>${services.map((service) => `<option value="${esc(service.title)}">${esc(service.title)}</option>`).join("")}<option value="استشارة متعددة التخصصات">استشارة متعددة التخصصات</option></select></label><label><span>رابط الموقع أو الملف — اختياري</span><input type="url" name="url" inputmode="url" autocomplete="url" maxlength="300" placeholder="https://"></label><label><span>الهدف والوضع الحالي</span><textarea name="details" rows="6" maxlength="1500" required placeholder="اشرح المشكلة، ما الذي تريد تحقيقه، وما الذي جربته حتى الآن..."></textarea><small><span data-character-count>0</span> / 1500</small></label><label><span>الموعد المتوقع — اختياري</span><input type="text" name="timeline" maxlength="120" placeholder="مثال: خلال شهر أو قبل إطلاق محدد"></label><div class="form-message" role="status" aria-live="polite" data-form-message></div><button class="button" type="submit">فتح الرسالة في WhatsApp ${icon("whatsapp", "button-icon")}</button></form></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("ماذا ترسل؟")}<h2>أربع نقاط تختصر وقت التشخيص</h2></div><div class="audience-grid"><article class="audience-card reveal"><span>01</span><h3>الهدف</h3><p>ما النتيجة التي تريد الوصول إليها، ولماذا هي مهمة الآن؟</p></article><article class="audience-card reveal"><span>02</span><h3>الوضع الحالي</h3><p>الروابط والأنظمة والمشكلة والتأثير وما الذي يعمل وما الذي لا يعمل.</p></article><article class="audience-card reveal"><span>03</span><h3>المحاولات السابقة</h3><p>التعديلات أو الأدوات أو طلبات الدعم التي تمت ونتيجتها.</p></article><article class="audience-card reveal"><span>04</span><h3>القيود</h3><p>الموعد والميزانية التقريبية والفريق والاعتماديات أو الموافقات.</p></article></div></div></section>`;
+  return page({ title: "تواصل مع المهندس إسلام الشيخ", description: "تواصل مع المهندس إسلام الشيخ لمناقشة الأمن السيبراني وتطوير المواقع ووكلاء الذكاء الاصطناعي وخدمات Google والسيو والحلول السحابية في السعودية.", path: "/contact/", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "تواصل", path: "/contact/" }])] });
+}
+
+function privacyPage() {
+  const body = `${innerHero({ eyebrowText: "الخصوصية", title: "سياسة الخصوصية", lead: "توضح هذه الصفحة نوع البيانات التي قد تُعالج عند استخدام الموقع أو التواصل، وكيف يتم التعامل معها بصورة مسؤولة.", path: "/privacy/", crumbs: [{ name: "سياسة الخصوصية", path: "/privacy/" }] })}
+<section class="section-pad legal-section"><div class="container legal-content"><section><h2>1. المعلومات التي يقدمها الزائر</h2><p>لا يطلب الموقع إنشاء حساب. قد تقدم اسمك أو بريدك أو رقمك أو تفاصيل مشروعك عند التواصل عبر الهاتف أو البريد أو WhatsApp. لا ترسل كلمات مرور أو رموز تحقق أو مفاتيح API أو بيانات شخصية غير لازمة في الرسالة الأولى.</p></section><section><h2>2. نموذج تجهيز الرسالة</h2><p>نموذج التواصل داخل الموقع يُستخدم لتجهيز نص رسالة وفتح WhatsApp على جهازك. لا يرسل النموذج بياناته إلى خادم تابع للموقع بحسب النسخة الحالية.</p></section><section><h2>3. السجلات والتحليلات</h2><p>قد تسجل منصة الاستضافة معلومات تقنية أساسية لازمة لتقديم الخدمة والحماية، مثل عنوان IP ونوع المتصفح والمسار ووقت الطلب. قد تُضاف أدوات قياس مستقبلًا بعد تحديث هذه السياسة وتهيئتها بما يلائم المتطلبات القانونية والتشغيلية.</p></section><section><h2>4. الروابط والخدمات الخارجية</h2><p>يتضمن الموقع روابط إلى WhatsApp وGoogle وGitHub وLinkedIn ومنصات أخرى. تخضع معالجة البيانات لدى هذه الجهات لسياساتها وشروطها المستقلة.</p></section><section><h2>5. الاحتفاظ والأمان</h2><p>تُحفظ مراسلات المشروع بالقدر اللازم للتواصل والتنفيذ والتوثيق، مع تطبيق ضوابط معقولة للوصول. لا توجد وسيلة إلكترونية تضمن أمانًا مطلقًا، لذلك يُتفق على قناة مناسبة قبل تبادل أي معلومات حساسة.</p></section><section><h2>6. التواصل بشأن الخصوصية</h2><p>لطلب تصحيح أو حذف معلومات قدمتها مباشرة، تواصل عبر البريد <a href="mailto:${site.email}">${site.email}</a> مع توضيح الطلب والهوية المرتبطة بالمراسلة.</p></section><p class="legal-updated">آخر تحديث: 29 يوليو 2026</p></div></section>`;
+  return page({ title: "سياسة الخصوصية", description: "سياسة خصوصية موقع المهندس إسلام الشيخ وتوضيح البيانات المستخدمة عند تصفح الموقع أو التواصل بخصوص الخدمات التقنية.", path: "/privacy/", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "سياسة الخصوصية", path: "/privacy/" }])] });
+}
+
+function termsPage() {
+  const body = `${innerHero({ eyebrowText: "الشروط", title: "شروط الاستخدام", lead: "باستخدام الموقع، تقر بأن المحتوى عام وإرشادي، وأن نطاق أي خدمة تجارية أو تقنية يُحدد باتفاق مستقل وواضح.", path: "/terms/", crumbs: [{ name: "شروط الاستخدام", path: "/terms/" }] })}
+<section class="section-pad legal-section"><div class="container legal-content"><section><h2>1. طبيعة المحتوى</h2><p>المعلومات المنشورة للتعريف بالخدمات وتقديم معرفة عامة، ولا تشكل وحدها عقدًا أو ضمانًا أو استشارة قانونية أو قرارًا فنيًا نهائيًا لحالة لم تتم مراجعتها.</p></section><section><h2>2. نطاق الخدمات</h2><p>يُحدد نطاق كل مشروع ومخرجاته وجدوله واعتمادياته ومسؤوليات الأطراف في عرض أو اتفاق مستقل. أي أمثلة أو قوائم داخل الموقع توضح إمكانات عامة ولا تعني شمولها تلقائيًا في كل مشروع.</p></section><section><h2>3. خدمات الجهات الخارجية</h2><p>لا يمكن ضمان قرارات Google أو منصات الإعلان أو الاستضافة أو محركات البحث أو مزودي الخدمات الخارجيين. يتم العمل وفق المصادر والمسارات المتاحة، بينما يبقى القرار النهائي لدى الجهة المختصة.</p></section><section><h2>4. الأمن والاستخدام المصرح</h2><p>لا يتم تنفيذ فحص أمني نشط دون تصريح ونطاق مكتوبين. يحظر استخدام محتوى الموقع أو وسائل التواصل لطلب نشاط غير مصرح أو ضار أو مخالف للأنظمة.</p></section><section><h2>5. الملكية الفكرية</h2><p>يعود محتوى الموقع وتصميمه وهوية المهندس إسلام الشيخ لأصحابها، ما لم يُذكر خلاف ذلك. لا يجوز نسخ المحتوى أو إعادة نشره تجاريًا بصورة كاملة دون إذن، ويُسمح بالاقتباس المحدود مع الإشارة إلى المصدر.</p></section><section><h2>6. التعديلات والتواصل</h2><p>قد تُحدّث الشروط لتواكب التغييرات في الموقع والخدمات. للاستفسار تواصل عبر <a href="mailto:${site.email}">${site.email}</a>.</p></section><p class="legal-updated">آخر تحديث: 29 يوليو 2026</p></div></section>`;
+  return page({ title: "شروط الاستخدام", description: "شروط استخدام موقع المهندس إسلام الشيخ وحدود المحتوى والخدمات التقنية والاستشارية والأمنية وخدمات الجهات الخارجية.", path: "/terms/", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "شروط الاستخدام", path: "/terms/" }])] });
+}
+
+function englishPage() {
+  const body = `<section class="hero section-pad hero-en"><div class="container hero-grid"><div class="hero-copy reveal"><span class="eyebrow"><span></span>Cybersecurity Engineer · Software Developer · Google Product Expert</span><h1>I build digital systems that are <span>secure, useful, and ready to grow.</span></h1><p class="hero-lead">I am Eslam Elshikh, based in Riyadh. I combine cybersecurity, web and software engineering, practical AI agents, Google product expertise, cloud architecture, and search visibility into clear project scopes with reviewable outcomes.</p><p class="hero-support">From diagnosis and information architecture to implementation, testing, launch, and measurement, the goal is to reduce complexity and help your team make better technical decisions.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start a conversation", "", true)}${button("/services/", "Explore services", "button-ghost")}</div><div class="hero-trust"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>Google Developer Profile</a><a href="${site.social.github}" target="_blank" rel="noopener"><span class="trust-dot"></span>GitHub</a><span><span class="trust-dot trust-live"></span>Saudi Arabia & remote</span></div></div><div class="hero-visual reveal"><div class="visual-glow"></div><div class="visual-shell"><div class="visual-top"><span>Digital Engineering</span><span class="visual-status"><i></i> Operational</span></div><div class="visual-core">${logo("hero-logo", "Eslam Elshikh logo")}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div><div class="visual-capabilities"><span>${icon("shield")}Cybersecurity</span><span>${icon("code")}Web & Apps</span><span>${icon("spark")}AI Agents</span><span>${icon("google")}Google</span><span>${icon("chart")}SEO</span><span>${icon("cloud")}Cloud</span></div><div class="visual-metric"><span>Approach</span><strong>360°</strong><p>Security, user experience, discoverability, and measurement in one system.</p></div></div></div></div><div class="container stats-bar reveal">${site.stats.map((stat, index) => `<div><strong>${esc(stat.value)}</strong><span>${["Google Business Profile contributions", "Business profile cases handled", "Connected service tracks", "Security, product, and growth view"][index]}</span></div>`).join("")}</div></section>
+<section class="section-pad"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Core capabilities</span><h2>Specialist work that can operate independently or as one delivery plan</h2><p>Each engagement starts with the business outcome, current state, constraints, risks, and a measurable definition of done.</p></div><div class="services-grid">${services.slice(0, 6).map((service) => `<article class="service-card reveal"><div class="service-card-top"><span class="service-number">${service.number}</span><span class="service-icon">${icon(service.icon)}</span></div><p class="service-group">${esc(service.group)}</p><h3>${esc(service.title)}</h3><p>${esc(service.short)}</p><a class="text-link" href="/services/${service.slug}/">Arabic service details ${icon("arrow")}</a></article>`).join("")}</div></div></section>
+<section class="section-pad muted-section"><div class="container promise-grid"><div class="promise-copy reveal"><span class="eyebrow"><span></span>How I work</span><h2>A strong digital project is more than a polished interface</h2><p>It should be understandable, secure in operation, responsive on real devices, discoverable by search engines, measurable, and maintainable after launch.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome first</h3><p>We define the user decision and business result before selecting tools.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Secure by design</h3><p>Data, permissions, and failure modes are considered from the start.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for devices</h3><p>Mobile-first testing across iOS, Android, Huawei, tablets, and desktops.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Ready to improve</h3><p>Performance, SEO, analytics, and conversion are part of operations.</p></article></div></div></section>
+<section class="section-pad"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>Google product expertise</span><h2>Structured diagnosis instead of random profile changes</h2><p>I help eligible businesses understand verification, suspension, ownership, category, consistency, and local visibility issues using official paths and realistic expectations.</p></div><div class="proof-actions">${button("/google-expert/", "Google expertise")}${button(site.social.googleDeveloper, "Official profile", "button-ghost", true)}</div></div></section>
+<section class="section-pad final-cta"><div class="container"><div class="cta-panel reveal"><div><span class="eyebrow"><span></span>Start with context</span><h2>Turn a complex technical problem into a clear delivery plan.</h2><p>Share your goal, current state, relevant links, constraints, and expected timing. Do not include passwords, verification codes, or API keys.</p></div><div class="cta-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start on WhatsApp", "button-light", true)}<a class="cta-phone" href="mailto:${site.email}">${site.email}</a></div></div></div></section>`;
+  return page({ title: `Eng. ${site.nameEn}`, description: "Eng. Eslam Elshikh is a cybersecurity engineer, software developer, Google Product Expert, AI agent builder, web developer, and SEO consultant based in Riyadh, Saudi Arabia.", path: "/en/", active: "home", body, lang: "en" });
 }
 
 function notFoundPage() {
-  return layout({ title:"الصفحة غير موجودة", description:"تعذر العثور على الصفحة المطلوبة في موقع المهندس إسلام الشيخ. يمكنك العودة إلى الرئيسية أو استكشاف الخدمات التقنية.", path:"/404.html", robots:"noindex, follow", schema:[], body:`<section class="not-found"><div class="container reveal"><span>404</span><h1>الرابط لا يقود إلى صفحة موجودة</h1><p>قد يكون الرابط قديمًا أو تمت كتابة العنوان بصورة غير صحيحة. ابدأ من الرئيسية أو استكشف الخدمات.</p><div class="hero-actions"><a class="button" href="/">العودة للرئيسية</a><a class="button button-ghost" href="/services/">الخدمات</a></div></div></section>` });
+  return `${head({ title: "الصفحة غير موجودة", description: "تعذر العثور على الصفحة المطلوبة في موقع المهندس إسلام الشيخ.", path: "/404.html" })}<body>${header()}<main id="main"><section class="not-found"><div class="container"><span>404</span><h1>الصفحة غير موجودة</h1><p>ربما تغير الرابط أو تمت كتابة العنوان بصورة غير صحيحة. ابدأ من الصفحة الرئيسية أو استعرض الخدمات.</p><div class="hero-actions">${button("/", "العودة للرئيسية")}${button("/services/", "استعراض الخدمات", "button-ghost")}</div></div></section></main>${footer()}</body></html>`;
 }
 
-async function output(relativePath, content) {
-  const file = join(root, relativePath);
-  await mkdir(dirname(file), { recursive: true });
-  const normalized = relativePath.endsWith(".html") ? content.replace(/[ \t]+$/gm, "") : content;
-  await writeFile(file, normalized, "utf8");
+async function writeText(relativePath, content) {
+  const target = join(outDir, relativePath);
+  await mkdir(dirname(target), { recursive: true });
+  await writeFile(target, content, "utf8");
 }
 
-const pages = [
-  ["index.html", homePage()],
-  ["en/index.html", englishHomePage()],
-  ["services/index.html", servicesPage()],
-  ["local-seo/index.html", localSeoPage()],
-  ["local-seo/riyadh/index.html", riyadhLocalSeoPage()],
-  ["about/index.html", aboutPage()],
-  ["google-expert/index.html", googlePage()],
-  ["projects/index.html", projectsPage()],
-  ["blog/index.html", blogPage()],
-  ["contact/index.html", contactPage()],
-  ["privacy/index.html", legalPage("privacy")],
-  ["terms/index.html", legalPage("terms")],
-  ["404.html", notFoundPage()]
-];
+async function writeRoute(path, html, options = {}) {
+  await writeText(routeFile(path), html);
+  if (options.index !== false && path !== "/404.html") generatedRoutes.push(path);
+}
 
-for (const s of services) pages.push([`services/${s.slug}/index.html`, servicePage(s)]);
-for (const p of posts) pages.push([`blog/${p.slug}/index.html`, articlePage(p)]);
-for (const hub of topicHubs) pages.push([`blog/topics/${hub.slug}/index.html`, topicHubPage(hub)]);
-for (const [path, content] of pages) await output(path, content);
+function sitemapXml() {
+  const urls = generatedRoutes.map((path) => {
+    const priority = path === "/" ? "1.0" : path === "/services/" ? "0.9" : path.startsWith("/services/") ? "0.85" : path.startsWith("/blog/") ? "0.75" : "0.8";
+    const changefreq = path.startsWith("/blog/") ? "monthly" : "monthly";
+    return `  <url><loc>${absolute(path)}</loc><lastmod>${site.lastUpdated}</lastmod><changefreq>${changefreq}</changefreq><priority>${priority}</priority></url>`;
+  }).join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+}
 
-const routeFromFile = file => file === "index.html" ? "/" : `/${file.replace(/index\.html$/, "")}`;
-const sitemapPaths = pages.map(([file]) => file).filter(file => file !== "404.html").map(routeFromFile);
-const lastmod = "2026-07-28";
-await output("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapPaths.map((path,i)=>`  <url><loc>${site.url}${path}</loc><lastmod>${lastmod}</lastmod><changefreq>${path.startsWith("/blog/") ? "monthly" : "monthly"}</changefreq><priority>${path === "/" ? "1.0" : path === "/services/" ? "0.9" : "0.8"}</priority></url>`).join("\n")}\n</urlset>\n`);
-await output("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\n`);
-await output("CNAME", "eslam-elshikh.com\n");
-await output(".nojekyll", "");
-await output(".well-known/security.txt", `Contact: mailto:${site.email}\nCanonical: ${site.url}/.well-known/security.txt\nPreferred-Languages: ar, en\nExpires: 2027-07-28T00:00:00.000Z\n`);
-await output("manifest.webmanifest", JSON.stringify({ id:"/", name:site.brandName, short_name:site.nameAr, description:site.description, start_url:"/", display:"standalone", lang:"ar", dir:"rtl", background_color:"#07111b", theme_color:"#07111b", icons:[{src:"/assets/icons/icon-192.png",sizes:"192x192",type:"image/png",purpose:"any"},{src:"/assets/icons/icon-512.png",sizes:"512x512",type:"image/png",purpose:"any"}] }, null, 2));
-await output("feed.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel><title>${esc(site.brandName)} — المدونة التقنية</title><link>${site.url}/blog/</link><description>${esc(site.description)}</description><language>ar-SA</language>${posts.map(p=>`<item><title>${esc(p.title)}</title><link>${site.url}/blog/${p.slug}/</link><guid isPermaLink="true">${site.url}/blog/${p.slug}/</guid><pubDate>${new Date(`${p.date}T12:00:00Z`).toUTCString()}</pubDate><description>${esc(p.description)}</description></item>`).join("")}</channel></rss>\n`);
-await output("profile.json", `${JSON.stringify({ "@context":"https://schema.org", ...personSchema }, null, 2)}\n`);
-await output("llms.txt", `# ${site.brandName}\n\n> ${site.description}\n\n## معلومات الهوية\n- الاسم العربي: ${site.nameAr}\n- الاسم الإنجليزي: ${site.nameEn}\n- الصفة المهنية: خبير أمن سيبراني، مطور برمجيات، خبير منتجات Google\n- الموقع المهني: ${site.city}، ${site.country}\n- الموقع الرسمي: ${site.url}/\n- الملف المهني: ${site.url}/about/\n- ملف الهوية المنظم: ${site.url}/profile.json\n- ملف Google للمطورين: ${site.social.googleDeveloper}\n- Wikidata: ${site.social.wikidata}\n\n## الخدمات\n${services.map(s=>`- ${s.title}: ${site.url}/services/${s.slug}/`).join("\n")}\n\n## المحتوى\n- جميع الخدمات: ${site.url}/services/\n- السيو المحلي في السعودية: ${site.url}/local-seo/\n- شركة سيو في الرياض: ${site.url}/local-seo/riyadh/\n- حل مشكلات ملفات Google التجارية: ${site.url}/services/google-business-profile/\n- الأعمال ونماذج ملفات Google التجارية: ${site.url}/projects/\n- المدونة التقنية: ${site.url}/blog/\n- خبرة منتجات Google: ${site.url}/google-expert/\n- التواصل: ${site.url}/contact/\n- سياق موسع للأنظمة الذكية: ${site.url}/llms-full.txt\n\nهذه المعلومات تعريفية عامة. المرجع الأساسي والأحدث هو صفحات الموقع الرسمية والروابط الموثقة أعلاه.\n`);
-await output("llms-full.txt", `# الملف المهني الموسع — ${site.brandName}\n\n## الهوية\n${site.description}\n\nيُكتب الاسم بالعربية: ${site.nameAr}، وقد يظهر في البحث أيضًا بصيغة «اسلام الشيخ». ويُكتب بالإنجليزية: ${site.nameEn}. يعمل من ${site.city} ويقدم خدمات رقمية داخل السعودية وعن بُعد.\n\n## الصفة المهنية\n- خبير أمن سيبراني\n- مطور برمجيات ومواقع وتطبيقات\n- خبير منتجات Google يقدم دعمًا واستشارات مستقلة\n- متخصص في وكلاء الذكاء الاصطناعي والسيو والحلول السحابية وقواعد المعرفة\n\nخبرة منتجات Google مستقلة، ولا تعني أن ${site.nameAr} موظف لدى Google أو يملك التحكم في قرارات المنصة.\n\n## الخدمات بالتفصيل\n${services.map(s=>`### ${s.title}\n${s.intro}\nالرابط الرسمي: ${site.url}/services/${s.slug}/`).join("\n\n")}\n\n## مسارات السيو المحلي وملفات Google\n- السيو المحلي في السعودية: ${site.url}/local-seo/\n- شركة سيو في الرياض: ${site.url}/local-seo/riyadh/\n- حل التعليق وإثبات الملكية: ${site.url}/services/google-business-profile/\n\n## نماذج أعمال ملفات Google التجارية\nتعرض صفحة الأعمال نماذج منشورة من ملفات أنشطة تجارية أدار أو حسّن ${site.nameAr} حضورها على خرائط Google، مع روابط مباشرة إلى الملفات الأصلية.\nالرابط: ${site.url}/projects/#google-maps-work\n\n${mapsProjects.map(project=>`- ${project.title}: ${project.url}`).join("\n")}\n\n## المراجع الرسمية\n- الموقع: ${site.url}/\n- الملف المهني: ${site.url}/about/\n- ملف Google للمطورين: ${site.social.googleDeveloper}\n- Wikidata: ${site.social.wikidata}\n- GitHub: ${site.social.github}\n- المدونة: ${site.url}/blog/\n\n## التواصل العام\n- الهاتف وWhatsApp الأساسي: ${site.phone}\n- الهاتف البديل: ${site.secondaryPhone}\n- البريد: ${site.email}\n\nآخر تحديث: 2026-07-28. استخدم الصفحات الرسمية أعلاه بوصفها المرجع الأحدث، ولا تستنتج اعتمادات أو علاقات عمل غير مذكورة صراحة.\n`);
+function feedXml() {
+  const items = posts.map((post) => `<item><title>${esc(post.title)}</title><link>${absolute(`/blog/${post.slug}/`)}</link><guid>${absolute(`/blog/${post.slug}/`)}</guid><pubDate>${new Date(`${post.date}T12:00:00Z`).toUTCString()}</pubDate><description>${esc(post.description)}</description></item>`).join("");
+  return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>مدونة ${esc(site.brandName)}</title><link>${site.url}/blog/</link><description>${esc(site.description)}</description><language>ar-SA</language><lastBuildDate>${new Date(`${site.lastUpdated}T12:00:00Z`).toUTCString()}</lastBuildDate>${items}</channel></rss>`;
+}
 
-console.log(`Built ${pages.length} HTML pages.`);
+async function build() {
+  if (isDistBuild) {
+    await rm(outDir, { recursive: true, force: true });
+    await mkdir(outDir, { recursive: true });
+    await cp(join(root, "assets"), join(outDir, "assets"), { recursive: true });
+  }
+
+  await writeRoute("/", homePage());
+  await writeRoute("/en/", englishPage());
+  await writeRoute("/services/", servicesIndexPage());
+  for (const service of services) await writeRoute(`/services/${service.slug}/`, serviceDetailPage(service));
+  await writeRoute("/local-seo/", localSeoPage(false));
+  await writeRoute("/local-seo/riyadh/", localSeoPage(true));
+  await writeRoute("/about/", aboutPage());
+  await writeRoute("/google-expert/", googleExpertPage());
+  await writeRoute("/projects/", projectsPage());
+  await writeRoute("/blog/", blogIndexPage());
+  for (const post of posts) await writeRoute(`/blog/${post.slug}/`, articlePage(post));
+  for (const slug of Object.keys(topicDefinitions)) await writeRoute(`/blog/topics/${slug}/`, topicPage(slug));
+  await writeRoute("/contact/", contactPage());
+  await writeRoute("/privacy/", privacyPage());
+  await writeRoute("/terms/", termsPage());
+  await writeText("404.html", notFoundPage());
+
+  await writeText("sitemap.xml", sitemapXml());
+  await writeText("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\nHost: ${site.url}\n`);
+  await writeText("manifest.webmanifest", JSON.stringify({ name: site.brandName, short_name: site.nameAr, description: site.description, lang: "ar", dir: "rtl", start_url: "/", scope: "/", display: "standalone", background_color: "#06131f", theme_color: "#06131f", icons: [{ src: "/assets/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }, { src: "/assets/brand/eslam-elshikh-logo-transparent.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }] }, null, 2));
+  await writeText("feed.xml", feedXml());
+  await writeText("profile.json", JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: site.nameAr, alternateName: site.nameEn, url: site.url, jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"], sameAs: Object.values(site.social), knowsAbout: services.map((service) => service.title) }, null, 2));
+  await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- About: ${absolute("/about/")}\n- Google expertise: ${absolute("/google-expert/")}\n- Local SEO: ${absolute("/local-seo/")}\n- Work: ${absolute("/projects/")}\n- Contact: ${absolute("/contact/")}\n`);
+  await writeText("humans.txt", `Site: ${site.brandName}\nLocation: ${site.city}, ${site.country}\nDesign and development: ${site.nameEn}\nUpdated: ${site.lastUpdated}\n`);
+  await writeText("CNAME", "eslam-elshikh.com\n");
+  await writeText(join(".well-known", "security.txt"), `Contact: mailto:${site.email}\nCanonical: ${site.url}/.well-known/security.txt\nPreferred-Languages: ar, en\nExpires: 2027-07-29T00:00:00.000Z\nPolicy: ${site.url}/terms/\n`);
+  console.log(`Built ${generatedRoutes.length} indexed routes in ${outDir}`);
+}
+
+build().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

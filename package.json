@@ -1,15 +1,17 @@
 {
-  "name": "eslam-elshikh-personal-site",
-  "version": "2.0.0",
+  "name": "eslam-elshikh-portfolio",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
+  "description": "Professional Arabic-first website for Eng. Eslam Elshikh: cybersecurity, software, AI agents, Google products, SEO, and cloud solutions.",
   "scripts": {
-    "assets": "python3 scripts/apply-primary-logo.py",
-    "lint": "node --check build.mjs && node --check assets/js/main.js",
-    "build": "npm run assets && node build.mjs",
-    "validate": "node scripts/validate.mjs",
-    "smoke": "node scripts/smoke.mjs",
-    "check": "npm run lint && npm run build && npm run validate && npm run smoke",
-    "serve": "python3 -m http.server 4173"
+    "build": "node build.mjs",
+    "build:vercel": "node build.mjs --out=dist",
+    "validate": "node scripts/validate.mjs --dir=dist",
+    "smoke": "node scripts/smoke.mjs --dir=dist",
+    "check": "node --check build.mjs && node --check src/content.mjs && node --check assets/js/main.js && npm run build:vercel && npm run validate && npm run smoke"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
