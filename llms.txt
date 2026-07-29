@@ -3,19 +3,19 @@
 المهندس إسلام الشيخ في الرياض: مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google، يقدم تطوير المواقع ووكلاء الذكاء الاصطناعي والسيو والحلول السحابية للشركات في السعودية.
 
 ## Core services
-- الأمن السيبراني وحماية الأنظمة: https://eslam-elshikh.com/services/cybersecurity/
-- الحلول السحابية الآمنة: https://eslam-elshikh.com/services/cloud-solutions/
-- تطوير وكلاء الذكاء الاصطناعي وأتمتة الأعمال: https://eslam-elshikh.com/services/ai-agents/
-- تصميم وتطوير المواقع والتطبيقات: https://eslam-elshikh.com/services/web-development/
-- استشارات ودعم منتجات Google: https://eslam-elshikh.com/services/google-support/
-- حل مشكلات ملفات Google التجارية: https://eslam-elshikh.com/services/google-business-profile/
-- قواعد المعرفة والبحث الذكي: https://eslam-elshikh.com/services/knowledge-bases/
-- تحسين محركات البحث SEO والسيو المحلي: https://eslam-elshikh.com/services/seo/
-- إدارة الإعلانات الرقمية وصفحات الهبوط: https://eslam-elshikh.com/services/digital-advertising/
+- الأمن السيبراني وحماية الأنظمة: https://www.eslam-elshikh.com/services/cybersecurity/
+- الحلول السحابية الآمنة: https://www.eslam-elshikh.com/services/cloud-solutions/
+- تطوير وكلاء الذكاء الاصطناعي وأتمتة الأعمال: https://www.eslam-elshikh.com/services/ai-agents/
+- تصميم وتطوير المواقع والتطبيقات: https://www.eslam-elshikh.com/services/web-development/
+- استشارات ودعم منتجات Google: https://www.eslam-elshikh.com/services/google-support/
+- حل مشكلات ملفات Google التجارية: https://www.eslam-elshikh.com/services/google-business-profile/
+- قواعد المعرفة والبحث الذكي: https://www.eslam-elshikh.com/services/knowledge-bases/
+- تحسين محركات البحث SEO والسيو المحلي: https://www.eslam-elshikh.com/services/seo/
+- إدارة الإعلانات الرقمية وصفحات الهبوط: https://www.eslam-elshikh.com/services/digital-advertising/
 
 ## Key pages
-- About: https://eslam-elshikh.com/about/
-- Google expertise: https://eslam-elshikh.com/google-expert/
-- Local SEO: https://eslam-elshikh.com/local-seo/
-- Work: https://eslam-elshikh.com/projects/
-- Contact: https://eslam-elshikh.com/contact/
+- About: https://www.eslam-elshikh.com/about/
+- Google expertise: https://www.eslam-elshikh.com/google-expert/
+- Local SEO: https://www.eslam-elshikh.com/local-seo/
+- Work: https://www.eslam-elshikh.com/projects/
+- Contact: https://www.eslam-elshikh.com/contact/

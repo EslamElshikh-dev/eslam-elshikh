@@ -52,7 +52,7 @@ for (const route of expectedRoutes) {
   if (title.length < 12 || title.length > 110) warnings.push(`${route}: title length ${title.length}`);
   if (!description) errors.push(`${route}: missing meta description`);
   if (description.length < 85 || description.length > 230) warnings.push(`${route}: description length ${description.length}`);
-  if (canonical !== `https://eslam-elshikh.com${route}`) errors.push(`${route}: canonical mismatch (${canonical})`);
+  if (canonical !== `https://www.eslam-elshikh.com${route}`) errors.push(`${route}: canonical mismatch (${canonical})`);
   if (!/<meta\s+property="og:title"/i.test(html) || !/<meta\s+name="twitter:card"/i.test(html)) errors.push(`${route}: incomplete social metadata`);
   if (!/<script\s+type="application\/ld\+json">/i.test(html)) errors.push(`${route}: missing JSON-LD`);
   if (!/<link\s+rel="stylesheet"\s+href="\/assets\/css\/main\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned main stylesheet`);
@@ -102,7 +102,7 @@ else {
   const sitemap = await readFile(sitemapPath, "utf8");
   const entries = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
   if (entries.length !== expectedRoutes.length) errors.push(`Sitemap has ${entries.length} URLs; expected ${expectedRoutes.length}`);
-  for (const route of expectedRoutes) if (!entries.includes(`https://eslam-elshikh.com${route}`)) errors.push(`Sitemap missing ${route}`);
+  for (const route of expectedRoutes) if (!entries.includes(`https://www.eslam-elshikh.com${route}`)) errors.push(`Sitemap missing ${route}`);
 }
 
 for (const required of ["robots.txt", "manifest.webmanifest", "feed.xml", "profile.json", "llms.txt", "humans.txt", "CNAME", ".well-known/security.txt", "404.html"]) {
@@ -110,7 +110,7 @@ for (const required of ["robots.txt", "manifest.webmanifest", "feed.xml", "profi
 }
 
 const robots = await readFile(join(output, "robots.txt"), "utf8").catch(() => "");
-if (!robots.includes("Sitemap: https://eslam-elshikh.com/sitemap.xml")) errors.push("robots.txt does not reference the canonical sitemap");
+if (!robots.includes("Sitemap: https://www.eslam-elshikh.com/sitemap.xml")) errors.push("robots.txt does not reference the canonical sitemap");
 
 const home = pages.get("/") || "";
 if ((home.match(/class="service-card reveal"/g) || []).length !== 9) errors.push("Homepage does not render all 9 services");
