@@ -1,38 +1,66 @@
-import { spawn } from "node:child_process";
+import { access, readFile, stat } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const port = 4173;
-const server = spawn("python3", ["-u", "-m", "http.server", String(port)], { cwd: new URL("../", import.meta.url), stdio: ["ignore", "pipe", "pipe"] });
-const paths = [
-  "/", "/en/", "/services/", "/services/cybersecurity/", "/services/ai-agents/",
-  "/services/google-business-profile/", "/local-seo/", "/local-seo/riyadh/",
-  "/about/", "/google-expert/", "/projects/", "/blog/",
-  "/blog/secure-website-development/", "/blog/topics/local-seo-saudi/",
-  "/contact/", "/privacy/", "/terms/", "/sitemap.xml",
-  "/robots.txt", "/llms.txt", "/llms-full.txt", "/profile.json", "/feed.xml",
-  "/assets/css/main.css", "/assets/css/seo-cro.css", "/assets/js/main.js",
-  "/assets/brand/eslam-elshikh-logo-transparent.png",
-  "/assets/og/eslam-elshikh-og-transparent.png"
+const here = dirname(fileURLToPath(import.meta.url));
+const root = resolve(here, "..");
+const dirArg = process.argv.find((arg) => arg.startsWith("--dir="));
+const output = resolve(root, dirArg ? dirArg.slice(6) : "dist");
+const failures = [];
+
+async function exists(path) { try { await access(path); return true; } catch { return false; } }
+const cssPath = join(output, "assets/css/main.css");
+const jsPath = join(output, "assets/js/main.js");
+if (!(await exists(cssPath))) failures.push("Missing compiled CSS asset");
+if (!(await exists(jsPath))) failures.push("Missing compiled JavaScript asset");
+
+const css = await readFile(cssPath, "utf8").catch(() => "");
+const js = await readFile(jsPath, "utf8").catch(() => "");
+const home = await readFile(join(output, "index.html"), "utf8").catch(() => "");
+const contact = await readFile(join(output, "contact/index.html"), "utf8").catch(() => "");
+
+const cssRequirements = [
+  ["min-width: 320px", "320px minimum viewport guard"],
+  ["overflow-x: clip", "horizontal overflow protection"],
+  ["env(safe-area-inset-bottom)", "safe-area support"],
+  ["@media (max-width: 350px)", "small-phone breakpoint"],
+  ["@media (max-width: 430px)", "phone breakpoint"],
+  ["@media (max-width: 700px)", "large-phone breakpoint"],
+  ["@media (max-width: 900px)", "tablet breakpoint"],
+  ["@media (max-width: 1120px)", "small-desktop breakpoint"],
+  ["prefers-reduced-motion", "reduced-motion support"],
+  ["@media print", "print stylesheet"]
 ];
+for (const [needle, label] of cssRequirements) if (!css.includes(needle)) failures.push(`CSS missing ${label}`);
 
-const waitForServer = async () => {
-  for (let attempt = 0; attempt < 30; attempt += 1) {
-    try {
-      const response = await fetch(`http://127.0.0.1:${port}/`, { method: "HEAD" });
-      if (response.ok) return;
-    } catch {}
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-  throw new Error("Local server did not start");
-};
-
-try {
-  await waitForServer();
-  const rows = await Promise.all(paths.map(async path => {
-    const response = await fetch(`http://127.0.0.1:${port}${path}`);
-    return { path, status: response.status, contentType: response.headers.get("content-type") };
-  }));
-  rows.forEach(row => console.log(`${row.path} | ${row.status} | ${row.contentType}`));
-  if (rows.some(row => row.status !== 200)) process.exitCode = 1;
-} finally {
-  server.kill("SIGTERM");
+for (const [needle, label] of [["IntersectionObserver", "progressive reveal"], ["data-project-form", "contact form handler"], ["data-service-filter", "service filters"], ["aria-selected", "accessible filters"], ["normalizePath", "mobile navigation state"]]) {
+  if (!js.includes(needle)) failures.push(`JavaScript missing ${label}`);
 }
+
+if (/<iframe\b/i.test(home)) failures.push("Homepage contains iframe content that should be deferred/removed");
+if (!/viewport-fit=cover/.test(home)) failures.push("Homepage viewport lacks viewport-fit=cover");
+if (!/apple-mobile-web-app-capable/.test(home)) failures.push("Homepage lacks iOS web app metadata");
+if (!/data-theme-toggle/.test(home)) failures.push("Homepage lacks theme control");
+if (!/data-project-form/.test(contact)) failures.push("Contact page lacks project form");
+if (!/لا ترسل كلمات مرور/.test(contact)) failures.push("Contact page lacks sensitive-data warning");
+
+for (const match of home.matchAll(/<img\b([^>]*)>/gi)) {
+  if (!/\bwidth="\d+"/.test(match[1]) || !/\bheight="\d+"/.test(match[1])) failures.push(`Image missing dimensions: ${match[0].slice(0, 120)}`);
+}
+for (const match of home.matchAll(/<a\b([^>]*)target="_blank"([^>]*)>/gi)) {
+  const attrs = `${match[1]} ${match[2]}`;
+  if (!/rel="[^"]*noopener/.test(attrs)) failures.push(`External link missing noopener: ${match[0].slice(0, 120)}`);
+}
+
+const cssSize = (await stat(cssPath).catch(() => ({ size: 0 }))).size;
+const jsSize = (await stat(jsPath).catch(() => ({ size: 0 }))).size;
+if (cssSize > 100_000) failures.push(`CSS asset is unexpectedly large (${cssSize} bytes)`);
+if (jsSize > 25_000) failures.push(`JavaScript asset is unexpectedly large (${jsSize} bytes)`);
+if (jsSize === 0 || cssSize === 0) failures.push("CSS or JS asset is empty");
+
+if (failures.length) {
+  console.error(`Smoke test failed (${failures.length}):`);
+  failures.forEach((failure) => console.error(`- ${failure}`));
+  process.exit(1);
+}
+console.log(`Smoke test passed. CSS ${cssSize} bytes; JS ${jsSize} bytes.`);

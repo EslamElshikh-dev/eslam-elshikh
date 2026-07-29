@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://eslam-elshikh.com/sitemap.xml
+Host: https://eslam-elshikh.com

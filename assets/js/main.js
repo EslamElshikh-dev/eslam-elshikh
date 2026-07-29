@@ -1,289 +1,198 @@
 (() => {
-  'use strict';
+  "use strict";
 
-  const GA_ID = 'G-DW2DZW7KQ7';
-  const PRIMARY_PHONE = '966579395299';
-  const header = document.querySelector('[data-header]');
-  const menuButton = document.querySelector('[data-menu-toggle]');
-  const mobileMenu = document.querySelector('[data-mobile-menu]');
-  const themeButton = document.querySelector('[data-theme-toggle]');
-  const themeColor = document.querySelector('[data-theme-color]');
-  const pathname = window.location.pathname.replace(/index\.html$/, '');
+  const doc = document;
+  const root = doc.documentElement;
+  const body = doc.body;
+  const header = doc.querySelector("[data-header]");
+  const menuButton = doc.querySelector("[data-menu-toggle]");
+  const mobileMenu = doc.querySelector("[data-mobile-menu]");
+  const themeButton = doc.querySelector("[data-theme-toggle]");
+  const backToTop = doc.querySelector("[data-back-to-top]");
+  const floatingContact = doc.querySelector(".floating-contact");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const loadAnalytics = () => {
-    if (document.querySelector(`script[src*="${GA_ID}"]`)) return;
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = window.gtag || function gtag(){ window.dataLayer.push(arguments); };
-    window.gtag('js', new Date());
-    window.gtag('config', GA_ID, { anonymize_ip: true, send_page_view: true });
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-    document.head.appendChild(script);
+  const normalizePath = (pathname) => {
+    const clean = pathname.replace(/index\.html$/, "");
+    return clean.endsWith("/") ? clean : `${clean}/`;
   };
+  const currentPath = normalizePath(window.location.pathname);
 
-  const CONSENT_KEY = 'es-analytics-consent';
-  const applyAnalyticsConsent = (choice) => {
-    try { localStorage.setItem(CONSENT_KEY, choice); } catch {}
-    document.querySelector('[data-analytics-consent]')?.remove();
-    if (choice === 'accepted') loadAnalytics();
-  };
-  const initAnalyticsConsent = () => {
-    let saved = null;
-    try { saved = localStorage.getItem(CONSENT_KEY); } catch {}
-    if (saved === 'accepted') { loadAnalytics(); return; }
-    if (saved === 'declined') return;
-    const isEnglish = document.documentElement.lang === 'en';
-    const banner = document.createElement('aside');
-    banner.className = 'analytics-consent';
-    banner.dataset.analyticsConsent = '';
-    banner.setAttribute('aria-label', isEnglish ? 'Analytics preferences' : 'تفضيلات التحليلات');
-    banner.innerHTML = isEnglish
-      ? '<p><strong>Privacy-friendly analytics</strong><span>Allow anonymous interaction measurement to improve the website. Project message content is never sent to analytics.</span></p><div><button class="button button-small" type="button" data-consent-accept>Allow</button><button class="button button-ghost button-small" type="button" data-consent-decline>Decline</button><a href="/privacy/">Privacy</a></div>'
-      : '<p><strong>تحليلات تحترم الخصوصية</strong><span>يمكنك السماح بقياس التفاعل العام لتحسين الموقع. لا يُرسل محتوى رسالة المشروع إلى التحليلات.</span></p><div><button class="button button-small" type="button" data-consent-accept>السماح</button><button class="button button-ghost button-small" type="button" data-consent-decline>رفض</button><a href="/privacy/">التفاصيل</a></div>';
-    document.body.appendChild(banner);
-    banner.querySelector('[data-consent-accept]')?.addEventListener('click', () => applyAnalyticsConsent('accepted'));
-    banner.querySelector('[data-consent-decline]')?.addEventListener('click', () => applyAnalyticsConsent('declined'));
-  };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAnalyticsConsent, { once: true });
-  else initAnalyticsConsent();
-
-  const trackConversion = (eventName, details = {}) => {
-    const payload = { page_path: window.location.pathname, ...details };
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: eventName, ...payload });
-    if (typeof window.gtag === 'function') window.gtag('event', eventName, payload);
-    window.dispatchEvent(new CustomEvent('eslam:conversion', { detail: { event: eventName, ...payload } }));
-  };
-
-  const applyTheme = (theme, persist = false) => {
-    const normalized = theme === 'light' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = normalized;
-    themeColor?.setAttribute('content', normalized === 'light' ? '#f4f8fb' : '#07111b');
-    themeButton?.setAttribute('aria-pressed', String(normalized === 'light'));
-    themeButton?.setAttribute('aria-label', normalized === 'light' ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الفاتح');
+  const setTheme = (theme, persist = true) => {
+    root.dataset.theme = theme;
     if (persist) {
-      try { localStorage.setItem('es-theme', normalized); } catch {}
+      try { localStorage.setItem("es-theme", theme); } catch (_) { /* no-op */ }
     }
+    const isLight = theme === "light";
+    themeButton?.setAttribute("aria-pressed", String(isLight));
+    themeButton?.setAttribute("aria-label", isLight ? "تفعيل الوضع الداكن / Switch to dark mode" : "تفعيل الوضع الفاتح / Switch to light mode");
+    doc.querySelector("meta[data-theme-color]")?.setAttribute("content", isLight ? "#f5f8fb" : "#06131f");
   };
 
-  applyTheme(document.documentElement.dataset.theme || 'dark');
-  themeButton?.addEventListener('click', () => {
-    applyTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light', true);
-  });
+  if (themeButton) {
+    setTheme(root.dataset.theme || "dark", false);
+    themeButton.addEventListener("click", () => setTheme(root.dataset.theme === "light" ? "dark" : "light"));
+  }
 
-  const updateHeader = () => header?.classList.toggle('is-scrolled', window.scrollY > 16);
-  updateHeader();
-  window.addEventListener('scroll', updateHeader, { passive: true });
-
-  const closeMenu = () => {
+  const closeMenu = ({ restoreFocus = false } = {}) => {
     if (!menuButton || !mobileMenu) return;
-    menuButton.setAttribute('aria-expanded', 'false');
-    menuButton.setAttribute('aria-label', document.documentElement.lang === 'en' ? 'Open menu' : 'فتح القائمة');
-    mobileMenu.classList.remove('is-open');
+    menuButton.setAttribute("aria-expanded", "false");
+    mobileMenu.classList.remove("is-open");
+    body.classList.remove("menu-open");
+    if (restoreFocus) menuButton.focus();
   };
 
-  menuButton?.addEventListener('click', () => {
-    const willOpen = menuButton.getAttribute('aria-expanded') !== 'true';
-    menuButton.setAttribute('aria-expanded', String(willOpen));
-    menuButton.setAttribute('aria-label', willOpen ? (document.documentElement.lang === 'en' ? 'Close menu' : 'إغلاق القائمة') : (document.documentElement.lang === 'en' ? 'Open menu' : 'فتح القائمة'));
-    mobileMenu?.classList.toggle('is-open', willOpen);
-  });
-  mobileMenu?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
-  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
+  if (menuButton && mobileMenu) {
+    menuButton.addEventListener("click", () => {
+      const nextOpen = menuButton.getAttribute("aria-expanded") !== "true";
+      menuButton.setAttribute("aria-expanded", String(nextOpen));
+      mobileMenu.classList.toggle("is-open", nextOpen);
+      body.classList.toggle("menu-open", nextOpen);
+      if (nextOpen) mobileMenu.querySelector("a")?.focus({ preventScroll: true });
+    });
 
-  document.querySelectorAll('.services-grid, .primary-services-grid, .projects-grid, .maps-portfolio-grid, .posts-grid, .values-grid, .google-stats, .credentials-grid, .case-studies-grid, .knowledge-hubs-grid').forEach((group) => {
-    [...group.children].forEach((element, index) => element.style.setProperty('--reveal-delay', `${Math.min(index, 6) * 55}ms`));
-  });
+    mobileMenu.addEventListener("click", (event) => {
+      if (event.target.closest("a")) closeMenu();
+    });
 
-  const reveals = document.querySelectorAll('.reveal');
-  if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      });
-    }, { threshold: 0.08, rootMargin: '0px 0px -30px' });
-    reveals.forEach((element) => observer.observe(element));
-  } else {
-    reveals.forEach((element) => element.classList.add('is-visible'));
+    doc.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && mobileMenu.classList.contains("is-open")) closeMenu({ restoreFocus: true });
+    });
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 900) closeMenu();
+    }, { passive: true });
   }
 
-  const filterButtons = [...document.querySelectorAll('[data-service-filter]')];
-  const serviceCards = document.querySelectorAll('[data-services-grid] .service-card');
-  const servicesList = document.querySelector('[data-services-grid]');
-  if (servicesList) servicesList.id = servicesList.id || 'services-list';
-  const applyFilter = (group) => {
-    filterButtons.forEach((button) => {
-      const active = button.dataset.serviceFilter === group;
-      button.setAttribute('aria-selected', String(active));
-      button.setAttribute('tabindex', active ? '0' : '-1');
-      button.setAttribute('aria-controls', 'services-list');
-    });
-    serviceCards.forEach((card) => { card.hidden = group !== 'all' && card.dataset.serviceGroup !== group; });
+  const onScroll = () => {
+    const scrolled = window.scrollY > 16;
+    header?.classList.toggle("is-scrolled", scrolled);
+    backToTop?.classList.toggle("is-visible", window.scrollY > 600);
+    floatingContact?.classList.toggle("is-visible", window.scrollY > 460 && currentPath !== "/contact/");
   };
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  backToTop?.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  });
+
+  const revealElements = [...doc.querySelectorAll(".reveal")];
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealElements.forEach((element) => element.classList.add("is-visible"));
+  } else {
+    const observer = new IntersectionObserver((entries, currentObserver) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        currentObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -7%", threshold: 0.08 });
+    revealElements.forEach((element) => observer.observe(element));
+  }
+
+  const filterButtons = [...doc.querySelectorAll("[data-service-filter]")];
+  const serviceCards = [...doc.querySelectorAll("[data-service-group]")];
   if (filterButtons.length && serviceCards.length) {
-    applyFilter(filterButtons[0].dataset.serviceFilter);
+    const applyFilter = (selected) => {
+      const value = selected.dataset.serviceFilter;
+      filterButtons.forEach((button) => button.setAttribute("aria-selected", String(button === selected)));
+      serviceCards.forEach((card) => {
+        const visible = value === "all" || card.dataset.serviceGroup === value;
+        card.hidden = !visible;
+        if (visible) card.classList.add("is-visible");
+      });
+    };
+
     filterButtons.forEach((button, index) => {
-      button.addEventListener('click', () => applyFilter(button.dataset.serviceFilter));
-      button.addEventListener('keydown', (event) => {
-        if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+      button.addEventListener("click", () => applyFilter(button));
+      button.addEventListener("keydown", (event) => {
+        if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
         event.preventDefault();
-        const direction = document.documentElement.dir === 'rtl' ? -1 : 1;
-        let target = index;
-        if (event.key === 'Home') target = 0;
-        else if (event.key === 'End') target = filterButtons.length - 1;
-        else if (event.key === 'ArrowRight') target = (index + direction + filterButtons.length) % filterButtons.length;
-        else target = (index - direction + filterButtons.length) % filterButtons.length;
-        filterButtons[target].focus();
-        filterButtons[target].click();
+        let nextIndex = index;
+        if (event.key === "Home") nextIndex = 0;
+        if (event.key === "End") nextIndex = filterButtons.length - 1;
+        if (event.key === "ArrowRight") nextIndex = (index + (root.dir === "rtl" ? -1 : 1) + filterButtons.length) % filterButtons.length;
+        if (event.key === "ArrowLeft") nextIndex = (index + (root.dir === "rtl" ? 1 : -1) + filterButtons.length) % filterButtons.length;
+        filterButtons[nextIndex].focus();
+        applyFilter(filterButtons[nextIndex]);
       });
     });
   }
 
-  document.querySelectorAll('.accordion details').forEach((detail) => {
-    detail.addEventListener('toggle', () => {
-      if (!detail.open) return;
-      detail.closest('.accordion')?.querySelectorAll('details[open]').forEach((other) => { if (other !== detail) other.open = false; });
-    });
+  doc.querySelectorAll(".mobile-bottom-nav a").forEach((link) => {
+    const baseOrigin = window.location.origin === "null" ? "https://eslam-elshikh.com" : window.location.origin;
+    const linkPath = normalizePath(new URL(link.getAttribute("href") || "/", baseOrigin).pathname);
+    const exact = currentPath === linkPath;
+    const servicesSection = linkPath === "/services/" && (currentPath.startsWith("/services/") || currentPath.startsWith("/local-seo/"));
+    const projectsSection = linkPath === "/projects/" && currentPath.startsWith("/projects/");
+    const contactSection = linkPath === "/contact/" && currentPath.startsWith("/contact/");
+    if (exact || servicesSection || projectsSection || contactSection) link.setAttribute("aria-current", "page");
   });
 
-  document.addEventListener('click', (event) => {
-    const link = event.target.closest('a[href]');
-    if (!link) return;
-    const href = link.getAttribute('href') || '';
-    let eventName = 'link_click';
-    if (href.startsWith('tel:')) eventName = 'phone_click';
-    else if (href.includes('wa.me/')) eventName = 'whatsapp_click';
-    else if (href.startsWith('mailto:')) eventName = 'email_click';
-    else if (href.includes('maps.app.goo.gl') || href.includes('google.com/maps')) eventName = 'google_maps_click';
-    else if (link.closest('.project-card, .case-study-card, .maps-project-card')) eventName = 'portfolio_click';
-    else if (href.startsWith('/services/')) eventName = 'service_click';
-    else if (href.startsWith('/blog/')) eventName = 'content_click';
-    trackConversion(eventName, { link_url: link.href, link_text: (link.textContent || '').trim().slice(0, 120) });
-  });
-
-  const serviceNamesAr = {
-    cybersecurity: 'الأمن السيبراني وحماية الأنظمة',
-    'cloud-solutions': 'الحلول السحابية الآمنة',
-    'ai-agents': 'تطوير الذكاء الاصطناعي ووكلاء AI',
-    'web-development': 'تطوير المواقع والتطبيقات',
-    'google-support': 'استشارات ودعم منتجات Google',
-    'google-business-profile': 'إدارة وتوثيق الأنشطة التجارية على Google',
-    'knowledge-bases': 'قواعد المعرفة والبحث الذكي',
-    seo: 'تحسين محركات البحث SEO',
-    'digital-advertising': 'إدارة الإعلانات الرقمية'
-  };
-  const serviceNamesEn = {
-    cybersecurity: 'Cybersecurity and system protection',
-    'cloud-solutions': 'Secure cloud solutions',
-    'ai-agents': 'AI agents and automation',
-    'web-development': 'Web and software development',
-    'google-support': 'Google product support',
-    'google-business-profile': 'Google Business Profile',
-    'knowledge-bases': 'Knowledge bases and intelligent search',
-    seo: 'Search engine optimization',
-    'digital-advertising': 'Digital advertising'
-  };
-  const serviceNames = document.documentElement.lang === 'en' ? serviceNamesEn : serviceNamesAr;
-
-  const form = document.querySelector('[data-contact-form]');
+  const form = doc.querySelector("[data-project-form]");
   if (form) {
-    const serviceSelect = form.elements.service;
-    const selectedService = new URLSearchParams(window.location.search).get('service');
-    if (selectedService && serviceNames[selectedService] && serviceSelect) serviceSelect.value = selectedService;
-    form.addEventListener('submit', (event) => {
+    const details = form.querySelector('[name="details"]');
+    const counter = form.querySelector("[data-character-count]");
+    const message = form.querySelector("[data-form-message]");
+
+    const updateCount = () => {
+      if (counter && details) counter.textContent = String(details.value.length);
+    };
+    updateCount();
+    details?.addEventListener("input", updateCount);
+
+    form.addEventListener("submit", (event) => {
       event.preventDefault();
-      if (!form.reportValidity()) return;
-      const values = new FormData(form);
-      const name = String(values.get('name') || '').trim();
-      const service = String(values.get('service') || '');
-      const goal = String(values.get('goal') || '').trim();
-      const budget = String(values.get('budget') || 'غير محددة');
-      const timeline = String(values.get('timeline') || 'غير محدد');
-      const isEnglish = document.documentElement.lang === 'en';
-      const message = (isEnglish ? [
-        'Hello Eng. Eslam Elshikh,',
-        `Name or business: ${name}`,
-        `Requested service: ${serviceNames[service] || service}`,
-        `Estimated budget: ${budget}`,
-        `Target timeline: ${timeline}`,
-        'Goal and current situation:',
-        goal
-      ] : [
-        'مرحبًا م. إسلام الشيخ،',
-        `الاسم أو النشاط: ${name}`,
-        `الخدمة المطلوبة: ${serviceNames[service] || service}`,
-        `الميزانية التقريبية: ${budget}`,
-        `الموعد المتوقع: ${timeline}`,
-        'تفاصيل الهدف:',
-        goal
-      ]).join('\n');
-      const url = `https://wa.me/${PRIMARY_PHONE}?text=${encodeURIComponent(message)}`;
-      trackConversion('contact_form_submit', { requested_service: serviceNames[service] || service, budget_range: budget, project_timeline: timeline });
-      const opened = window.open(url, '_blank', 'noopener,noreferrer');
-      const status = form.querySelector('.form-status');
-      if (status) status.textContent = opened ? 'تم تجهيز الرسالة. راجعها في WhatsApp قبل الإرسال.' : 'تعذر فتح نافذة جديدة. استخدم زر WhatsApp المباشر.';
-    });
-  }
+      message.textContent = "";
+      const data = new FormData(form);
+      const name = String(data.get("name") || "").trim();
+      const service = String(data.get("service") || "").trim();
+      const url = String(data.get("url") || "").trim();
+      const projectDetails = String(data.get("details") || "").trim();
+      const timeline = String(data.get("timeline") || "").trim();
 
-  document.querySelectorAll('.mobile-bottom-nav a').forEach((link) => {
-    const path = new URL(link.href).pathname;
-    const active = path === '/' ? pathname === '/' : pathname.startsWith(path);
-    if (active) link.setAttribute('aria-current', 'page');
-  });
-
-  const agentOpen = document.querySelector('[data-ai-agent-open]');
-  const agentPanel = document.querySelector('[data-ai-agent-panel]');
-  const agentClose = document.querySelector('[data-ai-agent-close]');
-  const agentAnswer = document.querySelector('[data-ai-agent-answer] p');
-  const agentWhatsApp = document.querySelector('[data-ai-whatsapp]');
-  const setAgentOpen = (open) => {
-    if (!agentOpen || !agentPanel) return;
-    agentOpen.setAttribute('aria-expanded', String(open));
-    agentPanel.setAttribute('aria-hidden', String(!open));
-    agentPanel.classList.toggle('is-open', open);
-    if (open) agentClose?.focus();
-    else agentOpen.focus();
-  };
-  agentOpen?.addEventListener('click', () => setAgentOpen(agentOpen.getAttribute('aria-expanded') !== 'true'));
-  agentClose?.addEventListener('click', () => setAgentOpen(false));
-  document.querySelectorAll('[data-ai-question]').forEach((question) => {
-    question.addEventListener('click', () => {
-      document.querySelectorAll('[data-ai-question]').forEach((item) => item.setAttribute('aria-pressed', String(item === question)));
-      const answer = question.dataset.aiAnswer || '';
-      if (agentAnswer) agentAnswer.textContent = answer;
-      if (agentWhatsApp) {
-        const isEnglish = document.documentElement.lang === 'en';
-        const message = isEnglish
-          ? `Hello Eng. Eslam Elshikh,\nTopic: ${(question.textContent || '').trim()}\nContext prepared by the website assistant: ${answer}`
-          : `مرحبًا م. إسلام الشيخ،\nالموضوع: ${(question.textContent || '').trim()}\nالمعلومات التي جهزها مساعد الموقع: ${answer}`;
-        agentWhatsApp.href = `https://wa.me/${PRIMARY_PHONE}?text=${encodeURIComponent(message)}`;
+      if (!name || !service || projectDetails.length < 20) {
+        message.textContent = "يرجى كتابة الاسم، واختيار الخدمة، وإضافة وصف لا يقل عن 20 حرفًا.";
+        const invalid = !name ? form.elements.name : !service ? form.elements.service : form.elements.details;
+        invalid?.focus();
+        return;
       }
-      trackConversion('ai_assistant_topic', { topic: question.dataset.aiQuestion || 'unknown' });
+
+      if (url) {
+        try { new URL(url); } catch (_) {
+          message.textContent = "يرجى كتابة رابط صحيح يبدأ بـ https:// أو ترك حقل الرابط فارغًا.";
+          form.elements.url?.focus();
+          return;
+        }
+      }
+
+      const lines = [
+        "مرحبًا م. إسلام، أرغب في مناقشة مشروع.",
+        "",
+        `الاسم / الشركة: ${name}`,
+        `الخدمة: ${service}`,
+        url ? `الرابط: ${url}` : "",
+        `الهدف والوضع الحالي: ${projectDetails}`,
+        timeline ? `الموعد المتوقع: ${timeline}` : "",
+        "",
+        "تم تجهيز الرسالة من خلال eslam-elshikh.com"
+      ].filter(Boolean);
+
+      const whatsappUrl = `https://wa.me/966579395299?text=${encodeURIComponent(lines.join("\n"))}`;
+      message.textContent = "تم تجهيز الرسالة. سيفتح WhatsApp لمراجعتها قبل الإرسال.";
+      const opened = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      if (!opened) window.location.href = whatsappUrl;
+    });
+  }
+
+  doc.querySelectorAll(".accordion details").forEach((details) => {
+    details.addEventListener("toggle", () => {
+      if (!details.open) return;
+      const accordion = details.closest(".accordion");
+      accordion?.querySelectorAll("details[open]").forEach((other) => {
+        if (other !== details) other.open = false;
+      });
     });
   });
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && agentPanel?.classList.contains('is-open')) setAgentOpen(false);
-  });
-
-  const mapFrames = document.querySelectorAll('iframe[data-map-src]');
-  const loadMapFrame = (frame) => {
-    if (!frame.dataset.mapSrc || frame.src !== 'about:blank') return;
-    frame.src = frame.dataset.mapSrc;
-    frame.addEventListener('load', () => { frame.style.opacity = '1'; }, { once: true });
-  };
-  if ('IntersectionObserver' in window) {
-    const mapObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        loadMapFrame(entry.target);
-        mapObserver.unobserve(entry.target);
-      });
-    }, { rootMargin: '350px 0px' });
-    mapFrames.forEach((frame) => mapObserver.observe(frame));
-  } else {
-    mapFrames.forEach(loadMapFrame);
-  }
 })();
