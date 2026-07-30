@@ -1,6 +1,8 @@
 .hero-logo,.profile-logo{border-radius:50%;object-fit:cover;object-position:center;background:#0b1824;border:4px solid rgba(96,225,255,.2);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 18px 48px rgba(0,0,0,.28)}
-.brand-logo,.brand-logo-approved{display:block;object-fit:contain;object-position:center;width:auto;height:auto;max-width:100%;filter:none!important;mix-blend-mode:normal!important;image-rendering:auto}
-.site-header .brand-logo,.site-footer .brand-logo{aspect-ratio:1/1;flex:0 0 auto}
+.brand-logo,.brand-logo-approved{display:block!important;object-fit:contain!important;object-position:center!important;width:68px!important;height:68px!important;max-width:none!important;max-height:none!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;filter:drop-shadow(0 10px 18px rgba(0,0,0,.28))!important;mix-blend-mode:normal!important;image-rendering:auto!important;transform:none!important}
+.site-header .brand-logo{flex:0 0 68px!important}
+.site-footer .brand-logo{width:82px!important;height:82px!important;flex:0 0 82px!important}
+.site-header .brand,.site-footer .brand{overflow:visible!important;align-items:center!important}
 .stats-bar [data-counter],.google-stats [data-counter]{font-variant-numeric:tabular-nums;display:inline-block;min-width:4ch}
 .stats-bar>div,.google-stats>div{transition:transform .25s ease,border-color .25s ease,background-color .25s ease}
 .stats-bar>div:hover,.google-stats>div:hover{transform:translateY(-3px);border-color:rgba(84,220,255,.32)}
@@ -11,5 +13,6 @@
 .professional-summary-card p{max-width:78ch;line-height:1.95}
 .service-area-note{margin-top:1rem;padding:1rem 1.1rem;border:1px solid rgba(84,220,255,.18);border-radius:18px;background:rgba(9,28,43,.48)}
 .article-content h2{margin-top:2rem}.article-content h3{margin-top:1.4rem}.article-content p{line-height:2}.article-content ul{display:grid;gap:.65rem;margin:1rem 0 1.6rem;padding-inline-start:1.25rem}.article-meta{display:flex;gap:.8rem;flex-wrap:wrap;color:var(--muted)}
-@media(max-width:720px){.google-stats{grid-template-columns:1fr}.google-stats>div{min-height:180px}.site-header .brand-logo{max-width:52px;max-height:52px}}
+@media(max-width:720px){.google-stats{grid-template-columns:1fr}.google-stats>div{min-height:180px}.site-header .brand-logo,.site-header .brand-logo-approved{width:56px!important;height:56px!important;flex-basis:56px!important}.site-footer .brand-logo,.site-footer .brand-logo-approved{width:72px!important;height:72px!important;flex-basis:72px!important}}
+@media(max-width:420px){.site-header .brand-logo,.site-header .brand-logo-approved{width:52px!important;height:52px!important;flex-basis:52px!important}.site-header .brand{gap:.5rem!important}}
 @media(prefers-reduced-motion:reduce){.stats-bar>div,.google-stats>div{transition:none!important}}
