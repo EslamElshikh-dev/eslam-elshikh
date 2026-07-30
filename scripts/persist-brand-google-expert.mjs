@@ -2,7 +2,7 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const outDir = process.argv[2] || "dist";
-const approvedLogo = "/assets/brand/eslam-elshikh-logo-transparent.png";
+const approvedLogo = "/assets/brand/eslam-elshikh-logo.webp";
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -24,6 +24,7 @@ for (const path of htmlFiles) {
   let html = await readFile(path, "utf8");
 
   html = html
+    .replaceAll("/assets/brand/eslam-elshikh-logo-transparent.png", approvedLogo)
     .replaceAll("/assets/brand/eslam-elshikh-primary.svg", approvedLogo)
     .replaceAll("/assets/brand/eslam-elshikh-logo-2026.svg", approvedLogo);
 
@@ -41,4 +42,4 @@ for (const path of htmlFiles) {
   await writeFile(path, html, "utf8");
 }
 
-console.log(`Persisted approved brand and Google expert updates across ${htmlFiles.length} HTML files.`);
+console.log(`Persisted approved WebP brand and Google expert updates across ${htmlFiles.length} HTML files.`);
