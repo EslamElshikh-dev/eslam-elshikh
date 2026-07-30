@@ -1,8 +1,15 @@
 .hero-logo,.profile-logo{border-radius:50%;object-fit:cover;object-position:center;background:#0b1824;border:4px solid rgba(96,225,255,.2);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 18px 48px rgba(0,0,0,.28)}
-.brand-logo{object-fit:contain}
-.stats-bar [data-counter]{font-variant-numeric:tabular-nums;display:inline-block;min-width:4ch}
-.stats-bar>div{transition:transform .25s ease,border-color .25s ease,background-color .25s ease}
-.stats-bar>div:hover{transform:translateY(-3px);border-color:rgba(84,220,255,.32)}
+.brand-logo,.brand-logo-approved{display:block;object-fit:contain;object-position:center;width:auto;height:auto;max-width:100%;filter:none!important;mix-blend-mode:normal!important;image-rendering:auto}
+.site-header .brand-logo,.site-footer .brand-logo{aspect-ratio:1/1;flex:0 0 auto}
+.stats-bar [data-counter],.google-stats [data-counter]{font-variant-numeric:tabular-nums;display:inline-block;min-width:4ch}
+.stats-bar>div,.google-stats>div{transition:transform .25s ease,border-color .25s ease,background-color .25s ease}
+.stats-bar>div:hover,.google-stats>div:hover{transform:translateY(-3px);border-color:rgba(84,220,255,.32)}
+.google-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+.google-stats>div{min-height:220px;display:flex;flex-direction:column;justify-content:flex-end;gap:.75rem}
+.professional-summary-card{border-color:rgba(84,220,255,.24);background:linear-gradient(135deg,rgba(12,41,59,.88),rgba(8,27,42,.72))}
+.professional-summary-card h2{margin:.35rem 0 .75rem;font-size:clamp(1.35rem,2.3vw,2rem)}
+.professional-summary-card p{max-width:78ch;line-height:1.95}
 .service-area-note{margin-top:1rem;padding:1rem 1.1rem;border:1px solid rgba(84,220,255,.18);border-radius:18px;background:rgba(9,28,43,.48)}
 .article-content h2{margin-top:2rem}.article-content h3{margin-top:1.4rem}.article-content p{line-height:2}.article-content ul{display:grid;gap:.65rem;margin:1rem 0 1.6rem;padding-inline-start:1.25rem}.article-meta{display:flex;gap:.8rem;flex-wrap:wrap;color:var(--muted)}
-@media (prefers-reduced-motion:reduce){.stats-bar>div{transition:none!important}}
+@media(max-width:720px){.google-stats{grid-template-columns:1fr}.google-stats>div{min-height:180px}.site-header .brand-logo{max-width:52px;max-height:52px}}
+@media(prefers-reduced-motion:reduce){.stats-bar>div,.google-stats>div{transition:none!important}}
