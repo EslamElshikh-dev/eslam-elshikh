@@ -4,6 +4,9 @@
   const doc = document;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const portraitUrl = "https://avatars.githubusercontent.com/u/264218940?v=4";
+  const brandLogoUrl = "/assets/brand/eslam-elshikh-logo-2026.svg";
+  const canonicalBase = "https://www.eslam-elshikh.com";
+  const canonicalUrl = `${canonicalBase}${location.pathname.endsWith("/") ? location.pathname : `${location.pathname}/`}`;
 
   // Google Analytics 4
   window.dataLayer = window.dataLayer || [];
@@ -17,23 +20,32 @@
   window.gtag("js", new Date());
   window.gtag("config", "G-MDJ2HGF9E1", { anonymize_ip: true });
 
-  // Replace identity visuals in the two profile placements while keeping the brand mark in metadata/icons.
-  const replaceProfileVisuals = () => {
-    const candidates = [
-      ...doc.querySelectorAll('.hero-logo, .profile-card img, .about-profile img, [class*="profile"] img')
-    ];
-    candidates.forEach((img) => {
-      if (!(img instanceof HTMLImageElement)) return;
-      img.src = portraitUrl;
-      img.alt = document.documentElement.lang.startsWith("en") ? "Eslam Elshikh" : "المهندس إسلام الشيخ";
-      img.classList.add("profile-portrait-image");
-      img.removeAttribute("width");
-      img.removeAttribute("height");
-    });
-  };
-  replaceProfileVisuals();
+  // Replace every legacy brand mark with the approved logo.
+  doc.querySelectorAll('img[src*="eslam-elshikh-logo"], img[src*="brand"], .site-logo img, .brand img, header img[alt*="إسلام"], footer img[alt*="إسلام"]').forEach((img) => {
+    if (!(img instanceof HTMLImageElement)) return;
+    img.src = brandLogoUrl;
+    img.alt = document.documentElement.lang.startsWith("en") ? "Eslam Elshikh logo" : "شعار المهندس إسلام الشيخ";
+  });
 
-  // Update the public achievement statistics and animate their values once they enter the viewport.
+  // The two profile placements use the approved portrait instead of the brand mark.
+  const profileSelectors = '.hero-logo, .profile-card img, .about-profile img, [class*="profile"] img';
+  doc.querySelectorAll(profileSelectors).forEach((img) => {
+    if (!(img instanceof HTMLImageElement)) return;
+    img.src = portraitUrl;
+    img.alt = document.documentElement.lang.startsWith("en") ? "Eslam Elshikh" : "المهندس إسلام الشيخ";
+    img.classList.add("profile-portrait-image");
+    img.removeAttribute("width");
+    img.removeAttribute("height");
+  });
+
+  const style = doc.createElement("style");
+  style.textContent = `
+    .profile-portrait-image{aspect-ratio:1/1;object-fit:cover;border-radius:50%;background:#160812;box-shadow:0 0 0 2px rgba(66,216,182,.3)}
+    .stat-card strong,[class*=stat-card] strong,.stat-value{font-variant-numeric:tabular-nums;will-change:contents}
+  `;
+  doc.head.appendChild(style);
+
+  // Update the public achievement statistics and animate their values once.
   const desiredStats = [
     { value: 1411, suffix: "+", label: "مساهمة في توثيق وإدارة ملفات Google التجارية" },
     { value: 105, suffix: "+", label: "موقع وتطبيق ومتجر إلكتروني تم تصميمها وتطويرها" },
@@ -64,7 +76,7 @@
       element.textContent = `${target.toLocaleString("en-US")}${suffix}`;
       return;
     }
-    const duration = 1300;
+    const duration = 1350;
     const start = performance.now();
     const tick = (now) => {
       const progress = Math.min((now - start) / duration, 1);
@@ -88,4 +100,61 @@
   } else {
     counters.forEach(animateCounter);
   }
+
+  // Normalize visible copy and add the public service-area statement without exposing the home address.
+  doc.querySelectorAll("h1,h2,h3,p,span").forEach((node) => {
+    if (node.childElementCount) return;
+    node.textContent = node.textContent.replace(/الخدمات المتخصصة[.،]?تط/g, "الخدمات المتخصصة");
+  });
+  const contactSection = doc.querySelector("#contact, .contact-section, main");
+  if (contactSection && !doc.querySelector("[data-service-area-note]")) {
+    const note = doc.createElement("p");
+    note.dataset.serviceAreaNote = "true";
+    note.className = "service-area-note";
+    note.textContent = "نطاق الخدمة: جميع أحياء مدينة الرياض — زيارات مواقع العملاء والاجتماعات بموعد مسبق، مع توفر الاستشارات عن بُعد.";
+    contactSection.appendChild(note);
+  }
+
+  // Repair ProfilePage structured data and enrich the service-area business data.
+  doc.querySelectorAll('script[type="application/ld+json"]').forEach((script) => {
+    try {
+      const data = JSON.parse(script.textContent || "{}");
+      const graphs = Array.isArray(data) ? data : Array.isArray(data["@graph"]) ? data["@graph"] : [data];
+      let personId = `${canonicalBase}/#person`;
+      graphs.forEach((item) => {
+        if (!item || typeof item !== "object") return;
+        const types = Array.isArray(item["@type"]) ? item["@type"] : [item["@type"]];
+        if (types.includes("Person")) {
+          item["@id"] = item["@id"] || personId;
+          personId = item["@id"];
+          item.image = portraitUrl;
+          item.homeLocation = { "@type": "City", name: "الرياض" };
+          item.knowsAbout = ["تصميم مواقع الويب", "الأمن السيبراني", "الذكاء الاصطناعي", "تحسين محركات البحث", "Google Business Profile", "الحلول السحابية"];
+        }
+        if (types.includes("ProfilePage")) {
+          item.url = canonicalUrl;
+          item["@id"] = `${canonicalUrl}#profile-page`;
+          item.dateModified = "2026-07-30";
+          item.mainEntity = { "@id": personId };
+        }
+        if (types.includes("ProfessionalService") || types.includes("LocalBusiness")) {
+          item.name = "المهندس إسلام الشيخ";
+          item.url = canonicalBase;
+          item.logo = `${canonicalBase}${brandLogoUrl}`;
+          item.image = portraitUrl;
+          item.areaServed = { "@type": "City", name: "الرياض" };
+          item.address = { "@type": "PostalAddress", addressLocality: "الرياض", addressRegion: "منطقة الرياض", addressCountry: "SA" };
+          delete item.geo;
+          if (item.address) {
+            delete item.address.streetAddress;
+            delete item.address.postalCode;
+          }
+          item.additionalType = ["https://schema.org/WebSite", "https://schema.org/ProfessionalService"];
+          item.description = "مصمم مواقع ويب ومستشار تقني يقدم خدمات تطوير المواقع والتطبيقات والسيو والأمن السيبراني والذكاء الاصطناعي داخل الرياض وعن بُعد.";
+        }
+        if (item.logo && typeof item.logo === "string" && item.logo.includes("eslam-elshikh-logo")) item.logo = `${canonicalBase}${brandLogoUrl}`;
+      });
+      script.textContent = JSON.stringify(data);
+    } catch (_) { /* keep original structured data when parsing is not possible */ }
+  });
 })();
