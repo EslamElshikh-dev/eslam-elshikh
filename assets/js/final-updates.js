@@ -4,7 +4,7 @@
   const doc = document;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const portraitUrl = "https://avatars.githubusercontent.com/u/264218940?v=4";
-  const brandLogoUrl = "/assets/brand/eslam-elshikh-logo-transparent.png";
+  const brandLogoUrl = "/assets/brand/eslam-elshikh-logo.webp";
   const canonicalBase = "https://www.eslam-elshikh.com";
   const normalizedPath = location.pathname === "/" || location.pathname.endsWith("/")
     ? location.pathname
@@ -24,7 +24,8 @@
     "header .brand img",
     "footer .brand img",
     'img[src*="eslam-elshikh-primary.svg"]',
-    'img[src*="eslam-elshikh-logo-2026.svg"]'
+    'img[src*="eslam-elshikh-logo-2026.svg"]',
+    'img[src*="eslam-elshikh-logo-transparent.png"]'
   ].join(",");
 
   doc.querySelectorAll(brandSelectors).forEach((img) => {
