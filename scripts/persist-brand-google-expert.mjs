@@ -2,7 +2,7 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const outDir = process.argv[2] || "dist";
-const approvedLogo = "/assets/brand/eslam-elshikh-logo-transparent.png";
+const approvedLogo = "/assets/brand/eslam-elshikh-logo.webp";
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -25,7 +25,8 @@ for (const path of htmlFiles) {
 
   html = html
     .replaceAll("/assets/brand/eslam-elshikh-primary.svg", approvedLogo)
-    .replaceAll("/assets/brand/eslam-elshikh-logo-2026.svg", approvedLogo);
+    .replaceAll("/assets/brand/eslam-elshikh-logo-2026.svg", approvedLogo)
+    .replaceAll("/assets/brand/eslam-elshikh-logo-transparent.png", approvedLogo);
 
   if (path.replaceAll("\\", "/").endsWith("/google-expert/index.html")) {
     html = html.replace(
@@ -33,7 +34,7 @@ for (const path of htmlFiles) {
       statsHtml
     );
     html = html.replace(
-      /<aside class="disclaimer-card reveal">[\s\S]*?<\/aside>/,
+      /<aside class="disclaimer-card(?: professional-summary-card)? reveal">[\s\S]*?<\/aside>/,
       professionalBio
     );
   }
@@ -41,4 +42,4 @@ for (const path of htmlFiles) {
   await writeFile(path, html, "utf8");
 }
 
-console.log(`Persisted approved brand and Google expert updates across ${htmlFiles.length} HTML files.`);
+console.log(`Persisted approved WebP brand and Google expert updates across ${htmlFiles.length} HTML files.`);
