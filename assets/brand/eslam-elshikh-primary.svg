@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">شعار المهندس إسلام الشيخ</title>
+  <desc id="desc">حرف E هندسي داخل إطار سداسي متدرج الألوان</desc>
+  <defs>
+    <linearGradient id="g" x1="74" y1="65" x2="438" y2="447" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00e5ff"/>
+      <stop offset=".38" stop-color="#1d7cff"/>
+      <stop offset=".72" stop-color="#8647ff"/>
+      <stop offset="1" stop-color="#ff2f79"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="#06131f"/>
+  <path d="M256 48 430 148v216L256 464 82 364V148Z" fill="none" stroke="url(#g)" stroke-width="28" stroke-linejoin="round" filter="url(#glow)"/>
+  <path d="M350 145H185v222h170" fill="none" stroke="url(#g)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M185 256h142" fill="none" stroke="url(#g)" stroke-width="38" stroke-linecap="round"/>
+  <path d="M158 178v156" fill="none" stroke="#06131f" stroke-width="22" stroke-linecap="round" opacity=".78"/>
+</svg>
