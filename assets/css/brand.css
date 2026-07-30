@@ -3,41 +3,55 @@
   --brand-red: #ef2334;
   --brand-blue: #38a9ff;
   --brand-green: #34d399;
+  --brand-logo-url: url("https://i.ibb.co/QjrZzVgv/7756-removebg-preview.webp");
 }
 
-.brand-logo {
-  width: 68px !important;
-  height: 68px !important;
-  flex: 0 0 68px;
-  padding: 0;
-  border-radius: 0;
+.brand-logo,
+.brand-logo-approved {
+  width: 58px !important;
+  height: 58px !important;
+  flex: 0 0 58px;
+  display: block;
+  padding: 0 !important;
+  margin: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
   background: transparent !important;
   object-fit: contain !important;
-  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, .35)) !important;
+  object-position: center !important;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, .28)) !important;
   box-shadow: none !important;
+  mix-blend-mode: normal !important;
+  image-rendering: auto;
+  transform: translateZ(0);
   transition: transform .24s ease, filter .24s ease !important;
 }
 
 .brand:hover .brand-logo {
-  transform: translateY(-2px) scale(1.025) !important;
-  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, .42)) drop-shadow(0 0 16px rgba(56, 169, 255, .16)) !important;
+  transform: translateY(-1px) scale(1.018) !important;
+  filter: drop-shadow(0 14px 25px rgba(0, 0, 0, .34)) drop-shadow(0 0 12px rgba(56, 169, 255, .12)) !important;
 }
 
 .site-header .brand {
   position: relative;
-  gap: 12px;
+  gap: 11px;
+  min-width: 0;
+}
+
+.site-header .brand-copy {
+  min-width: 0;
 }
 
 .site-header .brand::after {
   content: "";
   position: absolute;
-  inset-inline-start: 80px;
-  bottom: -5px;
-  width: 94px;
+  inset-inline-start: 69px;
+  bottom: -4px;
+  width: 88px;
   height: 2px;
   border-radius: 20px;
   background: linear-gradient(90deg, var(--brand-red), var(--brand-blue), var(--brand-green));
-  opacity: .74;
+  opacity: .68;
 }
 
 .hero,
@@ -55,8 +69,8 @@
   z-index: 0;
   width: min(58vw, 760px);
   aspect-ratio: 1;
-  background: url("/assets/brand/eslam-elshikh-logo-transparent.png") center / contain no-repeat;
-  opacity: .035;
+  background: var(--brand-logo-url) center / contain no-repeat;
+  opacity: .028;
   filter: grayscale(.15);
   pointer-events: none;
 }
@@ -71,14 +85,14 @@
   inset-inline-end: -110px;
   top: 50%;
   transform: translateY(-50%);
-  opacity: .045;
+  opacity: .035;
 }
 
 .site-footer::before {
   width: 410px;
   inset-inline-start: -180px;
   bottom: -220px;
-  opacity: .028;
+  opacity: .022;
 }
 
 .hero-grid,
@@ -92,6 +106,7 @@
 .core-logo,
 .bio-logo {
   object-fit: contain !important;
+  object-position: center !important;
   background: transparent !important;
   filter: drop-shadow(0 20px 36px rgba(0, 0, 0, .36));
 }
@@ -102,23 +117,35 @@
   height: 300px !important;
   left: 2% !important;
   bottom: -38% !important;
-  background: url("/assets/brand/eslam-elshikh-logo-transparent.png") center / contain no-repeat !important;
-  opacity: .07 !important;
+  background: var(--brand-logo-url) center / contain no-repeat !important;
+  opacity: .055 !important;
 }
 
 @media (max-width: 820px) {
-  .brand-logo { width: 58px !important; height: 58px !important; flex-basis: 58px; }
-  .site-header .brand::after { inset-inline-start: 70px; width: 76px; }
+  .brand-logo,
+  .brand-logo-approved {
+    width: 50px !important;
+    height: 50px !important;
+    flex-basis: 50px;
+  }
+  .site-header .brand::after { inset-inline-start: 61px; width: 72px; }
 }
 
 @media (max-width: 620px) {
-  .brand-logo { width: 50px !important; height: 50px !important; flex-basis: 50px; }
+  .brand-logo,
+  .brand-logo-approved {
+    width: 44px !important;
+    height: 44px !important;
+    flex-basis: 44px;
+  }
+  .site-header .brand { gap: 9px; }
   .site-header .brand::after { display: none; }
-  .hero::before { width: 112vw; inset-inline-end: -48vw; top: -5%; opacity: .025; }
+  .hero::before { width: 112vw; inset-inline-end: -48vw; top: -5%; opacity: .02; }
   .page-hero::after { width: 270px; inset-inline-end: -145px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .brand-logo { transition: none !important; }
+  .brand-logo,
+  .brand-logo-approved { transition: none !important; }
   .brand:hover .brand-logo { transform: none !important; }
 }
