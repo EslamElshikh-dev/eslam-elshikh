@@ -4,7 +4,7 @@
   const doc = document;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const portraitUrl = "https://avatars.githubusercontent.com/u/264218940?v=4";
-  const brandLogoUrl = "/assets/brand/eslam-elshikh-logo.webp";
+  const brandLogoUrl = "https://i.ibb.co/QjrZzVgv/7756-removebg-preview.webp";
   const canonicalBase = "https://www.eslam-elshikh.com";
   const normalizedPath = location.pathname === "/" || location.pathname.endsWith("/")
     ? location.pathname
@@ -25,7 +25,8 @@
     "footer .brand img",
     'img[src*="eslam-elshikh-primary.svg"]',
     'img[src*="eslam-elshikh-logo-2026.svg"]',
-    'img[src*="eslam-elshikh-logo-transparent.png"]'
+    'img[src*="eslam-elshikh-logo-transparent.png"]',
+    'img[src*="eslam-elshikh-logo.webp"]'
   ].join(",");
 
   doc.querySelectorAll(brandSelectors).forEach((img) => {
@@ -35,6 +36,7 @@
       ? "Eslam Elshikh logo"
       : "شعار المهندس إسلام الشيخ";
     img.classList.add("brand-logo-approved");
+    img.decoding = "async";
   });
 
   const profileSelectors = ".hero-logo, .profile-card img, .about-profile img, [class*=profile-card] img";
@@ -144,7 +146,7 @@
         if (types.includes("ProfessionalService") || types.includes("LocalBusiness")) {
           item.name = "المهندس إسلام الشيخ";
           item.url = canonicalBase;
-          item.logo = `${canonicalBase}${brandLogoUrl}`;
+          item.logo = brandLogoUrl;
           item.image = portraitUrl;
           item.areaServed = { "@type": "City", name: "الرياض" };
           item.address = { "@type": "PostalAddress", addressLocality: "الرياض", addressRegion: "منطقة الرياض", addressCountry: "SA" };
@@ -153,9 +155,7 @@
           item.description = "مصمم مواقع ويب ومستشار تقني يقدم خدمات تطوير المواقع والتطبيقات والسيو والأمن السيبراني والذكاء الاصطناعي داخل الرياض وعن بُعد.";
         }
 
-        if (item.logo && typeof item.logo === "string" && item.logo.includes("/assets/brand/")) {
-          item.logo = `${canonicalBase}${brandLogoUrl}`;
-        }
+        if (item.logo && typeof item.logo === "string") item.logo = brandLogoUrl;
       });
 
       script.textContent = JSON.stringify(data);
