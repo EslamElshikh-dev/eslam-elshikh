@@ -4,6 +4,7 @@ import { join } from "node:path";
 const outDir = process.argv[2] || "dist";
 const canonical = "https://www.eslam-elshikh.com";
 const approvedLogo = "https://i.ibb.co/QjrZzVgv/7756-removebg-preview.webp?v=20260730-1638";
+const profilePhoto = "https://avatars.githubusercontent.com/u/264218940?v=4";
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -34,6 +35,21 @@ for (const path of htmlFiles) {
   for (const logoPath of logoPaths) html = html.replaceAll(logoPath, approvedLogo);
   html = html.replaceAll(`${canonical}${approvedLogo}`, approvedLogo);
 
+  html = html.replace(/(<script type="application\/ld\+json">)([\s\S]*?)(<\/script>)/g, (match, open, payload, close) => {
+    try {
+      const data = JSON.parse(payload);
+      const graph = Array.isArray(data?.["@graph"]) ? data["@graph"] : [];
+      for (const item of graph) {
+        const types = Array.isArray(item?.["@type"]) ? item["@type"] : [item?.["@type"]];
+        if (types.includes("Person")) item.image = profilePhoto;
+        if (types.includes("ProfessionalService") || types.includes("LocalBusiness") || types.includes("Organization")) item.logo = approvedLogo;
+      }
+      return `${open}${JSON.stringify(data)}${close}`;
+    } catch {
+      return match;
+    }
+  });
+
   if (path.replaceAll("\\", "/").endsWith("/google-expert/index.html")) {
     html = html.replace(
       /<section class="section-pad"><div class="container google-stats">[\s\S]*?<\/div><\/section>/,
@@ -48,4 +64,4 @@ for (const path of htmlFiles) {
   await writeFile(path, html, "utf8");
 }
 
-console.log(`Persisted approved ImgBB brand and Google expert updates across ${htmlFiles.length} HTML files.`);
+console.log(`Persisted approved ImgBB brand, valid structured-data URLs, and Google expert updates across ${htmlFiles.length} HTML files.`);
