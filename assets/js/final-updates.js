@@ -18,7 +18,6 @@
     { value: 360, suffix: "°", label: "رؤية تجمع الأمن والتطوير والظهور الرقمي" }
   ];
 
-  // Use the approved transparent brand mark everywhere a site logo appears.
   const brandSelectors = [
     ".brand-logo",
     ".site-logo img",
@@ -37,7 +36,6 @@
     img.classList.add("brand-logo-approved");
   });
 
-  // Keep the approved portrait only in the two profile placements.
   const profileSelectors = ".hero-logo, .profile-card img, .about-profile img, [class*=profile-card] img";
   doc.querySelectorAll(profileSelectors).forEach((img) => {
     if (!(img instanceof HTMLImageElement)) return;
@@ -49,7 +47,7 @@
   });
 
   const statsMarkup = desiredStats.map((item) => `
-    <div class="reveal is-visible">
+    <div class="google-stat reveal is-visible">
       <strong data-counter="${item.value}" data-suffix="${item.suffix}">0${item.suffix}</strong>
       <span>${item.label}</span>
     </div>`).join("");
@@ -94,20 +92,15 @@
     }
   }
 
-  // Replace the defensive disclaimer with a professional, trust-building introduction.
   const disclaimer = doc.querySelector(".disclaimer-card");
   if (disclaimer) {
     disclaimer.classList.add("professional-summary-card");
-    const copy = disclaimer.querySelector(":scope > div:last-child");
-    if (copy) {
-      copy.innerHTML = `
-        <span>نبذة مهنية</span>
-        <h2>خبرة تقنية تبني الثقة وتحول التحديات إلى نتائج</h2>
-        <p>المهندس إسلام الشيخ مصمم مواقع ويب ومستشار تقني في الرياض، يجمع بين تطوير المواقع والتطبيقات، وتحسين الظهور في Google، والأمن السيبراني، والذكاء الاصطناعي والحلول السحابية. يبدأ كل مشروع بفهم الهدف التجاري وتجربة المستخدم، ثم تحويله إلى خطة واضحة وتنفيذ متقن ومخرجات قابلة للقياس والتطوير.</p>`;
-    }
+    disclaimer.innerHTML = `
+      <span>نبذة مهنية</span>
+      <h2>خبرة تقنية تبني الثقة وتحول التحديات إلى نتائج</h2>
+      <p>المهندس إسلام الشيخ مصمم مواقع ويب ومستشار تقني في الرياض، يجمع بين تطوير المواقع والتطبيقات، وتحسين الظهور في Google، والأمن السيبراني، والذكاء الاصطناعي والحلول السحابية. يبدأ كل مشروع بفهم الهدف التجاري وتجربة المستخدم، ثم تحويله إلى خطة واضحة وتنفيذ متقن ومخرجات قابلة للقياس والتطوير.</p>`;
   }
 
-  // Normalize visible copy and publish the service-area statement without exposing a private address.
   doc.querySelectorAll("h1,h2,h3,p,span").forEach((node) => {
     if (node.childElementCount) return;
     node.textContent = node.textContent.replace(/الخدمات المتخصصة[.،]?تط/g, "الخدمات المتخصصة");
@@ -122,7 +115,6 @@
     contactSection.appendChild(note);
   }
 
-  // Repair profile structured data and retain public service-area details only.
   doc.querySelectorAll('script[type="application/ld+json"]').forEach((script) => {
     try {
       const data = JSON.parse(script.textContent || "{}");
