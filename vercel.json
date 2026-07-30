@@ -5,6 +5,12 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "trailingSlash": true,
+  "rewrites": [
+    { "source": "/blog/pro-guides", "destination": "/assets/guides/index.html" },
+    { "source": "/blog/pro-guides/", "destination": "/assets/guides/index.html" },
+    { "source": "/blog/pro-guides/:slug", "destination": "/assets/guides/article.html" },
+    { "source": "/blog/pro-guides/:slug/", "destination": "/assets/guides/article.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
