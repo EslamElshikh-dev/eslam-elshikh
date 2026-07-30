@@ -2,7 +2,7 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const outDir = process.argv[2] || "dist";
-const approvedLogo = "/assets/brand/eslam-elshikh-logo-transparent.png";
+const approvedLogo = "/assets/brand/eslam-elshikh-logo.webp";
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -19,13 +19,17 @@ const statsHtml = `<section class="section-pad"><div class="container google-sta
 
 const professionalBio = `<aside class="disclaimer-card professional-summary-card reveal"><span>نبذة مهنية</span><h2>خبرة تقنية تبني الثقة وتحول التحديات إلى نتائج</h2><p>المهندس إسلام الشيخ مصمم مواقع ويب ومستشار تقني في الرياض، يجمع بين تطوير المواقع والتطبيقات، وتحسين الظهور في Google، والأمن السيبراني، والذكاء الاصطناعي والحلول السحابية. يبدأ كل مشروع بفهم الهدف التجاري وتجربة المستخدم، ثم تحويله إلى خطة واضحة وتنفيذ متقن ومخرجات قابلة للقياس والتطوير.</p></aside>`;
 
-const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
+const files = await walk(outDir);
+const htmlFiles = files.filter((path) => path.endsWith(".html"));
+const jsFiles = files.filter((path) => path.endsWith(".js"));
+
 for (const path of htmlFiles) {
   let html = await readFile(path, "utf8");
 
   html = html
     .replaceAll("/assets/brand/eslam-elshikh-primary.svg", approvedLogo)
-    .replaceAll("/assets/brand/eslam-elshikh-logo-2026.svg", approvedLogo);
+    .replaceAll("/assets/brand/eslam-elshikh-logo-2026.svg", approvedLogo)
+    .replaceAll("/assets/brand/eslam-elshikh-logo-transparent.png", approvedLogo);
 
   if (path.replaceAll("\\", "/").endsWith("/google-expert/index.html")) {
     html = html.replace(
@@ -33,7 +37,7 @@ for (const path of htmlFiles) {
       statsHtml
     );
     html = html.replace(
-      /<aside class="disclaimer-card reveal">[\s\S]*?<\/aside>/,
+      /<aside class="disclaimer-card(?: professional-summary-card)? reveal">[\s\S]*?<\/aside>/,
       professionalBio
     );
   }
@@ -41,4 +45,10 @@ for (const path of htmlFiles) {
   await writeFile(path, html, "utf8");
 }
 
-console.log(`Persisted approved brand and Google expert updates across ${htmlFiles.length} HTML files.`);
+for (const path of jsFiles) {
+  let js = await readFile(path, "utf8");
+  js = js.replaceAll("/assets/brand/eslam-elshikh-logo-transparent.png", approvedLogo);
+  await writeFile(path, js, "utf8");
+}
+
+console.log(`Persisted WebP brand and Google expert updates across ${htmlFiles.length} HTML files.`);
