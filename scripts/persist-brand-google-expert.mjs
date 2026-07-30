@@ -2,6 +2,7 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const outDir = process.argv[2] || "dist";
+const canonical = "https://www.eslam-elshikh.com";
 const approvedLogo = "https://i.ibb.co/QjrZzVgv/7756-removebg-preview.webp?v=20260730-1638";
 
 async function walk(dir) {
@@ -31,6 +32,7 @@ for (const path of htmlFiles) {
   let html = await readFile(path, "utf8");
 
   for (const logoPath of logoPaths) html = html.replaceAll(logoPath, approvedLogo);
+  html = html.replaceAll(`${canonical}${approvedLogo}`, approvedLogo);
 
   if (path.replaceAll("\\", "/").endsWith("/google-expert/index.html")) {
     html = html.replace(
