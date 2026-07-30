@@ -34,7 +34,7 @@ for (const path of htmlFiles) {
       statsHtml
     );
     html = html.replace(
-      /<aside class="disclaimer-card reveal">[\s\S]*?<\/aside>/,
+      /<aside class="disclaimer-card(?: professional-summary-card)? reveal">[\s\S]*?<\/aside>/,
       professionalBio
     );
   }
