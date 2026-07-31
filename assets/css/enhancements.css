@@ -23,19 +23,24 @@
 .floating-call{color:#fff;background:linear-gradient(135deg,#2478ed,#4c9dff)!important}
 .floating-whatsapp{color:#fff;background:linear-gradient(135deg,#159c52,#2bd775)!important}
 
-.social-row{gap:.55rem!important;align-items:center!important;flex-wrap:wrap}
-.social-row a{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;padding:0!important;border:1px solid rgba(120,151,170,.24)!important;border-radius:12px!important;overflow:hidden;color:var(--muted)!important;background:rgba(255,255,255,.035)!important;box-shadow:none!important;transition:transform .2s ease,border-color .2s ease,background-color .2s ease,color .2s ease!important}
-.social-row a:hover,.social-row a:focus-visible{transform:translateY(-2px);color:var(--text)!important;border-color:rgba(88,201,255,.42)!important;background:rgba(88,201,255,.09)!important}
-.social-row .social-icon{display:block!important;width:16px!important;height:16px!important;max-width:16px!important;max-height:16px!important;fill:currentColor!important;stroke:none!important;flex:0 0 16px!important}
-.social-row a[aria-label="YouTube"] .social-icon{width:17px!important;max-width:17px!important;flex-basis:17px!important}
-.social-row a[aria-label="LinkedIn"] .social-icon{width:15px!important;height:15px!important;max-width:15px!important;max-height:15px!important;flex-basis:15px!important}
-.social-row a[aria-label="X"] .social-icon{width:15px!important;height:15px!important;max-width:15px!important;max-height:15px!important;flex-basis:15px!important}
+.social-row{display:flex!important;gap:.5rem!important;align-items:center!important;flex-wrap:wrap!important}
+.social-row a{display:grid!important;place-items:center!important;width:36px!important;min-width:36px!important;height:36px!important;min-height:36px!important;padding:0!important;border:1px solid var(--line-strong)!important;border-radius:50%!important;overflow:hidden!important;background:var(--surface-2)!important;box-shadow:0 6px 16px rgba(0,0,0,.12)!important;transform:none!important;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important}
+.social-row a:hover,.social-row a:focus-visible{transform:translateY(-2px)!important;border-color:currentColor!important;box-shadow:0 9px 20px rgba(0,0,0,.18)!important}
+.social-row .social-icon{display:block!important;width:15px!important;height:15px!important;max-width:15px!important;max-height:15px!important;fill:currentColor!important;stroke:none!important;flex:none!important}
+.social-row a[aria-label="GitHub"]{color:#f0f6fc!important;background:#0d1117!important}
+.social-row a[aria-label="LinkedIn"]{color:#fff!important;background:#0a66c2!important}
+.social-row a[aria-label="X"]{color:#fff!important;background:#000!important}
+.social-row a[aria-label="Instagram"]{color:#fff!important;background:linear-gradient(135deg,#833ab4,#fd1d1d 55%,#fcb045)!important}
+.social-row a[aria-label="YouTube"]{color:#fff!important;background:#ff0000!important}
+.social-row a[aria-label="YouTube"] .social-icon{width:16px!important;max-width:16px!important}
+.social-row a[aria-label="LinkedIn"] .social-icon{width:14px!important;height:14px!important;max-width:14px!important;max-height:14px!important}
+.social-row a[aria-label="X"] .social-icon{width:13px!important;height:13px!important;max-width:13px!important;max-height:13px!important}
 
 @keyframes floating-contact-breathe{0%,100%{box-shadow:0 14px 34px rgba(0,0,0,.28),0 0 0 0 rgba(88,201,255,0)}50%{box-shadow:0 16px 38px rgba(0,0,0,.3),0 0 0 7px rgba(88,201,255,.08)}}
 @keyframes floating-contact-pulse{0%,58%{transform:scale(.9);opacity:0}68%{opacity:.2}88%,100%{transform:scale(1.24);opacity:0}}
 
 @media(max-width:820px){.brand-logo,.brand-logo-approved{width:54px!important;height:54px!important;min-width:54px!important;max-width:54px!important;min-height:54px!important;max-height:54px!important;flex-basis:54px!important}}
 @media(max-width:720px){.google-stats{grid-template-columns:1fr}.google-stats>div{min-height:180px}}
-@media(max-width:900px){.floating-action{width:43px!important;min-width:43px!important;height:43px!important}.floating-action .icon{width:1.18rem!important;height:1.18rem!important}.floating-action>span{display:none!important}.floating-contact{gap:.62rem}.social-row{gap:.48rem!important}.social-row a{width:36px!important;min-width:36px!important;height:36px!important;min-height:36px!important;border-radius:11px!important}.social-row .social-icon{width:15px!important;height:15px!important;max-width:15px!important;max-height:15px!important;flex-basis:15px!important}.social-row a[aria-label="YouTube"] .social-icon{width:16px!important;max-width:16px!important;flex-basis:16px!important}.social-row a[aria-label="LinkedIn"] .social-icon,.social-row a[aria-label="X"] .social-icon{width:14px!important;height:14px!important;max-width:14px!important;max-height:14px!important;flex-basis:14px!important}}
+@media(max-width:900px){.floating-action{width:43px!important;min-width:43px!important;height:43px!important}.floating-action .icon{width:1.18rem!important;height:1.18rem!important}.floating-action>span{display:none!important}.floating-contact{gap:.62rem}.social-row{gap:.46rem!important}.social-row a{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}.social-row .social-icon{width:14px!important;height:14px!important;max-width:14px!important;max-height:14px!important}.social-row a[aria-label="YouTube"] .social-icon{width:15px!important;max-width:15px!important}.social-row a[aria-label="LinkedIn"] .social-icon{width:13px!important;height:13px!important;max-width:13px!important;max-height:13px!important}.social-row a[aria-label="X"] .social-icon{width:12px!important;height:12px!important;max-width:12px!important;max-height:12px!important}}
 @media(max-width:620px){.brand-logo,.brand-logo-approved{width:48px!important;height:48px!important;min-width:48px!important;max-width:48px!important;min-height:48px!important;max-height:48px!important;flex-basis:48px!important;padding:1px!important}.site-header .brand{gap:8px}}
 @media(prefers-reduced-motion:reduce){.stats-bar>div,.google-stats>div{transition:none!important}.floating-action,.floating-action::before{animation:none!important}.social-row a{transition:none!important}}
