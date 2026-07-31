@@ -47,6 +47,7 @@ const socialIcons = {
 const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
 for (const path of htmlFiles) {
   let html = await readFile(path, "utf8");
+  html = html.replace(/\/assets\/css\/enhancements\.css\?v=[^"]+/g, "/assets/css/enhancements.css?v=1.0.2");
 
   for (const logoPath of logoPaths) html = html.replaceAll(logoPath, approvedLogo);
   html = html.replaceAll(`${canonical}${approvedLogo}`, approvedLogo);
@@ -124,4 +125,4 @@ const llmsTxt = `# المهندس إسلام الشيخ
 
 await writeFile(join(outDir, "llms.txt"), llmsTxt, "utf8");
 
-console.log(`Persisted approved branding, official social icons, floating action labels, counter animation, and llms.txt across ${htmlFiles.length} HTML files.`);
+console.log(`Persisted approved branding, official social icons, floating action labels, counter animation, cache-busted enhancements CSS, and llms.txt across ${htmlFiles.length} HTML files.`);
