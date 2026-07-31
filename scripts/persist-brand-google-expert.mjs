@@ -36,6 +36,13 @@ const connectionHints = [
 ].join("\n");
 
 const counterScript = '<script src="/assets/js/enhancements.js?v=1.0.0" defer></script>';
+const socialIcons = {
+  GitHub: '<svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.2.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.8-1.3-1.8-1.1-.8.1-.8.1-.8 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.8 1.4 3.5 1.1.1-.8.4-1.4.8-1.7-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.8.9 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6A11.5 11.5 0 0 0 12 .7Z"/></svg>',
+  LinkedIn: '<svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.4 7.8H1.8V22h3.6V7.8ZM3.6 2A2.1 2.1 0 1 0 3.6 6.2 2.1 2.1 0 0 0 3.6 2Zm9.1 5.8H9.2V22h3.6v-7c0-1.8.3-3.6 2.6-3.6 2.2 0 2.3 2.1 2.3 3.7V22h3.6v-7.7c0-3.8-.8-6.7-5.2-6.7-2.1 0-3.5 1.2-4.1 2.3h-.1V7.8Z"/></svg>',
+  X: '<svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.2l7.3-8.4L2.8 2h6.5l4.4 5.8L18.9 2Zm-1.1 17.8h1.7L8.4 4.1H6.6l11.2 15.7Z"/></svg>',
+  Instagram: '<svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2Zm-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6Zm9.1 1.5a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>',
+  YouTube: '<svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/></svg>'
+};
 
 const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
 for (const path of htmlFiles) {
@@ -58,6 +65,14 @@ for (const path of htmlFiles) {
       return match;
     }
   });
+
+  for (const [label, svg] of Object.entries(socialIcons)) {
+    const pattern = new RegExp(`(<a[^>]+aria-label="${label}"[^>]*>)[\\s\\S]*?(<\\/a>)`, "g");
+    html = html.replace(pattern, `$1${svg}$2`);
+  }
+
+  html = html.replace(/(<a class="floating-action floating-call"[^>]*>[\s\S]*?<span>)[^<]*(<\/span>)/g, "$1اتصل الآن$2");
+  html = html.replace(/(<a class="floating-action floating-whatsapp"[^>]*>[\s\S]*?<span>)[^<]*(<\/span>)/g, "$1راسلني واتساب$2");
 
   if (!html.includes('rel="preconnect" href="https://i.ibb.co"')) {
     html = html.replace("</head>", `${connectionHints}\n</head>`);
@@ -109,4 +124,4 @@ const llmsTxt = `# المهندس إسلام الشيخ
 
 await writeFile(join(outDir, "llms.txt"), llmsTxt, "utf8");
 
-console.log(`Persisted approved branding, valid llms.txt Markdown, counter animation, and non-visual loading optimizations across ${htmlFiles.length} HTML files.`);
+console.log(`Persisted approved branding, official social icons, floating action labels, counter animation, and llms.txt across ${htmlFiles.length} HTML files.`);
