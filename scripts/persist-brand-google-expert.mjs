@@ -35,6 +35,8 @@ const connectionHints = [
   '<link rel="dns-prefetch" href="//avatars.githubusercontent.com">'
 ].join("\n");
 
+const counterScript = '<script src="/assets/js/enhancements.js?v=1.0.0" defer></script>';
+
 const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
 for (const path of htmlFiles) {
   let html = await readFile(path, "utf8");
@@ -61,9 +63,9 @@ for (const path of htmlFiles) {
     html = html.replace("</head>", `${connectionHints}\n</head>`);
   }
 
-  // final-updates.js already owns the counters. Removing the duplicate helper
-  // lowers JavaScript work without changing any visible content or behavior.
-  html = html.replace(/\s*<script src="\/assets\/js\/enhancements\.js\?v=[^"]+" defer><\/script>/g, "");
+  if (!html.includes("/assets/js/enhancements.js")) {
+    html = html.replace("</body>", `${counterScript}\n</body>`);
+  }
 
   if (path.replaceAll("\\", "/").endsWith("/google-expert/index.html")) {
     html = html.replace(
@@ -107,4 +109,4 @@ const llmsTxt = `# المهندس إسلام الشيخ
 
 await writeFile(join(outDir, "llms.txt"), llmsTxt, "utf8");
 
-console.log(`Persisted approved branding, valid llms.txt Markdown, and non-visual loading optimizations across ${htmlFiles.length} HTML files.`);
+console.log(`Persisted approved branding, valid llms.txt Markdown, counter animation, and non-visual loading optimizations across ${htmlFiles.length} HTML files.`);
