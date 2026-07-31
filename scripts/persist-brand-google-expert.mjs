@@ -28,6 +28,13 @@ const logoPaths = [
   "/assets/brand/eslam-elshikh-logo.webp"
 ];
 
+const connectionHints = [
+  '<link rel="preconnect" href="https://i.ibb.co" crossorigin>',
+  '<link rel="preconnect" href="https://avatars.githubusercontent.com" crossorigin>',
+  '<link rel="dns-prefetch" href="//i.ibb.co">',
+  '<link rel="dns-prefetch" href="//avatars.githubusercontent.com">'
+].join("\n");
+
 const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
 for (const path of htmlFiles) {
   let html = await readFile(path, "utf8");
@@ -50,6 +57,14 @@ for (const path of htmlFiles) {
     }
   });
 
+  if (!html.includes('rel="preconnect" href="https://i.ibb.co"')) {
+    html = html.replace("</head>", `${connectionHints}\n</head>`);
+  }
+
+  // final-updates.js already owns the counters. Removing the duplicate helper
+  // lowers JavaScript work without changing any visible content or behavior.
+  html = html.replace(/\s*<script src="\/assets\/js\/enhancements\.js\?v=[^"]+" defer><\/script>/g, "");
+
   if (path.replaceAll("\\", "/").endsWith("/google-expert/index.html")) {
     html = html.replace(
       /<section class="section-pad"><div class="container google-stats">[\s\S]*?<\/div><\/section>/,
@@ -64,4 +79,32 @@ for (const path of htmlFiles) {
   await writeFile(path, html, "utf8");
 }
 
-console.log(`Persisted approved ImgBB brand, valid structured-data URLs, and Google expert updates across ${htmlFiles.length} HTML files.`);
+const llmsTxt = `# المهندس إسلام الشيخ
+
+> مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض، يقدم تطوير المواقع ووكلاء الذكاء الاصطناعي والسيو والحلول السحابية للشركات في السعودية.
+
+## الخدمات الرئيسية
+
+- [الأمن السيبراني وحماية الأنظمة](${canonical}/services/cybersecurity/)
+- [الحلول السحابية الآمنة](${canonical}/services/cloud-solutions/)
+- [تطوير وكلاء الذكاء الاصطناعي وأتمتة الأعمال](${canonical}/services/ai-agents/)
+- [تصميم وتطوير المواقع والتطبيقات](${canonical}/services/web-development/)
+- [استشارات ودعم منتجات Google](${canonical}/services/google-support/)
+- [حل مشكلات ملفات Google التجارية](${canonical}/services/google-business-profile/)
+- [قواعد المعرفة والبحث الذكي](${canonical}/services/knowledge-bases/)
+- [تحسين محركات البحث والسيو المحلي](${canonical}/services/seo/)
+- [إدارة الإعلانات الرقمية وصفحات الهبوط](${canonical}/services/digital-advertising/)
+
+## صفحات مهمة
+
+- [عن المهندس إسلام الشيخ](${canonical}/about/)
+- [خبرة Google](${canonical}/google-expert/)
+- [السيو المحلي](${canonical}/local-seo/)
+- [الأعمال والمشروعات](${canonical}/projects/)
+- [المدونة](${canonical}/blog/)
+- [التواصل](${canonical}/contact/)
+`;
+
+await writeFile(join(outDir, "llms.txt"), llmsTxt, "utf8");
+
+console.log(`Persisted approved branding, valid llms.txt Markdown, and non-visual loading optimizations across ${htmlFiles.length} HTML files.`);
