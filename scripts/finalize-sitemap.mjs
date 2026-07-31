@@ -35,7 +35,7 @@ function priorityFor(route) {
 
 const htmlFiles = (await walk(outDir)).filter((file) => file.endsWith("index.html"));
 const routes = [...new Set(htmlFiles.map(routeFromFile).filter(Boolean))]
-  .filter((route) => !route.startsWith("/."))
+  .filter((route) => !route.startsWith("/.") && !route.startsWith("/assets/"))
   .sort((a, b) => a.localeCompare(b, "en"));
 
 const urls = routes.map((route) => {
