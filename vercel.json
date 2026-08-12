@@ -6,17 +6,17 @@
   "cleanUrls": true,
   "trailingSlash": true,
   "redirects": [
-    { "source": "/blog/pro-guides", "destination": "/blog", "permanent": true },
-    { "source": "/blog/pro-guides/web-design-riyadh-guide", "destination": "/blog/professional-website-design-riyadh", "permanent": true },
-    { "source": "/blog/pro-guides/technical-seo-saudi-business", "destination": "/blog/technical-seo-saudi-businesses", "permanent": true },
-    { "source": "/blog/pro-guides/local-seo-riyadh", "destination": "/blog/local-seo-riyadh-service-business", "permanent": true },
-    { "source": "/blog/pro-guides/google-business-profile-verification", "destination": "/blog/google-business-profile-riyadh-guide", "permanent": true },
-    { "source": "/blog/pro-guides/cybersecurity-small-business", "destination": "/blog/cybersecurity-assessment-small-business", "permanent": true },
-    { "source": "/blog/pro-guides/ai-agents-business", "destination": "/blog/ai-agents-for-business-saudi", "permanent": true },
-    { "source": "/blog/pro-guides/cloud-solutions-security", "destination": "/blog/secure-cloud-solutions-guide", "permanent": true },
-    { "source": "/blog/pro-guides/ecommerce-development-saudi", "destination": "/blog/ecommerce-development-saudi", "permanent": true },
-    { "source": "/blog/pro-guides/landing-pages-conversion", "destination": "/blog/landing-pages-google-ads", "permanent": true },
-    { "source": "/blog/pro-guides/website-maintenance-security", "destination": "/blog/website-maintenance-security-seo", "permanent": true }
+    { "source": "/blog/pro-guides/", "destination": "/blog/", "permanent": true },
+    { "source": "/blog/pro-guides/web-design-riyadh-guide/", "destination": "/blog/professional-website-design-riyadh/", "permanent": true },
+    { "source": "/blog/pro-guides/technical-seo-saudi-business/", "destination": "/blog/technical-seo-saudi-businesses/", "permanent": true },
+    { "source": "/blog/pro-guides/local-seo-riyadh/", "destination": "/blog/local-seo-riyadh-service-business/", "permanent": true },
+    { "source": "/blog/pro-guides/google-business-profile-verification/", "destination": "/blog/google-business-profile-riyadh-guide/", "permanent": true },
+    { "source": "/blog/pro-guides/cybersecurity-small-business/", "destination": "/blog/cybersecurity-assessment-small-business/", "permanent": true },
+    { "source": "/blog/pro-guides/ai-agents-business/", "destination": "/blog/ai-agents-for-business-saudi/", "permanent": true },
+    { "source": "/blog/pro-guides/cloud-solutions-security/", "destination": "/blog/secure-cloud-solutions-guide/", "permanent": true },
+    { "source": "/blog/pro-guides/ecommerce-development-saudi/", "destination": "/blog/ecommerce-development-saudi/", "permanent": true },
+    { "source": "/blog/pro-guides/landing-pages-conversion/", "destination": "/blog/landing-pages-google-ads/", "permanent": true },
+    { "source": "/blog/pro-guides/website-maintenance-security/", "destination": "/blog/website-maintenance-security-seo/", "permanent": true }
   ],
   "headers": [
     {
