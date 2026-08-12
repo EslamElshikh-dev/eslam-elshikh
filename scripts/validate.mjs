@@ -1,6 +1,8 @@
 import { access, readFile, readdir } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { posts } from "../src/content.mjs";
+import { guides } from "../src/guides.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
@@ -16,6 +18,8 @@ const requiredRoutes = [
   "/blog/ai-agent-business/", "/blog/google-business-profile-suspension/", "/blog/secure-website-development/", "/blog/ecommerce-development-saudi/",
   "/blog/topics/google-business-profile/", "/blog/topics/local-seo-saudi/", "/blog/topics/cybersecurity/", "/blog/topics/ai-agents/", "/blog/topics/web-development/"
 ];
+const expectedArticleRoutes = [...posts, ...guides].map((post) => `/blog/${post.slug}/`);
+for (const route of expectedArticleRoutes) if (!requiredRoutes.includes(route)) requiredRoutes.push(route);
 
 const routeFile = (route) => route === "/" ? join(output, "index.html") : join(output, route.replace(/^\//, "").replace(/\/$/, ""), "index.html");
 const normalizeRoute = (route) => route === "/" ? "/" : `/${route.replace(/^\//, "").replace(/\/$/, "")}/`;
@@ -120,7 +124,18 @@ for (const route of sitemapRoutes) {
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (!/<main\s+id=["']main["']>/i.test(html)) errors.push(`${route}: missing main landmark`);
   if (!/<footer\s+class=["']site-footer["']>/i.test(html)) errors.push(`${route}: missing footer`);
-  if (route.startsWith("/blog/") && route !== "/blog/" && !route.startsWith("/blog/topics/") && words < 300) errors.push(`${route}: article content is too thin without JavaScript (${words} words)`);
+  const isArticle = route.startsWith("/blog/") && route !== "/blog/" && !route.startsWith("/blog/topics/");
+  if (isArticle && words < 1200) errors.push(`${route}: article content is too thin without JavaScript (${words} words; expected at least 1200)`);
+  if (isArticle) {
+    for (const className of ["header-tools", "footer-grid", "mobile-bottom-nav", "article-author-card"]) {
+      if (!new RegExp(`class=["'][^"']*\\b${className}\\b`, "i").test(html)) errors.push(`${route}: article is missing the standard ${className} shell`);
+    }
+    const faqCount = (html.match(/<details\s+class="reveal"/g) || []).length;
+    if (faqCount !== 10) errors.push(`${route}: expected exactly 10 visible FAQ entries, found ${faqCount}`);
+    if (!html.includes('"@type":"FAQPage"')) errors.push(`${route}: missing FAQPage structured data`);
+    if (!html.includes('"@type":"BlogPosting"')) errors.push(`${route}: missing BlogPosting structured data`);
+    if (!/<meta\s+name=["']keywords["']/i.test(html)) errors.push(`${route}: missing article keyword metadata`);
+  }
 
   for (const match of html.matchAll(/<script\s+type=["']application\/ld\+json["']>([\s\S]*?)<\/script>/gi)) {
     try { JSON.parse(match[1]); } catch (error) { errors.push(`${route}: invalid JSON-LD (${error.message})`); }
@@ -169,6 +184,21 @@ if (!/User-agent:\s*\*[\s\S]*Allow:\s*\//i.test(robotsText)) errors.push("robots
 const home = pages.get("/") || "";
 if ((home.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("Homepage does not render all 9 services");
 if (wordCount(home) < 900) warnings.push(`Homepage content is shorter than 900 words (${wordCount(home)})`);
+
+const blog = pages.get("/blog/") || "";
+const blogCardCount = (blog.match(/class=["']post-card(?:\s|["'])/g) || []).length;
+if (blogCardCount !== expectedArticleRoutes.length) errors.push(`Blog index renders ${blogCardCount} article cards; expected ${expectedArticleRoutes.length}`);
+for (const route of expectedArticleRoutes) {
+  if (!new RegExp(`href=["']${route.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`).test(blog)) errors.push(`Blog index does not link to ${route}`);
+}
+
+const english = pages.get("/en/") || "";
+const englishServices = matchOne(english, /<section\s+class=["']section-pad["']\s+id=["']services["']>([\s\S]*?)<\/section>/i);
+const englishFooterServices = matchOne(english, /<div\s+class=["']footer-column footer-services["']>([\s\S]*?)<\/div>/i);
+if ((englishServices.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("English homepage does not render all 9 translated services");
+if (/[\u0600-\u06ff]/.test(englishServices)) errors.push("English service cards still contain Arabic text");
+if (/[\u0600-\u06ff]/.test(englishFooterServices)) errors.push("English footer service links still contain Arabic text");
+if (/اتصل الآن|راسلني واتساب/.test(textContent(english))) errors.push("English page still contains Arabic floating-contact labels");
 
 console.log(`Validated ${pages.size} canonical HTML routes in ${output}; ${redirects.size} permanent redirects checked.`);
 if (warnings.length) {

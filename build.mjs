@@ -2,13 +2,16 @@ import { cp, mkdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { site, services, projects, mapsProjects, posts, homeFaq, localSeoFaq } from "./src/content.mjs";
+import { guides } from "./src/guides.mjs";
+import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.0.0";
+const version = "3.1.0";
+const profilePhoto = "https://avatars.githubusercontent.com/u/264218940?v=4";
 
 const esc = (value = "") => String(value)
   .replaceAll("&", "&amp;")
@@ -21,7 +24,11 @@ const safeJson = (value) => JSON.stringify(value).replaceAll("<", "\\u003c");
 const absolute = (path = "/") => new URL(path, `${site.url}/`).href;
 const routeFile = (path) => path === "/" ? "index.html" : join(path.replace(/^\//, "").replace(/\/$/, ""), "index.html");
 const serviceBySlug = (slug) => services.find((service) => service.slug === slug);
-const postBySlug = (slug) => posts.find((post) => post.slug === slug);
+const allPosts = [...posts.map(enrichPost), ...guides.map(guideToPost)].sort((left, right) => {
+  const dateDifference = new Date(`${right.modified || right.date}T12:00:00Z`) - new Date(`${left.modified || left.date}T12:00:00Z`);
+  return dateDifference || new Date(`${right.date}T12:00:00Z`) - new Date(`${left.date}T12:00:00Z`);
+});
+const postBySlug = (slug) => allPosts.find((post) => post.slug === slug);
 
 const icons = {
   shield: '<path d="M12 3 5 6v5c0 4.7 2.8 8.1 7 10 4.2-1.9 7-5.3 7-10V6l-7-3Z"/><path d="m9.4 12 1.7 1.7 3.8-4"/>',
@@ -121,7 +128,7 @@ const faqSchema = (faq) => ({
   mainEntity: faq.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } }))
 });
 
-function head({ title, description, path = "/", lang = "ar", schema = [], image = site.shareImage, type = "website", published, modified }) {
+function head({ title, description, path = "/", lang = "ar", schema = [], image = site.shareImage, type = "website", published, modified, keywords = [], articleSection = "" }) {
   const isEnglish = lang === "en";
   const canonical = absolute(path);
   const titleHasBrand = title.includes(site.nameAr) || title.includes(site.nameEn) || title.includes(site.brandName);
@@ -129,7 +136,7 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
   const graph = [
     ...baseGraph(),
     {
-      "@type": type === "article" ? "Article" : "WebPage",
+      "@type": type === "article" ? "BlogPosting" : "WebPage",
       "@id": `${canonical}#${type === "article" ? "article" : "webpage"}`,
       url: canonical,
       name: fullTitle,
@@ -139,7 +146,15 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
       about: { "@id": `${site.url}/#person` },
       ...(published ? { datePublished: published } : {}),
       dateModified: modified || site.lastUpdated,
-      ...(type === "article" ? { author: { "@id": `${site.url}/#person` }, publisher: { "@id": `${site.url}/#person` }, image: absolute(image) } : {})
+      ...(type === "article" ? {
+        headline: title,
+        mainEntityOfPage: canonical,
+        author: { "@id": `${site.url}/#person` },
+        publisher: { "@id": `${site.url}/#person` },
+        image: absolute(image),
+        ...(articleSection ? { articleSection } : {}),
+        ...(keywords.length ? { keywords } : {})
+      } : {})
     },
     ...schema
   ];
@@ -150,6 +165,7 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>${esc(fullTitle)}</title>
   <meta name="description" content="${esc(description)}">
+  ${keywords.length ? `<meta name="keywords" content="${esc(keywords.join(", "))}">` : ""}
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="author" content="${esc(site.nameAr)}">
   <meta name="application-name" content="${esc(site.brandName)}">
@@ -167,7 +183,7 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
   <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml" sizes="any">
   <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
   <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="alternate" type="application/rss+xml" title="مدونة ${esc(site.brandName)}" href="/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="${isEnglish ? "Eslam Elshikh Insights" : `مدونة ${esc(site.brandName)}`}" href="/feed.xml">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="${esc(site.brandName)}">
@@ -198,7 +214,7 @@ function header(active = "", language = "ar") {
   const isEnglish = language === "en";
   const nav = isEnglish ? [
     ["home", "/en/", "Home"],
-    ["services", "/services/", "Services"],
+    ["services", "/en/#services", "Services"],
     ["projects", "/projects/", "Work"],
     ["about", "/about/", "About"],
     ["google", "/google-expert/", "Google expertise"],
@@ -244,7 +260,7 @@ function footer(language = "ar") {
       <div class="social-row" aria-label="${isEnglish ? "Social profiles" : "الحسابات الاجتماعية"}">${social}</div>
     </div>
     <div class="footer-column"><h2>${isEnglish ? "Explore" : "روابط سريعة"}</h2><a href="/about/">${isEnglish ? "About" : "عن إسلام"}</a><a href="/projects/">${isEnglish ? "Selected work" : "الأعمال"}</a><a href="/google-expert/">${isEnglish ? "Google expertise" : "خبرة Google"}</a><a href="/blog/">${isEnglish ? "Insights" : "المدونة"}</a><a href="/contact/">${isEnglish ? "Contact" : "تواصل"}</a></div>
-    <div class="footer-column footer-services"><h2>${isEnglish ? "Core services" : "الخدمات الرئيسية"}</h2>${services.slice(0, 6).map((service) => `<a href="/services/${service.slug}/">${service.title}</a>`).join("")}<a class="footer-more" href="/services/">${isEnglish ? "View all services" : "عرض جميع الخدمات"}</a></div>
+    <div class="footer-column footer-services"><h2>${isEnglish ? "Core services" : "الخدمات الرئيسية"}</h2>${services.slice(0, 6).map((service) => `<a href="/services/${service.slug}/">${esc(isEnglish ? serviceTranslations[service.slug]?.title || service.title : service.title)}</a>`).join("")}<a class="footer-more" href="/services/">${isEnglish ? "View all services" : "عرض جميع الخدمات"}</a></div>
     <div class="footer-column footer-contact"><h2>${isEnglish ? "Contact" : "بيانات التواصل"}</h2><a dir="ltr" href="tel:${site.phone}">${icon("phone")}<span>${site.phoneDisplay}</span></a><a href="${site.whatsapp}" target="_blank" rel="noopener">${icon("whatsapp")}<span>WhatsApp</span></a><a href="mailto:${site.email}">${icon("mail")}<span>${site.email}</span></a><span>${icon("pin")}<span>${isEnglish ? "Riyadh, Saudi Arabia" : `${site.city}، ${site.country}`}</span></span></div>
   </div>
   <div class="container footer-bottom"><p>© ${new Date().getFullYear()} ${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}. ${isEnglish ? "All rights reserved." : "جميع الحقوق محفوظة."}</p><div><a href="/privacy/">${isEnglish ? "Privacy" : "الخصوصية"}</a><a href="/terms/">${isEnglish ? "Terms" : "الشروط"}</a><a href="/.well-known/security.txt">${isEnglish ? "Security" : "الإبلاغ الأمني"}</a></div></div>
@@ -253,13 +269,13 @@ function footer(language = "ar") {
   <a class="floating-action floating-call" href="tel:${site.phone}" aria-label="${isEnglish ? "Call Eng. Eslam" : "اتصال مباشر بالمهندس إسلام الشيخ"}">${icon("phone")}<span>${isEnglish ? "Call" : "اتصال"}</span></a>
   <a class="floating-action floating-whatsapp" href="${site.whatsapp}?text=${encodeURIComponent(isEnglish ? "Hello Eng. Eslam, I would like to discuss a project." : "مرحبًا م. إسلام، أرغب في مناقشة مشروع.")}" target="_blank" rel="noopener" aria-label="${isEnglish ? "WhatsApp Eng. Eslam" : "تواصل عبر واتساب"}">${icon("whatsapp")}<span>WhatsApp</span></a>
 </div>
-<nav class="mobile-bottom-nav" aria-label="${isEnglish ? "Mobile quick navigation" : "التنقل السريع للجوال"}"><a href="${isEnglish ? "/en/" : "/"}">${icon("home")}<span>${isEnglish ? "Home" : "الرئيسية"}</span></a><a href="/services/">${icon("briefcase")}<span>${isEnglish ? "Services" : "الخدمات"}</span></a><a href="/projects/">${icon("layers")}<span>${isEnglish ? "Work" : "الأعمال"}</span></a><a href="/contact/">${icon("mail")}<span>${isEnglish ? "Contact" : "تواصل"}</span></a></nav>
+<nav class="mobile-bottom-nav" aria-label="${isEnglish ? "Mobile quick navigation" : "التنقل السريع للجوال"}"><a href="${isEnglish ? "/en/" : "/"}">${icon("home")}<span>${isEnglish ? "Home" : "الرئيسية"}</span></a><a href="${isEnglish ? "/en/#services" : "/services/"}">${icon("briefcase")}<span>${isEnglish ? "Services" : "الخدمات"}</span></a><a href="/projects/">${icon("layers")}<span>${isEnglish ? "Work" : "الأعمال"}</span></a><a href="/contact/">${icon("mail")}<span>${isEnglish ? "Contact" : "تواصل"}</span></a></nav>
 <button class="back-to-top" type="button" aria-label="${isEnglish ? "Back to top" : "العودة إلى أعلى الصفحة"}" data-back-to-top>${icon("chevron")}</button>
 <script src="/assets/js/main.js?v=${version}" defer></script>`;
 }
 
-function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image }) {
-  return `${head({ title, description, path, lang, schema, type, published, modified, image })}
+function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image, keywords = [], articleSection = "" }) {
+  return `${head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection })}
 <body>${header(active, lang)}<main id="main">${body}</main>${footer(lang)}</body></html>`;
 }
 
@@ -282,8 +298,20 @@ function projectCard(project) {
   return `<article class="project-card reveal"><div class="project-visual"><span>${esc(project.category)}</span><strong>${esc(project.title.split(" ").slice(0, 2).join(" "))}</strong><div aria-hidden="true"></div></div><div class="project-content"><h3>${esc(project.title)}</h3><p>${esc(project.description)}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div><a class="text-link" href="${project.url}" target="_blank" rel="noopener">معاينة المشروع ${icon("external")}</a></div></article>`;
 }
 
-function postCard(post) {
-  return `<article class="post-card reveal"><a class="post-art post-art-${post.relatedService}" href="/blog/${post.slug}/" aria-label="اقرأ: ${esc(post.title)}"><span>${esc(post.category)}</span>${icon(serviceBySlug(post.relatedService)?.icon || "book", "post-icon")}</a><div class="post-meta"><time datetime="${post.date}">${new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium" }).format(new Date(`${post.date}T12:00:00Z`))}</time><span>${esc(post.readTime)}</span></div><h3><a href="/blog/${post.slug}/">${esc(post.title)}</a></h3><p>${esc(post.excerpt)}</p><a class="text-link" href="/blog/${post.slug}/">اقرأ المقال ${icon("arrow")}</a></article>`;
+function postCard(post, { featured = false } = {}) {
+  const keywords = (post.keywords || []).slice(0, featured ? 4 : 3);
+  const relatedService = serviceBySlug(post.relatedService);
+  const formattedDate = new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium" }).format(new Date(`${post.date}T12:00:00Z`));
+  return `<article class="post-card${featured ? " post-card-featured" : ""} reveal">
+    <a class="post-art post-art-${post.relatedService}" href="/blog/${post.slug}/" aria-label="اقرأ: ${esc(post.title)}"><span>${esc(post.category)}</span><strong class="post-art-title">${esc(relatedService?.title || post.category)}</strong><span class="post-art-mark">${icon(relatedService?.icon || "book", "post-icon")}</span></a>
+    <div class="post-card-content">
+      <div class="post-meta"><time datetime="${post.date}">${formattedDate}</time><span>${esc(post.readTime)}</span></div>
+      <h3><a href="/blog/${post.slug}/">${esc(post.title)}</a></h3>
+      <p>${esc(post.excerpt)}</p>
+      ${keywords.length ? `<div class="keyword-row" aria-label="أهم موضوعات المقال">${keywords.map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div>` : ""}
+      <a class="text-link post-card-link" href="/blog/${post.slug}/">اقرأ الدليل كاملًا ${icon("arrow")}</a>
+    </div>
+  </article>`;
 }
 
 function homePage() {
@@ -327,7 +355,7 @@ function homePage() {
 <section class="section-pad projects-section"><div class="container"><div class="section-heading reveal">${eyebrow("مختارات من الأعمال")}<h2>مشروعات تربط التصميم بالنتيجة التجارية</h2><p>نماذج من مواقع وصفحات ومنظومات محتوى محلية تم تطويرها مع التركيز على تجربة الجوال والسيو والتحويل.</p></div><div class="projects-grid">${projects.slice(0, 3).map(projectCard).join("")}</div><div class="section-action">${button("/projects/", "عرض جميع الأعمال", "button-ghost")}</div></div></section>
 <section class="section-pad google-proof-section"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>خبرة منتجات Google</span><h2>تشخيص منظم بدل التجارب العشوائية</h2><p>مراجعة أهلية ملفات Google التجارية، مشكلات التحقق والتعليق، اتساق البيانات، والسيو المحلي وفق المسارات الرسمية، مع توضيح ما يمكن تنفيذه وما يبقى قرارًا لدى Google.</p><div class="proof-numbers"><span><strong>472+</strong> مساهمة في توثيق وإدارة الملفات</span><span><strong>233+</strong> حالة تمت معالجتها</span></div></div><div class="proof-actions">${button("/google-expert/", "استكشف خبرة Google")}${button(site.social.googleDeveloper, "عرض الملف الرسمي", "button-ghost", true)}</div></div></section>
 <section class="section-pad process-section"><div class="container"><div class="section-heading reveal">${eyebrow("مسار العمل")}<h2>وضوح من أول سؤال حتى ما بعد الإطلاق</h2></div><ol class="process-list"><li class="reveal"><span>01</span><h3>تشخيص الهدف</h3><p>فهم المستخدم والنتيجة والقيود والمخاطر والبيانات المتاحة قبل اختيار الأدوات.</p></li><li class="reveal"><span>02</span><h3>تصميم الحل</h3><p>تحديد البنية والمحتوى والنطاق والمخرجات ومعايير القبول وخطة التنفيذ.</p></li><li class="reveal"><span>03</span><h3>تنفيذ ومراجعة</h3><p>بناء على مراحل قصيرة قابلة للاختبار، مع توثيق القرارات والملاحظات.</p></li><li class="reveal"><span>04</span><h3>إطلاق وتحسين</h3><p>فحص الأداء والأجهزة والفهرسة والروابط، ثم متابعة المؤشرات وفرص التطوير.</p></li></ol></div></section>
-<section class="section-pad blog-section"><div class="container"><div class="section-heading reveal">${eyebrow("معرفة عملية")}<h2>مقالات تساعدك على اتخاذ قرارات تقنية أكثر وضوحًا</h2></div><div class="posts-grid">${posts.map(postCard).join("")}</div><div class="section-action">${button("/blog/", "استكشف المدونة", "button-ghost")}</div></div></section>
+<section class="section-pad blog-section"><div class="container"><div class="section-heading reveal">${eyebrow("معرفة عملية")}<h2>مقالات تساعدك على اتخاذ قرارات تقنية أكثر وضوحًا</h2></div><div class="posts-grid">${allPosts.slice(0, 3).map((post) => postCard(post)).join("")}</div><div class="section-action">${button("/blog/", "استكشف المدونة", "button-ghost")}</div></div></section>
 <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>إجابات صريحة قبل بدء المشروع</h2><p>لا توجد باقة واحدة تناسب الجميع؛ لذلك أوضح الحدود والمخرجات والاعتماديات من البداية.</p>${button("/contact/", "أرسل تفاصيل مشروعك", "button-ghost")}</div>${faqBlock(faq)}</div></section>
 ${finalCta()}`;
   return page({ title: site.brandName, description: site.description, path: "/", active: "home", body, schema: [faqSchema(faq)] });
@@ -337,9 +365,9 @@ function finalCta(title = "لنحوّل فكرتك أو مشكلتك إلى خط
   return `<section class="section-pad final-cta"><div class="container"><div class="cta-panel reveal"><div>${eyebrow("ابدأ من تشخيص صحيح")}<h2>${esc(title)}</h2><p>${esc(text)}</p></div><div class="cta-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، أرغب في مناقشة مشروع تقني.")}`, "ابدأ عبر واتساب", "button-light", true)}<a class="cta-phone" href="tel:${site.phone}" dir="ltr">${site.phoneDisplay}</a></div></div></div></section>`;
 }
 
-function innerHero({ eyebrowText, title, lead, path, crumbs = [], aside }) {
+function innerHero({ eyebrowText, title, lead, path, crumbs = [], aside, className = "" }) {
   const breadcrumb = [{ name: "الرئيسية", path: "/" }, ...crumbs];
-  return `<section class="inner-hero"><div class="container"><nav class="breadcrumbs" aria-label="مسار الصفحة">${breadcrumb.map((item, index) => `${index ? icon("chevron") : ""}<a href="${item.path}"${index === breadcrumb.length - 1 ? ' aria-current="page"' : ""}>${esc(item.name)}</a>`).join("")}</nav><div class="inner-hero-grid"><div class="inner-hero-copy reveal">${eyebrow(eyebrowText)}<h1>${title}</h1><p>${esc(lead)}</p></div>${aside ? `<div class="inner-hero-aside reveal">${aside}</div>` : ""}</div></div></section>`;
+  return `<section class="inner-hero${className ? ` ${esc(className)}` : ""}"><div class="container"><nav class="breadcrumbs" aria-label="مسار الصفحة">${breadcrumb.map((item, index) => `${index ? icon("chevron") : ""}<a href="${item.path}"${index === breadcrumb.length - 1 ? ' aria-current="page"' : ""}>${esc(item.name)}</a>`).join("")}</nav><div class="inner-hero-grid"><div class="inner-hero-copy reveal">${eyebrow(eyebrowText)}<h1>${title}</h1><p>${esc(lead)}</p></div>${aside ? `<div class="inner-hero-aside reveal">${aside}</div>` : ""}</div></div></section>`;
 }
 
 function servicesIndexPage() {
@@ -439,36 +467,60 @@ function blogIndexPage() {
     ["ai-agents", "وكلاء الذكاء الاصطناعي", "spark"],
     ["web-development", "تطوير الويب", "code"]
   ];
-  const body = `${innerHero({ eyebrowText: "المدونة والمعرفة", title: "أدلة عملية للأمن والتطوير والذكاء الاصطناعي وGoogle والسيو", lead: "مقالات تشرح القرارات والمخاطر والخطوات بلغة مباشرة، وتربط بين الجانب التقني والنتيجة التجارية بدل الاكتفاء بنصائح عامة أو وعود سريعة.", path: "/blog/", crumbs: [{ name: "المدونة", path: "/blog/" }], aside: `<span class="aside-kicker">Practical Insights</span><strong>محتوى طويل مبني على مشكلات واقعية</strong><p>أطر عمل وقوائم مراجعة تساعد أصحاب الأعمال والفرق التقنية على اتخاذ قرار أفضل.</p>` })}
-<section class="section-pad"><div class="container"><div class="posts-grid">${posts.map(postCard).join("")}</div></div></section>
+  const [featuredPost, ...remainingPosts] = allPosts;
+  const itemListSchema = {
+    "@type": "ItemList",
+    name: "أدلة ومقالات المهندس إسلام الشيخ",
+    itemListElement: allPosts.map((post, index) => ({ "@type": "ListItem", position: index + 1, url: absolute(`/blog/${post.slug}/`), name: post.title }))
+  };
+  const body = `${innerHero({ eyebrowText: "المدونة والمعرفة", title: "أدلة عربية عميقة لبناء حضور رقمي آمن ومرئي وقابل للنمو", lead: "مقالات طويلة ومنظمة تربط الأمن والتطوير والذكاء الاصطناعي وخدمات Google والسيو بالقرارات التي تهم الشركات في السعودية؛ من التشخيص إلى التنفيذ والقياس.", path: "/blog/", crumbs: [{ name: "المدونة", path: "/blog/" }], aside: `<span class="aside-kicker">Practical Insights</span><strong>معرفة عملية وليست نصائح معزولة</strong><p>كل دليل يشرح السياق والمخاطر وخطة التنفيذ ومؤشرات النجاح، ثم يجيب عن الأسئلة التي تسبق قرار الشراء أو التطوير.</p>`, className: "blog-hero" })}
+<section class="section-pad blog-latest-section"><div class="container"><div class="section-heading reveal">${eyebrow("الدليل الأحدث")}<h2>ابدأ من موضوع يجمع القرار التجاري بالتنفيذ التقني</h2><p>محتوى عربي فصيح، واضح في وعوده، ومصمم ليساعدك على الانتقال من الفكرة العامة إلى قائمة أولويات قابلة للتطبيق.</p></div><div class="blog-featured-shell">${postCard(featuredPost, { featured: true })}</div></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("مكتبة الأدلة")}<h2>موضوعات متخصصة لخدمات الشركات في السعودية</h2><p>استكشف الأدلة حسب المشكلة التي تريد حلها، ثم انتقل إلى الخدمة أو الخطوة العملية المناسبة من داخل المقال.</p></div><div class="posts-grid blog-library-grid">${remainingPosts.map((post) => postCard(post)).join("")}</div></div></section>
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("مسارات المعرفة")}<h2>استكشف المحتوى حسب الموضوع</h2></div><div class="topics-grid">${topics.map(([slug, title, iconName]) => `<a class="topic-card reveal" href="/blog/topics/${slug}/">${icon(iconName)}<strong>${esc(title)}</strong><span>مقالات وخدمات مرتبطة ${icon("arrow")}</span></a>`).join("")}</div></div></section>
 ${finalCta("لديك سؤال يحتاج تشخيصًا يخص حالتك؟", "المقالات توضح الإطار العام، بينما يعتمد القرار الصحيح على بيانات مشروعك ووضعه الحالي والهدف المطلوب.")}`;
-  return page({ title: "مدونة المهندس إسلام الشيخ", description: "مقالات المهندس إسلام الشيخ حول الأمن السيبراني وتطوير المواقع ووكلاء الذكاء الاصطناعي وملفات Google والسيو المحلي والتقني.", path: "/blog/", active: "blog", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "المدونة", path: "/blog/" }])] });
+  return page({ title: "مدونة المهندس إسلام الشيخ", description: "أدلة عربية عميقة للشركات في السعودية حول الأمن السيبراني وتصميم المواقع ووكلاء الذكاء الاصطناعي وملفات Google والسيو المحلي والتقني.", path: "/blog/", active: "blog", body, keywords: ["مدونة تقنية عربية", "خبير سيو في السعودية", "تصميم مواقع الرياض", "الأمن السيبراني للشركات", "وكلاء الذكاء الاصطناعي"], schema: [itemListSchema, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "المدونة", path: "/blog/" }])] });
 }
 
 function articlePage(post) {
   const path = `/blog/${post.slug}/`;
   const service = serviceBySlug(post.relatedService);
-  const reading = post.sections.map(([heading]) => heading);
-  const articleSchema = {
-    "@type": "Article",
-    headline: post.title,
-    description: post.description,
-    datePublished: post.date,
-    dateModified: post.modified,
-    inLanguage: "ar-SA",
-    mainEntityOfPage: absolute(path),
-    author: { "@id": `${site.url}/#person` },
-    publisher: { "@id": `${site.url}/#person` },
-    image: absolute(site.shareImage),
-    articleSection: post.category,
-    about: service?.title
-  };
-  const body = `${innerHero({ eyebrowText: post.category, title: esc(post.title), lead: post.excerpt, path, crumbs: [{ name: "المدونة", path: "/blog/" }, { name: post.title, path }], aside: `<div class="article-meta-card"><span>${new Intl.DateTimeFormat("ar-SA", { dateStyle: "long" }).format(new Date(`${post.date}T12:00:00Z`))}</span><strong>${esc(post.readTime)}</strong><p>آخر تحديث: ${new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium" }).format(new Date(`${post.modified}T12:00:00Z`))}</p></div>` })}
-<section class="section-pad article-section"><div class="container article-layout"><article class="article-content reveal"><p class="article-intro">${esc(post.description)}</p>${post.sections.map(([heading, text], index) => `<section id="section-${index + 1}"><span class="article-number">${String(index + 1).padStart(2, "0")}</span><h2>${esc(heading)}</h2><p>${esc(text)}</p></section>`).join("")}<div class="article-conclusion"><h2>الخلاصة العملية</h2><p>ابدأ بنطاق صغير يمكن قياسه، ووثق القرارات والمصادر، ولا تفصل الأمان وتجربة المستخدم والقياس عن التنفيذ. جودة النتيجة تأتي من وضوح النظام واستمرار المراجعة، لا من اختيار أداة مشهورة فقط.</p></div></article><aside class="article-sidebar"><div class="toc-card reveal"><span>في هذا الدليل</span><nav aria-label="محتويات المقال">${reading.map((heading, index) => `<a href="#section-${index + 1}"><span>${String(index + 1).padStart(2, "0")}</span>${esc(heading)}</a>`).join("")}</nav></div><div class="related-service-card reveal"><span>الخدمة المرتبطة</span><div>${icon(service?.icon || "briefcase")}<h2>${esc(service?.title || "الخدمات التقنية")}</h2></div><p>${esc(service?.short || site.positioning)}</p>${button(service ? `/services/${service.slug}/` : "/services/", "تفاصيل الخدمة", "button-ghost")}</div></aside></div></section>
-<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("مقالات أخرى")}<h2>استمر في استكشاف الموضوعات المرتبطة</h2></div><div class="posts-grid">${posts.filter((item) => item.slug !== post.slug).map(postCard).join("")}</div></div></section>
+  const faq = completeFaqs(post);
+  const publishedDate = new Intl.DateTimeFormat("ar-SA", { dateStyle: "long" }).format(new Date(`${post.date}T12:00:00Z`));
+  const modifiedDate = new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium" }).format(new Date(`${post.modified}T12:00:00Z`));
+  const keywords = (post.keywords || []).slice(0, 6);
+  const roadmap = service?.steps || [
+    { title: "تشخيص الوضع", text: "تحديد المشكلة والهدف والبيانات والقيود قبل اختيار الحل." },
+    { title: "تصميم النطاق", text: "تثبيت المخرجات والمسؤوليات ومعايير القبول ومؤشرات النجاح." },
+    { title: "تنفيذ واختبار", text: "تطبيق مرحلي مع مراجعة الحالات الأساسية والحساسة على بيانات واقعية." },
+    { title: "إطلاق وتحسين", text: "مراقبة النتيجة وتوثيق التغييرات وتحسينها بناءً على الأدلة." }
+  ];
+  const deliverables = service?.deliverables || ["تشخيص موثق للوضع الحالي", "خطة أولويات قابلة للتنفيذ", "معايير قبول وقياس واضحة", "توصيات للمتابعة والتحسين"];
+  const contents = [
+    ...post.sections.map(([heading], index) => ({ id: `section-${index + 1}`, title: heading })),
+    { id: "implementation-roadmap", title: "منهج التنفيذ الاحترافي" },
+    { id: "expected-deliverables", title: "المخرجات ومعايير الجودة" },
+    { id: "article-summary", title: "الخلاصة التنفيذية" }
+  ];
+  const relatedPosts = allPosts
+    .filter((item) => item.slug !== post.slug)
+    .map((item) => ({ item, score: Number(item.relatedService === post.relatedService) * 3 + Number(item.topic === post.topic) * 2 }))
+    .sort((left, right) => right.score - left.score)
+    .slice(0, 3)
+    .map(({ item }) => item);
+  const body = `${innerHero({ eyebrowText: post.category, title: esc(post.title), lead: post.excerpt, path, crumbs: [{ name: "المدونة", path: "/blog/" }, { name: post.category, path }], aside: `<div class="article-meta-card"><span>دليل مهني محدث</span><strong>${esc(post.readTime)}</strong><p>نُشر في ${publishedDate}</p><p>آخر مراجعة: ${modifiedDate}</p></div>`, className: "article-hero" })}
+<div class="container article-hero-keywords" aria-label="الكلمات والموضوعات الرئيسية">${keywords.map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div>
+<section class="section-pad article-section"><div class="container article-layout"><article class="article-content reveal"><p class="article-intro">${esc(post.description)} صيغ هذا الدليل ليمنحك فهمًا متدرجًا يبدأ من أصل المشكلة، ويمر بقرارات التنفيذ والمخاطر، وينتهي بخطة يمكن مناقشتها وقياسها داخل مشروع حقيقي.</p>
+${post.sections.map(([heading, ...paragraphs], index) => `<section id="section-${index + 1}"><span class="article-number">${String(index + 1).padStart(2, "0")}</span><h2>${esc(heading)}</h2>${paragraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}</section>`).join("")}
+<section id="implementation-roadmap" class="article-roadmap-section"><span class="article-number">${String(post.sections.length + 1).padStart(2, "0")}</span><h2>منهج التنفيذ الاحترافي: من التشخيص إلى نتيجة قابلة للقياس</h2><p>القيمة لا تأتي من تنفيذ توصيات منفصلة، بل من ترتيبها وفق أثرها واعتمادياتها ومخاطرها. المسار التالي يحول المعرفة إلى مشروع واضح، ويمنع التوسع قبل ثبوت صلاحية الأساس.</p><ol class="article-roadmap">${roadmap.map((step, index) => `<li><span>${String(index + 1).padStart(2, "0")}</span><div><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p></div></li>`).join("")}</ol></section>
+<section id="expected-deliverables" class="article-deliverables-section"><span class="article-number">${String(post.sections.length + 2).padStart(2, "0")}</span><h2>المخرجات ومعايير الجودة التي ينبغي أن تطلبها</h2><p>قبل بدء أي تعاقد، اطلب مخرجات قابلة للمراجعة بدل عبارات عامة. في مسار ${esc(service?.title || post.category)} تتضح الجودة عندما تعرف ما الذي سيُسلَّم، ومن يراجعه، وكيف يُقبل، وما الذي يحتاج قرارًا من فريقك.</p><ul class="article-deliverables">${deliverables.map((item) => `<li>${icon("check")}<span>${esc(item)}</span></li>`).join("")}</ul>${service?.value ? `<div class="article-value-note"><span>القيمة المستهدفة</span><p>${esc(service.value)}</p></div>` : ""}</section>
+<section id="article-summary" class="article-conclusion"><span class="article-number">${String(post.sections.length + 3).padStart(2, "0")}</span><h2>الخلاصة التنفيذية: ابدأ من الدليل لا من الانطباع</h2><p>يعتمد نجاح ${esc(keywords[0] || post.category)} على وضوح الهدف، وصحة البيانات، وترتيب المخاطر، وجودة التنفيذ، ثم القياس بعد الإطلاق. ابدأ بأصغر نطاق ينتج معلومة موثوقة، وسجّل خط الأساس والتغييرات، ولا توسّع الحل قبل أن تعرف لماذا نجحت المرحلة الأولى.</p><p>إذا كان مشروعك يجمع أكثر من مسار، فتعامل معه كنظام واحد: المحتوى والتجربة والأمان والفهرسة والقياس يجب أن تتبادل الإشارات بدل أن يعمل كل جزء في عزلة. عندها تصبح القرارات أسرع، وإعادة العمل أقل، والنتائج أسهل في التفسير والتحسين.</p></section></article>
+<aside class="article-sidebar"><section class="article-author-card reveal" aria-labelledby="article-author-name"><div class="article-author-head"><img class="article-author-photo" src="${profilePhoto}" width="128" height="128" alt="المهندس إسلام الشيخ" loading="lazy" decoding="async"><div><span>كتبه وراجعه</span><h2 id="article-author-name">${esc(site.nameAr)}</h2><p>مهندس أمن سيبراني · مطور برمجيات · خبير منتجات Google</p></div></div><dl><div><dt>تاريخ النشر</dt><dd><time datetime="${post.date}">${publishedDate}</time></dd></div><div><dt>آخر تحديث</dt><dd><time datetime="${post.modified}">${modifiedDate}</time></dd></div></dl><div class="article-author-keywords" aria-label="أهم كلمات المقال">${keywords.slice(0, 4).map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div><a class="text-link" href="/about/">تعرف على الكاتب ${icon("arrow")}</a></section>
+<div class="toc-card reveal"><span>محتويات الدليل</span><nav aria-label="محتويات المقال">${contents.map((item, index) => `<a href="#${item.id}"><span>${String(index + 1).padStart(2, "0")}</span>${esc(item.title)}</a>`).join("")}</nav></div>
+<div class="related-service-card reveal"><span>الخدمة المرتبطة</span><div>${icon(service?.icon || "briefcase")}<h2>${esc(service?.title || "الخدمات التقنية")}</h2></div><p>${esc(service?.short || site.positioning)}</p>${button(service ? `/services/${service.slug}/` : "/services/", "استكشف نطاق الخدمة", "button-ghost")}</div></aside></div></section>
+<section class="section-pad muted-section article-faq-section" id="article-faq"><div class="container article-faq-grid"><div class="article-faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>إجابات شاملة قبل اتخاذ القرار</h2><p>عشرة أسئلة تغطي الملاءمة والتكلفة والمدة والبيانات والمخاطر والقياس والمتابعة. افتح كل سؤال للحصول على إجابة عملية مرتبطة بسياق الدليل.</p><div class="faq-count" aria-label="عدد الأسئلة"><strong>10</strong><span>أسئلة وإجابات متخصصة</span></div></div>${faqBlock(faq)}</div></section>
+<section class="section-pad related-articles-section"><div class="container"><div class="section-heading reveal">${eyebrow("أدلة مرتبطة")}<h2>واصل بناء الصورة الكاملة</h2><p>موضوعات منتقاة تكمل هذا الدليل من زاوية الخدمة أو الأمان أو الظهور والقياس.</p></div><div class="posts-grid">${relatedPosts.map((item) => postCard(item)).join("")}</div></div></section>
 ${finalCta("هل تريد تطبيق هذا الإطار على مشروعك؟", "أرسل الحالة الحالية والهدف والبيانات المتاحة، وسنحدد خطوة أولى صغيرة وواضحة وقابلة للقياس.")}`;
-  return page({ title: post.seoTitle, description: post.description, path, active: "blog", body, type: "article", published: post.date, modified: post.modified, schema: [articleSchema, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "المدونة", path: "/blog/" }, { name: post.title, path }])] });
+  return page({ title: post.seoTitle, description: post.description, path, active: "blog", body, type: "article", published: post.date, modified: post.modified, keywords, articleSection: post.category, schema: [faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "المدونة", path: "/blog/" }, { name: post.title, path }])] });
 }
 
 const topicDefinitions = {
@@ -481,10 +533,10 @@ const topicDefinitions = {
 
 function topicPage(slug) {
   const topic = topicDefinitions[slug];
-  const matchingPosts = posts.filter((post) => post.topic === slug || (slug === "local-seo-saudi" && post.topic === "google-business-profile"));
+  const matchingPosts = allPosts.filter((post) => post.topic === slug || (slug === "local-seo-saudi" && post.topic === "google-business-profile"));
   const relatedServices = topic.services.map(serviceBySlug).filter(Boolean);
   const path = `/blog/topics/${slug}/`;
-  const body = `${innerHero({ eyebrowText: "مسار معرفي", title: esc(topic.title), lead: topic.description, path, crumbs: [{ name: "المدونة", path: "/blog/" }, { name: topic.title, path }], aside: `<span class="service-hero-icon">${icon(topic.icon)}</span><strong>${matchingPosts.length} ${matchingPosts.length === 1 ? "مقال رئيسي" : "مقالات وأدلة"}</strong><p>روابط مباشرة للخدمات التي تساعد على تحويل المعرفة إلى تنفيذ.</p>` })}
+  const body = `${innerHero({ eyebrowText: "مسار معرفي", title: esc(topic.title), lead: topic.description, path, crumbs: [{ name: "المدونة", path: "/blog/" }, { name: topic.title, path }], aside: `<span class="service-hero-icon">${icon(topic.icon)}</span><strong>أدلة متخصصة مرتبطة بالتنفيذ</strong><p>روابط مباشرة للمقالات والخدمات التي تساعد على تحويل المعرفة إلى خطة عمل.</p>` })}
 <section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("المقالات")}<h2>أدلة مرتبطة بموضوع ${esc(topic.title)}</h2></div>${matchingPosts.length ? `<div class="posts-grid">${matchingPosts.map(postCard).join("")}</div>` : `<div class="empty-state"><h2>يتم تطوير هذا المسار</h2><p>يمكنك البدء بالخدمات المرتبطة أو قراءة بقية المقالات.</p></div>`}</div></section>
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("الخدمات المرتبطة")}<h2>حوّل المعرفة إلى خطة تنفيذ</h2></div><div class="services-grid related-services">${relatedServices.map(serviceCard).join("")}</div></div></section>
 ${slug === "local-seo-saudi" ? `<section class="section-pad"><div class="container case-method reveal"><div><span>دليل محلي</span><h2>السيو المحلي في الرياض والسعودية</h2></div><p>استكشف منهجًا يربط الموقع بملف Google والصفحات المحلية والمحتوى والاتساق والقياس دون حشو أو صفحات متكررة.</p>${button("/local-seo/", "دليل السيو المحلي")}</div></section>` : ""}
@@ -514,11 +566,11 @@ function termsPage() {
 
 function englishPage() {
   const body = `<section class="hero section-pad hero-en"><div class="container hero-grid"><div class="hero-copy reveal"><span class="eyebrow"><span></span>Cybersecurity Engineer · Software Developer · Google Product Expert</span><h1>I build digital systems that are <span>secure, useful, and ready to grow.</span></h1><p class="hero-lead">I am Eslam Elshikh, based in Riyadh. I combine cybersecurity, web and software engineering, practical AI agents, Google product expertise, cloud architecture, and search visibility into clear project scopes with reviewable outcomes.</p><p class="hero-support">From diagnosis and information architecture to implementation, testing, launch, and measurement, the goal is to reduce complexity and help your team make better technical decisions.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start a conversation", "", true)}${button("/services/", "Explore services", "button-ghost")}</div><div class="hero-trust"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>Google Developer Profile</a><a href="${site.social.github}" target="_blank" rel="noopener"><span class="trust-dot"></span>GitHub</a><span><span class="trust-dot trust-live"></span>Saudi Arabia & remote</span></div></div><div class="hero-visual reveal"><div class="visual-glow"></div><div class="visual-shell"><div class="visual-top"><span>Digital Engineering</span><span class="visual-status"><i></i> Operational</span></div><div class="visual-core">${logo("hero-logo", "Eslam Elshikh logo")}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div><div class="visual-capabilities"><span>${icon("shield")}Cybersecurity</span><span>${icon("code")}Web & Apps</span><span>${icon("spark")}AI Agents</span><span>${icon("google")}Google</span><span>${icon("chart")}SEO</span><span>${icon("cloud")}Cloud</span></div><div class="visual-metric"><span>Approach</span><strong>360°</strong><p>Security, user experience, discoverability, and measurement in one system.</p></div></div></div></div><div class="container stats-bar reveal">${site.stats.map((stat, index) => `<div><strong>${esc(stat.value)}</strong><span>${["Google Business Profile contributions", "Business profile cases handled", "Connected service tracks", "Security, product, and growth view"][index]}</span></div>`).join("")}</div></section>
-<section class="section-pad"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Core capabilities</span><h2>Specialist work that can operate independently or as one delivery plan</h2><p>Each engagement starts with the business outcome, current state, constraints, risks, and a measurable definition of done.</p></div><div class="services-grid">${services.slice(0, 6).map((service) => `<article class="service-card reveal"><div class="service-card-top"><span class="service-number">${service.number}</span><span class="service-icon">${icon(service.icon)}</span></div><p class="service-group">${esc(service.group)}</p><h3>${esc(service.title)}</h3><p>${esc(service.short)}</p><a class="text-link" href="/services/${service.slug}/">Arabic service details ${icon("arrow")}</a></article>`).join("")}</div></div></section>
+<section class="section-pad" id="services"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Core capabilities</span><h2>Specialist work that can operate independently or as one delivery plan</h2><p>Each engagement starts with the business outcome, current state, constraints, risks, and a measurable definition of done.</p></div><div class="services-grid">${services.map((service) => { const translation = serviceTranslations[service.slug]; return `<article class="service-card reveal"><div class="service-card-top"><span class="service-number">${service.number}</span><span class="service-icon">${icon(service.icon)}</span></div><p class="service-group">${esc(translation.group)}</p><h3><a href="/services/${service.slug}/">${esc(translation.title)}</a></h3><p>${esc(translation.short)}</p><a class="text-link" href="/services/${service.slug}/">View service details ${icon("arrow")}</a></article>`; }).join("")}</div></div></section>
 <section class="section-pad muted-section"><div class="container promise-grid"><div class="promise-copy reveal"><span class="eyebrow"><span></span>How I work</span><h2>A strong digital project is more than a polished interface</h2><p>It should be understandable, secure in operation, responsive on real devices, discoverable by search engines, measurable, and maintainable after launch.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome first</h3><p>We define the user decision and business result before selecting tools.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Secure by design</h3><p>Data, permissions, and failure modes are considered from the start.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for devices</h3><p>Mobile-first testing across iOS, Android, Huawei, tablets, and desktops.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Ready to improve</h3><p>Performance, SEO, analytics, and conversion are part of operations.</p></article></div></div></section>
 <section class="section-pad"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>Google product expertise</span><h2>Structured diagnosis instead of random profile changes</h2><p>I help eligible businesses understand verification, suspension, ownership, category, consistency, and local visibility issues using official paths and realistic expectations.</p></div><div class="proof-actions">${button("/google-expert/", "Google expertise")}${button(site.social.googleDeveloper, "Official profile", "button-ghost", true)}</div></div></section>
 <section class="section-pad final-cta"><div class="container"><div class="cta-panel reveal"><div><span class="eyebrow"><span></span>Start with context</span><h2>Turn a complex technical problem into a clear delivery plan.</h2><p>Share your goal, current state, relevant links, constraints, and expected timing. Do not include passwords, verification codes, or API keys.</p></div><div class="cta-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start on WhatsApp", "button-light", true)}<a class="cta-phone" href="mailto:${site.email}">${site.email}</a></div></div></div></section>`;
-  return page({ title: `Eng. ${site.nameEn}`, description: "Eng. Eslam Elshikh is a cybersecurity engineer, software developer, Google Product Expert, AI agent builder, web developer, and SEO consultant based in Riyadh, Saudi Arabia.", path: "/en/", active: "home", body, lang: "en" });
+  return page({ title: `Eng. ${site.nameEn}`, description: "Eng. Eslam Elshikh is a cybersecurity engineer, software developer, Google Product Expert, AI agent builder, web developer, and SEO consultant based in Riyadh, Saudi Arabia.", path: "/en/", active: "home", body, lang: "en", modified: "2026-08-12" });
 }
 
 function notFoundPage() {
@@ -540,13 +592,15 @@ function sitemapXml() {
   const urls = generatedRoutes.map((path) => {
     const priority = path === "/" ? "1.0" : path === "/services/" ? "0.9" : path.startsWith("/services/") ? "0.85" : path.startsWith("/blog/") ? "0.75" : "0.8";
     const changefreq = path.startsWith("/blog/") ? "monthly" : "monthly";
-    return `  <url><loc>${absolute(path)}</loc><lastmod>${site.lastUpdated}</lastmod><changefreq>${changefreq}</changefreq><priority>${priority}</priority></url>`;
+    const articleSlug = path.match(/^\/blog\/([^/]+)\/$/)?.[1];
+    const lastmod = articleSlug ? postBySlug(articleSlug)?.modified || site.lastUpdated : site.lastUpdated;
+    return `  <url><loc>${absolute(path)}</loc><lastmod>${lastmod}</lastmod><changefreq>${changefreq}</changefreq><priority>${priority}</priority></url>`;
   }).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
 }
 
 function feedXml() {
-  const items = posts.map((post) => `<item><title>${esc(post.title)}</title><link>${absolute(`/blog/${post.slug}/`)}</link><guid>${absolute(`/blog/${post.slug}/`)}</guid><pubDate>${new Date(`${post.date}T12:00:00Z`).toUTCString()}</pubDate><description>${esc(post.description)}</description></item>`).join("");
+  const items = allPosts.map((post) => `<item><title>${esc(post.title)}</title><link>${absolute(`/blog/${post.slug}/`)}</link><guid>${absolute(`/blog/${post.slug}/`)}</guid><pubDate>${new Date(`${post.date}T12:00:00Z`).toUTCString()}</pubDate><description>${esc(post.description)}</description></item>`).join("");
   return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>مدونة ${esc(site.brandName)}</title><link>${site.url}/blog/</link><description>${esc(site.description)}</description><language>ar-SA</language><lastBuildDate>${new Date(`${site.lastUpdated}T12:00:00Z`).toUTCString()}</lastBuildDate>${items}</channel></rss>`;
 }
 
@@ -567,7 +621,7 @@ async function build() {
   await writeRoute("/google-expert/", googleExpertPage());
   await writeRoute("/projects/", projectsPage());
   await writeRoute("/blog/", blogIndexPage());
-  for (const post of posts) await writeRoute(`/blog/${post.slug}/`, articlePage(post));
+  for (const post of allPosts) await writeRoute(`/blog/${post.slug}/`, articlePage(post));
   for (const slug of Object.keys(topicDefinitions)) await writeRoute(`/blog/topics/${slug}/`, topicPage(slug));
   await writeRoute("/contact/", contactPage());
   await writeRoute("/privacy/", privacyPage());
