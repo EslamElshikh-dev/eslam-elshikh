@@ -47,6 +47,7 @@ const socialIcons = {
 const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
 for (const path of htmlFiles) {
   let html = await readFile(path, "utf8");
+  const isEnglish = /<html\s+lang="en"\s+dir="ltr"/i.test(html);
   html = html.replace(/\/assets\/css\/enhancements\.css\?v=[^"]+/g, "/assets/css/enhancements.css?v=1.0.2");
 
   for (const logoPath of logoPaths) html = html.replaceAll(logoPath, approvedLogo);
@@ -72,8 +73,8 @@ for (const path of htmlFiles) {
     html = html.replace(pattern, `$1${svg}$2`);
   }
 
-  html = html.replace(/(<a class="floating-action floating-call"[^>]*>[\s\S]*?<span>)[^<]*(<\/span>)/g, "$1اتصل الآن$2");
-  html = html.replace(/(<a class="floating-action floating-whatsapp"[^>]*>[\s\S]*?<span>)[^<]*(<\/span>)/g, "$1راسلني واتساب$2");
+  html = html.replace(/(<a class="floating-action floating-call"[^>]*>[\s\S]*?<span>)[^<]*(<\/span>)/g, `$1${isEnglish ? "Call now" : "اتصل الآن"}$2`);
+  html = html.replace(/(<a class="floating-action floating-whatsapp"[^>]*>[\s\S]*?<span>)[^<]*(<\/span>)/g, `$1${isEnglish ? "Message on WhatsApp" : "راسلني واتساب"}$2`);
 
   if (!html.includes('rel="preconnect" href="https://i.ibb.co"')) {
     html = html.replace("</head>", `${connectionHints}\n</head>`);

@@ -3,7 +3,7 @@ import { join, relative, sep } from "node:path";
 
 const outDir = process.argv[2] || "dist";
 const canonical = "https://www.eslam-elshikh.com";
-const fallbackLastmod = "2026-07-29";
+const fallbackLastmod = "2026-08-12";
 const blogIndexLastmod = "2026-08-12";
 
 async function walk(dir) {
