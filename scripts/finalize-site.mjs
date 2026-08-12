@@ -3,7 +3,8 @@ import { join, relative } from "node:path";
 
 const outDir = process.argv[2] || "dist";
 const canonical = "https://www.eslam-elshikh.com";
-const modified = "2026-07-30";
+const originalPublishDate = "2026-07-30";
+const indexingFixDate = "2026-08-12";
 const primaryLogo = "/assets/brand/eslam-elshikh-primary.svg";
 const profilePhoto = "https://github.com/EslamElshikh-dev.png?size=640";
 const gaId = "G-MDJ2HGF9E1";
@@ -109,7 +110,7 @@ const articles = [
   {
     slug: "knowledge-base-search-business",
     title: "بناء قاعدة معرفة ذكية للشركات: تنظيم المحتوى والبحث والإجابات",
-    description: "كيفية بناء قاعدة معرفة قابلة للبحث وربطها بمساعد ذكي مع الحوكمة والتحديث والقياس.",
+    description: "دليل بناء قاعدة معرفة قابلة للبحث وربطها بمساعد ذكي للشركات مع الحوكمة والتحديث والقياس وحماية الصلاحيات.",
     service: "/services/knowledge-bases/",
     keywords: ["قاعدة معرفة للشركات", "بحث ذكي في المستندات", "RAG عربي"],
     sections: [
@@ -124,7 +125,7 @@ const articles = [
   {
     slug: "landing-pages-google-ads",
     title: "تصميم صفحات هبوط للحملات الإعلانية: رفع جودة الزيارات والتحويل",
-    description: "دليل إنشاء صفحة هبوط متوافقة مع Google Ads تجمع سرعة الجوال والرسالة والقياس والثقة.",
+    description: "دليل إنشاء صفحة هبوط متوافقة مع Google Ads تجمع سرعة الجوال ووضوح الرسالة وعناصر الثقة وقياس التحويلات.",
     service: "/services/digital-advertising/",
     keywords: ["تصميم صفحة هبوط", "صفحات هبوط إعلانات جوجل", "تحسين التحويل"],
     sections: [
@@ -165,6 +166,23 @@ const articles = [
       ["القياس","راقب استعلامات Search Console، واتصالات الملف، ونقرات الاتجاهات، وتحويلات الصفحات. افصل الزيارات التجارية عن الزيارات المعلوماتية.","لا تقيس النجاح بالترتيب وحده؛ الأهم العملاء المؤهلون وتكلفة الحصول عليهم." ]
     ],
     faqs: [["هل ذكر كل أحياء الرياض يساعد؟","ليس إذا كان مجرد حشو؛ الأفضل محتوى طبيعي ونطاق خدمة واضح."],["هل التقييمات تؤثر؟","تؤثر في الثقة والسمعة، ويجب أن تكون حقيقية ومتنوعة."],["هل نحتاج عنوانًا ظاهرًا؟","لا لنشاط منطقة خدمة لا يستقبل العملاء، ويجب إخفاء المنزل."],["كم يستغرق السيو المحلي؟","يختلف حسب المنافسة وحالة الموقع والملف، ويحتاج متابعة مستمرة."]]
+  },
+  {
+    slug: "ecommerce-development-saudi",
+    title: "تصميم متجر إلكتروني في السعودية: دليل تجربة الشراء والأمان والسيو",
+    description: "دليل عملي لتصميم متجر إلكتروني في السعودية يجمع تجربة الجوال والدفع والشحن والأمان والسيو وقياس التحويلات.",
+    service: "/services/web-development/",
+    keywords: ["تصميم متجر إلكتروني في السعودية", "تطوير متجر إلكتروني", "سيو المتاجر الإلكترونية"],
+    published: indexingFixDate,
+    modified: indexingFixDate,
+    sections: [
+      ["ابدأ بنموذج العمل قبل اختيار المنصة", "اختيار منصة المتجر لا يبدأ بالمقارنة بين أسماء الأدوات، بل بتحديد المنتجات وعددها وطريقة التسعير والمخزون والشحن والدفع والفواتير والصلاحيات. المتجر الذي يبيع منتجات قليلة داخل السعودية يختلف في احتياجاته عن متجر متعدد الموردين أو مشروع يحتاج تكاملًا مع نظام مخزون ومحاسبة.", "يجب أن يوضح نطاق المشروع من يملك النطاق والحسابات والبيانات، وكيف يمكن تصدير الطلبات والعملاء، وما تكلفة التشغيل والصيانة بعد الإطلاق. هذه القرارات تمنع الارتباط بحل مغلق يصعب تطويره أو نقله لاحقًا."],
+      ["تجربة شراء مصممة للجوال", "تبدأ نسبة كبيرة من الزيارات التجارية من الهاتف، لذلك يجب أن تكون القوائم والبحث والتصنيفات وصفحات المنتجات والسلة والدفع سهلة باللمس وسريعة على الشبكات المتوسطة. ينبغي إظهار السعر والتوفر وخيارات الشحن والاسترجاع قبل الخطوات النهائية حتى لا يفاجأ العميل بتكلفة أو شرط غير واضح.", "صفحة المنتج الجيدة تشرح الفائدة والمواصفات والاستخدام والتسليم، وتعرض صورًا محسنة بأبعاد ثابتة، وتقدم إجابات للأسئلة المتوقعة. تقليل الحقول وإتاحة وسائل الدفع المناسبة وإظهار رسائل الخطأ بوضوح يساعد على خفض السلات المتروكة."],
+      ["الدفع والشحن والعمليات", "يجب استخدام بوابة دفع موثوقة وتجنب تخزين بيانات البطاقات داخل المتجر. تُختبر حالات النجاح والفشل والإلغاء والاسترداد، مع التحقق من وصول الإشعارات وتحديث حالة الطلب وعدم تكرار الخصم عند إعادة المحاولة.", "أما الشحن فيحتاج قواعد معلنة للمدن والتكاليف والمدة والتتبع والاسترجاع. كما يجب تصميم مسار تشغيلي واضح من استلام الطلب إلى التجهيز والتسليم وخدمة ما بعد البيع، لأن تجربة العميل لا تنتهي عند الضغط على زر الشراء."],
+      ["الأمان والخصوصية واستمرارية الخدمة", "تتضمن الحماية تفعيل المصادقة متعددة العوامل للحسابات الإدارية، وتقليل الصلاحيات، وحفظ المفاتيح في بيئة آمنة، وتحديث المنصة والتكاملات، ومراقبة محاولات الدخول والطلبات غير الطبيعية. ويجب إجراء نسخ احتياطي واختبار الاستعادة بدل الاكتفاء بوجود نسخة غير مجربة.", "ينبغي نشر سياسات الخصوصية والشحن والاسترجاع ووسائل التواصل بصورة واضحة ومتوافقة مع طبيعة النشاط. وعند استخدام أدوات تحليل أو تسويق، يجب ضبطها بحيث تجمع الحد الأدنى اللازم وتحمي بيانات العميل."],
+      ["السيو والقياس بعد الإطلاق", "يحتاج المتجر إلى روابط مستقرة وتصنيفات منطقية وعناوين وأوصاف أصلية وبيانات Product صحيحة عندما تنطبق. يجب التحكم في صفحات الفلاتر والبحث والمعلمات حتى لا تنشئ آلاف النسخ المكررة، ومعالجة المنتجات غير المتاحة بطريقة تحافظ على تجربة المستخدم وإشارات البحث.", "بعد الإطلاق تُقاس مشاهدة المنتج والإضافة إلى السلة وبدء الدفع والشراء وقيمة الطلب ومصدر الزيارة. يساعد تحليل نقاط التسرب على ترتيب التحسينات حسب أثرها؛ فقد تكون المشكلة في سرعة الصفحة أو تكلفة الشحن أو الثقة أو خطوة دفع غير واضحة، وليس في التصميم البصري نفسه."]
+    ],
+    faqs: [["كم يستغرق تطوير متجر إلكتروني؟","يعتمد على عدد المنتجات والتكاملات والمحتوى وطرق الدفع والشحن، وتُحدد المدة بعد تثبيت النطاق ومعايير القبول."],["هل أحتاج تطبيقًا إلى جانب المتجر؟","غالبًا يبدأ المشروع بمتجر ويب سريع ومتجاوب، ثم يُقيّم التطبيق عندما توجد حاجة مثبتة لاستخدام متكرر أو خصائص لا يوفرها الويب."],["كيف أختار منصة المتجر؟","بناءً على نموذج البيع والتكاملات والميزانية وملكية البيانات وسهولة الإدارة والتوسع، وليس وفق شهرة المنصة وحدها."],["ما أهم عناصر حماية المتجر؟","بوابة دفع موثوقة، ومصادقة متعددة العوامل، وصلاحيات محدودة، وتحديثات منتظمة، ونسخ احتياطي مختبر، ومراقبة للسجلات والعمليات الحساسة."]]
   }
 ];
 
@@ -185,10 +203,8 @@ function normalizeSchema(value) {
   const type = value["@type"];
   if (type === "ProfilePage") {
     value.mainEntity = { "@id": `${canonical}/#person` };
-    value.dateModified = modified;
     value.url = value.url ? String(value.url).replace("https://eslam-elshikh.com", canonical) : `${canonical}/en/`;
   }
-  if (["WebPage", "Article", "BlogPosting"].includes(type)) value.dateModified = modified;
   if (type === "Person") {
     value.image = `${canonical}${primaryLogo}`;
     value.workLocation = { "@type": "Place", name: "الرياض", address: { "@type": "PostalAddress", addressLocality: "الرياض", addressRegion: "منطقة الرياض", addressCountry: "SA" } };
@@ -205,15 +221,21 @@ function normalizeSchema(value) {
 
 function articleHtml(article) {
   const url = `${canonical}/blog/${article.slug}/`;
+  const published = article.published || originalPublishDate;
+  const modified = article.modified || indexingFixDate;
+  const related = articles.filter((candidate) => candidate.slug !== article.slug)
+    .sort((a, b) => Number(b.service === article.service) - Number(a.service === article.service))
+    .slice(0, 3);
   const faqSchema = { "@type": "FAQPage", mainEntity: article.faqs.map(([q,a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) };
   const graph = { "@context": "https://schema.org", "@graph": [
-    { "@type": "BlogPosting", "@id": `${url}#article`, headline: article.title, description: article.description, url, datePublished: modified, dateModified: modified, inLanguage: "ar-SA", author: { "@id": `${canonical}/#person` }, publisher: { "@id": `${canonical}/#person` }, mainEntityOfPage: { "@id": `${url}#webpage` }, keywords: article.keywords },
+    { "@type": "BlogPosting", "@id": `${url}#article`, headline: article.title, description: article.description, url, datePublished: published, dateModified: modified, inLanguage: "ar-SA", image: `${canonical}${primaryLogo}`, author: { "@id": `${canonical}/#person` }, publisher: { "@id": `${canonical}/#person` }, mainEntityOfPage: { "@id": `${url}#webpage` }, isPartOf: { "@id": `${canonical}/#website` }, keywords: article.keywords },
     { "@type": "WebPage", "@id": `${url}#webpage`, url, name: article.title, description: article.description, dateModified: modified, isPartOf: { "@id": `${canonical}/#website` }, about: { "@id": `${canonical}/#person` } },
     { "@type": "BreadcrumbList", itemListElement: [{ "@type":"ListItem",position:1,name:"الرئيسية",item:`${canonical}/`},{"@type":"ListItem",position:2,name:"المدونة",item:`${canonical}/blog/`},{"@type":"ListItem",position:3,name:article.title,item:url}] }, faqSchema
   ]};
   const sections = article.sections.map(([h,...paragraphs]) => `<section><h2>${esc(h)}</h2>${paragraphs.map(p=>`<p>${esc(p)}</p>`).join("")}</section>`).join("");
   const faqs = article.faqs.map(([q,a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("");
-  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(article.title)} | المهندس إسلام الشيخ</title><meta name="description" content="${esc(article.description)}"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1"><link rel="canonical" href="${url}"><meta property="og:type" content="article"><meta property="og:title" content="${esc(article.title)}"><meta property="og:description" content="${esc(article.description)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${canonical}${primaryLogo}"><link rel="icon" href="${primaryLogo}"><link rel="stylesheet" href="/assets/css/main.css?v=3.0.0">${extraHead}${gaTag}<script type="application/ld+json">${json(graph)}</script></head><body><header class="site-header"><div class="container header-inner"><a class="brand" href="/"><img class="brand-logo" src="${primaryLogo}" width="512" height="512" alt=""><span class="brand-copy"><strong>المهندس إسلام الشيخ</strong><small>أمن سيبراني · برمجيات · ذكاء اصطناعي</small></span></a><nav class="desktop-nav"><a href="/">الرئيسية</a><a href="/services/">الخدمات</a><a href="/projects/">الأعمال</a><a href="/about/">عن إسلام</a><a href="/blog/" class="is-active">المدونة</a></nav></div></header><main id="main"><section class="inner-hero"><div class="container"><nav class="breadcrumbs"><a href="/">الرئيسية</a> / <a href="/blog/">المدونة</a></nav><div class="inner-hero-copy"><span class="eyebrow"><span></span>دليل متخصص</span><h1>${esc(article.title)}</h1><p>${esc(article.description)}</p><div class="article-meta"><span>تحديث ${modified}</span><span>قراءة متعمقة</span></div></div></div></section><section class="section-pad"><div class="container bio-grid"><article class="rich-copy article-content">${sections}<h2>قائمة تنفيذ مختصرة</h2><ul><li>حدد الهدف ومؤشر النجاح قبل شراء الأدوات.</li><li>نفذ التغييرات على مراحل مع نسخة احتياطية وخطة رجوع.</li><li>اختبر الجوال والسرعة والفهرسة والقياس بعد النشر.</li><li>وثق الملكية والصلاحيات والتغييرات والمسؤوليات.</li></ul><p><a class="button" href="${article.service}">اطّلع على الخدمة المرتبطة</a></p><section class="faq-section"><h2>الأسئلة الشائعة</h2><div class="accordion">${faqs}</div></section></article><aside class="profile-facts"><img class="profile-logo" src="${profilePhoto}" width="640" height="640" alt="المهندس إسلام الشيخ"><h2>عن الكاتب</h2><p>المهندس إسلام الشيخ، مطور مواقع ومهندس أمن سيبراني وخبير منتجات Google، يقدم خدماته للشركات داخل الرياض وعن بُعد.</p><a class="text-link" href="/contact/">ناقش مشروعك</a></aside></div></section></main><footer class="site-footer"><div class="container"><p>© 2026 المهندس إسلام الشيخ</p></div></footer><script src="/assets/js/main.js?v=3.0.0" defer></script>${extraBody}</body></html>`;
+  const relatedLinks = related.map((candidate) => `<li><a href="/blog/${candidate.slug}/">${esc(candidate.title)}</a></li>`).join("");
+  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>${esc(article.title)} | المهندس إسلام الشيخ</title><meta name="description" content="${esc(article.description)}"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><link rel="canonical" href="${url}"><link rel="alternate" hreflang="ar-SA" href="${url}"><link rel="alternate" hreflang="x-default" href="${url}"><meta property="og:locale" content="ar_SA"><meta property="og:type" content="article"><meta property="og:site_name" content="المهندس إسلام الشيخ"><meta property="og:title" content="${esc(article.title)}"><meta property="og:description" content="${esc(article.description)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${canonical}${primaryLogo}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(article.title)}"><meta name="twitter:description" content="${esc(article.description)}"><meta name="twitter:image" content="${canonical}${primaryLogo}"><link rel="icon" href="${primaryLogo}"><link rel="stylesheet" href="/assets/css/main.css?v=3.0.0">${extraHead}${gaTag}<script type="application/ld+json">${json(graph)}</script></head><body><header class="site-header"><div class="container header-inner"><a class="brand" href="/"><img class="brand-logo" src="${primaryLogo}" width="512" height="512" alt=""><span class="brand-copy"><strong>المهندس إسلام الشيخ</strong><small>أمن سيبراني · برمجيات · ذكاء اصطناعي</small></span></a><nav class="desktop-nav"><a href="/">الرئيسية</a><a href="/services/">الخدمات</a><a href="/projects/">الأعمال</a><a href="/about/">عن إسلام</a><a href="/blog/" class="is-active">المدونة</a></nav></div></header><main id="main"><section class="inner-hero"><div class="container"><nav class="breadcrumbs" aria-label="مسار الصفحة"><a href="/">الرئيسية</a> / <a href="/blog/">المدونة</a></nav><div class="inner-hero-copy"><span class="eyebrow"><span></span>دليل متخصص</span><h1>${esc(article.title)}</h1><p>${esc(article.description)}</p><div class="article-meta"><span>تحديث ${modified}</span><span>قراءة متعمقة</span></div></div></div></section><section class="section-pad"><div class="container bio-grid"><article class="rich-copy article-content">${sections}<h2>قائمة تنفيذ مختصرة</h2><ul><li>حدد الهدف ومؤشر النجاح قبل شراء الأدوات.</li><li>نفذ التغييرات على مراحل مع نسخة احتياطية وخطة رجوع.</li><li>اختبر الجوال والسرعة والفهرسة والقياس بعد النشر.</li><li>وثق الملكية والصلاحيات والتغييرات والمسؤوليات.</li></ul><p><a class="button" href="${article.service}">اطّلع على الخدمة المرتبطة</a></p><section class="faq-section"><h2>الأسئلة الشائعة</h2><div class="accordion">${faqs}</div></section><section aria-labelledby="related-guides"><h2 id="related-guides">أدلة مرتبطة</h2><ul>${relatedLinks}</ul></section></article><aside class="profile-facts"><img class="profile-logo" src="${profilePhoto}" width="640" height="640" alt="المهندس إسلام الشيخ"><h2>عن الكاتب</h2><p>المهندس إسلام الشيخ، مطور مواقع ومهندس أمن سيبراني وخبير منتجات Google، يقدم خدماته للشركات داخل الرياض وعن بُعد.</p><a class="text-link" href="/contact/">ناقش مشروعك</a></aside></div></section></main><footer class="site-footer"><div class="container"><p>© 2026 المهندس إسلام الشيخ</p></div></footer><script src="/assets/js/main.js?v=3.0.0" defer></script>${extraBody}</body></html>`;
 }
 
 const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
@@ -256,14 +278,14 @@ const blogIndex = join(outDir, "blog", "index.html");
 try {
   let html = await readFile(blogIndex, "utf8");
   const cards = articles.map((a) => `<article class="post-card reveal"><span class="eyebrow"><span></span>دليل متخصص</span><h2><a href="/blog/${a.slug}/">${esc(a.title)}</a></h2><p>${esc(a.description)}</p><a class="text-link" href="/blog/${a.slug}/">قراءة المقال</a></article>`).join("");
-  if (!html.includes(`/blog/${articles[0].slug}/`)) html = html.replace("</main>", `<section class="section-pad"><div class="container"><div class="section-heading"><span class="eyebrow"><span></span>أدلة جديدة</span><h2>10 مقالات احترافية تغطي الخدمات الأساسية</h2></div><div class="posts-grid">${cards}</div></div></section></main>`);
+  if (!html.includes(`/blog/${articles[0].slug}/`)) html = html.replace("</main>", `<section class="section-pad"><div class="container"><div class="section-heading"><span class="eyebrow"><span></span>أدلة متخصصة</span><h2>مقالات عملية تدعم قراراتك التقنية والتسويقية</h2></div><div class="posts-grid">${cards}</div></div></section></main>`);
   await writeFile(blogIndex, html);
 } catch {}
 
 const sitemapPath = join(outDir, "sitemap.xml");
 try {
   let sitemap = await readFile(sitemapPath, "utf8");
-  const additions = articles.filter((a) => !sitemap.includes(`/blog/${a.slug}/`)).map((a) => `<url><loc>${canonical}/blog/${a.slug}/</loc><lastmod>${modified}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>`).join("");
+  const additions = articles.filter((a) => !sitemap.includes(`/blog/${a.slug}/`)).map((a) => `<url><loc>${canonical}/blog/${a.slug}/</loc><lastmod>${a.modified || indexingFixDate}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>`).join("");
   sitemap = sitemap.replace("</urlset>", `${additions}</urlset>`);
   await writeFile(sitemapPath, sitemap);
 } catch {}
