@@ -1,9 +1,10 @@
-import { readdir, writeFile } from "node:fs/promises";
+import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 
 const outDir = process.argv[2] || "dist";
 const canonical = "https://www.eslam-elshikh.com";
-const lastmod = "2026-07-31";
+const fallbackLastmod = "2026-07-29";
+const blogIndexLastmod = "2026-08-12";
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -33,15 +34,38 @@ function priorityFor(route) {
   return "0.8";
 }
 
+function collectModifiedDates(value, dates = []) {
+  if (Array.isArray(value)) {
+    for (const item of value) collectModifiedDates(item, dates);
+    return dates;
+  }
+  if (!value || typeof value !== "object") return dates;
+  if (typeof value.dateModified === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value.dateModified)) dates.push(value.dateModified);
+  for (const child of Object.values(value)) collectModifiedDates(child, dates);
+  return dates;
+}
+
+async function lastmodFor(file, route) {
+  if (route === "/blog/") return blogIndexLastmod;
+  const html = await readFile(file, "utf8");
+  const dates = [];
+  for (const match of html.matchAll(/<script\s+type=["']application\/ld\+json["']>([\s\S]*?)<\/script>/gi)) {
+    try { collectModifiedDates(JSON.parse(match[1]), dates); } catch {}
+  }
+  return dates.sort().at(-1) || fallbackLastmod;
+}
+
 const htmlFiles = (await walk(outDir)).filter((file) => file.endsWith("index.html"));
 const routes = [...new Set(htmlFiles.map(routeFromFile).filter(Boolean))]
   .filter((route) => !route.startsWith("/.") && !route.startsWith("/assets/"))
   .sort((a, b) => a.localeCompare(b, "en"));
 
-const urls = routes.map((route) => {
+const urls = (await Promise.all(routes.map(async (route) => {
+  const file = htmlFiles.find((candidate) => routeFromFile(candidate) === route);
   const loc = route === "/" ? `${canonical}/` : `${canonical}${route}`;
+  const lastmod = await lastmodFor(file, route);
   return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>${priorityFor(route)}</priority>\n  </url>`;
-}).join("\n");
+}))).join("\n");
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
 
