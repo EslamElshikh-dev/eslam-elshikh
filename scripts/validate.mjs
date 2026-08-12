@@ -75,6 +75,11 @@ for (const route of publicRoutes) if (!sitemapRoutes.includes(route)) errors.pus
 for (const route of sitemapRoutes) if (!publicRoutes.includes(route)) errors.push(`Sitemap lists a missing HTML route: ${route}`);
 
 const vercelConfig = JSON.parse(await readFile(join(root, "vercel.json"), "utf8"));
+for (const redirect of vercelConfig.redirects || []) {
+  if (vercelConfig.trailingSlash && (!redirect.source.endsWith("/") || !redirect.destination.endsWith("/"))) {
+    errors.push(`Redirect must use trailing-slash paths when trailingSlash is enabled: ${redirect.source} -> ${redirect.destination}`);
+  }
+}
 const redirects = new Map((vercelConfig.redirects || []).map((redirect) => [normalizeRoute(redirect.source), normalizeRoute(redirect.destination)]));
 for (const [source, destination] of redirects) {
   if (sitemapRoutes.includes(source)) errors.push(`Redirect source must not be in sitemap: ${source}`);
