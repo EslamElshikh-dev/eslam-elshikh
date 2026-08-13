@@ -88,7 +88,7 @@ const baseGraph = () => ([
     telephone: site.phone,
     workLocation: { "@type": "Place", name: site.city, address: { "@type": "PostalAddress", addressLocality: site.city, addressRegion: site.region, addressCountry: site.countryCode } },
     areaServed: { "@type": "Country", name: site.country },
-    knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "السيو المحلي"],
+    knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"],
     sameAs: [site.social.wikidata, site.social.googleDeveloper, site.social.github, site.social.linkedin, site.social.x, site.social.instagram, site.social.youtube]
   },
   {
@@ -259,7 +259,7 @@ function footer(language = "ar") {
       <p>${isEnglish ? "Secure digital products, practical AI systems, Google product expertise, and search visibility for ambitious businesses." : site.positioning}</p>
       <div class="social-row" aria-label="${isEnglish ? "Social profiles" : "الحسابات الاجتماعية"}">${social}</div>
     </div>
-    <div class="footer-column"><h2>${isEnglish ? "Explore" : "روابط سريعة"}</h2><a href="/about/">${isEnglish ? "About" : "عن إسلام"}</a><a href="/projects/">${isEnglish ? "Selected work" : "الأعمال"}</a><a href="/google-expert/">${isEnglish ? "Google expertise" : "خبير خرائط جوجل"}</a><a href="/blog/">${isEnglish ? "Insights" : "المدونة"}</a><a href="/contact/">${isEnglish ? "Contact" : "تواصل"}</a></div>
+    <div class="footer-column"><h2>${isEnglish ? "Explore" : "روابط سريعة"}</h2><a href="/about/">${isEnglish ? "About" : "عن إسلام"}</a><a href="/projects/">${isEnglish ? "Selected work" : "الأعمال"}</a><a href="/google-ads/">${isEnglish ? "Google Ads" : "إعلانات جوجل"}</a><a href="/google-expert/">${isEnglish ? "Google expertise" : "خبير خرائط جوجل"}</a><a href="/blog/">${isEnglish ? "Insights" : "المدونة"}</a><a href="/contact/">${isEnglish ? "Contact" : "تواصل"}</a></div>
     <div class="footer-column footer-services"><h2>${isEnglish ? "Core services" : "الخدمات الرئيسية"}</h2>${services.slice(0, 6).map((service) => `<a href="/services/${service.slug}/">${esc(isEnglish ? serviceTranslations[service.slug]?.title || service.title : service.title)}</a>`).join("")}<a class="footer-more" href="/services/">${isEnglish ? "View all services" : "عرض جميع الخدمات"}</a></div>
     <div class="footer-column footer-contact"><h2>${isEnglish ? "Contact" : "بيانات التواصل"}</h2><a dir="ltr" href="tel:${site.phone}">${icon("phone")}<span>${site.phoneDisplay}</span></a><a href="${site.whatsapp}" target="_blank" rel="noopener">${icon("whatsapp")}<span>WhatsApp</span></a><a href="mailto:${site.email}">${icon("mail")}<span>${site.email}</span></a><span>${icon("pin")}<span>${isEnglish ? "Riyadh, Saudi Arabia" : `${site.city}، ${site.country}`}</span></span></div>
   </div>
@@ -394,8 +394,10 @@ function serviceDetailPage(service) {
     availableChannel: { "@type": "ServiceChannel", serviceUrl: absolute("/contact/"), availableLanguage: ["ar", "en"] },
     hasOfferCatalog: { "@type": "OfferCatalog", name: `نطاق ${service.title}`, itemListElement: service.scope.map((item) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: item } })) }
   };
+  const specializedPageLink = service.slug === "digital-advertising" ? `<section class="section-pad"><div class="container proof-panel reveal"><div class="proof-icon">${icon("megaphone")}</div><div><span>صفحة متخصصة في Google Ads</span><h2>هل هدفك الأساسي هو الظهور المدفوع في بحث Google؟</h2><p>انتقل إلى الصفحة المخصصة لإعلانات جوجل للتعرف على إدارة حملات البحث، وبحث الكلمات، والكلمات السلبية، وتتبع التحويلات، وتحسين الميزانية وصفحة الهبوط.</p></div><div class="proof-actions">${button("/google-ads/", "خدمات إعلانات جوجل")}</div></div></section>` : "";
   const body = `${innerHero({ eyebrowText: service.group, title: esc(service.h1), lead: service.short, path, crumbs: [{ name: "الخدمات", path: "/services/" }, { name: service.title, path }], aside: `<span class="service-hero-number">${service.number}</span><span class="service-hero-icon">${icon(service.icon)}</span><strong>${esc(service.value)}</strong>` })}
 <section class="section-pad service-intro-section"><div class="container service-intro-grid"><div class="rich-copy reveal">${service.intro.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}</div><aside class="service-quick-card reveal"><span>نقطة البداية</span><h2>وصف مختصر يساعد على التشخيص</h2>${checkList(["الهدف أو المشكلة الحالية", "الأنظمة أو الروابط المتأثرة", "الأثر على العملاء أو التشغيل", "الموعد المتوقع والقيود الرئيسية"])}${button(`${site.whatsapp}?text=${encodeURIComponent(`مرحبًا م. إسلام، أرغب في مناقشة خدمة ${service.title}.`)}`, "ناقش الخدمة عبر واتساب", "", true)}</aside></div></section>
+${specializedPageLink}
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("نطاق الخدمة")}<h2>ما الذي يمكن أن يشمله العمل؟</h2><p>يُحدد النطاق النهائي بعد التشخيص؛ وتوضح العناصر التالية المجالات التي يمكن دمجها حسب احتياج المشروع.</p></div><div class="scope-grid">${service.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon(service.icon)}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
 <section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("المخرجات")}<h2>ما الذي تستلمه في نهاية النطاق؟</h2><p>المخرجات تُكتب بصورة عملية لتكون قابلة للمراجعة والمتابعة، لا مجرد وصف عام للعمل.</p></div><div class="deliverables-panel reveal">${checkList(service.deliverables, "deliverables-list")}</div></div></section>
 <section class="section-pad audience-section"><div class="container"><div class="section-heading reveal">${eyebrow("لمن تناسب الخدمة؟")}<h2>حالات تستفيد من هذا المسار</h2></div><div class="audience-grid">${service.forWho.map((item, index) => `<article class="audience-card reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></article>`).join("")}</div></div></section>
@@ -444,6 +446,80 @@ function googleExpertPage() {
 <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة خبير خرائط جوجل")}<h2>إجابات واضحة قبل تعديل ملفك التجاري</h2><p>الدقة والاتساق والأهلية أهم من كثرة المحاولات والتغييرات العشوائية.</p>${button(`${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، لدي مشكلة في ملف Google التجاري وأرغب في تشخيصها.")}`, "أرسل تفاصيل الحالة", "button-ghost", true)}</div>${faqBlock(faq)}</div></section>
 ${finalCta("ملفك التجاري معلق أو تعذر إثبات ملكيته؟", "أرسل رابط الملف ونص الإشعار وتسلسل التعديلات والمحاولات السابقة دون مشاركة كلمة مرور أو رمز تحقق.")}`;
   return page({ title: "إسلام الشيخ — خبير خرائط جوجل والملفات التجارية", description: "إسلام الشيخ خبير منتجات Google ومتخصص في خرائط جوجل والملفات التجارية بالسعودية، يقدم حلول التحقق والتعليق وتحسين الظهور المحلي وفق السياسات.", path: "/google-expert/", active: "google", body, schema: [expertService, faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "خبير خرائط جوجل", path: "/google-expert/" }])] });
+}
+
+function googleAdsPage() {
+  const path = "/google-ads/";
+  const whatsappMessage = "مرحبًا م. إسلام، أرغب في مناقشة إدارة حملة إعلانات جوجل لنشاطي.";
+  const scope = [
+    "مراجعة حساب Google Ads الحالي والأهداف والميزانية وجودة البيانات قبل زيادة الإنفاق",
+    "إنشاء حملات إعلانات البحث وتقسيمها حسب الخدمة والمنطقة ونية العميل",
+    "بحث الكلمات المفتاحية وتحليل عبارات البحث وبناء قوائم الكلمات السلبية",
+    "كتابة الإعلانات المتجاوبة وتجهيز مواد العرض والمكالمات وروابط الأقسام",
+    "ضبط المواقع الجغرافية واللغة والجداول والأجهزة واستراتيجية عروض الأسعار",
+    "إعداد تتبع التحويلات للمكالمات والنماذج والشراء والأحداث المهمة حسب الإمكانات",
+    "مراجعة سرعة صفحة الهبوط ورسالتها وتجربة الجوال واتساقها مع الإعلان",
+    "تحسين دوري للميزانية والاستعلامات والإعلانات وصفحات الهبوط مع تقارير قرار واضحة"
+  ];
+  const searchIntents = [
+    { title: "إعلانات جوجل", text: "العبارة الأساسية للصفحة، وتغطي إنشاء وإدارة الحملات المدفوعة على منصة Google Ads." },
+    { title: "إدارة حملات جوجل", text: "طلب تجاري مباشر من نشاط يحتاج بناء الحملة ومتابعتها وتحسينها، لا مجرد شرح نظري للمنصة." },
+    { title: "خبير إعلانات جوجل", text: "بحث يركز على الشخص القادر على تحليل الحساب والكلمات والقياس واتخاذ قرارات تحسين مستمرة." },
+    { title: "إعلان ممول على جوجل", text: "نية مناسبة لصاحب نشاط يريد بدء إعلان بحث مدفوع بميزانية ونطاق جغرافي وهدف واضح." }
+  ];
+  const process = [
+    { title: "تشخيص الهدف والحساب", text: "تحديد الخدمة والجمهور والمنطقة وقيمة العميل، ثم مراجعة الحساب والبيانات والحملات السابقة إن وجدت." },
+    { title: "بناء القياس والصفحة", text: "تعريف التحويلات المهمة، وفحص صفحة الهبوط وسرعتها ورسالتها، وتجهيز التتبع الممكن قبل الإطلاق." },
+    { title: "إنشاء الحملة والإعلانات", text: "تقسيم الكلمات والمجموعات والمناطق، وكتابة الإعلانات، وضبط الميزانية والاستبعادات والإعدادات." },
+    { title: "تحسين مبني على الجودة", text: "مراجعة عبارات البحث والتكلفة والتحويل وجودة الطلبات، ثم تقليل الهدر وتوسيع ما يثبت جدواه." }
+  ];
+  const audiences = [
+    "شركة خدمات في الرياض أو السعودية تريد مكالمات واستفسارات من أشخاص يبحثون الآن",
+    "متجر إلكتروني يحتاج حملات قابلة للقياس مرتبطة بالمنتجات والشراء وقيمة الطلب",
+    "نشاط B2B يريد فصل الخدمات والمناطق ورسائل القرار بدل إرسال كل الزيارات إلى الصفحة الرئيسية",
+    "حساب قائم ينفق دون وضوح في التحويلات أو عبارات البحث أو جودة العملاء المحتملين"
+  ];
+  const faq = [
+    ["ما هي خدمة إدارة حملات إعلانات جوجل؟", "تشمل مراجعة الهدف والحساب، وبحث الكلمات، وبناء الحملات والمجموعات الإعلانية، وكتابة الإعلانات، وضبط المواقع والميزانية والكلمات السلبية، وربط التحويلات الممكنة، ثم المتابعة والتحسين والتقارير."],
+    ["كيف أسوي إعلان ممول على جوجل لنشاطي؟", "يبدأ الإعلان بتحديد خدمة واضحة ومنطقة وجمهور وإجراء مطلوب مثل اتصال أو نموذج أو شراء. بعد ذلك يتم تجهيز حساب Google Ads وصفحة الهبوط والقياس، ثم بناء حملة بحث واختيار الكلمات والإعلانات والميزانية قبل الإطلاق."],
+    ["كم تكلفة إعلانات جوجل في السعودية؟", "لا توجد تكلفة ثابتة؛ فسعر النقرة والميزانية المناسبة يتأثران بالمجال والمدينة والمنافسة والكلمات والهدف وجودة الصفحة. تُفصل ميزانية المنصة عن أتعاب الإدارة، ويُقترح نطاق إنفاق بعد مراجعة السوق والهدف."],
+    ["هل إعلانات جوجل مناسبة للأنشطة المحلية في الرياض؟", "تكون مناسبة عندما يبحث العميل عن الخدمة في منطقة محددة ويمكن للنشاط استقبال الطلبات وقياس المكالمات أو النماذج. يتم ضبط الاستهداف الجغرافي والرسالة والصفحة وساعات استقبال الطلبات وفق التشغيل الفعلي."],
+    ["هل تشمل الإدارة الكلمات السلبية وعبارات البحث؟", "نعم. تتم مراجعة عبارات البحث الفعلية لإضافة الاستبعادات وتقليل النقرات غير المناسبة، مع فصل نوايا الخدمات والمناطق قدر الإمكان بدل جمع كلمات مختلفة في مجموعة واحدة."],
+    ["هل يلزم تتبع التحويلات قبل تشغيل الحملة؟", "يفضل إعداد التحويلات الأساسية الممكنة قبل الإطلاق، مثل إرسال النموذج أو الاتصال أو الشراء، لأن التحسين دون قياس يجعل القرار معتمدًا على النقرات فقط. قد يحتاج التنفيذ إلى Google tag أو Google Analytics أو Tag Manager حسب الموقع."],
+    ["ما الفرق بين إعلانات جوجل وتحسين محركات البحث SEO؟", "إعلانات جوجل تشتري ظهورًا مدفوعًا يمكن تشغيله وتحسينه ضمن ميزانية، بينما يبني SEO ظهورًا عضويًا يحتاج وقتًا ومحتوى وبنية وسمعة. يمكن للمسارين العمل معًا، لكن لكل منهما صفحة وميزانية ومؤشرات مختلفة."],
+    ["هل تضمن الحملة مبيعات أو عدد عملاء محددًا؟", "لا يمكن ضمان مبيعات أو عدد ثابت لأن السعر والعرض والمنافسة والصفحة وسرعة الرد والمبيعات عوامل خارج المنصة أيضًا. ما يمكن ضبطه هو بنية الحملة والقياس والاستهداف والاختبار والشفافية في قرارات التحسين."]
+  ];
+  const adsService = {
+    "@type": "Service",
+    "@id": `${site.url}${path}#service`,
+    name: "إدارة حملات إعلانات جوجل Google Ads",
+    alternateName: ["إعلانات جوجل", "إدارة حملات جوجل", "إعلان ممول على جوجل"],
+    serviceType: ["إدارة حملات إعلانات Google", "Google Ads Management", "إعلانات البحث المدفوعة"],
+    url: `${site.url}${path}`,
+    description: "خدمات إدارة إعلانات جوجل في الرياض والسعودية تشمل حملات البحث وبحث الكلمات والكلمات السلبية وتتبع التحويلات وتحسين الميزانية وصفحات الهبوط.",
+    provider: { "@id": `${site.url}/#professional-service` },
+    areaServed: [{ "@type": "City", name: "الرياض" }, { "@type": "Country", name: "المملكة العربية السعودية" }],
+    availableChannel: { "@type": "ServiceChannel", serviceUrl: `${site.url}/contact/`, availableLanguage: ["ar", "en"] },
+    hasOfferCatalog: { "@type": "OfferCatalog", name: "نطاق إدارة حملات إعلانات جوجل", itemListElement: scope.map((item) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: item } })) }
+  };
+  const body = `${innerHero({ eyebrowText: "إعلانات Google · الرياض والسعودية", title: "إسلام الشيخ — خبير إعلانات جوجل وإدارة حملات Google Ads", lead: "أخطط وأدير حملات إعلانات جوجل للأنشطة والشركات التي تريد الوصول إلى عملاء يبحثون عن خدماتها الآن. يبدأ العمل من نية البحث والهدف وصفحة الهبوط وتتبع التحويل، ثم تتحول الكلمات والميزانية والإعلانات إلى قرارات تحسين قابلة للقياس بدل الاكتفاء بعدد النقرات.", path, crumbs: [{ name: "إعلانات جوجل", path }], aside: `<span class="aside-kicker">Google Ads</span><strong>حملات مبنية على نية البحث والقياس</strong><p>بحث كلمات، إعلانات متجاوبة، كلمات سلبية، تحويلات، صفحات هبوط، وتحسين مستمر للميزانية.</p>` })}
+<section class="section-pad"><div class="container google-stats"><div class="google-stat reveal"><strong>Search</strong><span>استهداف طلب موجود في لحظة البحث</span></div><div class="google-stat reveal"><strong>Leads</strong><span>مكالمات ونماذج وإجراءات تجارية مهمة</span></div><div class="google-stat reveal"><strong>Tracking</strong><span>قياس قبل توسيع الميزانية والإنفاق</span></div><div class="google-stat reveal"><strong>السعودية</strong><span>حملات للرياض ومناطق الخدمة المناسبة</span></div></div></section>
+<section class="section-pad muted-section"><div class="container service-intro-grid"><div class="rich-copy reveal"><h2>إدارة إعلانات جوجل تبدأ قبل الضغط على زر إطلاق الحملة</h2><p>الحملة القوية لا تبدأ بقائمة كلمات كبيرة؛ بل بخدمة محددة، وعميل واضح، ومنطقة يستطيع النشاط خدمتها، وصفحة تجيب عن سؤال الباحث وتقوده إلى اتصال أو نموذج أو شراء. لذلك أراجع العرض والموقع وتجربة الجوال والرسالة والقياس قبل اقتراح زيادة الميزانية.</p><p>بعد الإطلاق تتم قراءة عبارات البحث الفعلية، وتكاليف النقر والتحويل، ونوعية المكالمات أو الطلبات، ثم تعديل الكلمات السلبية والمطابقات والإعلانات والصفحة والميزانية. الهدف هو معرفة أين يذهب الإنفاق وما الذي ينتج عنه، دون وعود مصطنعة بمبيعات أو مركز ثابت.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent(whatsappMessage)}`, "ناقش حملة Google Ads", "", true)}${button("/services/digital-advertising/", "الإعلانات الرقمية وصفحات الهبوط", "button-ghost")}</div></div><aside class="service-quick-card reveal"><span>قبل بدء الإعلان</span><h2>أرسل هذه المعلومات لتقييم نقطة البداية</h2>${checkList(["الخدمة أو المنتجات ذات الأولوية", "المدن أو مناطق الاستهداف", "رابط الموقع أو صفحة الهبوط", "الميزانية التقريبية والهدف", "هل توجد حملات وبيانات سابقة؟"])}<p>لا ترسل كلمة مرور. يفضّل أن يبقى الحساب باسمك وتُمنح صلاحية الإدارة المناسبة عند الاتفاق.</p></aside></div></section>
+<section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("نطاق إدارة Google Ads")}<h2>ما الذي يمكن أن تشمله إدارة حملتك؟</h2><p>يُحدد النطاق النهائي حسب نوع النشاط والحساب والموقع والهدف، وتُستخدم فقط أنواع الحملات والإعدادات المناسبة للحالة.</p></div><div class="scope-grid">${scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon(index === 5 ? "chart" : index === 6 ? "globe" : "megaphone")}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("نية العميل والكلمات")}<h2>مجموعات بحث تجارية تخدمها الصفحة دون حشو</h2><p>تستهدف الصفحة موضوعًا رئيسيًا واحدًا هو إعلانات Google، وتغطي الصيغ القريبة عندما تعبر عن احتياج مختلف داخل رحلة العميل.</p></div><div class="audience-grid">${searchIntents.map((item, index) => `<article class="audience-card reveal"><span>${String(index + 1).padStart(2, "0")}</span><h3>${esc(item.title)}</h3><p>${esc(item.text)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad process-section"><div class="container"><div class="section-heading reveal">${eyebrow("منهج إدارة الحملة")}<h2>أربع مراحل تربط الإعلان بجودة الطلب</h2><p>التحسين عملية دورية تبدأ ببيانات صحيحة، ثم تختبر فرضيات واضحة بدل التغييرات العشوائية.</p></div><ol class="process-list service-process">${process.map((step, index) => `<li class="reveal"><span>${String(index + 1).padStart(2, "0")}</span><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p></li>`).join("")}</ol></div></section>
+<section class="section-pad audience-section"><div class="container"><div class="section-heading reveal">${eyebrow("لمن تناسب الخدمة؟")}<h2>حالات تستفيد من إدارة Google Ads المتخصصة</h2></div><div class="audience-grid">${audiences.map((item, index) => `<article class="audience-card reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad muted-section"><div class="container promise-grid"><div class="promise-copy reveal">${eyebrow("القياس والملكية")}<h2>حسابك وبياناتك أساس الاستمرارية</h2><p>يفضل إنشاء الحملة داخل حساب يملكه النشاط مع منح صلاحيات الإدارة اللازمة، وفصل ميزانية Google عن أتعاب الخدمة. تُوثق التحويلات والإعدادات والتغييرات المهمة لتتمكن من مراجعة الأداء واتخاذ القرار.</p>${button("/services/seo/", "قارن مع خدمات SEO", "button-ghost")}</div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>هدف واضح</h3><p>اتصال أو نموذج أو شراء أو إجراء محدد يمكن تقييمه.</p></article><article class="principle reveal"><span>02</span>${icon("search")}<h3>طلب مناسب</h3><p>فصل الكلمات ذات النية التجارية عن الاستعلامات غير المناسبة.</p></article><article class="principle reveal"><span>03</span>${icon("chart")}<h3>قياس مفهوم</h3><p>تقارير تربط الإنفاق بالتحويلات وجودة الطلبات قدر الإمكان.</p></article><article class="principle reveal"><span>04</span>${icon("layers")}<h3>تحسين موثق</h3><p>كل تعديل له سبب ومؤشر للمراجعة وخطوة تالية.</p></article></div></div></section>
+<section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة إعلانات جوجل")}<h2>إجابات مهمة قبل استثمار ميزانيتك</h2><p>التكلفة ونوع الحملة وخطة القياس تختلف من نشاط لآخر؛ لذلك تبدأ الإدارة بالتشخيص لا بباقة عامة.</p>${button(`${site.whatsapp}?text=${encodeURIComponent(whatsappMessage)}`, "أرسل تفاصيل نشاطك", "button-ghost", true)}</div>${faqBlock(faq)}</div></section>
+${finalCta("هل تريد إطلاق إعلان ممول على جوجل بصورة قابلة للقياس؟", "أرسل الخدمة والمنطقة ورابط الموقع والهدف والميزانية التقريبية، وسنحدد ما يحتاج إلى تجهيز قبل الإطلاق وما يمكن تحسينه داخل الحملة.")}`;
+  return page({
+    title: "إعلانات جوجل وإدارة حملات Google Ads | إسلام الشيخ",
+    description: "إدارة إعلانات جوجل وحملات Google Ads في الرياض والسعودية: بحث الكلمات، الكلمات السلبية، تتبع التحويلات، تحسين الميزانية وصفحات الهبوط لجذب استفسارات أفضل.",
+    path,
+    active: "services",
+    body,
+    schema: [adsService, faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "إعلانات جوجل", path }])]
+  });
 }
 
 function mapCard(item) {
@@ -637,6 +713,7 @@ async function build() {
   await writeRoute("/local-seo/riyadh/", localSeoPage(true));
   await writeRoute("/about/", aboutPage());
   await writeRoute("/google-expert/", googleExpertPage());
+  await writeRoute("/google-ads/", googleAdsPage());
   await writeRoute("/projects/", projectsPage());
   await writeRoute("/blog/", blogIndexPage());
   for (const post of allPosts) await writeRoute(`/blog/${post.slug}/`, articlePage(post));
@@ -650,8 +727,8 @@ async function build() {
   await writeText("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\nHost: ${site.url}\n`);
   await writeText("manifest.webmanifest", JSON.stringify({ name: site.brandName, short_name: site.nameAr, description: site.description, lang: "ar", dir: "rtl", start_url: "/", scope: "/", display: "standalone", background_color: "#06131f", theme_color: "#06131f", icons: [{ src: "/assets/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }, { src: "/assets/brand/eslam-elshikh-logo-transparent.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }] }, null, 2));
   await writeText("feed.xml", feedXml());
-  await writeText("profile.json", JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: site.nameAr, alternateName: site.nameEn, url: site.url, jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"], sameAs: Object.values(site.social), knowsAbout: services.map((service) => service.title) }, null, 2));
-  await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- About: ${absolute("/about/")}\n- Google expertise: ${absolute("/google-expert/")}\n- Local SEO: ${absolute("/local-seo/")}\n- Work: ${absolute("/projects/")}\n- Contact: ${absolute("/contact/")}\n`);
+  await writeText("profile.json", JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: site.nameAr, alternateName: site.nameEn, url: site.url, jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"], sameAs: Object.values(site.social), knowsAbout: [...services.map((service) => service.title), "إعلانات Google", "إدارة حملات Google Ads"] }, null, 2));
+  await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- About: ${absolute("/about/")}\n- Google expertise: ${absolute("/google-expert/")}\n- Google Ads management: ${absolute("/google-ads/")}\n- Local SEO: ${absolute("/local-seo/")}\n- Work: ${absolute("/projects/")}\n- Contact: ${absolute("/contact/")}\n`);
   await writeText("humans.txt", `Site: ${site.brandName}\nLocation: ${site.city}, ${site.country}\nDesign and development: ${site.nameEn}\nUpdated: ${site.lastUpdated}\n`);
   await writeText("CNAME", "eslam-elshikh.com\n");
   await writeText(join(".well-known", "security.txt"), `Contact: mailto:${site.email}\nCanonical: ${site.url}/.well-known/security.txt\nPreferred-Languages: ar, en\nExpires: 2027-07-29T00:00:00.000Z\nPolicy: ${site.url}/terms/\n`);

@@ -13,7 +13,7 @@ const errors = [];
 const warnings = [];
 
 const requiredRoutes = [
-  "/", "/en/", "/services/", "/local-seo/", "/local-seo/riyadh/", "/about/", "/google-expert/", "/projects/", "/blog/", "/contact/", "/privacy/", "/terms/",
+  "/", "/en/", "/services/", "/local-seo/", "/local-seo/riyadh/", "/about/", "/google-expert/", "/google-ads/", "/projects/", "/blog/", "/contact/", "/privacy/", "/terms/",
   "/services/cybersecurity/", "/services/cloud-solutions/", "/services/ai-agents/", "/services/web-development/", "/services/google-support/", "/services/google-business-profile/", "/services/knowledge-bases/", "/services/seo/", "/services/digital-advertising/",
   "/blog/ai-agent-business/", "/blog/google-business-profile-suspension/", "/blog/secure-website-development/", "/blog/ecommerce-development-saudi/",
   "/blog/topics/google-business-profile/", "/blog/topics/local-seo-saudi/", "/blog/topics/cybersecurity/", "/blog/topics/ai-agents/", "/blog/topics/web-development/"

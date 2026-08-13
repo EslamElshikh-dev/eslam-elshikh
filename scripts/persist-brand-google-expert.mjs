@@ -113,11 +113,13 @@ const llmsTxt = `# المهندس إسلام الشيخ
 - [قواعد المعرفة والبحث الذكي](${canonical}/services/knowledge-bases/)
 - [تحسين محركات البحث والسيو المحلي](${canonical}/services/seo/)
 - [إدارة الإعلانات الرقمية وصفحات الهبوط](${canonical}/services/digital-advertising/)
+- [إدارة حملات إعلانات جوجل Google Ads](${canonical}/google-ads/)
 
 ## صفحات مهمة
 
 - [عن المهندس إسلام الشيخ](${canonical}/about/)
 - [إسلام الشيخ — خبير خرائط جوجل والملفات التجارية](${canonical}/google-expert/)
+- [إسلام الشيخ — خبير إعلانات جوجل وإدارة حملات Google Ads](${canonical}/google-ads/)
 - [السيو المحلي](${canonical}/local-seo/)
 - [الأعمال والمشروعات](${canonical}/projects/)
 - [المدونة](${canonical}/blog/)
