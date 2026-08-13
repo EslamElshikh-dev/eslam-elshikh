@@ -67,7 +67,7 @@ for (const path of htmlFiles) {
     html = html.replace(/<strong>9<\/strong><span>[^<]*<\/span>/, "<strong data-counter=\"653\" data-suffix=\"+\">0+</strong><span>مساعد بالذكاء الاصطناعي ومشروع سحابي</span>");
     html = html.replace("<strong>360°</strong><span>رؤية تجمع الأمن والتطوير والظهور الرقمي</span>", "<strong data-counter=\"360\" data-suffix=\"°\">0°</strong><span>رؤية تجمع الأمن والتطوير والظهور الرقمي</span>");
   }
-  if ((path.endsWith("about/index.html") || path.endsWith("contact/index.html")) && !html.includes("service-area-note")) {
+  if ((path.endsWith("about/index.html") || path.endsWith("contact/index.html")) && !html.includes("service-area-note") && !html.includes("business-map-section")) {
     html = html.replace("</main>", `<section class="section-pad"><div class="container"><div class="service-area-note"><strong>نطاق الخدمة: مدينة الرياض بالكامل</strong><p>تُقدَّم الخدمات عن بُعد، مع إمكانية زيارة مواقع العملاء داخل الرياض بموعد مسبق. لا يوجد مقر لاستقبال العملاء.</p></div></div></section></main>`);
   }
   if (path.endsWith("privacy/index.html") && !html.includes("Google Analytics 4")) {

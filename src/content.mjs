@@ -13,9 +13,11 @@ export const site = {
   region: "منطقة الرياض",
   country: "المملكة العربية السعودية",
   countryCode: "SA",
+  googleMapsProfile: "https://maps.app.goo.gl/EbiR3AKJEZhkbMn66",
+  googleMapsEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1855561.9564318385!2d48.17131364164061!3d24.721920797653034!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x249f92627b1c4601%3A0x9aa9c606416f16de!2z2KfZhNmF2YfZhtiv2LMg2KXYs9mE2KfZhSDYp9mE2LTZitiu!5e0!3m2!1sar!2ssa!4v1786663765858!5m2!1sar!2ssa",
   logo: "/assets/brand/eslam-elshikh-logo-transparent.png",
   shareImage: "/assets/og/eslam-elshikh-og-transparent.png",
-  lastUpdated: "2026-08-13",
+  lastUpdated: "2026-08-14",
   description: "المهندس إسلام الشيخ في الرياض: مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google ومتخصص في خرائط جوجل والملفات التجارية والسيو المحلي في السعودية.",
   positioning: "هندسة رقمية تجمع الأمان والبرمجة والذكاء الاصطناعي وخبرة Google والسيو في خطة واحدة قابلة للقياس.",
   social: {

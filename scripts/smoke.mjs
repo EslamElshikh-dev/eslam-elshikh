@@ -37,7 +37,10 @@ for (const [needle, label] of [["IntersectionObserver", "progressive reveal"], [
   if (!js.includes(needle)) failures.push(`JavaScript missing ${label}`);
 }
 
-if (/<iframe\b/i.test(home)) failures.push("Homepage contains iframe content that should be deferred/removed");
+const homeMapFrame = home.match(/<iframe\b[^>]*www\.google\.com\/maps\/embed[^>]*>/i)?.[0] || "";
+if (!homeMapFrame || !/loading="lazy"/i.test(homeMapFrame) || !/title="[^"]+"/i.test(homeMapFrame) || !/referrerpolicy="strict-origin-when-cross-origin"/i.test(homeMapFrame)) {
+  failures.push("Homepage Google Maps embed is missing lazy loading, an accessible title, or referrer policy");
+}
 if (!/viewport-fit=cover/.test(home)) failures.push("Homepage viewport lacks viewport-fit=cover");
 if (!/apple-mobile-web-app-capable/.test(home)) failures.push("Homepage lacks iOS web app metadata");
 if (!/data-theme-toggle/.test(home)) failures.push("Homepage lacks theme control");

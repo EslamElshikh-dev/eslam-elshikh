@@ -59,7 +59,12 @@ const sitemapEntries = [...sitemap.matchAll(/<url>([\s\S]*?)<\/url>/gi)].map((ma
 }));
 const sitemapRoutes = [];
 const seenLocations = new Set();
-const today = new Date().toISOString().slice(0, 10);
+const today = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Riyadh",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit"
+}).format(new Date());
 
 for (const entry of sitemapEntries) {
   if (!entry.loc.startsWith(`${canonicalBase}/`)) errors.push(`Sitemap URL is not canonical: ${entry.loc}`);
@@ -184,6 +189,19 @@ if (!/User-agent:\s*\*[\s\S]*Allow:\s*\//i.test(robotsText)) errors.push("robots
 const home = pages.get("/") || "";
 if ((home.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("Homepage does not render all 9 services");
 if (wordCount(home) < 900) warnings.push(`Homepage content is shorter than 900 words (${wordCount(home)})`);
+const contact = pages.get("/contact/") || "";
+for (const [route, html] of [["/", home], ["/contact/", contact], ["/google-expert/", pages.get("/google-expert/") || ""], ["/services/google-business-profile/", pages.get("/services/google-business-profile/") || ""]]) {
+  if (!html.includes('id="google-business-map"')) errors.push(`${route}: missing Google Business Profile map section`);
+  if (!html.includes("www.google.com/maps/embed?pb=")) errors.push(`${route}: missing Google Maps embed`);
+  if (!html.includes('referrerpolicy="strict-origin-when-cross-origin"')) errors.push(`${route}: Google Maps embed is missing its referrer policy`);
+  if (!html.includes("https://maps.app.goo.gl/EbiR3AKJEZhkbMn66")) errors.push(`${route}: missing direct Google Business Profile link`);
+}
+if (!home.includes('"hasMap":"https://maps.app.goo.gl/EbiR3AKJEZhkbMn66"')) errors.push("Homepage ProfessionalService schema is missing hasMap");
+for (const [route, html] of pages) {
+  if (route.startsWith("/services/") && route !== "/services/" && !html.includes('class="check-list deliverables-list"')) {
+    errors.push(`${route}: deliverables list is missing shared checklist styling`);
+  }
+}
 
 const blog = pages.get("/blog/") || "";
 const blogCardCount = (blog.match(/class=["']post-card(?:\s|["'])/g) || []).length;
