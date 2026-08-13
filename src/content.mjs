@@ -15,12 +15,12 @@ export const site = {
   countryCode: "SA",
   logo: "/assets/brand/eslam-elshikh-logo-transparent.png",
   shareImage: "/assets/og/eslam-elshikh-og-transparent.png",
-  lastUpdated: "2026-08-12",
-  description: "المهندس إسلام الشيخ في الرياض: مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google، يقدم تطوير المواقع ووكلاء الذكاء الاصطناعي والسيو والحلول السحابية للشركات في السعودية.",
+  lastUpdated: "2026-08-13",
+  description: "المهندس إسلام الشيخ في الرياض: مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google ومتخصص في خرائط جوجل والملفات التجارية والسيو المحلي في السعودية.",
   positioning: "هندسة رقمية تجمع الأمان والبرمجة والذكاء الاصطناعي وخبرة Google والسيو في خطة واحدة قابلة للقياس.",
   social: {
     github: "https://github.com/EslamElshikh-dev",
-    linkedin: "https://www.linkedin.com/in/eslam-elshikh",
+    linkedin: "https://www.linkedin.com/in/eslamelshikh",
     facebook: "https://facebook.com/remesoo",
     x: "https://x.com/remoesoo10",
     instagram: "https://www.instagram.com/remoesoo10",
@@ -32,7 +32,7 @@ export const site = {
     blog: "https://blog.eslam-elshikh.com"
   },
   stats: [
-    { value: "472+", label: "مساهمة في توثيق وإدارة ملفات Google التجارية" },
+    { value: "1411+", label: "مساهمة في توثيق وإدارة ملفات Google التجارية" },
     { value: "233+", label: "حالة ومشكلة لملفات تجارية تمت معالجتها" },
     { value: "9", label: "مسارات خدمة تقنية وتسويقية مترابطة" },
     { value: "360°", label: "رؤية تجمع الأمن والتطوير والظهور الرقمي" }
