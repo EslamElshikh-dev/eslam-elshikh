@@ -10,7 +10,7 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.1.0";
+const version = "3.1.1";
 const profilePhoto = "https://avatars.githubusercontent.com/u/264218940?v=4";
 
 const esc = (value = "") => String(value)
