@@ -565,26 +565,19 @@ input, textarea, select { min-width: 0; }
 
 /* Contact */
 .contact-grid { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(340px, 1.15fr); gap: clamp(2.5rem, 7vw, 6rem); align-items: start; }
-.business-map-section { position: relative; border-block: 1px solid var(--line); background: radial-gradient(circle at 12% 18%, rgba(88,224,189,0.08), transparent 27rem), linear-gradient(135deg, rgba(88,201,255,0.035), transparent 50%); overflow: hidden; }
-.business-map-heading { max-width: 860px; }
-.business-map-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(310px, 0.65fr); align-items: stretch; gap: 1rem; }
-.business-map-frame { min-height: 480px; border: 1px solid var(--line-strong); border-radius: 1.5rem; background: var(--surface); box-shadow: var(--shadow-md); overflow: hidden; }
-.business-map-frame iframe { display: block; width: 100%; height: 100%; min-height: 480px; border: 0; filter: saturate(0.92) contrast(1.02); }
-.business-map-card { display: flex; flex-direction: column; padding: clamp(1.35rem, 3vw, 2rem); border: 1px solid rgba(88,224,189,0.19); border-radius: 1.5rem; background: linear-gradient(155deg, rgba(16,40,57,0.94), rgba(7,23,35,0.96)); box-shadow: var(--shadow-md); }
-:root[data-theme="light"] .business-map-card { background: linear-gradient(155deg, #fff, #eef7f7); }
-.map-profile-badge { width: max-content; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.65rem; border: 1px solid rgba(88,201,255,0.18); border-radius: 999px; background: rgba(88,201,255,0.06); color: var(--secondary); font-size: 0.67rem; font-weight: 850; letter-spacing: 0.02em; }
-.map-profile-badge .icon { width: 1rem; height: 1rem; }
-.business-map-card h3 { margin: 1rem 0 0.55rem; font-size: clamp(1.45rem, 2.6vw, 2.15rem); line-height: 1.35; }
-.business-map-card > p { margin: 0; color: var(--muted); font-size: 0.85rem; line-height: 1.9; }
-.business-map-details { display: grid; margin: 1.35rem 0; border-block: 1px solid var(--line); }
-.business-map-details > div { padding: 0.8rem 0; border-bottom: 1px solid var(--line); }
-.business-map-details > div:last-child { border-bottom: 0; }
-.business-map-details dt { display: flex; align-items: center; gap: 0.5rem; color: var(--text-soft); font-size: 0.76rem; font-weight: 800; }
-.business-map-details dt .icon { width: 1rem; height: 1rem; color: var(--primary); }
-.business-map-details dd { margin: 0.25rem 1.5rem 0 0; color: var(--muted); font-size: 0.8rem; }
-.business-map-details dd a { color: var(--text-soft); }
-.business-map-actions { display: grid; gap: 0.65rem; margin-top: auto; }
-.business-map-actions .button { width: 100%; }
+.business-map-section { position: relative; padding-block: clamp(3.5rem, 7vw, 6rem); border-block: 1px solid var(--line); background: radial-gradient(circle at 12% 18%, rgba(88,224,189,0.08), transparent 27rem), linear-gradient(135deg, rgba(88,201,255,0.035), transparent 50%); overflow: hidden; }
+.wide-map-container { width: min(calc(100% - 32px), 1440px); margin-inline: auto; }
+.business-map-heading { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin-bottom: 1.4rem; }
+.business-map-heading h2 { margin: 0.65rem 0 0.45rem; font-size: clamp(1.9rem, 4vw, 3.35rem); line-height: 1.2; letter-spacing: -0.04em; }
+.business-map-heading p { max-width: 760px; margin: 0; color: var(--muted); font-size: 0.92rem; }
+.map-profile-link { flex: 0 0 auto; min-height: 44px; padding: 0.65rem 0.85rem; border: 1px solid var(--line-strong); border-radius: 0.85rem; background: var(--surface-glass); }
+.business-map-frame { width: 100%; height: clamp(450px, 48vw, 640px); border: 1px solid var(--line-strong); border-radius: 1.35rem; background: var(--surface); box-shadow: var(--shadow-md); overflow: hidden; }
+.business-map-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+.business-map-bar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 0.8rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface-glass); box-shadow: var(--shadow-sm); overflow: hidden; }
+.business-map-bar > span, .business-map-bar > a { min-height: 62px; display: flex; align-items: center; justify-content: center; gap: 0.55rem; padding: 0.8rem 1rem; color: var(--muted); font-size: 0.76rem; font-weight: 750; text-align: center; }
+.business-map-bar > * + * { border-inline-start: 1px solid var(--line); }
+.business-map-bar .icon { width: 1.05rem; height: 1.05rem; flex: 0 0 auto; color: var(--primary); }
+.business-map-bar > a:hover { color: var(--primary); }
 .contact-options { display: grid; gap: 0.8rem; }
 .contact-card { display: grid; grid-template-columns: 54px minmax(0, 1fr) 24px; align-items: center; gap: 0.9rem; padding: 1rem; border: 1px solid var(--line); border-radius: 1.15rem; background: var(--surface); transition: transform 0.2s ease, border-color 0.2s ease; }
 .contact-card:hover { transform: translateY(-3px); border-color: var(--line-strong); }
@@ -718,8 +711,8 @@ input, textarea, select { min-width: 0; }
   .inner-hero-grid { grid-template-columns: 1fr; }
   .inner-hero-aside { min-height: 0; max-width: 620px; }
   .maps-grid { grid-template-columns: 1fr; }
-  .business-map-grid { grid-template-columns: 1fr; }
-  .business-map-frame, .business-map-frame iframe { min-height: 410px; }
+  .business-map-heading { align-items: start; flex-direction: column; gap: 1rem; }
+  .business-map-frame { height: 470px; }
   .experience-grid { grid-template-columns: repeat(2, 1fr); }
   .case-method { grid-template-columns: 1fr; }
   .article-layout { grid-template-columns: 1fr; }
@@ -794,9 +787,14 @@ input, textarea, select { min-width: 0; }
   .deliverables-panel { padding: 0.75rem; border-radius: 1.2rem; }
   .deliverables-list { grid-template-columns: 1fr; gap: 0.65rem; }
   .deliverables-list li, .deliverables-list li:last-child { min-height: 0; padding: 0.9rem; font-size: 0.84rem; }
-  .business-map-frame, .business-map-frame iframe { min-height: 340px; }
-  .business-map-card { padding: 1.2rem; border-radius: 1.2rem; }
-  .business-map-details dd { margin-inline-start: 1.5rem; margin-inline-end: 0; }
+  .wide-map-container { width: min(calc(100% - 24px), 1440px); }
+  .business-map-heading { margin-bottom: 1rem; }
+  .business-map-heading h2 { font-size: clamp(1.7rem, 8vw, 2.45rem); }
+  .map-profile-link { width: 100%; justify-content: center; }
+  .business-map-frame { height: 400px; border-radius: 1rem; }
+  .business-map-bar { grid-template-columns: 1fr; }
+  .business-map-bar > * + * { border-inline-start: 0; border-top: 1px solid var(--line); }
+  .business-map-bar > span, .business-map-bar > a { min-height: 54px; justify-content: flex-start; text-align: start; }
   .experience-grid { grid-template-columns: 1fr; }
   .topics-grid { grid-template-columns: repeat(2, 1fr); }
   .topic-card { min-height: 170px; }

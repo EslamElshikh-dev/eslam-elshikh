@@ -194,12 +194,14 @@ if (!/User-agent:\s*\*[\s\S]*Allow:\s*\//i.test(robotsText)) errors.push("robots
 const home = pages.get("/") || "";
 if ((home.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("Homepage does not render all 9 services");
 if (wordCount(home) < 900) warnings.push(`Homepage content is shorter than 900 words (${wordCount(home)})`);
-const contact = pages.get("/contact/") || "";
-for (const [route, html] of [["/", home], ["/contact/", contact], ["/google-expert/", pages.get("/google-expert/") || ""], ["/services/google-business-profile/", pages.get("/services/google-business-profile/") || ""]]) {
-  if (!html.includes('id="google-business-map"')) errors.push(`${route}: missing Google Business Profile map section`);
+for (const [route, html] of pages) {
+  const mapSectionCount = (html.match(/id="google-business-map"/g) || []).length;
+  if (mapSectionCount !== 1) errors.push(`${route}: expected one sitewide Google Maps section, found ${mapSectionCount}`);
   if (!html.includes("www.google.com/maps/embed?pb=")) errors.push(`${route}: missing Google Maps embed`);
   if (!html.includes('referrerpolicy="strict-origin-when-cross-origin"')) errors.push(`${route}: Google Maps embed is missing its referrer policy`);
   if (!html.includes("https://maps.app.goo.gl/EbiR3AKJEZhkbMn66")) errors.push(`${route}: missing direct Google Business Profile link`);
+  if (!html.includes('width="600" height="450" style="border:0;"')) errors.push(`${route}: map embed does not preserve the supplied iframe dimensions and border setting`);
+  if (!/id="google-business-map"[\s\S]*<\/section><\/main><footer class="site-footer">/.test(html)) errors.push(`${route}: sitewide map is not placed immediately before the footer`);
 }
 if (!home.includes('"hasMap":"https://maps.app.goo.gl/EbiR3AKJEZhkbMn66"')) errors.push("Homepage ProfessionalService schema is missing hasMap");
 for (const [route, html] of pages) {
