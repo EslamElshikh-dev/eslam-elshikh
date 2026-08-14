@@ -55,7 +55,9 @@ if (!sitemap) errors.push("Missing sitemap.xml");
 
 const sitemapEntries = [...sitemap.matchAll(/<url>([\s\S]*?)<\/url>/gi)].map((match) => ({
   loc: matchOne(match[1], /<loc>([^<]+)<\/loc>/i),
-  lastmod: matchOne(match[1], /<lastmod>([^<]+)<\/lastmod>/i)
+  lastmod: matchOne(match[1], /<lastmod>([^<]+)<\/lastmod>/i),
+  alternates: [...match[1].matchAll(/<xhtml:link\s+rel=["']alternate["']\s+hreflang=["']([^"']+)["']\s+href=["']([^"']+)["']\s*\/>/gi)]
+    .map((alternate) => ({ hreflang: alternate[1], href: alternate[2] }))
 }));
 const sitemapRoutes = [];
 const seenLocations = new Set();
@@ -74,6 +76,22 @@ for (const entry of sitemapEntries) {
   else if (entry.lastmod > today) errors.push(`Future sitemap lastmod for ${entry.loc}: ${entry.lastmod}`);
   try { sitemapRoutes.push(normalizeRoute(new URL(entry.loc).pathname)); }
   catch { errors.push(`Invalid sitemap URL: ${entry.loc}`); }
+}
+
+if (!/xmlns:xhtml=["']http:\/\/www\.w3\.org\/1999\/xhtml["']/.test(sitemap)) errors.push("Sitemap is missing the xhtml namespace for language alternates");
+if (/<(?:changefreq|priority)>/i.test(sitemap)) errors.push("Sitemap contains changefreq or priority fields that Google ignores");
+const expectedHomeAlternates = new Map([
+  ["ar-SA", `${canonicalBase}/`],
+  ["en", `${canonicalBase}/en/`],
+  ["x-default", `${canonicalBase}/`]
+]);
+for (const route of ["/", "/en/"]) {
+  const loc = `${canonicalBase}${route}`;
+  const entry = sitemapEntries.find((item) => item.loc === loc);
+  const alternates = new Map((entry?.alternates || []).map((item) => [item.hreflang, item.href]));
+  for (const [hreflang, href] of expectedHomeAlternates) {
+    if (alternates.get(hreflang) !== href) errors.push(`Sitemap ${route} is missing reciprocal ${hreflang} alternate ${href}`);
+  }
 }
 
 for (const route of requiredRoutes) if (!sitemapRoutes.includes(route)) errors.push(`Sitemap missing required route ${route}`);
@@ -190,6 +208,7 @@ for (const required of ["robots.txt", "manifest.webmanifest", "feed.xml", "profi
 const robotsText = await readFile(join(output, "robots.txt"), "utf8").catch(() => "");
 if (!robotsText.includes(`Sitemap: ${canonicalBase}/sitemap.xml`)) errors.push("robots.txt does not reference the canonical sitemap");
 if (!/User-agent:\s*\*[\s\S]*Allow:\s*\//i.test(robotsText)) errors.push("robots.txt does not allow public crawling");
+if (/^Host:/im.test(robotsText)) errors.push("robots.txt contains the unsupported Host directive");
 
 const home = pages.get("/") || "";
 if ((home.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("Homepage does not render all 9 services");

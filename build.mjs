@@ -698,13 +698,14 @@ async function writeRoute(path, html, options = {}) {
 
 function sitemapXml() {
   const urls = generatedRoutes.map((path) => {
-    const priority = path === "/" ? "1.0" : path === "/services/" ? "0.9" : path.startsWith("/services/") ? "0.85" : path.startsWith("/blog/") ? "0.75" : "0.8";
-    const changefreq = path.startsWith("/blog/") ? "monthly" : "monthly";
     const articleSlug = path.match(/^\/blog\/([^/]+)\/$/)?.[1];
     const lastmod = articleSlug ? postBySlug(articleSlug)?.modified || site.lastUpdated : site.lastUpdated;
-    return `  <url><loc>${absolute(path)}</loc><lastmod>${lastmod}</lastmod><changefreq>${changefreq}</changefreq><priority>${priority}</priority></url>`;
+    const alternates = path === "/" || path === "/en/"
+      ? `<xhtml:link rel="alternate" hreflang="ar-SA" href="${site.url}/" /><xhtml:link rel="alternate" hreflang="en" href="${site.url}/en/" /><xhtml:link rel="alternate" hreflang="x-default" href="${site.url}/" />`
+      : "";
+    return `  <url><loc>${absolute(path)}</loc><lastmod>${lastmod}</lastmod>${alternates}</url>`;
   }).join("\n");
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`;
 }
 
 function feedXml() {
@@ -738,7 +739,7 @@ async function build() {
   await writeText("404.html", notFoundPage());
 
   await writeText("sitemap.xml", sitemapXml());
-  await writeText("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\nHost: ${site.url}\n`);
+  await writeText("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\n`);
   await writeText("manifest.webmanifest", JSON.stringify({ name: site.brandName, short_name: site.nameAr, description: site.description, lang: "ar", dir: "rtl", start_url: "/", scope: "/", display: "standalone", background_color: "#06131f", theme_color: "#06131f", icons: [{ src: "/assets/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }, { src: "/assets/brand/eslam-elshikh-logo-transparent.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }] }, null, 2));
   await writeText("feed.xml", feedXml());
   await writeText("profile.json", JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: site.nameAr, alternateName: site.nameEn, url: site.url, jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"], sameAs: Object.values(site.social), knowsAbout: [...services.map((service) => service.title), "إعلانات Google", "إدارة حملات Google Ads"] }, null, 2));
