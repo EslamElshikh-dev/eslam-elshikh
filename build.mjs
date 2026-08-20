@@ -744,8 +744,9 @@ async function build() {
   await writeText("feed.xml", feedXml());
   await writeText("profile.json", JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: site.nameAr, alternateName: site.nameEn, url: site.url, jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"], sameAs: Object.values(site.social), knowsAbout: [...services.map((service) => service.title), "إعلانات Google", "إدارة حملات Google Ads"] }, null, 2));
   await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- About: ${absolute("/about/")}\n- Google expertise: ${absolute("/google-expert/")}\n- Google Ads management: ${absolute("/google-ads/")}\n- Local SEO: ${absolute("/local-seo/")}\n- Work: ${absolute("/projects/")}\n- Contact: ${absolute("/contact/")}\n`);
+  if (isDistBuild) await cp(join(root, "llms-full.txt"), join(outDir, "llms-full.txt"));
   await writeText("humans.txt", `Site: ${site.brandName}\nLocation: ${site.city}, ${site.country}\nDesign and development: ${site.nameEn}\nUpdated: ${site.lastUpdated}\n`);
-  await writeText("CNAME", "eslam-elshikh.com\n");
+  await writeText("CNAME", "www.eslam-elshikh.com\n");
   await writeText(join(".well-known", "security.txt"), `Contact: mailto:${site.email}\nCanonical: ${site.url}/.well-known/security.txt\nPreferred-Languages: ar, en\nExpires: 2027-07-29T00:00:00.000Z\nPolicy: ${site.url}/terms/\n`);
   console.log(`Built ${generatedRoutes.length} indexed routes in ${outDir}`);
 }

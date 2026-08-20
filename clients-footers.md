@@ -7,7 +7,7 @@
 ```html
 <p class="developer-credit">
   تم تطوير الموقع بواسطة
-  <a href="https://eslam-elshikh.com/services/web-development/" title="تطوير مواقع الويب بواسطة المهندس إسلام الشيخ">
+  <a href="https://www.eslam-elshikh.com/services/web-development/" title="تطوير مواقع الويب بواسطة المهندس إسلام الشيخ">
     المهندس إسلام الشيخ — تطوير مواقع الويب
   </a>
 </p>
@@ -18,7 +18,7 @@
 ```html
 <p class="developer-credit">
   التطوير والتحسين الرقمي بواسطة
-  <a href="https://eslam-elshikh.com/" title="تحسين محركات البحث وهندسة المواقع">
+  <a href="https://www.eslam-elshikh.com/" title="تحسين محركات البحث وهندسة المواقع">
     إسلام الشيخ — تحسين محركات البحث
   </a>
 </p>
@@ -29,7 +29,7 @@
 ```html
 <p class="developer-credit">
   تهيئة الظهور المحلي بواسطة
-  <a href="https://eslam-elshikh.com/local-seo/" title="حلول السيو المحلي في الرياض والسعودية">
+  <a href="https://www.eslam-elshikh.com/local-seo/" title="حلول السيو المحلي في الرياض والسعودية">
     حلول السيو المحلي بالرياض — المهندس إسلام الشيخ
   </a>
 </p>

@@ -9,6 +9,7 @@ const root = resolve(here, "..");
 const dirArg = process.argv.find((arg) => arg.startsWith("--dir="));
 const output = resolve(root, dirArg ? dirArg.slice(6) : "dist");
 const canonicalBase = "https://www.eslam-elshikh.com";
+const deprecatedCanonicalBase = "https://eslam-elshikh.com";
 const errors = [];
 const warnings = [];
 
@@ -128,6 +129,8 @@ for (const route of sitemapRoutes) {
   const html = await readFile(file, "utf8");
   pages.set(route, html);
 
+  if (html.includes(deprecatedCanonicalBase)) errors.push(`${route}: contains deprecated non-www canonical references`);
+
   const title = matchOne(html, /<title>([\s\S]*?)<\/title>/i);
   const description = matchOne(html, /<meta\s+name=["']description["']\s+content=["']([^"']*)/i);
   const canonical = matchOne(html, /<link\s+rel=["']canonical["']\s+href=["']([^"']*)/i);
@@ -201,8 +204,13 @@ for (const [route, html] of pages) {
   }
 }
 
-for (const required of ["robots.txt", "manifest.webmanifest", "feed.xml", "profile.json", "llms.txt", "humans.txt", "CNAME", ".well-known/security.txt", "404.html"]) {
+for (const required of ["robots.txt", "manifest.webmanifest", "feed.xml", "profile.json", "llms.txt", "llms-full.txt", "humans.txt", "CNAME", ".well-known/security.txt", "404.html"]) {
   if (!(await exists(join(output, required)))) errors.push(`Missing generated file: ${required}`);
+}
+
+for (const publicFile of ["sitemap.xml", "robots.txt", "feed.xml", "profile.json", "llms.txt", "llms-full.txt", ".well-known/security.txt"]) {
+  const content = await readFile(join(output, publicFile), "utf8").catch(() => "");
+  if (content.includes(deprecatedCanonicalBase)) errors.push(`${publicFile}: contains deprecated non-www canonical references`);
 }
 
 const robotsText = await readFile(join(output, "robots.txt"), "utf8").catch(() => "");
