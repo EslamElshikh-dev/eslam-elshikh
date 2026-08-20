@@ -121,7 +121,7 @@
   }
 
   doc.querySelectorAll(".mobile-bottom-nav a").forEach((link) => {
-    const baseOrigin = window.location.origin === "null" ? "https://www.eslam-elshikh.com" : window.location.origin;
+    const baseOrigin = window.location.origin === "null" ? "https://eslam-elshikh.com" : window.location.origin;
     const linkPath = normalizePath(new URL(link.getAttribute("href") || "/", baseOrigin).pathname);
     const exact = currentPath === linkPath;
     const servicesSection = linkPath === "/services/" && (currentPath.startsWith("/services/") || currentPath.startsWith("/local-seo/"));

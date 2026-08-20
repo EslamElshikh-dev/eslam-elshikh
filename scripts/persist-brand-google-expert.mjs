@@ -2,7 +2,7 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const outDir = process.argv[2] || "dist";
-const canonical = "https://www.eslam-elshikh.com";
+const canonical = "https://eslam-elshikh.com";
 const approvedLogo = "https://i.ibb.co/QjrZzVgv/7756-removebg-preview.webp?v=20260730-1638";
 const profilePhoto = "https://avatars.githubusercontent.com/u/264218940?v=4";
 

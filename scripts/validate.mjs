@@ -8,7 +8,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
 const dirArg = process.argv.find((arg) => arg.startsWith("--dir="));
 const output = resolve(root, dirArg ? dirArg.slice(6) : "dist");
-const canonicalBase = "https://www.eslam-elshikh.com";
+const canonicalBase = "https://eslam-elshikh.com";
+const deprecatedCanonicalBase = "https://www.eslam-elshikh.com";
 const errors = [];
 const warnings = [];
 
@@ -127,6 +128,8 @@ for (const route of sitemapRoutes) {
   if (!(await exists(file))) continue;
   const html = await readFile(file, "utf8");
   pages.set(route, html);
+
+  if (html.includes(deprecatedCanonicalBase)) errors.push(`${route}: contains deprecated www canonical references`);
 
   const title = matchOne(html, /<title>([\s\S]*?)<\/title>/i);
   const description = matchOne(html, /<meta\s+name=["']description["']\s+content=["']([^"']*)/i);

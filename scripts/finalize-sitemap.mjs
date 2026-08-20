@@ -2,7 +2,7 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 
 const outDir = process.argv[2] || "dist";
-const canonical = "https://www.eslam-elshikh.com";
+const canonical = "https://eslam-elshikh.com";
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });

@@ -5,7 +5,7 @@
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const portraitUrl = "https://avatars.githubusercontent.com/u/264218940?v=4";
   const brandLogoUrl = "https://i.ibb.co/QjrZzVgv/7756-removebg-preview.webp?v=20260730-1638";
-  const canonicalBase = "https://www.eslam-elshikh.com";
+  const canonicalBase = "https://eslam-elshikh.com";
   const normalizedPath = location.pathname === "/" || location.pathname.endsWith("/")
     ? location.pathname
     : `${location.pathname}/`;

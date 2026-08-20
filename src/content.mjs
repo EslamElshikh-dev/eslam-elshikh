@@ -2,7 +2,7 @@ export const site = {
   brandName: "المهندس إسلام الشيخ",
   nameAr: "إسلام الشيخ",
   nameEn: "Eslam Elshikh",
-  url: "https://www.eslam-elshikh.com",
+  url: "https://eslam-elshikh.com",
   phoneDisplay: "057 939 5299",
   phone: "+966579395299",
   whatsapp: "https://wa.me/966579395299",
