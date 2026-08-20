@@ -4,12 +4,6 @@
   "private": true,
   "type": "module",
   "description": "Professional Arabic-first website for Eng. Eslam Elshikh: cybersecurity, software, AI agents, Google products, SEO, and cloud solutions.",
-  "dependencies": {
-    "googleapis": "^144.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.10.2"
-  },
   "scripts": {
     "build": "node build.mjs && node scripts/finalize-site.mjs . && node scripts/persist-brand-google-expert.mjs . && node scripts/finalize-brand-images.mjs . && node scripts/finalize-sitemap.mjs .",
     "build:vercel": "node build.mjs --out=dist && node scripts/finalize-site.mjs dist && node scripts/persist-brand-google-expert.mjs dist && node scripts/finalize-brand-images.mjs dist && node scripts/finalize-sitemap.mjs dist",
