@@ -493,6 +493,7 @@ export const projects = [
     tags: ["Web Development", "Technical SEO", "Content Architecture"],
     liveUrl: "https://tawodco.com/",
     githubUrl: "https://github.com/EslamElshikh-dev/tawod",
+    image: "/assets/projects/tawod.webp",
     accent: "cyan"
   },
   {
@@ -502,7 +503,68 @@ export const projects = [
     tags: ["Brand Experience", "AI Company", "Responsive UI"],
     liveUrl: "https://bowdylabs.com/",
     githubUrl: "https://github.com/EslamElshikh-dev/bowdy-labs",
+    image: "/assets/projects/bowdy-labs.webp",
     accent: "violet"
+  },
+  {
+    title: "مركز سما سكان للأشعة",
+    category: "موقع طبي متعدد الصفحات",
+    description: "تجربة رقمية لمركز أشعة في الرياض تعرض الخدمات الطبية بوضوح وطمأنينة، مع صفحات متخصصة وحجز سريع وبنية بحث محلي تراعي حساسية رحلة المراجع.",
+    tags: ["Next.js", "Healthcare UX", "Local SEO"],
+    liveUrl: "https://samascan.vercel.app/",
+    githubUrl: "https://github.com/EslamElshikh-dev/sama-scan-center-",
+    image: "/assets/projects/sama-scan.webp",
+    accent: "blue"
+  },
+  {
+    title: "تصور منصة CRM لشركة الأرجان",
+    category: "عرض تنفيذي تفاعلي",
+    description: "تصور بصري لمنصة موحدة لإدارة علاقات العملاء والمبيعات، يحول رحلة المتابعة والفرص والتقارير إلى قصة منتج مفهومة لصناع القرار.",
+    tags: ["Product Design", "CRM", "Interactive Proposal"],
+    liveUrl: "https://alargan-crm-proposal.vercel.app/",
+    githubUrl: "https://github.com/EslamElshikh-dev/alargan-crm-proposal",
+    image: "/assets/projects/alargan-crm.webp",
+    accent: "mint"
+  },
+  {
+    title: "بيورتي لايف لخدمات التنظيف",
+    category: "موقع شركة خدمات في جدة",
+    description: "واجهة تسويقية لخدمات تنظيف المنازل والفلل والمفروشات في جدة، تربط العرض بالخدمة والتغطية الجغرافية ومسارات الاتصال المباشر.",
+    tags: ["Lead Generation", "Local SEO", "Responsive UX"],
+    liveUrl: "https://puritylife.vercel.app/",
+    githubUrl: "https://github.com/EslamElshikh-dev/purity-life-cleaning",
+    image: "/assets/projects/purity-life.webp",
+    accent: "blue"
+  },
+  {
+    title: "مكتب عبدالله الشمراني للتجارة والمقاولات",
+    category: "موقع تجارة ومقاولات",
+    description: "حضور رقمي يجمع خدمات المقاولات والتشطيب وتوريد مواد البناء في تجربة واحدة، مع إبراز المقر الفعلي ونطاق التنفيذ ووسائل التواصل.",
+    tags: ["Corporate Website", "Service UX", "Local Search"],
+    liveUrl: "https://abdullah-alshamrani-store.vercel.app/",
+    githubUrl: "https://github.com/EslamElshikh-dev/Abdullahalshamrani",
+    image: "/assets/projects/abdullah-store.webp",
+    accent: "cyan"
+  },
+  {
+    title: "المبلط عادل",
+    category: "موقع خدمات تشطيب محلية",
+    description: "صفحة احترافية لخدمات تركيب البلاط والسيراميك والبورسلان والرخام في الرياض، بصور أعمال واضحة ورسائل ثقة ومسار طلب مباشر.",
+    tags: ["Landing Experience", "Conversion UX", "Local SEO"],
+    liveUrl: "https://almoablat-adel.vercel.app/",
+    githubUrl: "https://github.com/EslamElshikh-dev/almoablat-adel",
+    image: "/assets/projects/adel-furniture.webp",
+    accent: "violet"
+  },
+  {
+    title: "مؤسسة حزمة شقافي للديكور",
+    category: "منصة خدمات ديكور وخزائن",
+    description: "موقع عربي حديث لخدمات تفصيل الخزائن والدواليب والديكور الخشبي، مع صفحات خدمات وصور أعمال وتجربة اتصال سريعة على الجوال.",
+    tags: ["Next.js", "Content System", "Local SEO"],
+    liveUrl: "https://www.hezmashoqafi-decoration.com/",
+    githubUrl: "https://github.com/EslamElshikh-dev/hazmah-wood-decor",
+    image: "/assets/projects/hazma-decoration.webp",
+    accent: "mint"
   },
   {
     title: "مؤسسة العنود للديكور الخشبي",
@@ -511,6 +573,7 @@ export const projects = [
     tags: ["Local SEO", "Responsive UI", "Schema"],
     liveUrl: "https://alanoudfaraj.com/",
     githubUrl: "https://github.com/EslamElshikh-dev/alanood-contracting",
+    image: "/assets/projects/alanood.webp",
     accent: "mint"
   },
   {
@@ -520,7 +583,28 @@ export const projects = [
     tags: ["Landing Page", "Conversion UX", "Local Search"],
     liveUrl: "https://ameenservse.vercel.app/",
     githubUrl: "https://github.com/EslamElshikh-dev/ameenservse",
+    image: "/assets/projects/ameen.webp",
     accent: "blue"
+  },
+  {
+    title: "عنان لخدمات السباكة والكهرباء",
+    category: "موقع خدمات منزلية",
+    description: "موقع متجاوب لخدمات السباكة والكهرباء في أحياء الرياض، يشرح الأعطال والخدمات ويقود العميل إلى اتصال أو واتساب دون تعقيد.",
+    tags: ["Mobile First", "Service Architecture", "Local SEO"],
+    liveUrl: "https://ananservices.com/",
+    githubUrl: "https://github.com/EslamElshikh-dev/anan-services",
+    image: "/assets/projects/anan-services.webp",
+    accent: "cyan"
+  },
+  {
+    title: "مكرم لتفصيل الخزائن والدواليب",
+    category: "موقع نجارة وديكور محلي",
+    description: "واجهة دافئة لخدمات تفصيل الخزائن وغرف النوم والمطابخ وصيانة الأثاث في الرياض، بهوية بصرية عملية ومسارات طلب واضحة.",
+    tags: ["Web Design", "Local Search", "Conversion Paths"],
+    liveUrl: "https://makram-carpnter.com/",
+    githubUrl: "https://github.com/EslamElshikh-dev/makram-carpenter",
+    image: "/assets/projects/makram-carpenter.webp",
+    accent: "violet"
   }
 ];
 

@@ -10,7 +10,7 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.1.3";
+const version = "3.2.0";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)
@@ -306,8 +306,31 @@ function serviceCard(service) {
   </article>`;
 }
 
-function projectCard(project) {
-  return `<article class="project-card reveal"><div class="project-visual"><span>${esc(project.category)}</span><strong>${esc(project.title.split(" ").slice(0, 2).join(" "))}</strong><div aria-hidden="true"></div></div><div class="project-content"><h3>${esc(project.title)}</h3><p>${esc(project.description)}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div><div class="project-actions"><a class="button button-small" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="معاينة موقع ${esc(project.title)} المنشور">معاينة المشروع ${icon("external", "button-icon")}</a><a class="text-link project-code-link" href="${project.githubUrl}" target="_blank" rel="noopener" aria-label="عرض كود مشروع ${esc(project.title)} على GitHub">عرض الكود ${icon("code")}</a></div></div></article>`;
+function projectActions(project, className = "") {
+  return `<div class="portfolio-actions${className ? ` ${className}` : ""}"><a class="button button-small" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="معاينة موقع ${esc(project.title)} المنشور">معاينة المشروع ${icon("external", "button-icon")}</a><a class="text-link portfolio-code-link" href="${project.githubUrl}" target="_blank" rel="noopener" aria-label="عرض كود مشروع ${esc(project.title)} على GitHub">عرض الكود ${icon("code")}</a></div>`;
+}
+
+function projectImage(project, { eager = false } = {}) {
+  return `<img src="${project.image}" width="1200" height="750" alt="لقطة من واجهة موقع ${esc(project.title)}" loading="${eager ? "eager" : "lazy"}" decoding="async"${eager ? ' fetchpriority="high"' : ""}>`;
+}
+
+function featuredProject(project) {
+  const domain = new URL(project.liveUrl).hostname.replace(/^www\./, "");
+  return `<article class="portfolio-featured reveal"><div class="portfolio-featured-copy"><span class="portfolio-index" dir="ltr">FEATURED / 01</span><p class="portfolio-kicker">${esc(project.category)}</p><h3>${esc(project.title)}</h3><p class="portfolio-description">${esc(project.description)}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div>${projectActions(project)}</div><a class="portfolio-stage" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="فتح موقع ${esc(project.title)} المنشور"><span class="portfolio-stage-orbit" aria-hidden="true"></span><span class="portfolio-browser"><span class="portfolio-browser-bar"><span class="browser-dots" aria-hidden="true"><i></i><i></i><i></i></span><span dir="ltr">${esc(domain)}</span></span>${projectImage(project)}</span></a></article>`;
+}
+
+function showcaseProject(project, index) {
+  return `<article class="portfolio-project reveal"><a class="portfolio-project-media" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="فتح موقع ${esc(project.title)} المنشور"><span class="portfolio-project-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span>${projectImage(project)}</a><div class="portfolio-project-copy"><p class="portfolio-kicker">${esc(project.category)}</p><h3>${esc(project.title)}</h3><p>${esc(project.description)}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div>${projectActions(project)}</div></article>`;
+}
+
+function archiveProject(project, index) {
+  return `<article class="portfolio-archive-row reveal"><span class="portfolio-archive-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span><a class="portfolio-archive-media" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="فتح موقع ${esc(project.title)} المنشور">${projectImage(project)}</a><div class="portfolio-archive-copy"><p class="portfolio-kicker">${esc(project.category)}</p><h3>${esc(project.title)}</h3><p>${esc(project.description)}</p></div>${projectActions(project, "portfolio-archive-actions")}</article>`;
+}
+
+function projectsShowcase({ home = false } = {}) {
+  const highlights = projects.slice(1, home ? 3 : 5);
+  const archive = home ? [] : projects.slice(5);
+  return `<div class="portfolio-showcase">${featuredProject(projects[0])}<div class="portfolio-highlight-grid">${highlights.map((project, index) => showcaseProject(project, index + 1)).join("")}</div>${archive.length ? `<div class="portfolio-archive" aria-label="المزيد من الأعمال">${archive.map((project, index) => archiveProject(project, index + 5)).join("")}</div>` : ""}</div>`;
 }
 
 function postCard(post, { featured = false } = {}) {
@@ -364,7 +387,7 @@ function homePage() {
   <article class="principle reveal"><span>04</span>${icon("chart")}<h3>قياس وتحسين</h3><p>السيو والأداء والتحويلات جزء من التشغيل، وليست إضافات لاحقة.</p></article>
 </div></div></section>
 <section class="section-pad results-section"><div class="container"><div class="section-heading reveal">${eyebrow("ما الذي تحصل عليه؟")}<h2>مخرجات تساعدك على اتخاذ القرار والتشغيل بثقة</h2></div><div class="result-grid"><article class="result-card reveal">${icon("layers")}<h3>بنية قابلة للتوسع</h3><p>محتوى وكود ومسارات واضحة تقلل إعادة العمل وتسمح بإضافة خدمات وصفحات وتكاملات دون فوضى.</p></article><article class="result-card reveal">${icon("search")}<h3>وضوح لمحركات البحث والعملاء</h3><p>عناوين ومحتوى وروابط وبيانات منظمة تشرح من أنت، ماذا تقدم، ولمن، وأين، دون حشو أو تكرار.</p></article><article class="result-card reveal">${icon("shield")}<h3>مخاطر أقل وتشغيل أفضل</h3><p>قرارات أمنية وتقنية موثقة، وأولويات قابلة للمتابعة، وتجربة متجاوبة لا تعتمد على جهاز واحد.</p></article></div></div></section>
-<section class="section-pad projects-section"><div class="container"><div class="section-heading reveal">${eyebrow("مختارات من الأعمال")}<h2>مشروعات تربط التصميم بالنتيجة التجارية</h2><p>نماذج من مواقع وصفحات ومنظومات محتوى محلية تم تطويرها مع التركيز على تجربة الجوال والسيو والتحويل.</p></div><div class="projects-grid">${projects.slice(0, 3).map(projectCard).join("")}</div><div class="section-action">${button("/projects/", "عرض جميع الأعمال", "button-ghost")}</div></div></section>
+<section class="section-pad projects-section"><div class="container"><div class="section-heading reveal">${eyebrow("مختارات من الأعمال")}<h2>مشروعات حقيقية، لكل واحد منها قصة وهوية</h2><p>نماذج حية من مواقع ومنتجات رقمية تم تطويرها للشركات والأنشطة، مع الجمع بين التصميم والتقنية والسيو ومسارات التحويل.</p></div>${projectsShowcase({ home: true })}<div class="section-action">${button("/projects/", "استكشف جميع الأعمال", "button-ghost")}</div></div></section>
 <section class="section-pad google-proof-section"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>إسلام الشيخ — خبير خرائط جوجل</span><h2>خبرة موثقة في خرائط Google والملفات التجارية</h2><p>تشخيص مشكلات التحقق والتعليق والملكية والفئات، وتحسين اتساق بيانات النشاط والظهور المحلي وفق سياسات Google، مع نماذج أعمال منشورة يمكن مراجعتها.</p><div class="proof-numbers"><span><strong>1411+</strong> مساهمة في توثيق وإدارة الملفات</span><span><strong>Google</strong> ملف خبير منتجات موثق</span></div></div><div class="proof-actions">${button("/google-expert/", "تعرف على خبير خرائط جوجل")}${button(site.social.googleDeveloper, "عرض الملف الرسمي", "button-ghost", true)}</div></div></section>
 <section class="section-pad process-section"><div class="container"><div class="section-heading reveal">${eyebrow("مسار العمل")}<h2>وضوح من أول سؤال حتى ما بعد الإطلاق</h2></div><ol class="process-list"><li class="reveal"><span>01</span><h3>تشخيص الهدف</h3><p>فهم المستخدم والنتيجة والقيود والمخاطر والبيانات المتاحة قبل اختيار الأدوات.</p></li><li class="reveal"><span>02</span><h3>تصميم الحل</h3><p>تحديد البنية والمحتوى والنطاق والمخرجات ومعايير القبول وخطة التنفيذ.</p></li><li class="reveal"><span>03</span><h3>تنفيذ ومراجعة</h3><p>بناء على مراحل قصيرة قابلة للاختبار، مع توثيق القرارات والملاحظات.</p></li><li class="reveal"><span>04</span><h3>إطلاق وتحسين</h3><p>فحص الأداء والأجهزة والفهرسة والروابط، ثم متابعة المؤشرات وفرص التطوير.</p></li></ol></div></section>
 <section class="section-pad blog-section"><div class="container"><div class="section-heading reveal">${eyebrow("معرفة عملية")}<h2>مقالات تساعدك على اتخاذ قرارات تقنية أكثر وضوحًا</h2></div><div class="posts-grid">${allPosts.slice(0, 3).map((post) => postCard(post)).join("")}</div><div class="section-action">${button("/blog/", "استكشف المدونة", "button-ghost")}</div></div></section>
@@ -545,7 +568,7 @@ function mapCard(item) {
 
 function projectsPage() {
   const body = `${innerHero({ eyebrowText: "الأعمال والمشروعات", title: "نماذج من تطوير المواقع والسيو المحلي والحضور الرقمي", lead: "مشروعات عامة توضح كيف يتحول الهدف التجاري إلى بنية محتوى وتجربة متجاوبة ومسارات تواصل وقياس، مع الاهتمام بالتفاصيل التي تظهر على الجوال قبل سطح المكتب.", path: "/projects/", crumbs: [{ name: "الأعمال", path: "/projects/" }], aside: `<span class="aside-kicker">Selected Work</span><strong>تصميم وتطوير وسيو في منظومة واحدة</strong><p>كل مشروع يعالج سياقًا مختلفًا؛ من المقاولات والخدمات المحلية إلى شركات التقنية والذكاء الاصطناعي.</p>` })}
-<section class="section-pad"><div class="container"><div class="projects-grid projects-grid-all">${projects.map(projectCard).join("")}</div></div></section>
+<section class="section-pad portfolio-page-section"><div class="container"><div class="portfolio-page-heading reveal"><span>12 مشروعًا منشورًا</span><p>مجموعة منتقاة من المواقع والمنصات العامة، مرتبة بصريًا لتوضّح تنوع القطاعات وطبيعة الحل في كل مشروع.</p></div>${projectsShowcase()}</div></section>
 <section class="section-pad muted-section" id="google-maps-work"><div class="container"><div class="section-heading reveal">${eyebrow("أعمال خرائط Google")}<h2>نماذج من ملفات الأنشطة المحلية في الرياض</h2><p>ملفات عامة يمكن فتحها مباشرة لمعاينة الحضور على خرائط Google.</p></div><div class="maps-grid">${mapsProjects.map(mapCard).join("")}</div></div></section>
 <section class="section-pad"><div class="container case-method reveal"><div><span>منهج المشروع</span><h2>لا توجد نسخة واحدة تُكرر على كل نشاط</h2></div><p>تختلف بنية الموقع والمحتوى والدعوات والبيانات المنظمة حسب نموذج النشاط ورحلة العميل والمنافسة والقدرة التشغيلية. الهدف هو حل يناسب العمل الحقيقي، لا قالبًا يغير الألوان والشعار فقط.</p>${button("/contact/", "ناقش مشروعًا مشابهًا")}</div></section>
 ${finalCta("هل تريد تحويل نشاطك إلى تجربة رقمية احترافية؟", "أرسل رابط الموقع أو الملف التجاري والخدمات المستهدفة والمدينة والهدف، وسنحدد ما يحتاج إعادة بناء وما يمكن تحسينه تدريجيًا.")}`;
