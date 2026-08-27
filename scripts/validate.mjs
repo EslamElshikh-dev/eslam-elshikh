@@ -152,7 +152,13 @@ for (const route of sitemapRoutes) {
   if (!/<meta\s+property=["']og:title["']/i.test(html) || !/<meta\s+name=["']twitter:card["']/i.test(html)) errors.push(`${route}: incomplete social metadata`);
   if (!/<script\s+type=["']application\/ld\+json["']>/i.test(html)) errors.push(`${route}: missing JSON-LD`);
   if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/main\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned main stylesheet`);
+  const stylesheetCount = (html.match(/<link\b[^>]*\brel=["']stylesheet["'][^>]*>/gi) || []).length;
+  if (stylesheetCount !== 1) errors.push(`${route}: expected one render-blocking stylesheet, found ${stylesheetCount}`);
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
+  if (/https:\/\/(?:i\.ibb\.co|avatars\.githubusercontent\.com)/i.test(html)) errors.push(`${route}: references a legacy third-party image host`);
+  for (const image of html.matchAll(/<img\b([^>]*)>/gi)) {
+    if (!/\bwidth=["']\d+["']/i.test(image[1]) || !/\bheight=["']\d+["']/i.test(image[1])) errors.push(`${route}: image is missing explicit width and height`);
+  }
   if (!/<main\s+id=["']main["']>/i.test(html)) errors.push(`${route}: missing main landmark`);
   if (!/<footer\s+class=["']site-footer["']>/i.test(html)) errors.push(`${route}: missing footer`);
   const isArticle = route.startsWith("/blog/") && route !== "/blog/" && !route.startsWith("/blog/topics/");
@@ -220,6 +226,9 @@ if (/^Host:/im.test(robotsText)) errors.push("robots.txt contains the unsupporte
 
 const home = pages.get("/") || "";
 if ((home.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("Homepage does not render all 9 services");
+if ((home.match(/aria-label=["']تفاصيل خدمة /g) || []).length !== 9) errors.push("Homepage service detail links need unique accessible labels");
+if (/<script\b[^>]*\bsrc=["']https:\/\/www\.googletagmanager\.com/i.test(home)) errors.push("Homepage loads Google Analytics before the deferred loader");
+if (!/setTimeout\(load,8000\)/.test(home)) errors.push("Homepage is missing the delayed Google Analytics fallback");
 if (wordCount(home) < 900) warnings.push(`Homepage content is shorter than 900 words (${wordCount(home)})`);
 for (const [route, html] of pages) {
   const mapSectionCount = (html.match(/id="google-business-map"/g) || []).length;
@@ -248,9 +257,15 @@ const english = pages.get("/en/") || "";
 const englishServices = matchOne(english, /<section\s+class=["']section-pad["']\s+id=["']services["']>([\s\S]*?)<\/section>/i);
 const englishFooterServices = matchOne(english, /<div\s+class=["']footer-column footer-services["']>([\s\S]*?)<\/div>/i);
 if ((englishServices.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("English homepage does not render all 9 translated services");
+if ((englishServices.match(/aria-label=["']View details for /g) || []).length !== 9) errors.push("English service detail links need unique accessible labels");
 if (/[\u0600-\u06ff]/.test(englishServices)) errors.push("English service cards still contain Arabic text");
 if (/[\u0600-\u06ff]/.test(englishFooterServices)) errors.push("English footer service links still contain Arabic text");
 if (/اتصل الآن|راسلني واتساب/.test(textContent(english))) errors.push("English page still contains Arabic floating-contact labels");
+
+const productionCss = await readFile(join(output, "assets", "css", "main.css"), "utf8").catch(() => "");
+if (!productionCss.includes(".js .hero .hero-copy.reveal")) errors.push("Production CSS is missing the above-the-fold reveal override");
+if (!productionCss.includes("/* Production enhancements */")) errors.push("Production CSS did not include the merged enhancements stylesheet");
+if (/floating-contact-breathe/.test(productionCss)) errors.push("Production CSS still animates non-composited box-shadow values");
 
 console.log(`Validated ${pages.size} canonical HTML routes in ${output}; ${redirects.size} permanent redirects checked.`);
 if (warnings.length) {

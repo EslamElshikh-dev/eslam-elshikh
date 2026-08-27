@@ -4,11 +4,12 @@ import { join, relative } from "node:path";
 const outDir = process.argv[2] || "dist";
 const canonical = "https://www.eslam-elshikh.com";
 const primaryLogo = "/assets/brand/eslam-elshikh-primary.svg";
-const profilePhoto = "https://avatars.githubusercontent.com/u/264218940?v=4";
+const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 const gaId = "G-MDJ2HGF9E1";
 
-const gaTag = `<script async src="https://www.googletagmanager.com/gtag/js?id=${gaId}"></script>\n<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${gaId}',{anonymize_ip:true});</script>`;
-const extraHead = `<link rel="stylesheet" href="/assets/css/enhancements.css?v=1.0.0">`;
+const gaTag = `<script>(()=>{const id="${gaId}";window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){dataLayer.push(arguments)};gtag("js",new Date());gtag("config",id,{anonymize_ip:true});const load=()=>{if(window.__gaLoaded)return;window.__gaLoaded=true;const script=document.createElement("script");script.async=true;script.src="https://www.googletagmanager.com/gtag/js?id="+id;document.head.appendChild(script)};["pointerdown","keydown","touchstart"].forEach(type=>addEventListener(type,load,{once:true,passive:true}));addEventListener("load",()=>setTimeout(load,8000),{once:true})})();</script>`;
+const isDistBuild = /(^|[\\/])dist$/.test(outDir);
+const extraHead = isDistBuild ? "" : `<link rel="stylesheet" href="/assets/css/enhancements.css?v=1.0.2">`;
 const extraBody = `<script src="/assets/js/enhancements.js?v=1.0.0" defer></script>`;
 const json = (value) => JSON.stringify(value).replaceAll("<", "\\u003c");
 
@@ -56,7 +57,7 @@ for (const path of htmlFiles) {
   html = html.replace(/(<img[^>]+class="hero-logo"[^>]+alt=")[^"]*(")/g, `$1${isEnglish ? "Portrait of Eng. Eslam Elshikh" : "صورة المهندس إسلام الشيخ"}$2`);
   html = html.replace(/(<img[^>]+class="profile-logo"[^>]+alt=")[^"]*(")/g, `$1${isEnglish ? "Portrait of Eng. Eslam Elshikh" : "صورة المهندس إسلام الشيخ"}$2`);
   if (!html.includes("googletagmanager.com/gtag/js?id=")) html = html.replace("</head>", `${gaTag}\n</head>`);
-  if (!html.includes("/assets/css/enhancements.css")) html = html.replace("</head>", `${extraHead}\n</head>`);
+  if (extraHead && !html.includes("/assets/css/enhancements.css")) html = html.replace("</head>", `${extraHead}\n</head>`);
   if (!html.includes("/assets/js/enhancements.js")) html = html.replace("</body>", `${extraBody}\n</body>`);
   html = html.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g, (full, raw) => {
     try { return `<script type="application/ld+json">${json(normalizeSchema(JSON.parse(raw)))}</script>`; } catch { return full; }

@@ -2,7 +2,10 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const outDir = process.argv[2] || "dist";
-const approvedLogo = "https://i.ibb.co/QjrZzVgv/7756-removebg-preview.webp?v=20260730-1638";
+const canonical = "https://www.eslam-elshikh.com";
+const approvedLogo = `${canonical}/assets/brand/eslam-elshikh-logo-20260827.webp`;
+const interfaceLogo = `${canonical}/assets/brand/eslam-elshikh-logo-ui-20260827.webp`;
+const profilePhoto = `${canonical}/assets/brand/eslam-elshikh-portrait-20260827.webp`;
 const brandName = "المهندس إسلام الشيخ";
 
 async function walk(dir) {
@@ -31,12 +34,11 @@ function updateSchemaImages(value) {
   const types = Array.isArray(value["@type"]) ? value["@type"] : [value["@type"]];
   const hasType = (...names) => names.some((name) => types.includes(name));
 
-  if (hasType("Person")) value.image = approvedLogo;
+  if (hasType("Person")) value.image = profilePhoto;
   if (hasType("ProfessionalService", "LocalBusiness", "Organization")) {
     value.logo = approvedLogo;
-    value.image = approvedLogo;
+    value.image = profilePhoto;
   }
-  if (hasType("WebSite", "WebPage", "ProfilePage", "Article", "BlogPosting", "Service")) value.image = approvedLogo;
 
   for (const [key, child] of Object.entries(value)) {
     if (key !== "@context") value[key] = updateSchemaImages(child);
@@ -45,9 +47,9 @@ function updateSchemaImages(value) {
 }
 
 const iconTags = [
-  `<link rel="icon" href="${approvedLogo}" type="image/webp" sizes="any">`,
-  `<link rel="shortcut icon" href="${approvedLogo}" type="image/webp">`,
-  `<link rel="apple-touch-icon" href="${approvedLogo}">`
+  `<link rel="icon" href="${interfaceLogo}" type="image/webp" sizes="192x192">`,
+  `<link rel="shortcut icon" href="${interfaceLogo}" type="image/webp">`,
+  `<link rel="apple-touch-icon" href="${interfaceLogo}" sizes="192x192">`
 ].join("\n  ");
 
 const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
@@ -84,7 +86,7 @@ for (const path of htmlFiles) {
 try {
   const manifestPath = join(outDir, "manifest.webmanifest");
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
-  manifest.icons = [{ src: approvedLogo, sizes: "any", type: "image/webp", purpose: "any maskable" }];
+  manifest.icons = [{ src: interfaceLogo, sizes: "192x192", type: "image/webp", purpose: "any maskable" }];
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2), "utf8");
 } catch (error) {
   console.warn("Manifest icon update skipped:", error.message);
@@ -93,7 +95,7 @@ try {
 try {
   const profilePath = join(outDir, "profile.json");
   const profile = JSON.parse(await readFile(profilePath, "utf8"));
-  profile.image = approvedLogo;
+  profile.image = profilePhoto;
   await writeFile(profilePath, JSON.stringify(profile, null, 2), "utf8");
 } catch (error) {
   console.warn("Profile image update skipped:", error.message);

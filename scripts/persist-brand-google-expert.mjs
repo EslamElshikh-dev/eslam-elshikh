@@ -3,8 +3,10 @@ import { join } from "node:path";
 
 const outDir = process.argv[2] || "dist";
 const canonical = "https://www.eslam-elshikh.com";
-const approvedLogo = "https://i.ibb.co/QjrZzVgv/7756-removebg-preview.webp?v=20260730-1638";
-const profilePhoto = "https://avatars.githubusercontent.com/u/264218940?v=4";
+const approvedLogo = "/assets/brand/eslam-elshikh-logo-ui-20260827.webp";
+const approvedLogoAbsolute = `${canonical}/assets/brand/eslam-elshikh-logo-20260827.webp`;
+const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
+const profilePhotoAbsolute = `${canonical}${profilePhoto}`;
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -27,13 +29,6 @@ const logoPaths = [
   "/assets/brand/eslam-elshikh-logo-transparent.png",
   "/assets/brand/eslam-elshikh-logo.webp"
 ];
-
-const connectionHints = [
-  '<link rel="preconnect" href="https://i.ibb.co" crossorigin>',
-  '<link rel="preconnect" href="https://avatars.githubusercontent.com" crossorigin>',
-  '<link rel="dns-prefetch" href="//i.ibb.co">',
-  '<link rel="dns-prefetch" href="//avatars.githubusercontent.com">'
-].join("\n");
 
 const counterScript = '<script src="/assets/js/enhancements.js?v=1.0.0" defer></script>';
 const socialIcons = {
@@ -59,8 +54,8 @@ for (const path of htmlFiles) {
       const graph = Array.isArray(data?.["@graph"]) ? data["@graph"] : [];
       for (const item of graph) {
         const types = Array.isArray(item?.["@type"]) ? item["@type"] : [item?.["@type"]];
-        if (types.includes("Person")) item.image = profilePhoto;
-        if (types.includes("ProfessionalService") || types.includes("LocalBusiness") || types.includes("Organization")) item.logo = approvedLogo;
+        if (types.includes("Person")) item.image = profilePhotoAbsolute;
+        if (types.includes("ProfessionalService") || types.includes("LocalBusiness") || types.includes("Organization")) item.logo = approvedLogoAbsolute;
       }
       return `${open}${JSON.stringify(data)}${close}`;
     } catch {
@@ -76,9 +71,7 @@ for (const path of htmlFiles) {
   html = html.replace(/(<a class="floating-action floating-call"[^>]*>[\s\S]*?<span>)[^<]*(<\/span>)/g, `$1${isEnglish ? "Call now" : "اتصل الآن"}$2`);
   html = html.replace(/(<a class="floating-action floating-whatsapp"[^>]*>[\s\S]*?<span>)[^<]*(<\/span>)/g, `$1${isEnglish ? "Message on WhatsApp" : "راسلني واتساب"}$2`);
 
-  if (!html.includes('rel="preconnect" href="https://i.ibb.co"')) {
-    html = html.replace("</head>", `${connectionHints}\n</head>`);
-  }
+  html = html.replace(/\s*<link\s+rel=["'](?:preconnect|dns-prefetch)["']\s+href=["'](?:https?:\/\/|\/\/)(?:i\.ibb\.co|avatars\.githubusercontent\.com)[^"']*["'][^>]*>\s*/gi, "\n");
 
   if (!html.includes("/assets/js/enhancements.js")) {
     html = html.replace("</body>", `${counterScript}\n</body>`);

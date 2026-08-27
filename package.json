@@ -1,6 +1,6 @@
 {
   "name": "eslam-elshikh-portfolio",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "private": true,
   "type": "module",
   "description": "Professional Arabic-first website for Eng. Eslam Elshikh: cybersecurity, software, AI agents, Google products, SEO, and cloud solutions.",
@@ -12,6 +12,6 @@
     "check": "node --check build.mjs && node --check src/content.mjs && node --check src/editorial.mjs && node --check src/guides.mjs && node --check assets/js/main.js && node --check assets/js/enhancements.js && node --check scripts/finalize-site.mjs && node --check scripts/persist-brand-google-expert.mjs && node --check scripts/finalize-brand-images.mjs && node --check scripts/finalize-sitemap.mjs && npm run build:vercel && npm run validate && npm run smoke"
   },
   "engines": {
-    "node": ">=20"
+    "node": "24.x"
   }
 }

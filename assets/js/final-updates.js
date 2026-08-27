@@ -3,9 +3,11 @@
 
   const doc = document;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const portraitUrl = "https://avatars.githubusercontent.com/u/264218940?v=4";
-  const brandLogoUrl = "https://i.ibb.co/QjrZzVgv/7756-removebg-preview.webp?v=20260730-1638";
+  const portraitUrl = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
+  const brandLogoUrl = "/assets/brand/eslam-elshikh-logo-ui-20260827.webp";
   const canonicalBase = "https://www.eslam-elshikh.com";
+  const portraitSchemaUrl = `${canonicalBase}${portraitUrl}`;
+  const brandLogoSchemaUrl = `${canonicalBase}/assets/brand/eslam-elshikh-logo-20260827.webp`;
   const normalizedPath = location.pathname === "/" || location.pathname.endsWith("/")
     ? location.pathname
     : `${location.pathname}/`;
@@ -39,8 +41,8 @@
     img.decoding = "async";
     img.loading = img.closest("header") ? "eager" : "lazy";
     img.referrerPolicy = "no-referrer";
-    img.removeAttribute("width");
-    img.removeAttribute("height");
+    img.width = 128;
+    img.height = 128;
   });
 
   const profileSelectors = ".hero-logo, .profile-card img, .about-profile img, [class*=profile-card] img";
@@ -49,8 +51,8 @@
     img.src = portraitUrl;
     img.alt = doc.documentElement.lang.startsWith("en") ? "Eslam Elshikh" : "المهندس إسلام الشيخ";
     img.classList.add("profile-portrait-image");
-    img.removeAttribute("width");
-    img.removeAttribute("height");
+    img.width = 280;
+    img.height = 280;
   });
 
   const statsMarkup = desiredStats.map((item) => `
@@ -135,7 +137,7 @@
         if (types.includes("Person")) {
           item["@id"] = item["@id"] || personId;
           personId = item["@id"];
-          item.image = portraitUrl;
+          item.image = portraitSchemaUrl;
           item.homeLocation = { "@type": "City", name: "الرياض" };
           item.knowsAbout = ["تصميم مواقع الويب", "الأمن السيبراني", "الذكاء الاصطناعي", "تحسين محركات البحث", "Google Business Profile", "الحلول السحابية"];
         }
@@ -150,8 +152,8 @@
         if (types.includes("ProfessionalService") || types.includes("LocalBusiness")) {
           item.name = "المهندس إسلام الشيخ";
           item.url = canonicalBase;
-          item.logo = brandLogoUrl;
-          item.image = portraitUrl;
+          item.logo = brandLogoSchemaUrl;
+          item.image = portraitSchemaUrl;
           item.areaServed = { "@type": "City", name: "الرياض" };
           item.address = { "@type": "PostalAddress", addressLocality: "الرياض", addressRegion: "منطقة الرياض", addressCountry: "SA" };
           delete item.geo;
@@ -160,7 +162,7 @@
         }
 
         if (item.logo && typeof item.logo === "string") {
-          item.logo = brandLogoUrl;
+          item.logo = brandLogoSchemaUrl;
         }
       });
 

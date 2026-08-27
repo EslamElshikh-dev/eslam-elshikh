@@ -9,6 +9,12 @@ on:
       - "**/*.xml"
       - "**/*.json"
       - "assets/**"
+      - "src/**"
+      - "scripts/**"
+      - "build.mjs"
+      - "package.json"
+      - "vercel.json"
+      - ".github/workflows/site-quality.yml"
   schedule:
     - cron: "17 3 * * 1"
 
@@ -20,18 +26,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Build and validate production output
+        run: npm run check
       - name: Validate required files
         run: |
-          test -f index.html
-          test -f sitemap.xml
-          test -f robots.txt
-          test -f 404.html
-          test -f .well-known/security.txt
-          test -f privacy/index.html
-          test -f terms/index.html
-          grep -q "https://www.eslam-elshikh.com/" sitemap.xml
+          test -f dist/index.html
+          test -f dist/sitemap.xml
+          test -f dist/robots.txt
+          test -f dist/404.html
+          test -f dist/.well-known/security.txt
+          test -f dist/privacy/index.html
+          test -f dist/terms/index.html
+          grep -q "https://www.eslam-elshikh.com/" dist/sitemap.xml
       - name: Check links
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --verbose --no-progress --accept 200,204,206,429 --exclude-mail "./**/*.html" "./**/*.xml" "./**/*.json"
+          args: --verbose --no-progress --accept 200,204,206,429 --exclude-mail "./dist/**/*.html" "./dist/**/*.xml" "./dist/**/*.json"
           fail: true

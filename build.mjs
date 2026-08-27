@@ -1,4 +1,4 @@
-import { cp, mkdir, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { site, services, projects, mapsProjects, posts, homeFaq, localSeoFaq } from "./src/content.mjs";
@@ -10,8 +10,8 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.1.1";
-const profilePhoto = "https://avatars.githubusercontent.com/u/264218940?v=4";
+const version = "3.1.2";
+const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)
   .replaceAll("&", "&amp;")
@@ -64,7 +64,10 @@ const icons = {
 };
 
 const icon = (name, className = "icon") => `<svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${icons[name] ?? icons.shield}</svg>`;
-const logo = (className = "brand-logo", alt = "") => `<img class="${className}" src="${site.logo}" width="512" height="512" alt="${esc(alt)}" decoding="async">`;
+const logo = (className = "brand-logo", alt = "") => {
+  const size = /(?:hero|profile)-logo/.test(className) ? 280 : 128;
+  return `<img class="${className}" src="${site.logo}" width="${size}" height="${size}" alt="${esc(alt)}" decoding="async">`;
+};
 
 const socialLinks = [
   ["GitHub", site.social.github, "GH"],
@@ -299,7 +302,7 @@ function serviceCard(service) {
     <p class="service-group">${esc(service.group)}</p>
     <h3><a href="/services/${service.slug}/">${esc(service.title)}</a></h3>
     <p>${esc(service.short)}</p>
-    <a class="text-link" href="/services/${service.slug}/">تفاصيل الخدمة ${icon("arrow")}</a>
+    <a class="text-link" href="/services/${service.slug}/" aria-label="تفاصيل خدمة ${esc(service.title)}">تفاصيل الخدمة ${icon("arrow")}</a>
   </article>`;
 }
 
@@ -674,7 +677,7 @@ function termsPage() {
 
 function englishPage() {
   const body = `<section class="hero section-pad hero-en"><div class="container hero-grid"><div class="hero-copy reveal"><span class="eyebrow"><span></span>Cybersecurity Engineer · Software Developer · Google Product Expert</span><h1>I build digital systems that are <span>secure, useful, and ready to grow.</span></h1><p class="hero-lead">I am Eslam Elshikh, based in Riyadh. I combine cybersecurity, web and software engineering, practical AI agents, Google product expertise, cloud architecture, and search visibility into clear project scopes with reviewable outcomes.</p><p class="hero-support">From diagnosis and information architecture to implementation, testing, launch, and measurement, the goal is to reduce complexity and help your team make better technical decisions.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start a conversation", "", true)}${button("/services/", "Explore services", "button-ghost")}</div><div class="hero-trust"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>Google Developer Profile</a><a href="${site.social.github}" target="_blank" rel="noopener"><span class="trust-dot"></span>GitHub</a><span><span class="trust-dot trust-live"></span>Saudi Arabia & remote</span></div></div><div class="hero-visual reveal"><div class="visual-glow"></div><div class="visual-shell"><div class="visual-top"><span>Digital Engineering</span><span class="visual-status"><i></i> Operational</span></div><div class="visual-core">${logo("hero-logo", "Eslam Elshikh logo")}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div><div class="visual-capabilities"><span>${icon("shield")}Cybersecurity</span><span>${icon("code")}Web & Apps</span><span>${icon("spark")}AI Agents</span><span>${icon("google")}Google</span><span>${icon("chart")}SEO</span><span>${icon("cloud")}Cloud</span></div><div class="visual-metric"><span>Approach</span><strong>360°</strong><p>Security, user experience, discoverability, and measurement in one system.</p></div></div></div></div><div class="container stats-bar reveal">${site.stats.map((stat, index) => `<div><strong>${esc(stat.value)}</strong><span>${["Google Business Profile contributions", "Business profile cases handled", "Connected service tracks", "Security, product, and growth view"][index]}</span></div>`).join("")}</div></section>
-<section class="section-pad" id="services"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Core capabilities</span><h2>Specialist work that can operate independently or as one delivery plan</h2><p>Each engagement starts with the business outcome, current state, constraints, risks, and a measurable definition of done.</p></div><div class="services-grid">${services.map((service) => { const translation = serviceTranslations[service.slug]; return `<article class="service-card reveal"><div class="service-card-top"><span class="service-number">${service.number}</span><span class="service-icon">${icon(service.icon)}</span></div><p class="service-group">${esc(translation.group)}</p><h3><a href="/services/${service.slug}/">${esc(translation.title)}</a></h3><p>${esc(translation.short)}</p><a class="text-link" href="/services/${service.slug}/">View service details ${icon("arrow")}</a></article>`; }).join("")}</div></div></section>
+<section class="section-pad" id="services"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Core capabilities</span><h2>Specialist work that can operate independently or as one delivery plan</h2><p>Each engagement starts with the business outcome, current state, constraints, risks, and a measurable definition of done.</p></div><div class="services-grid">${services.map((service) => { const translation = serviceTranslations[service.slug]; return `<article class="service-card reveal"><div class="service-card-top"><span class="service-number">${service.number}</span><span class="service-icon">${icon(service.icon)}</span></div><p class="service-group">${esc(translation.group)}</p><h3><a href="/services/${service.slug}/">${esc(translation.title)}</a></h3><p>${esc(translation.short)}</p><a class="text-link" href="/services/${service.slug}/" aria-label="View details for ${esc(translation.title)}">View service details ${icon("arrow")}</a></article>`; }).join("")}</div></div></section>
 <section class="section-pad muted-section"><div class="container promise-grid"><div class="promise-copy reveal"><span class="eyebrow"><span></span>How I work</span><h2>A strong digital project is more than a polished interface</h2><p>It should be understandable, secure in operation, responsive on real devices, discoverable by search engines, measurable, and maintainable after launch.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome first</h3><p>We define the user decision and business result before selecting tools.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Secure by design</h3><p>Data, permissions, and failure modes are considered from the start.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for devices</h3><p>Mobile-first testing across iOS, Android, Huawei, tablets, and desktops.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Ready to improve</h3><p>Performance, SEO, analytics, and conversion are part of operations.</p></article></div></div></section>
 <section class="section-pad"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>Google product expertise</span><h2>Structured diagnosis instead of random profile changes</h2><p>I help eligible businesses understand verification, suspension, ownership, category, consistency, and local visibility issues using official paths and realistic expectations.</p></div><div class="proof-actions">${button("/google-expert/", "Google expertise")}${button(site.social.googleDeveloper, "Official profile", "button-ghost", true)}</div></div></section>
 <section class="section-pad final-cta"><div class="container"><div class="cta-panel reveal"><div><span class="eyebrow"><span></span>Start with context</span><h2>Turn a complex technical problem into a clear delivery plan.</h2><p>Share your goal, current state, relevant links, constraints, and expected timing. Do not include passwords, verification codes, or API keys.</p></div><div class="cta-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start on WhatsApp", "button-light", true)}<a class="cta-phone" href="mailto:${site.email}">${site.email}</a></div></div></div></section>`;
@@ -718,6 +721,14 @@ async function build() {
     await rm(outDir, { recursive: true, force: true });
     await mkdir(outDir, { recursive: true });
     await cp(join(root, "assets"), join(outDir, "assets"), { recursive: true });
+    const mainCssPath = join(outDir, "assets", "css", "main.css");
+    const enhancementsCssPath = join(outDir, "assets", "css", "enhancements.css");
+    const [mainCss, enhancementsCss] = await Promise.all([
+      readFile(mainCssPath, "utf8"),
+      readFile(enhancementsCssPath, "utf8")
+    ]);
+    await writeFile(mainCssPath, `${mainCss.trimEnd()}\n\n/* Production enhancements */\n${enhancementsCss.trim()}\n`, "utf8");
+    await rm(enhancementsCssPath);
   }
 
   await writeRoute("/", homePage());

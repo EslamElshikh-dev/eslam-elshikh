@@ -13,9 +13,9 @@
 .article-content h2{margin-top:2rem}.article-content h3{margin-top:1.4rem}.article-content p{line-height:2}.article-content ul{display:grid;gap:.65rem;margin:1rem 0 1.6rem;padding-inline-start:1.25rem}.article-meta{display:flex;gap:.8rem;flex-wrap:wrap;color:var(--muted)}
 
 .floating-contact{gap:.72rem}
-.floating-action{position:relative!important;width:56px!important;min-width:56px!important;height:56px!important;padding:0!important;justify-content:center!important;border-radius:50%!important;isolation:isolate;overflow:visible;box-shadow:0 14px 34px rgba(0,0,0,.28)!important;animation:floating-contact-breathe 3.2s ease-in-out infinite}
+.floating-action{position:relative!important;width:56px!important;min-width:56px!important;height:56px!important;padding:0!important;justify-content:center!important;border-radius:50%!important;isolation:isolate;overflow:visible;box-shadow:0 14px 34px rgba(0,0,0,.28)!important}
 .floating-action::before{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid currentColor;opacity:0;z-index:-1;animation:floating-contact-pulse 3.2s ease-out infinite}
-.floating-action:nth-child(2),.floating-action:nth-child(2)::before{animation-delay:1.15s}
+.floating-action:nth-child(2)::before{animation-delay:1.15s}
 .floating-action .icon{width:1.42rem!important;height:1.42rem!important;stroke-width:1.9}
 .floating-action>span{position:absolute;inset-inline-start:calc(100% + .72rem);top:50%;transform:translateY(-50%) translateX(-6px);min-width:max-content;padding:.48rem .72rem;border:1px solid var(--line-strong);border-radius:.7rem;background:rgba(6,19,31,.94);color:#fff;font-size:.72rem;line-height:1;font-weight:850;box-shadow:0 10px 28px rgba(0,0,0,.24);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,visibility .18s ease,transform .18s ease}
 .floating-action:hover>span,.floating-action:focus-visible>span{opacity:1;visibility:visible;transform:translateY(-50%) translateX(0)}
@@ -36,7 +36,6 @@
 .social-row a[aria-label="LinkedIn"] .social-icon{width:14px!important;height:14px!important;max-width:14px!important;max-height:14px!important}
 .social-row a[aria-label="X"] .social-icon{width:13px!important;height:13px!important;max-width:13px!important;max-height:13px!important}
 
-@keyframes floating-contact-breathe{0%,100%{box-shadow:0 14px 34px rgba(0,0,0,.28),0 0 0 0 rgba(88,201,255,0)}50%{box-shadow:0 16px 38px rgba(0,0,0,.3),0 0 0 7px rgba(88,201,255,.08)}}
 @keyframes floating-contact-pulse{0%,58%{transform:scale(.9);opacity:0}68%{opacity:.2}88%,100%{transform:scale(1.24);opacity:0}}
 
 @media(max-width:820px){.brand-logo,.brand-logo-approved{width:54px!important;height:54px!important;min-width:54px!important;max-width:54px!important;min-height:54px!important;max-height:54px!important;flex-basis:54px!important}}
