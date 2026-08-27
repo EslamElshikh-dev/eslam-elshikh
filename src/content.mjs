@@ -491,7 +491,8 @@ export const projects = [
     category: "منصة شركة ومحتوى خدمات",
     description: "إعادة هندسة تجربة رقمية عربية لشركة مقاولات في الرياض، مع صفحات خدمات ومقالات وهيكل سيو محلي وبيانات منظمة ومسارات تواصل واضحة عبر الجوال والكمبيوتر.",
     tags: ["Web Development", "Technical SEO", "Content Architecture"],
-    url: "https://github.com/EslamElshikh-dev/tawod",
+    liveUrl: "https://tawodco.com/",
+    githubUrl: "https://github.com/EslamElshikh-dev/tawod",
     accent: "cyan"
   },
   {
@@ -499,7 +500,8 @@ export const projects = [
     category: "هوية تقنية وموقع شركة ذكاء اصطناعي",
     description: "تصميم موقع مستقبلي لشركة تقنية وذكاء اصطناعي، يجمع هوية Dark Mode ورسائل خدمات مباشرة ونظامًا متجاوبًا قابلًا للتوسع والنشر على Vercel.",
     tags: ["Brand Experience", "AI Company", "Responsive UI"],
-    url: "https://github.com/EslamElshikh-dev/bowdy-labs",
+    liveUrl: "https://bowdylabs.com/",
+    githubUrl: "https://github.com/EslamElshikh-dev/bowdy-labs",
     accent: "violet"
   },
   {
@@ -507,7 +509,8 @@ export const projects = [
     category: "موقع خدمات محلية",
     description: "هيكلة خدمات نجارة وديكور متعددة وتجربة عربية متجاوبة، مع صفحات بحث محلية ومحتوى يربط الخدمة بالثقة والتواصل والتحويل.",
     tags: ["Local SEO", "Responsive UI", "Schema"],
-    url: "https://github.com/EslamElshikh-dev/alanood-contracting",
+    liveUrl: "https://alanoudfaraj.com/",
+    githubUrl: "https://github.com/EslamElshikh-dev/alanood-contracting",
     accent: "mint"
   },
   {
@@ -515,7 +518,8 @@ export const projects = [
     category: "صفحة هبوط تحويلية",
     description: "واجهة سريعة لخدمات منزلية في الرياض، محسنة للجوال مع اتصال وWhatsApp مباشرين ومحتوى خدمات وأحياء يخدم البحث المحلي.",
     tags: ["Landing Page", "Conversion UX", "Local Search"],
-    url: "https://ameenservse.vercel.app/",
+    liveUrl: "https://ameenservse.vercel.app/",
+    githubUrl: "https://github.com/EslamElshikh-dev/ameenservse",
     accent: "blue"
   }
 ];

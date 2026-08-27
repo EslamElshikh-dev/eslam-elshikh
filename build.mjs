@@ -10,7 +10,7 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.1.2";
+const version = "3.1.3";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)
@@ -307,7 +307,7 @@ function serviceCard(service) {
 }
 
 function projectCard(project) {
-  return `<article class="project-card reveal"><div class="project-visual"><span>${esc(project.category)}</span><strong>${esc(project.title.split(" ").slice(0, 2).join(" "))}</strong><div aria-hidden="true"></div></div><div class="project-content"><h3>${esc(project.title)}</h3><p>${esc(project.description)}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div><a class="text-link" href="${project.url}" target="_blank" rel="noopener">معاينة المشروع ${icon("external")}</a></div></article>`;
+  return `<article class="project-card reveal"><div class="project-visual"><span>${esc(project.category)}</span><strong>${esc(project.title.split(" ").slice(0, 2).join(" "))}</strong><div aria-hidden="true"></div></div><div class="project-content"><h3>${esc(project.title)}</h3><p>${esc(project.description)}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div><div class="project-actions"><a class="button button-small" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="معاينة موقع ${esc(project.title)} المنشور">معاينة المشروع ${icon("external", "button-icon")}</a><a class="text-link project-code-link" href="${project.githubUrl}" target="_blank" rel="noopener" aria-label="عرض كود مشروع ${esc(project.title)} على GitHub">عرض الكود ${icon("code")}</a></div></div></article>`;
 }
 
 function postCard(post, { featured = false } = {}) {

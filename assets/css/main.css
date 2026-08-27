@@ -293,7 +293,7 @@ input, textarea, select { min-width: 0; }
 /* Projects and Maps */
 .projects-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 .projects-grid-all { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.project-card { border: 1px solid var(--line); border-radius: 1.45rem; background: var(--surface); overflow: hidden; transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; }
+.project-card { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 1.45rem; background: var(--surface); overflow: hidden; transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; }
 .project-card:hover { transform: translateY(-5px); border-color: var(--line-strong); box-shadow: var(--shadow-md); }
 .project-visual { position: relative; min-height: 210px; display: flex; flex-direction: column; justify-content: space-between; padding: 1.25rem; background:
   radial-gradient(circle at 80% 20%, rgba(88,201,255,0.2), transparent 42%),
@@ -306,11 +306,15 @@ input, textarea, select { min-width: 0; }
 .project-visual > strong { font-size: clamp(1.75rem, 3.5vw, 3rem); color: rgba(255,255,255,0.1); line-height: 1; letter-spacing: -0.06em; }
 :root[data-theme="light"] .project-visual > strong { color: rgba(8,26,40,0.08); }
 .project-visual > div { position: absolute; width: 160px; height: 160px; border: 1px solid rgba(88,201,255,0.15); border-radius: 50%; inset-inline-end: -40px; bottom: -45px; box-shadow: 0 0 0 28px rgba(88,201,255,0.03), 0 0 0 56px rgba(88,201,255,0.02); }
-.project-content { padding: 1.35rem; }
+.project-content { display: flex; flex: 1; flex-direction: column; padding: 1.35rem; }
 .project-content h3 { margin: 0; font-size: 1.15rem; }
 .project-content > p { min-height: 5.4em; margin: 0.65rem 0 1rem; color: var(--muted); font-size: 0.84rem; }
 .tag-row { display: flex; flex-wrap: wrap; gap: 0.42rem; margin-bottom: 1rem; }
 .tag-row span { padding: 0.28rem 0.5rem; border-radius: 999px; background: rgba(88,201,255,0.07); color: var(--secondary); font-size: 0.65rem; font-weight: 750; }
+.project-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem 1rem; margin-top: auto; }
+.project-actions .button { flex: 0 0 auto; }
+.project-code-link { color: var(--text-soft); font-size: 0.8rem; }
+.project-code-link:hover { color: var(--primary); }
 .maps-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .map-card { display: grid; grid-template-columns: 170px minmax(0, 1fr); border: 1px solid var(--line); border-radius: 1.3rem; background: var(--surface); overflow: hidden; transition: transform 0.2s ease, border-color 0.2s ease; }
 .map-card:hover { transform: translateY(-3px); border-color: var(--line-strong); }
