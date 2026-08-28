@@ -17,7 +17,7 @@ export const site = {
   googleMapsEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1855561.9564318385!2d48.17131364164061!3d24.721920797653034!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x249f92627b1c4601%3A0x9aa9c606416f16de!2z2KfZhNmF2YfZhtiv2LMg2KXYs9mE2KfZhSDYp9mE2LTZitiu!5e0!3m2!1sar!2ssa!4v1786663765858!5m2!1sar!2ssa",
   logo: "/assets/brand/eslam-elshikh-logo-ui-20260827.webp",
   shareImage: "/assets/og/eslam-elshikh-og-transparent.png",
-  lastUpdated: "2026-08-14",
+  lastUpdated: "2026-08-28",
   description: "المهندس إسلام الشيخ في الرياض: مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google ومتخصص في خرائط جوجل والملفات التجارية والسيو المحلي في السعودية.",
   positioning: "هندسة رقمية تجمع الأمان والبرمجة والذكاء الاصطناعي وخبرة Google والسيو في خطة واحدة قابلة للقياس.",
   social: {
@@ -492,7 +492,6 @@ export const projects = [
     description: "إعادة هندسة تجربة رقمية عربية لشركة مقاولات في الرياض، مع صفحات خدمات ومقالات وهيكل سيو محلي وبيانات منظمة ومسارات تواصل واضحة عبر الجوال والكمبيوتر.",
     tags: ["Web Development", "Technical SEO", "Content Architecture"],
     liveUrl: "https://tawodco.com/",
-    githubUrl: "https://github.com/EslamElshikh-dev/tawod",
     image: "/assets/projects/tawod.webp",
     accent: "cyan"
   },
@@ -502,7 +501,6 @@ export const projects = [
     description: "تصميم موقع مستقبلي لشركة تقنية وذكاء اصطناعي، يجمع هوية Dark Mode ورسائل خدمات مباشرة ونظامًا متجاوبًا قابلًا للتوسع والنشر على Vercel.",
     tags: ["Brand Experience", "AI Company", "Responsive UI"],
     liveUrl: "https://bowdylabs.com/",
-    githubUrl: "https://github.com/EslamElshikh-dev/bowdy-labs",
     image: "/assets/projects/bowdy-labs.webp",
     accent: "violet"
   },
@@ -512,7 +510,6 @@ export const projects = [
     description: "تجربة رقمية لمركز أشعة في الرياض تعرض الخدمات الطبية بوضوح وطمأنينة، مع صفحات متخصصة وحجز سريع وبنية بحث محلي تراعي حساسية رحلة المراجع.",
     tags: ["Next.js", "Healthcare UX", "Local SEO"],
     liveUrl: "https://samascan.vercel.app/",
-    githubUrl: "https://github.com/EslamElshikh-dev/sama-scan-center-",
     image: "/assets/projects/sama-scan.webp",
     accent: "blue"
   },
@@ -522,7 +519,6 @@ export const projects = [
     description: "تصور بصري لمنصة موحدة لإدارة علاقات العملاء والمبيعات، يحول رحلة المتابعة والفرص والتقارير إلى قصة منتج مفهومة لصناع القرار.",
     tags: ["Product Design", "CRM", "Interactive Proposal"],
     liveUrl: "https://alargan-crm-proposal.vercel.app/",
-    githubUrl: "https://github.com/EslamElshikh-dev/alargan-crm-proposal",
     image: "/assets/projects/alargan-crm.webp",
     accent: "mint"
   },
@@ -532,7 +528,6 @@ export const projects = [
     description: "واجهة تسويقية لخدمات تنظيف المنازل والفلل والمفروشات في جدة، تربط العرض بالخدمة والتغطية الجغرافية ومسارات الاتصال المباشر.",
     tags: ["Lead Generation", "Local SEO", "Responsive UX"],
     liveUrl: "https://puritylife.vercel.app/",
-    githubUrl: "https://github.com/EslamElshikh-dev/purity-life-cleaning",
     image: "/assets/projects/purity-life.webp",
     accent: "blue"
   },
@@ -542,7 +537,6 @@ export const projects = [
     description: "حضور رقمي يجمع خدمات المقاولات والتشطيب وتوريد مواد البناء في تجربة واحدة، مع إبراز المقر الفعلي ونطاق التنفيذ ووسائل التواصل.",
     tags: ["Corporate Website", "Service UX", "Local Search"],
     liveUrl: "https://abdullah-alshamrani-store.vercel.app/",
-    githubUrl: "https://github.com/EslamElshikh-dev/Abdullahalshamrani",
     image: "/assets/projects/abdullah-store.webp",
     accent: "cyan"
   },
@@ -552,7 +546,6 @@ export const projects = [
     description: "صفحة احترافية لخدمات تركيب البلاط والسيراميك والبورسلان والرخام في الرياض، بصور أعمال واضحة ورسائل ثقة ومسار طلب مباشر.",
     tags: ["Landing Experience", "Conversion UX", "Local SEO"],
     liveUrl: "https://almoablat-adel.vercel.app/",
-    githubUrl: "https://github.com/EslamElshikh-dev/almoablat-adel",
     image: "/assets/projects/adel-furniture.webp",
     accent: "violet"
   },
@@ -562,7 +555,6 @@ export const projects = [
     description: "موقع عربي حديث لخدمات تفصيل الخزائن والدواليب والديكور الخشبي، مع صفحات خدمات وصور أعمال وتجربة اتصال سريعة على الجوال.",
     tags: ["Next.js", "Content System", "Local SEO"],
     liveUrl: "https://www.hezmashoqafi-decoration.com/",
-    githubUrl: "https://github.com/EslamElshikh-dev/hazmah-wood-decor",
     image: "/assets/projects/hazma-decoration.webp",
     accent: "mint"
   },
@@ -572,7 +564,6 @@ export const projects = [
     description: "هيكلة خدمات نجارة وديكور متعددة وتجربة عربية متجاوبة، مع صفحات بحث محلية ومحتوى يربط الخدمة بالثقة والتواصل والتحويل.",
     tags: ["Local SEO", "Responsive UI", "Schema"],
     liveUrl: "https://alanoudfaraj.com/",
-    githubUrl: "https://github.com/EslamElshikh-dev/alanood-contracting",
     image: "/assets/projects/alanood.webp",
     accent: "mint"
   },
@@ -582,7 +573,6 @@ export const projects = [
     description: "واجهة سريعة لخدمات منزلية في الرياض، محسنة للجوال مع اتصال وWhatsApp مباشرين ومحتوى خدمات وأحياء يخدم البحث المحلي.",
     tags: ["Landing Page", "Conversion UX", "Local Search"],
     liveUrl: "https://ameenservse.vercel.app/",
-    githubUrl: "https://github.com/EslamElshikh-dev/ameenservse",
     image: "/assets/projects/ameen.webp",
     accent: "blue"
   },
@@ -592,7 +582,6 @@ export const projects = [
     description: "موقع متجاوب لخدمات السباكة والكهرباء في أحياء الرياض، يشرح الأعطال والخدمات ويقود العميل إلى اتصال أو واتساب دون تعقيد.",
     tags: ["Mobile First", "Service Architecture", "Local SEO"],
     liveUrl: "https://ananservices.com/",
-    githubUrl: "https://github.com/EslamElshikh-dev/anan-services",
     image: "/assets/projects/anan-services.webp",
     accent: "cyan"
   },
@@ -602,41 +591,75 @@ export const projects = [
     description: "واجهة دافئة لخدمات تفصيل الخزائن وغرف النوم والمطابخ وصيانة الأثاث في الرياض، بهوية بصرية عملية ومسارات طلب واضحة.",
     tags: ["Web Design", "Local Search", "Conversion Paths"],
     liveUrl: "https://makram-carpnter.com/",
-    githubUrl: "https://github.com/EslamElshikh-dev/makram-carpenter",
     image: "/assets/projects/makram-carpenter.webp",
     accent: "violet"
   }
 ];
 
 export const mapsProjects = [
-  {
-    title: "مؤسسة حزمة شقافي للديكور وتفصيل الخزاين",
-    category: "ديكور وخزائن",
-    address: "حي المصيف، الرياض",
-    tags: ["Google Maps", "ملف تجاري", "بحث محلي"],
-    url: "https://maps.app.goo.gl/TjT2ba7LujYBsLt26?g_st=awb"
-  },
-  {
-    title: "مؤسسة ريم كوم تفصيل خزائن حديثة",
-    category: "خزائن وديكور",
-    address: "حي المصيف، الرياض",
-    tags: ["Google Maps", "Business Profile", "ظهور محلي"],
-    url: "https://maps.app.goo.gl/5pnvovGrafDXuZpUA?g_st=awb"
-  },
-  {
-    title: "مؤسسة حزمه إبراهيم محسن للديكور وتفصيل الخزاين",
-    category: "نجارة وديكور خشبي",
-    address: "حي المصيف، الرياض",
-    tags: ["Google Maps", "ملف تجاري", "Local SEO"],
-    url: "https://maps.app.goo.gl/hJqqyNAvxmd5F7SR7?g_st=awb"
-  },
-  {
-    title: "مؤسسة عبدالله صالح عبدالله للألمنيوم والزجاج",
-    category: "ألمنيوم وزجاج",
-    address: "حي المصيف، الرياض",
-    tags: ["Google Maps", "Business Profile", "بحث محلي"],
-    url: "https://maps.app.goo.gl/XhGYH5fSrPGV7wYW8?g_st=awb"
-  }
+  { title: "مؤسسة ريم كوم لتفصيل الخزائن الحديثة", category: "نجارة وديكور خشبي", location: "المصيف، الرياض", url: "https://maps.app.goo.gl/5pnvovGrafDXuZpUA?g_st=awb", featured: true },
+  { title: "مؤسسة حزمة إبراهيم محسن للديكور وتفصيل الخزائن", category: "نجارة وديكور خشبي", location: "المصيف، الرياض", url: "https://maps.app.goo.gl/hJqqyNAvxmd5F7SR7?g_st=awb" },
+  { title: "مؤسسة عبدالله صالح عبدالله للألمنيوم والزجاج", category: "ألمنيوم وزجاج", location: "المصيف، الرياض", url: "https://maps.app.goo.gl/XhGYH5fSrPGV7wYW8?g_st=awb" },
+  { title: "ياسر للنجارة", category: "نجارة وديكور خشبي", location: "المصيف، الرياض", url: "https://maps.app.goo.gl/FfhAhJCasAH1SRJF6?g_st=awb" },
+  { title: "مؤسسة العنود فراج البقمي للمقاولات والديكور الخشبي", category: "نجارة وديكور خشبي", location: "المصيف، الرياض", url: "https://maps.app.goo.gl/LsqwhxrecTSHGcig6?g_st=awb", featured: true },
+  { title: "مؤسسة التهامي للمقاولات", category: "مقاولات وتشطيبات", location: "الياسمين، الرياض", url: "https://maps.app.goo.gl/y2tQMkt9cDgSCAKAA?g_st=awb", featured: true },
+  { title: "شركة تعاود للمقاولات", category: "مقاولات وتشطيبات", location: "الوادي، الرياض", url: "https://maps.app.goo.gl/gopP3BzR7JgZiThN8?g_st=awb", featured: true },
+  { title: "مؤسسة عقيق الشرق للتجارة والسباكة والكهرباء", category: "سباكة وكهرباء", location: "الصحافة، الرياض", url: "https://maps.app.goo.gl/HcKWt1rYZ1ZsXxjz5?g_st=awb", featured: true },
+  { title: "مؤسسة عبدالله صالح", category: "تجارة وخدمات", location: "الروضة، الرياض", url: "https://maps.app.goo.gl/e962rdBYpNrMhpcu8?g_st=awb" },
+  { title: "مؤسسة عبدالله صالح عمير للديكور والموبيليا", category: "نجارة وديكور خشبي", location: "الملك فيصل، الرياض", url: "https://maps.app.goo.gl/Xbt8QoQiueDgz4gSA?g_st=awb" },
+  { title: "مؤسسة العصيمي للنجارة وتفصيل الخزائن الحديثة", category: "نجارة وديكور خشبي", location: "الخليج، الرياض", url: "https://maps.app.goo.gl/A9eAjzpTk2jMyWPr9?g_st=awb" },
+  { title: "مؤسسة مشعل العنزي لإصلاح الموبيليا", category: "نجارة وديكور خشبي", location: "طويق، الرياض", url: "https://maps.app.goo.gl/Wc9iD2aLbKTdKek98?g_st=awb" },
+  { title: "مؤسسة مشعل العنزي للتبريد والتكييف", category: "تبريد وتكييف", location: "النهضة، الرياض", url: "https://maps.app.goo.gl/CR7DAA67E6Jnek279?g_st=awb" },
+  { title: "مؤسسة حمود المطيري للتبريد والتكييف", category: "تبريد وتكييف", location: "النهضة، الرياض", url: "https://maps.app.goo.gl/w9caTVLSuF7mKMMT7?g_st=awb" },
+  { title: "مؤسسة إنجاز السلي للموبيليا", category: "نجارة وديكور خشبي", location: "النهضة، الرياض", url: "https://maps.app.goo.gl/F8BqGML7gs6xFhwY7?g_st=awb" },
+  { title: "مؤسسة حمود المطيري للتبريد والتكييف", category: "تبريد وتكييف", location: "النهضة، الرياض", url: "https://maps.app.goo.gl/5TRZEo6otvS12weT9?g_st=awb" },
+  { title: "مؤسسة إنجاز السلي للموبيليا", category: "نجارة وديكور خشبي", location: "قرطبة، الرياض", url: "https://maps.app.goo.gl/TS6vzax4S1JR9Huq7?g_st=awb" },
+  { title: "مؤسسة إنجاز السلي للمقاولات والديكور الخشبي", category: "نجارة وديكور خشبي", location: "النرجس، الرياض", url: "https://maps.app.goo.gl/9jiKdnxQhv56Kez97?g_st=awb" },
+  { title: "مؤسسة محمد آل عمر للديكور الخشبي والألمنيوم", category: "نجارة وديكور خشبي", location: "اليرموك، الرياض", url: "https://maps.app.goo.gl/wLX37j5fa22Vswyu6?g_st=awb" },
+  { title: "مؤسسة وسام عشرة للديكور والموبيليا", category: "نجارة وديكور خشبي", location: "الرمال، الرياض", url: "https://maps.app.goo.gl/Ys62HYP9ULDXCfp78?g_st=awb" },
+  { title: "مؤسسة ابتسام حريصي للسباكة والكهرباء", category: "سباكة وكهرباء", location: "الرمال، الرياض", url: "https://maps.app.goo.gl/ZUadZGoFW8iHkCik7?g_st=awb" },
+  { title: "خدمات التبريد والتكييف", category: "تبريد وتكييف", location: "الرمال، الرياض", url: "https://maps.app.goo.gl/tPKxkNM4GWv8j6Zt8?g_st=awb" },
+  { title: "مؤسسة نورة الدوسري للديكور الخشبي", category: "نجارة وديكور خشبي", location: "الملك فهد، الرياض", url: "https://maps.app.goo.gl/iG5mqV1NYbwaMxUP9?g_st=awb" },
+  { title: "مؤسسة محمد آل عمر للتجارة", category: "تجارة وخدمات", location: "الخليج، الرياض", url: "https://maps.app.goo.gl/Qv4qPq2hZLTZVEcWA?g_st=awb" },
+  { title: "ورشة Carpenter Shop للنجارة", category: "نجارة وديكور خشبي", location: "المصيف، الرياض", url: "https://maps.app.goo.gl/GYhys7HNKJMU7Bhv5?g_st=awb" },
+  { title: "تفصيل دواليب وغرف ملابس", category: "نجارة وديكور خشبي", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/VVy3Kii83ERGndWWA?g_st=awb" },
+  { title: "عزت لخدمات تفصيل الدواليب الخشبية", category: "نجارة وديكور خشبي", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/rAY8ZGBDNKodVprh7?g_st=awb" },
+  { title: "مكرم لتفصيل وتصليح الموبيليا والخزائن", category: "نجارة وديكور خشبي", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/t98N16nQkug2DgQ57?g_st=awb" },
+  { title: "عادل لتفصيل الخزائن وغرف الملابس", category: "نجارة وديكور خشبي", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/3fN7jwhspJweBgqRA?g_st=awb" },
+  { title: "النجار الماهر لتفصيل الخزانات والدواليب", category: "نجارة وديكور خشبي", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/oNPQoPxy7SrE7Kzu6?g_st=awb" },
+  { title: "أبو فؤاد لتفصيل الخزائن الخشبية", category: "نجارة وديكور خشبي", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/Y4YgEgrY9m1kSt4QA?g_st=awb" },
+  { title: "أبو آدم لصيانة الديكور الخشبي والموبيليا", category: "نجارة وديكور خشبي", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/Mnxb4JirpuSgtxfw8?g_st=awb" },
+  { title: "عادل أديب فني ديكور", category: "ديكور وتشطيبات", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/Vou3zxzWpTZujtmDA?g_st=awb" },
+  { title: "أبو حنين للنجارة", category: "نجارة وديكور خشبي", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/LRvyrtHd4YomD2ei8?g_st=awb" },
+  { title: "رضا لتفصيل الخزائن والموبيليا", category: "نجارة وديكور خشبي", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/jqrspCJrnNfqzRZUA?g_st=awb" },
+  { title: "هاني لتفصيل الدواليب وغرف الملابس", category: "نجارة وديكور خشبي", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/xWkH1YnAQiqRCnSEA?g_st=awb" },
+  { title: "مؤسسة بن عمير للتصميم والديكور الخشبي", category: "نجارة وديكور خشبي", location: "الملك فهد، الرياض", url: "https://maps.app.goo.gl/mJC2vcy3TnEhPrBX7?g_st=awb" },
+  { title: "مجدي رزق فني نجارة", category: "نجارة وديكور خشبي", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/Mnq39F3oMX7dsqob9?g_st=awb" },
+  { title: "مرزوق فني نجارة", category: "نجارة وديكور خشبي", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/BR4hwAKhURkJFJfx6?g_st=awb" },
+  { title: "أبو رائد لخدمات الدهانات", category: "دهانات وتشطيبات", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/hs6rFcFACQqWRJhP8?g_st=awb" },
+  { title: "أبو مجلي للدهانات", category: "دهانات وتشطيبات", location: "المصيف، الرياض", url: "https://maps.app.goo.gl/acbi1JXWVVqA3VEq6?g_st=awb" },
+  { title: "مؤسسة أمان كام", category: "أنظمة أمنية ومراقبة", location: "نجران", url: "https://maps.app.goo.gl/vGekHpJzjvLEuL2S9?g_st=awb", featured: true },
+  { title: "مركز دار البديع للطب البديل والحجامة", category: "رعاية صحية", location: "خميس مشيط", url: "https://maps.app.goo.gl/8adCiDmtyPvwCh4X6?g_st=awb", featured: true },
+  { title: "عيادات سن", category: "رعاية صحية", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/mMWtgopbmdghXi5n8?g_st=awb", featured: true },
+  { title: "شركة نخبة الابتكار للمقاولات والتبريد والتكييف", category: "تبريد وتكييف", location: "العارض، الرياض", url: "https://maps.app.goo.gl/EQ2mshTgRDzr129g9?g_st=awb", featured: true },
+  { title: "فوال أطياف الطائف", category: "مطاعم وضيافة", location: "الصحافة، الرياض", url: "https://maps.app.goo.gl/bwnMEcr2KcyxYH49A?g_st=awb", featured: true },
+  { title: "مؤسسة قمرات للألمنيوم", category: "ألمنيوم وزجاج", location: "النفل، الرياض", url: "https://maps.app.goo.gl/xXWBQkwVyiUGw2Uf8?g_st=awb" },
+  { title: "البتول للألمنيوم والزجاج", category: "ألمنيوم وزجاج", location: "العارض، الرياض", url: "https://maps.app.goo.gl/VX6ACxSfxNM7dRHB8?g_st=awb" },
+  { title: "أمين سرور لخدمات السباكة وصيانة الكهرباء", category: "سباكة وكهرباء", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/LrxSooquL8hMM6XZA?g_st=awb" },
+  { title: "عنان لخدمات السباكة والكهرباء", category: "سباكة وكهرباء", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/NSDkYKxThrcUybgu8?g_st=awb" },
+  { title: "فهد لخدمات وأعمال السباكة والكهرباء", category: "سباكة وكهرباء", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/mzYKPtcet9oferq68?g_st=awb" },
+  { title: "عثمان لخدمات السباكة", category: "سباكة وكهرباء", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/eG2Ln7Uavs5S5MgG6?g_st=awb" },
+  { title: "وهاب لخدمات السباكة والكهرباء", category: "سباكة وكهرباء", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/VT8Rba42DUVCPgHR6?g_st=awb" },
+  { title: "أبو إبراهيم لتأسيس وتصليح السباكة", category: "سباكة وكهرباء", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/EFpjJikUGv2tQgN18?g_st=awb" },
+  { title: "حفلتي للزهور الطبيعية", category: "زهور وهدايا", location: "الملقا، الرياض", url: "https://maps.app.goo.gl/267RUvtGkHroN8aH9?g_st=awb", featured: true },
+  { title: "مطعم ارتواء", category: "مطاعم وضيافة", location: "إشبيلية، الرياض", url: "https://maps.app.goo.gl/xeC1MYJGz5xSCF2U9?g_st=awb", featured: true },
+  { title: "وحيد خان لبناء وترميم الأفران والمشبات", category: "بناء وترميم", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/r2nqAXS2S1a3EiLk6?g_st=awb" },
+  { title: "محترف أعمال السباكة والكهرباء", category: "سباكة وكهرباء", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/LnxB574u7s7NgNak7?g_st=awb" },
+  { title: "مواد بناء وديكورات جبسية", category: "ديكورات جبسية", location: "ظهرة لبن، الرياض", url: "https://maps.app.goo.gl/i5BHjTHPNC7jJpHk7?g_st=awb" },
+  { title: "المبلط مينا", category: "بلاط وسيراميك", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/obTYSV5e8YLTP2ah8?g_st=awb" },
+  { title: "أبو منير لأعمال السيراميك والبورسلان", category: "بلاط وسيراميك", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/GLXJhXDJEg1EGQ7UA?g_st=awb" },
+  { title: "المبلط عادل", category: "بلاط وسيراميك", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/VLP7cv8VgNHpmf1q9?g_st=awb" },
+  { title: "مؤمن لخدمات البلاط والسيراميك", category: "بلاط وسيراميك", location: "نشاط نطاق خدمة", url: "https://maps.app.goo.gl/xasXKsJfyPEKW4VD7?g_st=awb" }
 ];
 
 export const posts = [

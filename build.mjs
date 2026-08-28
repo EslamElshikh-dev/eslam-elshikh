@@ -10,7 +10,7 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.2.0";
+const version = "3.3.0";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)
@@ -228,6 +228,7 @@ function header(active = "", language = "ar") {
     ["home", "/en/", "Home"],
     ["services", "/en/#services", "Services"],
     ["projects", "/projects/", "Work"],
+    ["maps", "/google-maps-projects/", "Maps work"],
     ["about", "/about/", "About"],
     ["google", "/google-expert/", "Google expertise"],
     ["blog", "/blog/", "Insights"]
@@ -235,6 +236,7 @@ function header(active = "", language = "ar") {
     ["home", "/", "الرئيسية"],
     ["services", "/services/", "الخدمات"],
     ["projects", "/projects/", "الأعمال"],
+    ["maps", "/google-maps-projects/", "أعمال الخرائط"],
     ["about", "/about/", "عن إسلام"],
     ["google", "/google-expert/", "خبير خرائط جوجل"],
     ["blog", "/blog/", "المدونة"]
@@ -271,7 +273,7 @@ function footer(language = "ar") {
       <p>${isEnglish ? "Secure digital products, practical AI systems, Google product expertise, and search visibility for ambitious businesses." : site.positioning}</p>
       <div class="social-row" aria-label="${isEnglish ? "Social profiles" : "الحسابات الاجتماعية"}">${social}</div>
     </div>
-    <div class="footer-column"><h2>${isEnglish ? "Explore" : "روابط سريعة"}</h2><a href="/about/">${isEnglish ? "About" : "عن إسلام"}</a><a href="/projects/">${isEnglish ? "Selected work" : "الأعمال"}</a><a href="/google-ads/">${isEnglish ? "Google Ads" : "إعلانات جوجل"}</a><a href="/google-expert/">${isEnglish ? "Google expertise" : "خبير خرائط جوجل"}</a><a href="/blog/">${isEnglish ? "Insights" : "المدونة"}</a><a href="/contact/">${isEnglish ? "Contact" : "تواصل"}</a></div>
+    <div class="footer-column"><h2>${isEnglish ? "Explore" : "روابط سريعة"}</h2><a href="/about/">${isEnglish ? "About" : "عن إسلام"}</a><a href="/projects/">${isEnglish ? "Selected work" : "أعمال المواقع"}</a><a href="/google-maps-projects/">${isEnglish ? "Google Maps work" : "أعمال خرائط Google"}</a><a href="/google-ads/">${isEnglish ? "Google Ads" : "إعلانات جوجل"}</a><a href="/google-expert/">${isEnglish ? "Google expertise" : "خبير خرائط جوجل"}</a><a href="/blog/">${isEnglish ? "Insights" : "المدونة"}</a><a href="/contact/">${isEnglish ? "Contact" : "تواصل"}</a></div>
     <div class="footer-column footer-services"><h2>${isEnglish ? "Core services" : "الخدمات الرئيسية"}</h2>${services.slice(0, 6).map((service) => `<a href="/services/${service.slug}/">${esc(isEnglish ? serviceTranslations[service.slug]?.title || service.title : service.title)}</a>`).join("")}<a class="footer-more" href="/services/">${isEnglish ? "View all services" : "عرض جميع الخدمات"}</a></div>
     <div class="footer-column footer-contact"><h2>${isEnglish ? "Contact" : "بيانات التواصل"}</h2><a dir="ltr" href="tel:${site.phone}">${icon("phone")}<span>${site.phoneDisplay}</span></a><a href="${site.whatsapp}" target="_blank" rel="noopener">${icon("whatsapp")}<span>WhatsApp</span></a><a href="mailto:${site.email}">${icon("mail")}<span>${site.email}</span></a><a href="${site.googleMapsProfile}" target="_blank" rel="noopener">${icon("pin")}<span>${isEnglish ? "Google Maps business profile" : "الملف التجاري على خرائط Google"}</span></a><span>${icon("globe")}<span>${isEnglish ? "Riyadh service area" : `نطاق الخدمة: ${site.city}`}</span></span></div>
   </div>
@@ -307,7 +309,8 @@ function serviceCard(service) {
 }
 
 function projectActions(project, className = "") {
-  return `<div class="portfolio-actions${className ? ` ${className}` : ""}"><a class="button button-small" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="معاينة موقع ${esc(project.title)} المنشور">معاينة المشروع ${icon("external", "button-icon")}</a><a class="text-link portfolio-code-link" href="${project.githubUrl}" target="_blank" rel="noopener" aria-label="عرض كود مشروع ${esc(project.title)} على GitHub">عرض الكود ${icon("code")}</a></div>`;
+  const requestMessage = `مرحبًا م. إسلام، شاهدت مشروع «${project.title}» وأرغب في تنفيذ مشروع مشابه يناسب نشاطي.`;
+  return `<div class="portfolio-actions${className ? ` ${className}` : ""}"><a class="button button-small" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="معاينة موقع ${esc(project.title)} المنشور">معاينة المشروع ${icon("external", "button-icon")}</a><a class="button button-small button-ghost portfolio-request-link" href="${site.whatsapp}?text=${encodeURIComponent(requestMessage)}" target="_blank" rel="noopener" aria-label="طلب مشروع مشابه لمشروع ${esc(project.title)}">ابدأ مشروعًا مشابهًا ${icon("whatsapp", "button-icon")}</a></div>`;
 }
 
 function projectImage(project, { eager = false } = {}) {
@@ -388,6 +391,7 @@ function homePage() {
 </div></div></section>
 <section class="section-pad results-section"><div class="container"><div class="section-heading reveal">${eyebrow("ما الذي تحصل عليه؟")}<h2>مخرجات تساعدك على اتخاذ القرار والتشغيل بثقة</h2></div><div class="result-grid"><article class="result-card reveal">${icon("layers")}<h3>بنية قابلة للتوسع</h3><p>محتوى وكود ومسارات واضحة تقلل إعادة العمل وتسمح بإضافة خدمات وصفحات وتكاملات دون فوضى.</p></article><article class="result-card reveal">${icon("search")}<h3>وضوح لمحركات البحث والعملاء</h3><p>عناوين ومحتوى وروابط وبيانات منظمة تشرح من أنت، ماذا تقدم، ولمن، وأين، دون حشو أو تكرار.</p></article><article class="result-card reveal">${icon("shield")}<h3>مخاطر أقل وتشغيل أفضل</h3><p>قرارات أمنية وتقنية موثقة، وأولويات قابلة للمتابعة، وتجربة متجاوبة لا تعتمد على جهاز واحد.</p></article></div></div></section>
 <section class="section-pad projects-section"><div class="container"><div class="section-heading reveal">${eyebrow("مختارات من الأعمال")}<h2>مشروعات حقيقية، لكل واحد منها قصة وهوية</h2><p>نماذج حية من مواقع ومنتجات رقمية تم تطويرها للشركات والأنشطة، مع الجمع بين التصميم والتقنية والسيو ومسارات التحويل.</p></div>${projectsShowcase({ home: true })}<div class="section-action">${button("/projects/", "استكشف جميع الأعمال", "button-ghost")}</div></div></section>
+${mapsWorkTeaser()}
 <section class="section-pad google-proof-section"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>إسلام الشيخ — خبير خرائط جوجل</span><h2>خبرة موثقة في خرائط Google والملفات التجارية</h2><p>تشخيص مشكلات التحقق والتعليق والملكية والفئات، وتحسين اتساق بيانات النشاط والظهور المحلي وفق سياسات Google، مع نماذج أعمال منشورة يمكن مراجعتها.</p><div class="proof-numbers"><span><strong>1411+</strong> مساهمة في توثيق وإدارة الملفات</span><span><strong>Google</strong> ملف خبير منتجات موثق</span></div></div><div class="proof-actions">${button("/google-expert/", "تعرف على خبير خرائط جوجل")}${button(site.social.googleDeveloper, "عرض الملف الرسمي", "button-ghost", true)}</div></div></section>
 <section class="section-pad process-section"><div class="container"><div class="section-heading reveal">${eyebrow("مسار العمل")}<h2>وضوح من أول سؤال حتى ما بعد الإطلاق</h2></div><ol class="process-list"><li class="reveal"><span>01</span><h3>تشخيص الهدف</h3><p>فهم المستخدم والنتيجة والقيود والمخاطر والبيانات المتاحة قبل اختيار الأدوات.</p></li><li class="reveal"><span>02</span><h3>تصميم الحل</h3><p>تحديد البنية والمحتوى والنطاق والمخرجات ومعايير القبول وخطة التنفيذ.</p></li><li class="reveal"><span>03</span><h3>تنفيذ ومراجعة</h3><p>بناء على مراحل قصيرة قابلة للاختبار، مع توثيق القرارات والملاحظات.</p></li><li class="reveal"><span>04</span><h3>إطلاق وتحسين</h3><p>فحص الأداء والأجهزة والفهرسة والروابط، ثم متابعة المؤشرات وفرص التطوير.</p></li></ol></div></section>
 <section class="section-pad blog-section"><div class="container"><div class="section-heading reveal">${eyebrow("معرفة عملية")}<h2>مقالات تساعدك على اتخاذ قرارات تقنية أكثر وضوحًا</h2></div><div class="posts-grid">${allPosts.slice(0, 3).map((post) => postCard(post)).join("")}</div><div class="section-action">${button("/blog/", "استكشف المدونة", "button-ghost")}</div></div></section>
@@ -482,7 +486,7 @@ function googleExpertPage() {
 <section class="section-pad"><div class="container google-stats"><div class="google-stat reveal"><strong>1411+</strong><span>مساهمة في توثيق وإدارة ملفات Google التجارية</span></div><div class="google-stat reveal"><strong>Google</strong><span>خبرة عملية في خرائط جوجل والملفات التجارية</span></div><div class="google-stat reveal"><strong>السعودية</strong><span>خدمات للأنشطة في الرياض وجميع المناطق</span></div><div class="google-stat reveal"><strong>موثق</strong><span>ملف خبير منتجات ونماذج أعمال عامة</span></div></div></section>
 <section class="section-pad muted-section"><div class="container service-intro-grid"><div class="rich-copy reveal"><h2>خبير جوجل ماب يساعدك على اتخاذ القرار الصحيح</h2><p>أبدأ بفهم نموذج النشاط الحقيقي، سواء كان يستقبل العملاء في موقع واضح أو يعمل في نطاق خدمة، ثم أراجع الاسم والفئة والعنوان أو المناطق والخدمات والموقع الإلكتروني والمستخدمين والتغييرات السابقة وإشعارات Google.</p><p>بعد التشخيص أحدد التناقضات والمخاطر والتصحيحات المطلوبة، وأرتب الأدلة والخطوات المناسبة للتحقق أو الاستئناف أو استعادة الوصول. وبعد استقرار الملف أعمل على تحسين اكتمال البيانات وربطها بالموقع والمحتوى والسيو المحلي وقياس التفاعل.</p>${button("/services/google-business-profile/", "عرض خدمات الملفات التجارية")}</div><aside class="disclaimer-card professional-summary-card reveal"><span>عن إسلام الشيخ</span><h2>خبرة منتجات Google مدعومة بمساهمات ونماذج منشورة</h2><p>يجمع إسلام الشيخ بين خبرة منتجات Google وإدارة الملفات التجارية والسيو المحلي وتطوير المواقع، لتقديم معالجة مترابطة تبدأ من صحة الملف وتصل إلى تجربة الموقع والتحويل والقياس.</p><a class="text-link" href="${site.social.googleDeveloper}" target="_blank" rel="noopener">عرض ملف خبير منتجات Google ${icon("external")}</a><a class="text-link" href="${site.googleMapsProfile}" target="_blank" rel="noopener">عرض الملف التجاري على خرائط Google ${icon("external")}</a></aside></div></section>
 <section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("الحالات التي أتعامل معها")}<h2>من إنشاء الملف إلى استعادة الاستقرار والظهور</h2></div><div class="scope-grid"><article class="scope-card reveal"><span>01</span>${icon("pin")}<p>إعداد ملف مؤهل يعكس نموذج النشاط الحقيقي والفئة والخدمات ونطاق العمل.</p></article><article class="scope-card reveal"><span>02</span>${icon("shield")}<p>تشخيص تعليق الملف أو تعطيله ومراجعة التغييرات والمخاطر والملكية.</p></article><article class="scope-card reveal"><span>03</span>${icon("google")}<p>تجهيز إثبات الملكية بالفيديو أو الأدلة المتاحة بصورة منظمة ومتوافقة.</p></article><article class="scope-card reveal"><span>04</span>${icon("search")}<p>ربط الملف بالموقع والسيو المحلي والاتساق والمحتوى والقياس.</p></article><article class="scope-card reveal"><span>05</span>${icon("layers")}<p>مراجعة الملفات المكررة والملكية والمستخدمين والمواقع والفروع.</p></article><article class="scope-card reveal"><span>06</span>${icon("chart")}<p>تحليل الظهور والاستفسارات وجودة التحويل بعد استقرار الملف.</p></article></div></div></section>
-<section class="section-pad maps-section"><div class="container"><div class="section-heading reveal">${eyebrow("نماذج منشورة")}<h2>ملفات تجارية يمكن فتحها على خرائط Google</h2><p>روابط مباشرة لأعمال عامة في أنشطة محلية بمدينة الرياض.</p></div><div class="maps-grid">${mapsProjects.map((item) => mapCard(item)).join("")}</div></div></section>
+<section class="section-pad maps-section"><div class="container"><div class="section-heading reveal">${eyebrow("نماذج منشورة")}<h2>ملفات تجارية حقيقية يمكن فتحها على خرائط Google</h2><p>مختارات من قطاعات ومدن مختلفة، مع صفحة مستقلة تضم السجل الكامل للأعمال.</p></div><div class="map-case-grid">${mapsProjects.filter((item) => item.featured).slice(0, 6).map(featuredMapCard).join("")}</div><div class="section-action">${button("/google-maps-projects/", `استعرض ${mapsProjects.length} ملفًا تجاريًا`, "button-ghost")}</div></div></section>
 <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة خبير خرائط جوجل")}<h2>إجابات واضحة قبل تعديل ملفك التجاري</h2><p>الدقة والاتساق والأهلية أهم من كثرة المحاولات والتغييرات العشوائية.</p>${button(`${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، لدي مشكلة في ملف Google التجاري وأرغب في تشخيصها.")}`, "أرسل تفاصيل الحالة", "button-ghost", true)}</div>${faqBlock(faq)}</div></section>
 ${finalCta("ملفك التجاري معلق أو تعذر إثبات ملكيته؟", "أرسل رابط الملف ونص الإشعار وتسلسل التعديلات والمحاولات السابقة دون مشاركة كلمة مرور أو رمز تحقق.")}`;
   return page({ title: "إسلام الشيخ — خبير خرائط جوجل والملفات التجارية", description: "إسلام الشيخ خبير منتجات Google ومتخصص في خرائط جوجل والملفات التجارية بالسعودية، يقدم حلول التحقق والتعليق وتحسين الظهور المحلي وفق السياسات.", path: "/google-expert/", active: "google", body, schema: [expertService, faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "خبير خرائط جوجل", path: "/google-expert/" }])] });
@@ -562,14 +566,53 @@ ${finalCta("هل تريد إطلاق إعلان ممول على جوجل بصو�
   });
 }
 
-function mapCard(item) {
-  return `<article class="map-card reveal"><div class="map-visual"><span>${icon("pin")}</span><div><small>Google Maps</small><strong>${esc(item.category)}</strong></div></div><div class="map-content"><p class="map-category">${esc(item.category)}</p><h3>${esc(item.title)}</h3><p class="map-address">${icon("pin")}<span>${esc(item.address)}</span></p><div class="tag-row">${item.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div><a class="text-link" href="${item.url}" target="_blank" rel="noopener">فتح الملف على خرائط Google ${icon("external")}</a></div></article>`;
+const mapWorkTracks = [
+  { number: "01", title: "دعم التوثيق والتحقق", text: "تجهيز متطلبات التحقق ومراجعة أهلية النشاط والبيانات والأدلة قبل اختيار مسار الإثبات المناسب." },
+  { number: "02", title: "إثبات الملكية واستعادة الوصول", text: "تشخيص تعارضات الملكية وطلبات الوصول وتجميع المعلومات اللازمة للوصول إلى القناة الصحيحة دون مشاركة كلمات المرور." },
+  { number: "03", title: "معالجة القيود والتعليق", text: "فهم سبب القيد، إصلاح المشكلات القابلة للمعالجة، ثم تجهيز طلب مراجعة واضح ومدعوم بالمستندات المتاحة." },
+  { number: "04", title: "تحسين الظهور المحلي والسيو", text: "تحسين الفئات والخدمات والمحتوى واتساق البيانات وربط الملف بالموقع والصفحات المحلية وقياس التفاعل." }
+];
+
+function mapRequestHref(item) {
+  const message = `مرحبًا م. إسلام، شاهدت ملف «${item.title}» ضمن أعمال خرائط Google، ولدي حالة مشابهة وأرغب في تشخيصها.`;
+  return `${site.whatsapp}?text=${encodeURIComponent(message)}`;
+}
+
+function featuredMapCard(item, index) {
+  return `<article class="map-case-card reveal"><div class="map-case-top"><span class="map-case-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span><span class="map-case-pin">${icon("pin")}</span></div><p class="map-case-category">${esc(item.category)}</p><h3>${esc(item.title)}</h3><p class="map-case-location">${icon("pin")}<span>${esc(item.location)}</span></p><div class="map-case-actions"><a class="button button-small" href="${item.url}" target="_blank" rel="noopener" aria-label="عرض ملف ${esc(item.title)} على خرائط Google">عرض الملف ${icon("external", "button-icon")}</a><a class="button button-small button-ghost" href="${mapRequestHref(item)}" target="_blank" rel="noopener" aria-label="مناقشة حالة خرائط مشابهة لملف ${esc(item.title)}">ناقش حالة مشابهة ${icon("whatsapp", "button-icon")}</a></div></article>`;
+}
+
+function mapLedgerCard(item, index) {
+  return `<article class="map-ledger-card reveal"><span class="map-ledger-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span><div><p>${esc(item.category)}</p><h3>${esc(item.title)}</h3><span>${icon("pin")} ${esc(item.location)}</span></div><a href="${item.url}" target="_blank" rel="noopener" aria-label="عرض ملف ${esc(item.title)} على خرائط Google">${icon("external")}</a></article>`;
+}
+
+function mapsWorkTeaser() {
+  const samples = mapsProjects.filter((item) => item.featured).slice(0, 5);
+  return `<section class="section-pad maps-work-teaser"><div class="container"><div class="maps-teaser-panel reveal"><div class="maps-teaser-copy">${eyebrow("أعمال خرائط Google")}<h2>سجل أعمال حقيقي عبر قطاعات ومدن مختلفة</h2><p>${mapsProjects.length} ملفًا تجاريًا فريدًا يمكن فتحها مباشرة، ضمن خبرة تشمل دعم التوثيق وإثبات الملكية ومعالجة القيود وتحسين الظهور المحلي.</p><div class="maps-teaser-actions">${button("/google-maps-projects/", "استعرض أعمال الخرائط")} ${button(`${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، لدي ملف تجاري على Google وأرغب في تشخيصه.")}`, "ناقش حالة ملفك", "button-ghost", true)}</div></div><div class="maps-teaser-stack" aria-label="نماذج من أعمال خرائط Google">${samples.map((item, index) => `<a href="${item.url}" target="_blank" rel="noopener"><span dir="ltr">${String(index + 1).padStart(2, "0")}</span><strong>${esc(item.title)}</strong>${icon("external")}</a>`).join("")}</div></div></div></section>`;
+}
+
+function googleMapsProjectsPage() {
+  const featured = mapsProjects.filter((item) => item.featured);
+  const archive = mapsProjects.filter((item) => !item.featured);
+  const categories = [...new Set(mapsProjects.map((item) => item.category))];
+  const mapListSchema = {
+    "@type": "ItemList",
+    name: "نماذج أعمال خرائط Google والملفات التجارية",
+    numberOfItems: mapsProjects.length,
+    itemListElement: mapsProjects.map((item, index) => ({ "@type": "ListItem", position: index + 1, name: item.title, url: item.url }))
+  };
+  const body = `${innerHero({ eyebrowText: "أعمال خرائط Google", title: `${mapsProjects.length} ملفًا تجاريًا حقيقيًا، لا أرقامًا بلا دليل`, lead: "نماذج عامة من ملفات تجارية عملت عليها ضمن مسارات دعم التوثيق والتحقق، وإثبات الملكية واستعادة الوصول، ومعالجة القيود، وتحسين الظهور المحلي والسيو.", path: "/google-maps-projects/", crumbs: [{ name: "الأعمال", path: "/projects/" }, { name: "أعمال خرائط Google", path: "/google-maps-projects/" }], aside: `<span class="aside-kicker">Google Business Profile</span><strong>كل رابط يقود إلى ملف عام فعلي على خرائط Google</strong><p>نعرض الملفات كما هي دون اختلاق نتائج أو وعود بترتيب ثابت، لأن كل حالة لها ظروفها وأهليتها ومنافسوها.</p>` })}
+<section class="section-pad maps-method-section"><div class="container"><div class="maps-work-stats reveal"><div><strong>${mapsProjects.length}</strong><span>ملفًا فريدًا</span></div><div><strong>${categories.length}</strong><span>قطاعًا مختلفًا</span></div><div><strong>${mapWorkTracks.length}</strong><span>مسارات دعم رئيسية</span></div><div><strong>Google</strong><span>روابط عامة قابلة للمعاينة</span></div></div><div class="section-heading reveal">${eyebrow("نطاق الخبرة")}<h2>من إثبات الأهلية إلى حضور محلي أوضح</h2><p>الخدمة لا تعتمد على تعديل واحد؛ بل تبدأ بتشخيص حالة الملف والنشاط، ثم اختيار المسار المتوافق مع سياسات Google والهدف التجاري.</p></div><div class="map-track-grid">${mapWorkTracks.map((track) => `<article class="map-track-card reveal"><span dir="ltr">${track.number}</span><h3>${esc(track.title)}</h3><p>${esc(track.text)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad muted-section maps-featured-section"><div class="container"><div class="portfolio-page-heading reveal"><span>${featured.length} حالة مختارة</span><p>مختارات متنوعة من المقاولات والخدمات المنزلية والصحة والمطاعم والمتاجر والأنظمة الأمنية.</p></div><div class="map-case-grid">${featured.map(featuredMapCard).join("")}</div></div></section>
+<section class="section-pad maps-ledger-section"><div class="container"><div class="section-heading reveal">${eyebrow("السجل الكامل")}<h2>جميع الملفات الفريدة التي أرسلتها</h2><p>تم استبعاد رابط واحد مكرر كان يقود إلى الملف نفسه، والإبقاء على ${mapsProjects.length} ملفًا فريدًا. اختلاف الاسم أو الفرع مع اختلاف الرابط والموقع يُعرض كحالة مستقلة.</p></div><div class="map-category-cloud" aria-label="قطاعات أعمال خرائط Google">${categories.map((category) => `<span>${esc(category)}</span>`).join("")}</div><div class="map-ledger-grid">${archive.map((item, index) => mapLedgerCard(item, index + featured.length)).join("")}</div><div class="independent-note reveal">${icon("shield")}<p><strong>شفافية مهمة:</strong> إسلام الشيخ مستشار مستقل وخبير منتجات في مجتمع Google، وليس موظفًا لدى Google. لا يمكن ضمان قبول التحقق أو رفع القيد أو مركز ثابت في النتائج؛ القرار النهائي والترتيب يخضعان لأنظمة Google وأهلية كل نشاط.</p></div></div></section>
+${finalCta("هل لديك ملف يحتاج توثيقًا أو استعادة ملكية أو رفع قيود؟", "أرسل رابط الملف ووضعه الحالي وما يظهر في لوحة الإدارة، وسأبدأ بتشخيص المسار الصحيح قبل أي تعديل أو طلب مراجعة.")}`;
+  return page({ title: "أعمال خرائط Google والملفات التجارية | إسلام الشيخ", description: `استعرض ${mapsProjects.length} نموذجًا فعليًا من أعمال إسلام الشيخ في ملفات Google التجارية: دعم التوثيق وإثبات الملكية ومعالجة القيود وتحسين الظهور المحلي والسيو.`, path: "/google-maps-projects/", active: "maps", body, keywords: ["أعمال خرائط جوجل", "توثيق خرائط جوجل", "إثبات ملكية ملف جوجل", "رفع تعليق الملف التجاري", "تحسين ظهور خرائط جوجل", "خبير خرائط جوجل"], schema: [mapListSchema, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }, { name: "أعمال خرائط Google", path: "/google-maps-projects/" }])] });
 }
 
 function projectsPage() {
   const body = `${innerHero({ eyebrowText: "الأعمال والمشروعات", title: "نماذج من تطوير المواقع والسيو المحلي والحضور الرقمي", lead: "مشروعات عامة توضح كيف يتحول الهدف التجاري إلى بنية محتوى وتجربة متجاوبة ومسارات تواصل وقياس، مع الاهتمام بالتفاصيل التي تظهر على الجوال قبل سطح المكتب.", path: "/projects/", crumbs: [{ name: "الأعمال", path: "/projects/" }], aside: `<span class="aside-kicker">Selected Work</span><strong>تصميم وتطوير وسيو في منظومة واحدة</strong><p>كل مشروع يعالج سياقًا مختلفًا؛ من المقاولات والخدمات المحلية إلى شركات التقنية والذكاء الاصطناعي.</p>` })}
 <section class="section-pad portfolio-page-section"><div class="container"><div class="portfolio-page-heading reveal"><span>12 مشروعًا منشورًا</span><p>مجموعة منتقاة من المواقع والمنصات العامة، مرتبة بصريًا لتوضّح تنوع القطاعات وطبيعة الحل في كل مشروع.</p></div>${projectsShowcase()}</div></section>
-<section class="section-pad muted-section" id="google-maps-work"><div class="container"><div class="section-heading reveal">${eyebrow("أعمال خرائط Google")}<h2>نماذج من ملفات الأنشطة المحلية في الرياض</h2><p>ملفات عامة يمكن فتحها مباشرة لمعاينة الحضور على خرائط Google.</p></div><div class="maps-grid">${mapsProjects.map(mapCard).join("")}</div></div></section>
+${mapsWorkTeaser()}
 <section class="section-pad"><div class="container case-method reveal"><div><span>منهج المشروع</span><h2>لا توجد نسخة واحدة تُكرر على كل نشاط</h2></div><p>تختلف بنية الموقع والمحتوى والدعوات والبيانات المنظمة حسب نموذج النشاط ورحلة العميل والمنافسة والقدرة التشغيلية. الهدف هو حل يناسب العمل الحقيقي، لا قالبًا يغير الألوان والشعار فقط.</p>${button("/contact/", "ناقش مشروعًا مشابهًا")}</div></section>
 ${finalCta("هل تريد تحويل نشاطك إلى تجربة رقمية احترافية؟", "أرسل رابط الموقع أو الملف التجاري والخدمات المستهدفة والمدينة والهدف، وسنحدد ما يحتاج إعادة بناء وما يمكن تحسينه تدريجيًا.")}`;
   return page({ title: "أعمال ومشروعات المهندس إسلام الشيخ", description: "نماذج أعمال المهندس إسلام الشيخ في تطوير المواقع وتجربة المستخدم والسيو التقني والمحلي وملفات Google التجارية للشركات والأنشطة في السعودية.", path: "/projects/", active: "projects", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }])] });
@@ -764,6 +807,7 @@ async function build() {
   await writeRoute("/google-expert/", googleExpertPage());
   await writeRoute("/google-ads/", googleAdsPage());
   await writeRoute("/projects/", projectsPage());
+  await writeRoute("/google-maps-projects/", googleMapsProjectsPage());
   await writeRoute("/blog/", blogIndexPage());
   for (const post of allPosts) await writeRoute(`/blog/${post.slug}/`, articlePage(post));
   for (const slug of Object.keys(topicDefinitions)) await writeRoute(`/blog/topics/${slug}/`, topicPage(slug));
@@ -777,7 +821,7 @@ async function build() {
   await writeText("manifest.webmanifest", JSON.stringify({ name: site.brandName, short_name: site.nameAr, description: site.description, lang: "ar", dir: "rtl", start_url: "/", scope: "/", display: "standalone", background_color: "#06131f", theme_color: "#06131f", icons: [{ src: "/assets/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }, { src: "/assets/brand/eslam-elshikh-logo-transparent.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }] }, null, 2));
   await writeText("feed.xml", feedXml());
   await writeText("profile.json", JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: site.nameAr, alternateName: site.nameEn, url: site.url, jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"], sameAs: Object.values(site.social), knowsAbout: [...services.map((service) => service.title), "إعلانات Google", "إدارة حملات Google Ads"] }, null, 2));
-  await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- About: ${absolute("/about/")}\n- Google expertise: ${absolute("/google-expert/")}\n- Google Ads management: ${absolute("/google-ads/")}\n- Local SEO: ${absolute("/local-seo/")}\n- Work: ${absolute("/projects/")}\n- Contact: ${absolute("/contact/")}\n`);
+  await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- About: ${absolute("/about/")}\n- Google expertise: ${absolute("/google-expert/")}\n- Google Maps work: ${absolute("/google-maps-projects/")}\n- Google Ads management: ${absolute("/google-ads/")}\n- Local SEO: ${absolute("/local-seo/")}\n- Work: ${absolute("/projects/")}\n- Contact: ${absolute("/contact/")}\n`);
   if (isDistBuild) await cp(join(root, "llms-full.txt"), join(outDir, "llms-full.txt"));
   await writeText("humans.txt", `Site: ${site.brandName}\nLocation: ${site.city}, ${site.country}\nDesign and development: ${site.nameEn}\nUpdated: ${site.lastUpdated}\n`);
   await writeText("CNAME", "www.eslam-elshikh.com\n");
