@@ -283,7 +283,11 @@ function footer(language = "ar") {
 </div>
 <nav class="mobile-bottom-nav" aria-label="${isEnglish ? "Mobile quick navigation" : "التنقل السريع للجوال"}"><a href="${isEnglish ? "/en/" : "/"}">${icon("home")}<span>${isEnglish ? "Home" : "الرئيسية"}</span></a><a href="${isEnglish ? "/en/#services" : "/services/"}">${icon("briefcase")}<span>${isEnglish ? "Services" : "الخدمات"}</span></a><a href="/projects/">${icon("layers")}<span>${isEnglish ? "Work" : "الأعمال"}</span></a><a href="/contact/">${icon("mail")}<span>${isEnglish ? "Contact" : "تواصل"}</span></a></nav>
 <button class="back-to-top" type="button" aria-label="${isEnglish ? "Back to top" : "العودة إلى أعلى الصفحة"}" data-back-to-top>${icon("chevron")}</button>
-<script src="/assets/js/main.js?v=${version}" defer></script>`;
+<script src="/assets/js/main.js?v=${version}" defer></script>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>`;
 }
 
 function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image, keywords = [], articleSection = "" }) {
