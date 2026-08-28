@@ -129,3 +129,174 @@
   .about-standards-panel { grid-template-columns: 1fr; }
   .about-standards-panel section + section { border-inline-start: 0; border-top: 1px solid var(--line); }
 }
+
+/* About v2 — living professional identity */
+.about-hero-v2 .inner-hero-grid { grid-template-columns: minmax(0, 1fr) minmax(410px, 0.56fr); gap: clamp(2.5rem, 6vw, 5.5rem); }
+.about-hero-v2 .inner-hero-copy h1 { max-width: 870px; }
+.about-hero-v2 .inner-hero-copy h1 span { background: linear-gradient(100deg, var(--primary), var(--secondary) 75%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.about-hero-v2 .inner-hero-aside { min-height: 590px; border-radius: 2rem; box-shadow: 0 38px 100px rgba(0,0,0,0.32); }
+.about-identity-card-v2 { min-height: 590px; gap: 0.75rem; padding: 2.4rem 1.6rem 1.55rem; }
+.about-identity-card-v2::before { content: "EE / IDENTITY SYSTEM"; top: 1.25rem; color: var(--muted-2); opacity: 0.52; }
+.about-system-status { position: absolute; top: 1.05rem; inset-inline-end: 1.1rem; display: inline-flex; align-items: center; gap: 0.42rem; color: var(--primary); font: 850 0.58rem/1 "Segoe UI", sans-serif; letter-spacing: 0.09em; direction: ltr; }
+.about-system-status i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 5px rgba(88,224,189,0.08), 0 0 18px currentColor; animation: aboutStatusPulse 2.2s ease-in-out infinite; }
+.about-orbit-map { position: relative; width: min(88%, 355px); aspect-ratio: 1; display: grid; place-items: center; margin-top: 1.35rem; isolation: isolate; }
+.about-orbit-map::before { content: ""; position: absolute; inset: 22%; z-index: -1; border-radius: 50%; background: radial-gradient(circle, rgba(88,201,255,0.18), rgba(88,224,189,0.04) 48%, transparent 70%); filter: blur(3px); }
+.about-orbit-map .about-portrait { z-index: 4; width: 61%; height: 61%; object-fit: contain; filter: drop-shadow(0 26px 34px rgba(0,0,0,0.34)); }
+.about-orbit-ring { position: absolute; border-radius: 50%; pointer-events: none; }
+.about-orbit-ring::before, .about-orbit-ring::after { content: ""; position: absolute; width: 7px; height: 7px; border-radius: 50%; background: var(--secondary); box-shadow: 0 0 18px currentColor; }
+.about-orbit-ring-a { inset: 11%; border: 1px solid rgba(88,224,189,0.22); animation: aboutOrbitSpin 18s linear infinite; }
+.about-orbit-ring-a::before { top: -4px; left: 48%; color: var(--primary); background: var(--primary); }
+.about-orbit-ring-a::after { bottom: 11%; right: 8%; color: var(--secondary); }
+.about-orbit-ring-b { inset: 1%; border: 1px dashed rgba(88,201,255,0.17); animation: aboutOrbitSpinReverse 26s linear infinite; }
+.about-orbit-ring-b::before { top: 21%; left: 5%; color: var(--violet); background: var(--violet); }
+.about-orbit-ring-b::after { bottom: -4px; left: 50%; color: var(--amber); background: var(--amber); }
+.about-orbit-node { position: absolute; z-index: 6; width: 62px; min-height: 62px; display: grid; place-items: center; align-content: center; gap: 0.18rem; padding: 0.45rem; border: 1px solid var(--line-strong); border-radius: 1rem; background: rgba(7,23,35,0.93); color: var(--primary); box-shadow: 0 16px 34px rgba(0,0,0,0.24); backdrop-filter: blur(12px); }
+.about-orbit-node .icon { width: 1.25rem; height: 1.25rem; }
+.about-orbit-node b { color: #e9f6fb; font: 900 0.48rem/1 "Segoe UI", sans-serif; letter-spacing: 0.08em; }
+.about-orbit-secure { top: 3%; left: 15%; }
+.about-orbit-build { top: 24%; right: -1%; color: var(--secondary); }
+.about-orbit-ai { right: 8%; bottom: 7%; color: var(--violet); }
+.about-orbit-grow { left: 3%; bottom: 16%; color: var(--amber); }
+.about-identity-card-v2 .about-identity-copy { position: relative; z-index: 7; }
+.about-identity-card-v2 .about-identity-copy > strong { font-size: clamp(1.55rem, 2.5vw, 2.15rem); }
+.about-identity-card-v2 .about-identity-links { margin-top: 0.85rem; }
+
+.about-signature-strip { position: relative; border-bottom: 1px solid var(--line); background: linear-gradient(90deg, rgba(88,224,189,0.06), rgba(88,201,255,0.035), rgba(154,132,255,0.055)); overflow: hidden; }
+.about-signature-strip::before, .about-signature-strip::after { content: ""; position: absolute; top: 0; bottom: 0; z-index: 2; width: min(12vw, 150px); pointer-events: none; }
+.about-signature-strip::before { inset-inline-start: 0; background: linear-gradient(to right, var(--bg), transparent); }
+.about-signature-strip::after { inset-inline-end: 0; background: linear-gradient(to left, var(--bg), transparent); }
+.about-signature-track { width: max-content; display: flex; align-items: center; direction: ltr; animation: aboutSignatureMove 26s linear infinite; }
+.about-signature-track span { min-height: 68px; display: inline-flex; align-items: center; gap: 2.2rem; padding-inline: 1.6rem; color: var(--text-soft); font: 850 clamp(0.78rem, 1.1vw, 0.95rem)/1 "Segoe UI", sans-serif; letter-spacing: 0.16em; white-space: nowrap; }
+.about-signature-track i { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 14px rgba(88,224,189,0.7); }
+
+.about-quote > span { display: block; margin-top: 1rem; color: var(--muted-2); font: 800 0.62rem/1.3 "Segoe UI", sans-serif; direction: ltr; }
+
+.about-journey-grid { display: grid; grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.28fr); align-items: start; gap: clamp(3rem, 8vw, 7rem); }
+.about-journey-intro { position: sticky; top: calc(var(--header-height) + 2rem); }
+.about-journey-intro h2 { margin: 0.85rem 0 1.15rem; font-size: clamp(2.1rem, 4.2vw, 4rem); line-height: 1.16; letter-spacing: -0.045em; }
+.about-journey-intro > p { margin: 0; color: var(--muted); font-size: 0.9rem; line-height: 2; }
+.about-journey-seal { position: relative; width: 158px; aspect-ratio: 1; display: grid; place-content: center; justify-items: center; margin-top: 2.2rem; border: 1px solid var(--line-strong); border-radius: 50%; background: radial-gradient(circle, rgba(88,224,189,0.08), transparent 67%); }
+.about-journey-seal::before { content: ""; position: absolute; inset: 12px; border: 1px dashed rgba(88,201,255,0.24); border-radius: inherit; animation: aboutOrbitSpin 22s linear infinite; }
+.about-journey-seal span, .about-journey-seal small { color: var(--muted-2); font: 900 0.52rem/1 "Segoe UI", sans-serif; letter-spacing: 0.15em; }
+.about-journey-seal strong { margin-block: 0.32rem; color: var(--primary); font-size: 2rem; line-height: 1; }
+.about-journey-rail { position: relative; margin: 0; padding: 0; list-style: none; border-bottom: 1px solid var(--line); }
+.about-journey-rail::before { content: ""; position: absolute; top: 0; bottom: 0; inset-inline-start: 25px; width: 1px; background: linear-gradient(var(--primary), var(--secondary), var(--violet), transparent); opacity: 0.48; }
+.about-journey-rail li { position: relative; display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; gap: 1.15rem; min-height: 150px; padding: 1.35rem 0; border-top: 1px solid var(--line); }
+.about-journey-rail li > span { position: relative; z-index: 1; width: 52px; height: 52px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface); color: var(--primary); font: 900 0.67rem/1 "Segoe UI", sans-serif; box-shadow: 0 0 0 8px var(--bg-elevated); }
+.about-journey-rail small { display: block; color: var(--secondary); font: 900 0.56rem/1 "Segoe UI", sans-serif; letter-spacing: 0.13em; direction: ltr; text-align: start; }
+.about-journey-rail h3 { margin: 0.42rem 0 0; font-size: clamp(1.15rem, 2vw, 1.55rem); }
+.about-journey-rail p { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.8rem; line-height: 1.75; }
+.about-journey-rail li > b { padding: 0.45rem 0.62rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted-2); font: 850 0.52rem/1 "Segoe UI", sans-serif; letter-spacing: 0.08em; direction: ltr; }
+
+.about-focus-shell { border: 1px solid var(--line); border-radius: 1.75rem; background: linear-gradient(145deg, var(--surface), var(--surface-2)); overflow: hidden; box-shadow: var(--shadow-lg); }
+.about-focus-shell.is-enhanced { display: grid; grid-template-columns: 270px minmax(0, 1fr); min-height: 560px; }
+.about-focus-tabs { display: none; }
+.about-focus-shell.is-enhanced .about-focus-tabs { display: flex; flex-direction: column; border-inline-end: 1px solid var(--line); background: rgba(6,19,31,0.24); }
+.about-focus-tabs button { position: relative; flex: 1; display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; gap: 0.7rem; min-height: 116px; padding: 1rem 1.15rem; border-bottom: 1px solid var(--line); background: transparent; color: var(--muted); text-align: start; cursor: pointer; transition: color 0.2s ease, background 0.2s ease; }
+.about-focus-tabs button:last-child { border-bottom: 0; }
+.about-focus-tabs button::after { content: ""; position: absolute; top: 18%; bottom: 18%; inset-inline-start: 0; width: 3px; border-radius: 4px; background: linear-gradient(var(--primary), var(--secondary)); transform: scaleY(0); transition: transform 0.22s ease; }
+.about-focus-tabs button:hover { color: var(--text); background: rgba(88,201,255,0.035); }
+.about-focus-tabs button[aria-selected="true"] { color: var(--text); background: linear-gradient(90deg, rgba(88,224,189,0.09), transparent); }
+.about-focus-tabs button[aria-selected="true"]::after { transform: scaleY(1); }
+.about-focus-tabs button > span:first-child { color: var(--primary); font: 900 0.64rem/1 "Segoe UI", sans-serif; }
+.about-focus-tabs strong { display: block; font-size: 0.9rem; }
+.about-focus-tabs small { display: block; margin-top: 0.32rem; color: var(--muted-2); font: 850 0.52rem/1 "Segoe UI", sans-serif; letter-spacing: 0.11em; direction: ltr; text-align: start; }
+.about-focus-stage { min-width: 0; }
+.about-focus-panel { display: grid; grid-template-columns: minmax(220px, 0.58fr) minmax(0, 1fr); align-items: center; gap: clamp(2rem, 5vw, 4.5rem); min-height: 558px; padding: clamp(1.5rem, 4vw, 3.5rem); }
+.about-focus-panel + .about-focus-panel { border-top: 1px solid var(--line); }
+.about-focus-shell.is-enhanced .about-focus-panel + .about-focus-panel { border-top: 0; }
+.about-focus-panel.is-active { animation: aboutPanelIn 0.42s ease both; }
+.about-focus-art { position: relative; aspect-ratio: 1; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; background: radial-gradient(circle, rgba(88,224,189,0.12), rgba(88,201,255,0.035) 48%, transparent 69%); isolation: isolate; }
+.about-focus-art::before, .about-focus-art::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; }
+.about-focus-art::before { inset: 9%; border: 1px dashed rgba(88,201,255,0.2); }
+.about-focus-art::after { inset: 22%; border: 1px solid rgba(88,224,189,0.13); }
+.about-focus-art > span { position: absolute; top: 5%; inset-inline-start: 8%; color: var(--line-strong); font: 900 clamp(3.5rem, 8vw, 7rem)/1 "Segoe UI", sans-serif; letter-spacing: -0.08em; }
+.about-focus-art > div { position: relative; z-index: 2; width: 94px; height: 94px; display: grid; place-items: center; border: 1px solid rgba(88,224,189,0.3); border-radius: 1.65rem; background: rgba(6,19,31,0.78); color: var(--primary); box-shadow: 0 22px 50px rgba(0,0,0,0.25); transform: rotate(-7deg); }
+.about-focus-art > div .icon { width: 2.5rem; height: 2.5rem; }
+.about-focus-art > small { position: absolute; bottom: 10%; color: var(--secondary); font: 900 0.56rem/1 "Segoe UI", sans-serif; letter-spacing: 0.18em; }
+.about-focus-copy > span { color: var(--primary); font-size: 0.68rem; font-weight: 900; }
+.about-focus-copy h3 { margin: 0.75rem 0 1rem; font-size: clamp(2rem, 4vw, 3.8rem); line-height: 1.18; letter-spacing: -0.045em; }
+.about-focus-copy > p { margin: 0; color: var(--muted); font-size: 0.9rem; line-height: 1.95; }
+.about-focus-copy ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.55rem; margin: 1.55rem 0; padding: 0; list-style: none; }
+.about-focus-copy li { min-height: 74px; display: flex; align-items: flex-start; gap: 0.45rem; padding: 0.7rem; border: 1px solid var(--line); border-radius: 0.8rem; background: rgba(255,255,255,0.018); color: var(--text-soft); font-size: 0.67rem; line-height: 1.65; }
+.about-focus-copy li .icon { width: 1rem; height: 1rem; margin-top: 0.2rem; color: var(--primary); }
+.about-proof-strip article { position: relative; transition: background 0.2s ease; }
+.about-proof-strip article::before { content: attr(data-code); position: absolute; top: 1rem; inset-inline-start: 1rem; color: var(--muted-2); font: 850 0.52rem/1 "Segoe UI", sans-serif; letter-spacing: 0.1em; }
+.about-proof-strip article:hover { background: rgba(88,224,189,0.035); }
+.about-proof-strip strong { font-variant-numeric: tabular-nums; }
+
+@keyframes aboutOrbitSpin { to { transform: rotate(360deg); } }
+@keyframes aboutOrbitSpinReverse { to { transform: rotate(-360deg); } }
+@keyframes aboutStatusPulse { 50% { opacity: 0.5; transform: scale(0.78); } }
+@keyframes aboutSignatureMove { to { transform: translateX(-50%); } }
+@keyframes aboutPanelIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+:root[data-theme="light"] .about-orbit-node { background: rgba(255,255,255,0.92); }
+:root[data-theme="light"] .about-orbit-node b { color: var(--text); }
+:root[data-theme="light"] .about-signature-strip::before { background: linear-gradient(to right, var(--bg), transparent); }
+:root[data-theme="light"] .about-signature-strip::after { background: linear-gradient(to left, var(--bg), transparent); }
+:root[data-theme="light"] .about-focus-shell.is-enhanced .about-focus-tabs { background: rgba(230,240,245,0.45); }
+:root[data-theme="light"] .about-focus-art > div { background: rgba(255,255,255,0.88); }
+
+@media (max-width: 1120px) {
+  .about-hero-v2 .inner-hero-grid { grid-template-columns: minmax(0, 1fr) minmax(370px, 0.52fr); }
+  .about-focus-shell.is-enhanced { grid-template-columns: 225px minmax(0, 1fr); }
+  .about-focus-panel { grid-template-columns: 210px minmax(0, 1fr); gap: 2rem; }
+  .about-focus-copy ul { grid-template-columns: 1fr; }
+  .about-focus-copy li { min-height: 0; }
+}
+
+@media (max-width: 900px) {
+  .about-hero-v2 .inner-hero-grid { grid-template-columns: 1fr; }
+  .about-hero-v2 .inner-hero-aside { width: min(100%, 720px); max-width: none; }
+  .about-identity-card-v2 { grid-template-columns: 1fr; justify-items: center; min-height: 0; text-align: center; }
+  .about-identity-card-v2 .about-identity-links { justify-content: center; }
+  .about-orbit-map { width: min(72vw, 360px); }
+  .about-journey-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .about-journey-intro { position: static; max-width: 760px; }
+  .about-journey-seal { display: none; }
+  .about-focus-shell.is-enhanced { grid-template-columns: 1fr; min-height: 0; }
+  .about-focus-shell.is-enhanced .about-focus-tabs { flex-direction: row; overflow-x: auto; border-inline-end: 0; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+  .about-focus-tabs::-webkit-scrollbar { display: none; }
+  .about-focus-tabs button { flex: 1 0 170px; min-height: 92px; border-bottom: 0; border-inline-end: 1px solid var(--line); }
+  .about-focus-tabs button::after { top: auto; bottom: 0; inset-inline: 18%; width: auto; height: 3px; transform: scaleX(0); }
+  .about-focus-tabs button[aria-selected="true"]::after { transform: scaleX(1); }
+  .about-focus-panel { min-height: 0; grid-template-columns: 230px minmax(0, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .about-hero-v2 .inner-hero-aside { border-radius: 1.45rem; }
+  .about-identity-card-v2 { padding: 2.7rem 0.85rem 1.3rem; }
+  .about-orbit-map { width: min(82vw, 330px); }
+  .about-orbit-node { width: 54px; min-height: 54px; border-radius: 0.85rem; }
+  .about-orbit-node .icon { width: 1.05rem; height: 1.05rem; }
+  .about-signature-track span { min-height: 58px; gap: 1.4rem; padding-inline: 1rem; }
+  .about-journey-rail li { grid-template-columns: 46px minmax(0, 1fr); min-height: 142px; gap: 0.8rem; }
+  .about-journey-rail::before { inset-inline-start: 22px; }
+  .about-journey-rail li > span { width: 46px; height: 46px; }
+  .about-journey-rail li > b { grid-column: 2; width: max-content; }
+  .about-focus-shell { border-radius: 1.25rem; }
+  .about-focus-tabs button { flex-basis: 150px; padding: 0.85rem; }
+  .about-focus-panel { grid-template-columns: 1fr; padding: 1.2rem; }
+  .about-focus-art { width: min(72vw, 240px); margin-inline: auto; }
+  .about-focus-copy h3 { font-size: clamp(1.8rem, 9vw, 2.75rem); }
+}
+
+@media (max-width: 430px) {
+  .about-system-status { display: none; }
+  .about-identity-card-v2::before { inset-inline-start: 50%; transform: translateX(-50%); white-space: nowrap; }
+  .about-orbit-map { width: min(86vw, 285px); }
+  .about-orbit-node { width: 48px; min-height: 48px; padding: 0.35rem; }
+  .about-orbit-node b { font-size: 0.4rem; }
+  .about-orbit-secure { left: 9%; }
+  .about-orbit-build { right: -2%; }
+  .about-orbit-ai { right: 2%; }
+  .about-orbit-grow { left: -1%; }
+  .about-focus-tabs button { flex-basis: 138px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-system-status i, .about-orbit-ring, .about-journey-seal::before, .about-signature-track, .about-focus-panel.is-active { animation: none !important; }
+  .about-signature-track { width: 100%; justify-content: center; flex-wrap: wrap; transform: none; }
+  .about-signature-track span:nth-child(n+6) { display: none; }
+}

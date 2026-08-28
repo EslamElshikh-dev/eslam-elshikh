@@ -4,13 +4,14 @@ import { fileURLToPath } from "node:url";
 import { site, services, projects, mapsProjects, posts, homeFaq, localSeoFaq } from "./src/content.mjs";
 import { guides } from "./src/guides.mjs";
 import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
+import { renderAbout } from "./src/about.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.4.0";
+const version = "3.5.0";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 const aboutStyles = await readFile(join(root, "assets", "css", "about.css"), "utf8");
 
@@ -93,6 +94,14 @@ const baseGraph = () => ([
     telephone: site.phone,
     workLocation: { "@type": "Place", name: site.city, address: { "@type": "PostalAddress", addressLocality: site.city, addressRegion: site.region, addressCountry: site.countryCode } },
     areaServed: { "@type": "Country", name: site.country },
+    alumniOf: [
+      { "@type": "CollegeOrUniversity", name: "جامعة 6 أكتوبر", alternateName: "October 6 University" },
+      { "@type": "CollegeOrUniversity", name: "الجامعة العربية المفتوحة", alternateName: "Arab Open University" }
+    ],
+    hasCredential: [
+      { "@type": "EducationalOccupationalCredential", name: "بكالوريوس أمن المعلومات", credentialCategory: "Bachelor degree", recognizedBy: { "@type": "CollegeOrUniversity", name: "جامعة 6 أكتوبر" } },
+      { "@type": "EducationalOccupationalCredential", name: "دبلوم الأمن السيبراني", credentialCategory: "Diploma", recognizedBy: { "@type": "CollegeOrUniversity", name: "الجامعة العربية المفتوحة" } }
+    ],
     knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"],
     sameAs: [site.social.wikidata, site.social.googleDeveloper, site.social.github, site.social.linkedin, site.social.x, site.social.instagram, site.social.youtube]
   },
@@ -290,9 +299,9 @@ function footer(language = "ar") {
 <script src="/assets/js/main.js?v=${version}" defer></script>`;
 }
 
-function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image, keywords = [], articleSection = "", inlineCss = "" }) {
+function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image, keywords = [], articleSection = "", inlineCss = "", pageScripts = [] }) {
   return `${head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection, inlineCss })}
-<body>${header(active, lang)}<main id="main">${body}${businessMapSection(lang)}</main>${footer(lang)}</body></html>`;
+<body>${header(active, lang)}<main id="main">${body}${businessMapSection(lang)}</main>${footer(lang)}${pageScripts.map((src) => `<script src="${esc(src)}" defer></script>`).join("")}</body></html>`;
 }
 
 const eyebrow = (text) => `<span class="eyebrow"><span aria-hidden="true"></span>${esc(text)}</span>`;
@@ -455,19 +464,35 @@ ${finalCta(`هل تحتاج ${service.title} ضمن مشروع واضح؟`, `أ�
 }
 
 function aboutPage() {
-  const body = `${innerHero({ eyebrowText: "عن إسلام · الملف المهني", title: `أنا إسلام الشيخ.<br><span>أحوّل التعقيد الرقمي إلى قرار واضح.</span>`, lead: "مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض. أربط الأمان والتطوير والذكاء الاصطناعي والظهور المحلي داخل حل واحد يخدم هدف المشروع، لا مجرد قائمة أدوات.", path: "/about/", crumbs: [{ name: "عن إسلام", path: "/about/" }], className: "about-hero", aside: `<div class="about-identity-card"><div class="about-portrait-shell"><img class="about-portrait" src="${profilePhoto}" width="280" height="280" alt="صورة المهندس إسلام الشيخ" decoding="async"><span class="about-location">${icon("pin")}الرياض · السعودية</span></div><div class="about-identity-copy"><span class="about-identity-label">DIGITAL ENGINEER</span><strong>${site.nameAr}</strong><p>Cybersecurity · Software · AI · Google</p><div class="about-identity-links"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener">ملف Google ${icon("external")}</a><a href="${site.social.wikidata}" target="_blank" rel="noopener">Wikidata ${icon("external")}</a></div><small>خبير مستقل؛ لا أمثل Google أو أي منصة خارجية.</small></div></div>` })}
-<section class="section-pad about-manifesto-section"><div class="container about-manifesto"><div class="about-section-marker reveal"><span>01</span><small>طريقة التفكير</small></div><div class="about-manifesto-copy reveal">${eyebrow("الصورة الكاملة أولًا")}<h2>المشكلة الواحدة نادرًا ما تعيش في طبقة واحدة.</h2><p class="about-lead">قد يبدأ التحدي من موقع بطيء، لكنه يمتد إلى بنية المحتوى أو الاستضافة أو القياس. وقد يبدو ضعف الظهور مشكلة سيو فقط، بينما السبب الحقيقي في تجربة الجوال أو بيانات الملف التجاري أو غياب مسار تحويل واضح.</p><div class="about-story-columns"><p>لهذا لا أتعامل مع الموقع كواجهة، ولا مع الأمن كفحص منفصل، ولا مع الذكاء الاصطناعي كتجربة استعراضية. أبدأ بفهم المستخدم والبيانات والصلاحيات والبنية والهدف التجاري، ثم أحدد أين يجب أن نتدخل فعلًا.</p><p>أعمل من الرياض مع أصحاب أعمال وفرق داخل السعودية وخارجها. كل تعاون يبدأ بتعريف المشكلة والنطاق والمخرجات ومعيار النجاح، مع فصل ما يمكن تنفيذه وقياسه عما يعتمد على قرار منصة أو جهة خارجية.</p></div></div><blockquote class="about-quote reveal">${icon("quote")}<p>الحل الجيد ليس الأكثر تعقيدًا؛ بل الأكثر وضوحًا، أمانًا، وقابلية للتشغيل بعد التسليم.</p></blockquote></div></section>
-<section class="section-pad muted-section about-capabilities-section"><div class="container"><div class="about-heading-row reveal"><div>${eyebrow("منظومة الخبرة")}<h2>أربع زوايا أراها كمسار واحد</h2></div><p>يمكن أن تبدأ الخدمة من مسار واحد، لكن قيمة الخبرة المتعددة تظهر عندما تتقاطع القرارات التقنية مع تجربة العميل والظهور والنمو.</p></div><div class="about-capability-ledger">
-<a class="about-capability-row reveal" href="/services/cybersecurity/"><span class="about-capability-number">01</span><span class="about-capability-icon">${icon("shield")}</span><div><small>SECURE</small><h3>الأمن والبنية الرقمية</h3></div><p>مراجعة المخاطر والصلاحيات والاستضافة وحماية المواقع والأنظمة ضمن نطاق واضح ومصرح.</p><span class="about-capability-arrow">${icon("arrow")}</span></a>
-<a class="about-capability-row reveal" href="/services/web-development/"><span class="about-capability-number">02</span><span class="about-capability-icon">${icon("code")}</span><div><small>BUILD</small><h3>المواقع والمنتجات البرمجية</h3></div><p>تجارب عربية سريعة ومتجاوبة، بهندسة محتوى وسيو تقني ومسارات تحويل قابلة للقياس.</p><span class="about-capability-arrow">${icon("arrow")}</span></a>
-<a class="about-capability-row reveal" href="/services/ai-agents/"><span class="about-capability-number">03</span><span class="about-capability-icon">${icon("spark")}</span><div><small>AUTOMATE</small><h3>الذكاء الاصطناعي والأتمتة</h3></div><p>وكلاء ومساعدات مرتبطة بمعرفة العمل وأدواته، بصلاحيات محدودة وتقييم ورقابة بشرية.</p><span class="about-capability-arrow">${icon("arrow")}</span></a>
-<a class="about-capability-row reveal" href="/google-expert/"><span class="about-capability-number">04</span><span class="about-capability-icon">${icon("google")}</span><div><small>GROW</small><h3>Google والظهور المحلي</h3></div><p>تشخيص الملفات التجارية وإثبات الملكية ورفع القيود وتحسين البيانات والسيو المحلي.</p><span class="about-capability-arrow">${icon("arrow")}</span></a>
-</div></div></section>
-<section class="section-pad about-proof-section"><div class="container"><div class="about-proof-heading reveal"><div>${eyebrow("أدلة لا شعارات")}<h2>أرقام مرتبطة بعمل يمكنك مراجعته</h2></div><div class="about-proof-actions">${button("/projects/", "استعرض المواقع", "button-ghost")}${button("/google-maps-projects/", "استعرض أعمال الخرائط")}</div></div><div class="about-proof-strip reveal"><article><strong>1411+</strong><span>مساهمة في منتجات Google</span><small>توثيق وإدارة ملفات تجارية</small></article><article><strong>233+</strong><span>حالة تمت معالجتها</span><small>مشكلات ملفات تجارية متنوعة</small></article><article><strong>${mapsProjects.length}</strong><span>ملف خرائط منشور</span><small>نماذج عامة قابلة للفتح</small></article><article><strong>${services.length}</strong><span>مسارات خدمة مترابطة</span><small>من الأمان حتى الظهور والنمو</small></article></div></div></section>
-<section class="section-pad muted-section about-method-section"><div class="container about-method-grid"><div class="about-method-intro reveal">${eyebrow("منهج العمل")}<h2>وضوح في كل محطة، من أول سؤال حتى ما بعد الإطلاق.</h2><p>لا أبدأ من اسم التقنية. أبدأ من القرار الذي نريد أن يصبح ممكنًا، ثم أبني الطريق الأقصر والأكثر مسؤولية للوصول إليه.</p>${button(`${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، أرغب في مناقشة مشروعي ومعرفة نقطة البداية المناسبة.")}`, "ناقش نقطة البداية", "", true)}</div><ol class="about-method-list"><li class="reveal"><span>01</span><div><h3>أفهم السياق</h3><p>الهدف والمستخدم والوضع الحالي والقيود والاعتماديات وما جُرّب من قبل.</p></div></li><li class="reveal"><span>02</span><div><h3>أصمم القرار</h3><p>نطاق واضح، أولويات ومخرجات ومعايير قبول، قبل اختيار الأدوات أو شكل الواجهة.</p></div></li><li class="reveal"><span>03</span><div><h3>أنفّذ وأراجع</h3><p>مراحل قصيرة قابلة للاختبار، مع توثيق القرارات ومراجعة الأمان والأداء والتجربة.</p></div></li><li class="reveal"><span>04</span><div><h3>أسلّم وأقيس</h3><p>تسليم مفهوم وخطة تشغيل وقياس، ثم تحسين مبني على بيانات بدل التخمين.</p></div></li></ol></div></section>
-<section class="section-pad about-standards-section"><div class="container"><div class="section-heading reveal">${eyebrow("اتفاق واضح من البداية")}<h2>ما تتوقعه مني — وما لن أبيعك إياه</h2></div><div class="about-standards-panel reveal"><section><span class="about-standard-label is-positive">${icon("check")}ألتزم به</span><ul><li>نطاق ومخرجات ومعيار نجاح يمكن مراجعته</li><li>احترام البيانات والصلاحيات وحدود الوصول</li><li>قرار تقني يمكن شرحه وصيانته بعد التسليم</li><li>وضوح في المخاطر والاعتماديات وما يحتاج متابعة</li></ul></section><section><span class="about-standard-label">${icon("close")}لن أعدك به</span><ul><li>ترتيب مضمون في Google أو قرار من منصة خارجية</li><li>وصول غير ضروري إلى الحسابات أو كلمات المرور</li><li>حل معقد لمجرد أنه يستخدم تقنية أحدث</li><li>نتائج غير قابلة للقياس أو ادعاءات بلا دليل</li></ul></section></div></div></section>
-${finalCta("هل تبحث عن شخص يرى المشروع كاملًا، لا جزءًا واحدًا منه؟", "أرسل الهدف والوضع الحالي والروابط المتاحة. سأساعدك على تحديد نقطة البداية، والنطاق المنطقي، والخطوة التالية بوضوح.")}`;
-  return page({ title: "عن إسلام الشيخ | مهندس أمن سيبراني ومطور وخبير Google", description: "تعرّف على إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض، وعلى خبرته ومنهجه وأعماله في المواقع والذكاء الاصطناعي وخرائط جوجل والسيو المحلي.", path: "/about/", active: "about", body, inlineCss: aboutStyles, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "عن إسلام", path: "/about/" }])] });
+  const body = renderAbout({
+    site,
+    mapsCount: mapsProjects.length,
+    serviceCount: services.length,
+    profilePhoto,
+    innerHero,
+    icon,
+    eyebrow,
+    button,
+    finalCta
+  });
+  const profileSchema = {
+    "@type": "ProfilePage",
+    "@id": `${site.url}/about/#profile`,
+    url: `${site.url}/about/`,
+    name: "الملف المهني للمهندس إسلام الشيخ",
+    mainEntity: { "@id": `${site.url}/#person` },
+    dateModified: site.lastUpdated
+  };
+  return page({
+    title: "عن إسلام الشيخ | مهندس أمن سيبراني ومطور وخبير Google",
+    description: "تعرّف على إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض، وعلى تعليمه وخبرته ومنهجه وأعماله في المواقع والذكاء الاصطناعي وخرائط جوجل والسيو المحلي.",
+    path: "/about/",
+    active: "about",
+    body,
+    inlineCss: aboutStyles,
+    pageScripts: [`/assets/js/about.js?v=${version}`],
+    schema: [profileSchema, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "عن إسلام", path: "/about/" }])]
+  });
 }
 
 function googleExpertPage() {
