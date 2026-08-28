@@ -141,7 +141,8 @@
 .about-system-status i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 5px rgba(88,224,189,0.08), 0 0 18px currentColor; animation: aboutStatusPulse 2.2s ease-in-out infinite; }
 .about-orbit-map { position: relative; width: min(88%, 355px); aspect-ratio: 1; display: grid; place-items: center; margin-top: 1.35rem; isolation: isolate; }
 .about-orbit-map::before { content: ""; position: absolute; inset: 22%; z-index: -1; border-radius: 50%; background: radial-gradient(circle, rgba(88,201,255,0.18), rgba(88,224,189,0.04) 48%, transparent 70%); filter: blur(3px); }
-.about-orbit-map .about-portrait { z-index: 4; width: 61%; height: 61%; object-fit: contain; filter: drop-shadow(0 26px 34px rgba(0,0,0,0.34)); }
+.about-orbit-map::after { content: ""; position: absolute; inset: 18.7%; z-index: 3; border-radius: 50%; pointer-events: none; background: radial-gradient(circle at 50% 34%, rgba(88,201,255,0.2), rgba(6,19,31,0.96) 72%); box-shadow: 0 0 0 1px rgba(88,224,189,0.14), 0 26px 58px rgba(0,0,0,0.3), 0 0 42px rgba(88,201,255,0.1); }
+.about-orbit-map .about-portrait { z-index: 4; width: 61%; height: 61%; object-fit: contain; border-radius: 50%; clip-path: circle(49.2% at 50% 50%); filter: drop-shadow(0 26px 34px rgba(0,0,0,0.34)); }
 .about-orbit-ring { position: absolute; border-radius: 50%; pointer-events: none; }
 .about-orbit-ring::before, .about-orbit-ring::after { content: ""; position: absolute; width: 7px; height: 7px; border-radius: 50%; background: var(--secondary); box-shadow: 0 0 18px currentColor; }
 .about-orbit-ring-a { inset: 11%; border: 1px solid rgba(88,224,189,0.22); animation: aboutOrbitSpin 18s linear infinite; }
