@@ -20,16 +20,18 @@ for (const [slug, title] of Object.entries(topics)) {
   const markerMatches = html.match(new RegExp(`data-topic-editorial=["']${slug}["']`, "g")) || [];
   if (markerMatches.length !== 1) throw new Error(`${slug}: expected exactly one editorial marker, found ${markerMatches.length}`);
 
-  const markerPosition = html.indexOf(marker);
-  const beforeMarker = html.slice(Math.max(0, markerPosition - 40), markerPosition);
-  if (!beforeMarker.endsWith("</div></div></div></section>\n<section class=\"section-pad topic-editorial-section\" ")) {
+  const editorialStart = `<section class="section-pad topic-editorial-section" ${marker}>`;
+  const editorialPosition = html.indexOf(editorialStart);
+  if (editorialPosition < 0) throw new Error(`${slug}: editorial section start is missing`);
+  const beforeEditorial = html.slice(Math.max(0, editorialPosition - 40), editorialPosition);
+  if (!beforeEditorial.endsWith("</div></div></div></section>\n")) {
     throw new Error(`${slug}: editorial section is not directly after the topic hero`);
   }
 
   const articleAnchor = `<section class="section-pad"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span aria-hidden="true"></span>المقالات</span><h2>أدلة مرتبطة بموضوع ${title}</h2>`;
-  const articlePosition = html.indexOf(articleAnchor, markerPosition);
+  const articlePosition = html.indexOf(articleAnchor, editorialPosition);
   if (articlePosition < 0) throw new Error(`${slug}: article section is missing after editorial content`);
-  const beforeArticles = html.slice(Math.max(markerPosition, articlePosition - 40), articlePosition);
+  const beforeArticles = html.slice(Math.max(editorialPosition, articlePosition - 40), articlePosition);
   if (!beforeArticles.endsWith("</div></div></section>\n")) throw new Error(`${slug}: editorial section is not cleanly closed before articles`);
 
   const jsonMatch = html.match(/<script\s+type=["']application\/ld\+json["']>([\s\S]*?)<\/script>/i);
