@@ -221,6 +221,9 @@ for (const [route, html] of pages) {
 for (const required of ["robots.txt", "manifest.webmanifest", "feed.xml", "profile.json", "llms.txt", "llms-full.txt", "humans.txt", "CNAME", ".well-known/security.txt", "404.html"]) {
   if (!(await exists(join(output, required)))) errors.push(`Missing generated file: ${required}`);
 }
+const notFound = await readFile(join(output, "404.html"), "utf8").catch(() => "");
+const notFoundRobots = matchOne(notFound, /<meta\s+name=["']robots["']\s+content=["']([^"']*)/i);
+if (!/\bnoindex\b/i.test(notFoundRobots) || !/\bfollow\b/i.test(notFoundRobots)) errors.push(`404 page must use noindex, follow (${notFoundRobots || "missing"})`);
 
 for (const publicFile of ["sitemap.xml", "robots.txt", "feed.xml", "profile.json", "llms.txt", "llms-full.txt", ".well-known/security.txt"]) {
   const content = await readFile(join(output, publicFile), "utf8").catch(() => "");
