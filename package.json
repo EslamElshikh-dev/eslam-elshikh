@@ -9,7 +9,9 @@
     "build:vercel": "node build.mjs --out=dist && node scripts/finalize-site.mjs dist && node scripts/persist-brand-google-expert.mjs dist && node scripts/finalize-brand-images.mjs dist && node scripts/enrich-topic-hubs.mjs dist && node scripts/validate-topic-hubs.mjs --dir=dist && node scripts/finalize-sitemap.mjs dist && node scripts/validate.mjs --dir=dist && node scripts/smoke.mjs --dir=dist",
     "validate": "node scripts/validate.mjs --dir=dist && node scripts/validate-topic-hubs.mjs --dir=dist",
     "smoke": "node scripts/smoke.mjs --dir=dist",
-    "check": "node --check build.mjs && node --check src/content.mjs && node --check src/editorial.mjs && node --check src/guides.mjs && node --check assets/js/main.js && node --check assets/js/enhancements.js && node --check scripts/finalize-site.mjs && node --check scripts/persist-brand-google-expert.mjs && node --check scripts/finalize-brand-images.mjs && node --check scripts/enrich-topic-hubs.mjs && node --check scripts/validate-topic-hubs.mjs && node --check scripts/finalize-sitemap.mjs && npm run build:vercel && npm run validate && npm run smoke"
+    "seo:monitor": "node scripts/seo-control-center.mjs",
+    "seo:self-test": "node scripts/seo-control-center.mjs --self-test",
+    "check": "node --check build.mjs && node --check src/content.mjs && node --check src/editorial.mjs && node --check src/guides.mjs && node --check assets/js/main.js && node --check assets/js/enhancements.js && node --check scripts/finalize-site.mjs && node --check scripts/persist-brand-google-expert.mjs && node --check scripts/finalize-brand-images.mjs && node --check scripts/enrich-topic-hubs.mjs && node --check scripts/validate-topic-hubs.mjs && node --check scripts/finalize-sitemap.mjs && node --check scripts/seo-control-center.mjs && node --check scripts/seo-control-center-server.mjs && npm run seo:self-test && npm run build:vercel && npm run validate && npm run smoke"
   },
   "engines": {
     "node": "24.x"
