@@ -1,0 +1,71 @@
+name: SEO Control Center
+
+on:
+  workflow_dispatch:
+    inputs:
+      submit_sitemap:
+        description: "Submit the canonical sitemap to Search Console on this manual run"
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    - cron: "23 4 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Self-test SEO Control Center
+        run: node scripts/seo-control-center.mjs --self-test
+
+      - name: Run SEO monitoring
+        env:
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+          GSC_SITE_PROPERTY: sc-domain:eslam-elshikh.com
+          PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+          CRUX_API_KEY: ${{ secrets.CRUX_API_KEY }}
+          SEO_ORIGIN: https://www.eslam-elshikh.com
+          SEO_SITEMAP_URL: https://www.eslam-elshikh.com/sitemap.xml
+        run: |
+          mkdir -p seo-reports
+          EXTRA=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.submit_sitemap }}" = "true" ]; then
+            EXTRA="--submit-sitemap"
+          fi
+          set +e
+          node scripts/seo-control-center.mjs $EXTRA --output=seo-reports/latest.json --summary=seo-reports/latest.md
+          CODE=$?
+          set -e
+          if [ "$CODE" -eq 1 ]; then
+            exit 1
+          fi
+          echo "monitor_exit_code=$CODE" >> "$GITHUB_ENV"
+
+      - name: Publish job summary
+        if: always()
+        run: |
+          if [ -f seo-reports/latest.md ]; then
+            cat seo-reports/latest.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload SEO report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-control-center-${{ github.run_id }}
+          path: seo-reports/
+          retention-days: 30
+
+      - name: Fail on critical public/indexing issues
+        if: env.monitor_exit_code == '2'
+        run: exit 1
