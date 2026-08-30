@@ -6,7 +6,7 @@
   "description": "Professional Arabic-first website for Eng. Eslam Elshikh: cybersecurity, software, AI agents, Google products, SEO, and cloud solutions.",
   "scripts": {
     "build": "node build.mjs && node scripts/finalize-site.mjs . && node scripts/persist-brand-google-expert.mjs . && node scripts/finalize-brand-images.mjs . && node scripts/enrich-topic-hubs.mjs . && node scripts/validate-topic-hubs.mjs --dir=. && node scripts/finalize-sitemap.mjs .",
-    "build:vercel": "node build.mjs --out=dist && node scripts/finalize-site.mjs dist && node scripts/persist-brand-google-expert.mjs dist && node scripts/finalize-brand-images.mjs dist && node scripts/enrich-topic-hubs.mjs dist && node scripts/validate-topic-hubs.mjs --dir=dist && node scripts/finalize-sitemap.mjs dist && node scripts/validate.mjs --dir=dist && node scripts/smoke.mjs --dir=dist",
+    "build:vercel": "node scripts/seo-control-center.mjs --self-test && node build.mjs --out=dist && node scripts/finalize-site.mjs dist && node scripts/persist-brand-google-expert.mjs dist && node scripts/finalize-brand-images.mjs dist && node scripts/enrich-topic-hubs.mjs dist && node scripts/validate-topic-hubs.mjs --dir=dist && node scripts/finalize-sitemap.mjs dist && node scripts/validate.mjs --dir=dist && node scripts/smoke.mjs --dir=dist",
     "validate": "node scripts/validate.mjs --dir=dist && node scripts/validate-topic-hubs.mjs --dir=dist",
     "smoke": "node scripts/smoke.mjs --dir=dist",
     "seo:monitor": "node scripts/seo-control-center.mjs",
