@@ -27,6 +27,13 @@ const normalizeRoute = (route) => route === "/" ? "/" : `/${route.replace(/^\//,
 const textContent = (html) => html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&[a-zA-Z#0-9]+;/g, " ").replace(/\s+/g, " ").trim();
 const matchOne = (html, regex) => html.match(regex)?.[1]?.trim() || "";
 const wordCount = (html) => textContent(html).split(/\s+/).filter(Boolean).length;
+const articleCore = (html) => matchOne(html, /<article\s+class=["'][^"']*\barticle-content\b[^"']*["'][^>]*>([\s\S]*?)<\/article>/i);
+const shingles = (html, size = 5) => {
+  const words = textContent(html).split(/\s+/).filter(Boolean);
+  const values = new Set();
+  for (let index = 0; index + size <= words.length; index += 1) values.add(words.slice(index, index + size).join(" "));
+  return values;
+};
 
 async function exists(path) {
   try { await access(path); return true; } catch { return false; }
@@ -162,13 +169,14 @@ for (const route of sitemapRoutes) {
   if (!/<main\s+id=["']main["']>/i.test(html)) errors.push(`${route}: missing main landmark`);
   if (!/<footer\s+class=["']site-footer["']>/i.test(html)) errors.push(`${route}: missing footer`);
   const isArticle = route.startsWith("/blog/") && route !== "/blog/" && !route.startsWith("/blog/topics/");
-  if (isArticle && words < 1200) errors.push(`${route}: article content is too thin without JavaScript (${words} words; expected at least 1200)`);
   if (isArticle) {
+    const coreWords = wordCount(articleCore(html));
+    if (coreWords < 450) errors.push(`${route}: core article content is too thin (${coreWords} words; expected at least 450)`);
     for (const className of ["header-tools", "footer-grid", "mobile-bottom-nav", "article-author-card"]) {
       if (!new RegExp(`class=["'][^"']*\\b${className}\\b`, "i").test(html)) errors.push(`${route}: article is missing the standard ${className} shell`);
     }
     const faqCount = (html.match(/<details\s+class="reveal"/g) || []).length;
-    if (faqCount !== 10) errors.push(`${route}: expected exactly 10 visible FAQ entries, found ${faqCount}`);
+    if (faqCount !== 4) errors.push(`${route}: expected exactly 4 topic-specific FAQ entries, found ${faqCount}`);
     if (!html.includes('"@type":"FAQPage"')) errors.push(`${route}: missing FAQPage structured data`);
     if (!html.includes('"@type":"BlogPosting"')) errors.push(`${route}: missing BlogPosting structured data`);
     if (!/<meta\s+name=["']keywords["']/i.test(html)) errors.push(`${route}: missing article keyword metadata`);
@@ -229,6 +237,7 @@ if ((home.match(/class=["']service-card reveal["']/g) || []).length !== 9) error
 if ((home.match(/aria-label=["']تفاصيل خدمة /g) || []).length !== 9) errors.push("Homepage service detail links need unique accessible labels");
 if (/<script\b[^>]*\bsrc=["']https:\/\/www\.googletagmanager\.com/i.test(home)) errors.push("Homepage loads Google Analytics before the deferred loader");
 if (!/setTimeout\(load,8000\)/.test(home)) errors.push("Homepage is missing the delayed Google Analytics fallback");
+if (!/href=["']\/local-seo\/riyadh\/["']/.test(home)) errors.push("Homepage needs a direct internal link to /local-seo/riyadh/");
 if (wordCount(home) < 900) warnings.push(`Homepage content is shorter than 900 words (${wordCount(home)})`);
 for (const [route, html] of pages) {
   const mapSectionCount = (html.match(/id="google-business-map"/g) || []).length;
@@ -251,6 +260,21 @@ const blogCardCount = (blog.match(/class=["']post-card(?:\s|["'])/g) || []).leng
 if (blogCardCount !== expectedArticleRoutes.length) errors.push(`Blog index renders ${blogCardCount} article cards; expected ${expectedArticleRoutes.length}`);
 for (const route of expectedArticleRoutes) {
   if (!new RegExp(`href=["']${route.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`).test(blog)) errors.push(`Blog index does not link to ${route}`);
+}
+
+const articleShingles = expectedArticleRoutes
+  .map((route) => ({ route, values: shingles(articleCore(pages.get(route) || "")) }))
+  .filter((article) => article.values.size > 0);
+for (let left = 0; left < articleShingles.length; left += 1) {
+  for (let right = left + 1; right < articleShingles.length; right += 1) {
+    const first = articleShingles[left];
+    const second = articleShingles[right];
+    let intersection = 0;
+    for (const value of first.values) if (second.values.has(value)) intersection += 1;
+    const union = first.values.size + second.values.size - intersection;
+    const similarity = union ? intersection / union : 0;
+    if (similarity > 0.3) errors.push(`${first.route} and ${second.route}: core article similarity is ${(similarity * 100).toFixed(1)}%; expected at most 30%`);
+  }
 }
 
 const english = pages.get("/en/") || "";

@@ -163,35 +163,18 @@ export function guideToPost(guide) {
     seoTitle: guide.title,
     excerpt: guide.description,
     date: guide.published || "2026-07-30",
-    modified: guide.modified || "2026-08-12",
-    readTime: `${Math.max(12, Math.ceil(sectionWords / 130) + 7)} دقيقة`,
+    modified: guide.modified || "2026-08-30",
+    readTime: `${Math.max(6, Math.ceil(sectionWords / 150) + 3)} دقائق`,
     ...routeMeta
   });
 }
 
 export function completeFaqs(post) {
-  const context = faqContexts[post.relatedService] || faqContexts["web-development"];
-  const primary = post.keywords?.[0] || post.category || post.title;
-  const originalAnswerExtensions = [
-    `ولا ينبغي تحويل هذه الإجابة إلى قاعدة عامة قبل مراجعة حالة المشروع؛ فالمعيار هو ارتباط الحل بالمشكلة والنتيجة المتوقعة. ${context.fit}`,
-    `ولتقليل التأخير وإعادة العمل، ابدأ بملف متطلبات صغير يجمع الحقائق والروابط والملاك والقيود. ${context.preparation}`,
-    `وتُراجع النتيجة بعد تسجيل خط أساس واضح، لا من الانطباع أو من مؤشر منفرد. ${context.measurement}`,
-    `ويبقى النجاح بعد الخطوة الأولى مرتبطًا بالحوكمة والمتابعة، لا بمجرد إغلاق المهمة. ${context.followUp} كما يجب تجنب الاختصارات التي تصنع نتيجة مؤقتة أو مخاطرة يصعب اكتشافها لاحقًا.`
-  ];
-  const originalFaqs = (post.faqs || []).map(([question, answer], index) => [question, `${answer} ${originalAnswerExtensions[index % originalAnswerExtensions.length]}`]);
-  const supplemental = [
-    [`كيف أعرف أن ${primary} مناسب لاحتياج مشروعي؟`, `لا يُتخذ القرار من شيوع المصطلح أو جمال العرض وحدهما؛ بل من المشكلة الحالية والهدف والبيانات والقيود. ${context.fit} يبدأ التشخيص بمقارنة الوضع الحالي بالنتيجة المطلوبة، ثم تحديد أصغر نطاق يقدّم دليلًا يمكن قياسه قبل التوسع.`],
-    [`ما المعلومات التي ينبغي تجهيزها قبل البدء في ${primary}؟`, `${context.preparation} كل معلومة منظمة في البداية تقلل التخمين وإعادة العمل، وتساعد على صياغة نطاق واضح يحدد المخرجات والمسؤوليات ومعايير القبول بدل ترك المشروع مفتوحًا لتوقعات متعارضة.`],
-    [`هل يمكن تنفيذ ${primary} على مراحل دون تعطيل العمل؟`, `${context.phasing} التقسيم المرحلي ليس إبطاءً للمشروع؛ بل وسيلة لعزل المخاطر، واختبار الافتراضات، والحفاظ على نسخة مستقرة يمكن الرجوع إليها إذا ظهرت نتيجة غير متوقعة.`],
-    [`كيف تُقاس نتائج ${primary} بصورة عملية؟`, `${context.measurement} يجب تسجيل خط أساس قبل التعديل، ثم مقارنة الاتجاه خلال مدة مناسبة مع مراعاة الموسمية وحجم البيانات. الأرقام التي لا ترتبط بهدف تجاري أو تشغيلي قد تبدو جيدة لكنها لا تثبت نجاح التنفيذ.`],
-    [`ما الأخطاء التي تضعف نتائج ${primary} حتى مع ميزانية جيدة؟`, `${context.risks} كما يضعف المشروع غياب المالك الواضح للقرار، وتغيير عدة عناصر في وقت واحد، وعدم توثيق ما نُفذ؛ لأن ذلك يجعل معرفة سبب التحسن أو التراجع شبه مستحيلة.`],
-    [`ما الذي يحتاج إلى متابعة بعد تنفيذ ${primary}؟`, `${context.followUp} التنفيذ الاحترافي يترك جدول متابعة ومؤشرات ومسؤوليات، بحيث يعرف صاحب المشروع متى يراجع النتيجة، وما الإشارة التي تستدعي تدخلًا، وما التغيير الذي يمكن تنفيذه بأمان.`]
-  ];
   const seen = new Set();
-  return [...originalFaqs, ...supplemental].filter(([question]) => {
+  return (post.faqs || []).filter(([question]) => {
     const key = question.trim();
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
-  }).slice(0, 10);
+  }).slice(0, 4);
 }
