@@ -8,6 +8,14 @@ on:
         required: false
         default: false
         type: boolean
+  push:
+    branches: [main]
+    paths:
+      - "scripts/seo-control-center.mjs"
+      - "scripts/seo-control-center-server.mjs"
+      - "ops/seo-control-center/**"
+      - ".github/workflows/seo-control-center.yml"
+      - "package.json"
   schedule:
     - cron: "23 4 * * *"
 
