@@ -6,7 +6,7 @@
   "description": "Professional Arabic-first website for Eng. Eslam Elshikh: cybersecurity, software, AI agents, Google products, SEO, and cloud solutions.",
   "scripts": {
     "build": "node build.mjs && node scripts/finalize-site.mjs . && node scripts/persist-brand-google-expert.mjs . && node scripts/finalize-brand-images.mjs . && node scripts/finalize-sitemap.mjs .",
-    "build:vercel": "node build.mjs --out=dist && node scripts/finalize-site.mjs dist && node scripts/persist-brand-google-expert.mjs dist && node scripts/finalize-brand-images.mjs dist && node scripts/finalize-sitemap.mjs dist",
+    "build:vercel": "node build.mjs --out=dist && node scripts/finalize-site.mjs dist && node scripts/persist-brand-google-expert.mjs dist && node scripts/finalize-brand-images.mjs dist && node scripts/finalize-sitemap.mjs dist && node scripts/validate.mjs --dir=dist && node scripts/smoke.mjs --dir=dist",
     "validate": "node scripts/validate.mjs --dir=dist",
     "smoke": "node scripts/smoke.mjs --dir=dist",
     "check": "node --check build.mjs && node --check src/content.mjs && node --check src/editorial.mjs && node --check src/guides.mjs && node --check assets/js/main.js && node --check assets/js/enhancements.js && node --check scripts/finalize-site.mjs && node --check scripts/persist-brand-google-expert.mjs && node --check scripts/finalize-brand-images.mjs && node --check scripts/finalize-sitemap.mjs && npm run build:vercel && npm run validate && npm run smoke"
