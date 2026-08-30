@@ -155,9 +155,13 @@ for (const [slug, topic] of Object.entries(topics)) {
   const position = html.indexOf(anchor);
   if (position < 0) throw new Error(`Could not find article section anchor on topic hub ${slug}`);
 
-  html = enrichStructuredData(html, slug, topic);
   html = `${html.slice(0, position)}${editorialSection(slug, topic)}\n${html.slice(position)}`;
+  html = enrichStructuredData(html, slug, topic);
 
+  const markerPosition = html.indexOf(marker);
+  const mainPosition = html.indexOf('<main id="main">');
+  const footerPosition = html.indexOf('<footer class="site-footer">');
+  if (markerPosition < mainPosition || markerPosition > footerPosition) throw new Error(`Topic editorial section is outside main content on ${slug}`);
   if ((html.match(new RegExp(`data-topic-editorial=["']${slug}["']`, "g")) || []).length !== 1) {
     throw new Error(`Topic editorial marker validation failed on ${slug}`);
   }
