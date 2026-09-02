@@ -293,7 +293,7 @@ if (uniqueLiveUrls.size !== webProjects.length) errors.push(`Verified work data 
 for (const [route, html] of pages) {
   const mapSectionCount = (html.match(/id="google-business-map"/g) || []).length;
   if (mapSectionCount !== 1) errors.push(`${route}: expected one sitewide Google Maps section, found ${mapSectionCount}`);
-  if (!html.includes("www.google.com/maps/embed?pb=")) errors.push(`${route}: missing Google Maps embed`);
+  if (!html.includes("www.google.com/maps?q=Riyadh%2C%20Saudi%20Arabia&amp;z=11&amp;output=embed")) errors.push(`${route}: Google Maps embed must use the focused Riyadh service-area view at zoom 11`);
   if (!html.includes('referrerpolicy="strict-origin-when-cross-origin"')) errors.push(`${route}: Google Maps embed is missing its referrer policy`);
   if (!html.includes("https://maps.app.goo.gl/EbiR3AKJEZhkbMn66")) errors.push(`${route}: missing direct Google Business Profile link`);
   if (!html.includes('width="600" height="450"')) errors.push(`${route}: map embed does not preserve the supplied iframe dimensions`);

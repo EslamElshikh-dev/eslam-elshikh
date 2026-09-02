@@ -44,7 +44,7 @@ for (const [needle, label] of [["IntersectionObserver", "progressive reveal"], [
   if (!js.includes(needle)) failures.push(`JavaScript missing ${label}`);
 }
 
-const homeMapFrame = home.match(/<iframe\b[^>]*www\.google\.com\/maps\/embed[^>]*>/i)?.[0] || "";
+const homeMapFrame = home.match(/<iframe\b[^>]*www\.google\.com\/maps(?:\/embed)?\?[^>]*>/i)?.[0] || "";
 if (!homeMapFrame || !/loading="lazy"/i.test(homeMapFrame) || !/title="[^"]+"/i.test(homeMapFrame) || !/referrerpolicy="strict-origin-when-cross-origin"/i.test(homeMapFrame)) {
   failures.push("Homepage Google Maps embed is missing lazy loading, an accessible title, or referrer policy");
 }

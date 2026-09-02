@@ -29,7 +29,7 @@ export const site = {
   country: "المملكة العربية السعودية",
   countryCode: "SA",
   googleMapsProfile: "https://maps.app.goo.gl/EbiR3AKJEZhkbMn66",
-  googleMapsEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1855561.9564318385!2d48.17131364164061!3d24.721920797653034!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x249f92627b1c4601%3A0x9aa9c606416f16de!2z2KfZhNmF2YfZhtiv2LMg2KXYs9mE2KfZhSDYp9mE2LTZitiu!5e0!3m2!1sar!2ssa!4v1786663765858!5m2!1sar!2ssa",
+  googleMapsEmbed: "https://www.google.com/maps?q=Riyadh%2C%20Saudi%20Arabia&z=11&output=embed",
   logo: "/assets/brand/eslam-elshikh-logo-ui-20260827.webp",
   shareImage: "/assets/og/eslam-elshikh-social-card.png",
   lastUpdated: "2026-09-02",
