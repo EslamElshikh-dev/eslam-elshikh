@@ -11,7 +11,7 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.6.2";
+const version = "3.6.3";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)

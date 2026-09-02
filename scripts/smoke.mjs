@@ -61,6 +61,7 @@ if (/<style\b|\sstyle=["']/.test(home) || /<script\b(?![^>]*\bsrc=)(?![^>]*appli
 if (!/class="about-hero-actions"/.test(about) || !/class="about-quick-facts"/.test(about)) failures.push("About page lacks contextual hero actions or quick facts");
 if ((about.match(/class="about-case-card reveal"/g) || []).length !== 3) failures.push("About page must feature exactly three verifiable case studies");
 if (!/class="about-h1-line"/.test(about) || /إسلام الشيخ\.<br/i.test(about)) failures.push("About page H1 does not preserve readable text separation");
+if (/<article\b[^>]*\brole="tabpanel"/i.test(about)) failures.push("About tabpanel uses an incompatible article element");
 if (!/href="https:\/\/github\.com\/EslamElshikh-dev"[^>]*target="_blank"[^>]*rel="noopener"/.test(about)) failures.push("About page lacks the verified GitHub profile link");
 
 for (const match of home.matchAll(/<img\b([^>]*)>/gi)) {
