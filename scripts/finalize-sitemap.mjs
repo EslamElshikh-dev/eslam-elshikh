@@ -55,7 +55,7 @@ function alternateLinksFor(route) {
 
 const htmlFiles = (await walk(outDir)).filter((file) => file.endsWith("index.html"));
 const routes = [...new Set(htmlFiles.map(routeFromFile).filter(Boolean))]
-  .filter((route) => !route.startsWith("/.") && !route.startsWith("/assets/"))
+  .filter((route) => !route.startsWith("/.") && !route.startsWith("/assets/") && !route.startsWith("/dist/") && !route.startsWith("/node_modules/"))
   .sort((a, b) => a.localeCompare(b, "en"));
 
 const urls = (await Promise.all(routes.map(async (route) => {

@@ -1,4 +1,7 @@
 Site: المهندس إسلام الشيخ
+Canonical identity: إسلام الشيخ | Eslam Elshikh
+English alternate: Islam Elshikh
+Official website: https://www.eslam-elshikh.com/
 Location: الرياض, المملكة العربية السعودية
 Design and development: Eslam Elshikh
-Updated: 2026-07-29
+Updated: 2026-09-02

@@ -2,6 +2,7 @@ import { access, readFile, readdir } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { posts, projects } from "../src/content.mjs";
+import { projectAudit, webProjects } from "../src/web-projects.mjs";
 import { guides } from "../src/guides.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -169,7 +170,7 @@ for (const route of sitemapRoutes) {
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
   if (/<style\b|\sstyle=["']/i.test(html)) errors.push(`${route}: contains inline CSS that weakens the CSP`);
-  if (!html.includes('/assets/js/theme.js?v=3.6.5') || !html.includes('/assets/js/analytics.js?v=3.6.5')) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
+  if (!html.includes('/assets/js/theme.js?v=3.7.0') || !html.includes('/assets/js/analytics.js?v=3.7.0')) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
   if (!html.includes('/assets/og/eslam-elshikh-social-card.png')) errors.push(`${route}: social metadata does not use the 1200x630 sharing card`);
   if (/https:\/\/(?:i\.ibb\.co|avatars\.githubusercontent\.com)/i.test(html)) errors.push(`${route}: references a legacy third-party image host`);
   for (const image of html.matchAll(/<img\b([^>]*)>/gi)) {
@@ -256,7 +257,7 @@ for (const publicFile of ["sitemap.xml", "robots.txt", "feed.xml", "profile.json
 
 const profileJson = await readFile(join(output, "profile.json"), "utf8").then(JSON.parse).catch(() => null);
 if (!profileJson || profileJson["@id"] !== `${canonicalBase}/#person`) errors.push("profile.json is missing the canonical Person @id");
-for (const identityName of ["المهندس إسلام الشيخ", "المهندس اسلام الشيخ", "اسلام الشيخ", "إسلام الشيخ | Eslam Elshikh", "Eslam Elshikh", "Islam Elshikh"]) {
+for (const identityName of ["المهندس إسلام الشيخ", "المهندس اسلام الشيخ", "المهندس إسلام", "المهندس اسلام", "اسلام الشيخ", "إسلام الشيخ", "إسلام الشيخ | Eslam Elshikh", "Eslam Elshikh", "ESLAM ELSHIKH", "Islam Elshikh", "ISLAM ELSHIKH"]) {
   if (!profileJson?.alternateName?.includes(identityName)) errors.push(`profile.json is missing alternateName ${identityName}`);
 }
 if (profileJson?.telephone !== "+966579395299") errors.push("profile.json does not use the confirmed primary phone number");
@@ -270,7 +271,7 @@ const home = pages.get("/") || "";
 if ((home.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("Homepage does not render all 9 services");
 if ((home.match(/aria-label=["']تفاصيل خدمة /g) || []).length !== 9) errors.push("Homepage service detail links need unique accessible labels");
 if (/<script\b[^>]*\bsrc=["']https:\/\/www\.googletagmanager\.com/i.test(home)) errors.push("Homepage loads Google Analytics before consent");
-if (!home.includes('<strong>472</strong>') || !home.includes('<strong>233</strong>') || !home.includes('<strong>63</strong>') || !home.includes('<strong>12</strong>')) errors.push("Homepage trust metrics are missing the verified 472/233/63/12 figures");
+if (!home.includes('<strong>472</strong>') || !home.includes('<strong>233</strong>') || !home.includes('<strong>63</strong>') || !home.includes(`<strong>${projectAudit.verifiedLiveProjects}</strong>`)) errors.push(`Homepage trust metrics are missing the verified 472/233/63/${projectAudit.verifiedLiveProjects} figures`);
 if (!/href=["']\/local-seo\/riyadh\/["']/.test(home)) errors.push("Homepage needs a direct internal link to /local-seo/riyadh/");
 if (wordCount(home) < 900) warnings.push(`Homepage content is shorter than 900 words (${wordCount(home)})`);
 for (const [route, html] of pages) {
@@ -281,6 +282,14 @@ const projectsPageHtml = pages.get("/projects/") || "";
 if (!projectsPageHtml.includes('"@type":"CollectionPage"') || !projectsPageHtml.includes('"@id":"https://www.eslam-elshikh.com/projects/#project-list"')) {
   errors.push("Projects page is missing CollectionPage and ItemList identity evidence");
 }
+const workCardCount = (projectsPageHtml.match(/\bdata-work-card(?:\s|>)/g) || []).length;
+if (workCardCount !== webProjects.length) errors.push(`Projects page renders ${workCardCount} verified work cards; expected ${webProjects.length}`);
+if (!projectsPageHtml.includes(`"numberOfItems":${webProjects.length}`)) errors.push(`Projects ItemList does not declare ${webProjects.length} items`);
+for (const marker of ["data-work-search", "data-work-filter=\"all\"", "data-work-more", `${projectAudit.githubRepositories} مستودعًا على GitHub`, `${projectAudit.vercelProjects} مشروعًا على Vercel`]) {
+  if (!projectsPageHtml.includes(marker)) errors.push(`Projects page is missing verified archive marker: ${marker}`);
+}
+const uniqueLiveUrls = new Set(webProjects.map((project) => project.liveUrl));
+if (uniqueLiveUrls.size !== webProjects.length) errors.push(`Verified work data contains ${webProjects.length - uniqueLiveUrls.size} duplicate live URL(s)`);
 for (const [route, html] of pages) {
   const mapSectionCount = (html.match(/id="google-business-map"/g) || []).length;
   if (mapSectionCount !== 1) errors.push(`${route}: expected one sitewide Google Maps section, found ${mapSectionCount}`);

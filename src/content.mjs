@@ -1,3 +1,5 @@
+import { projectAudit } from "./web-projects.mjs";
+
 export const site = {
   brandName: "المهندس إسلام الشيخ",
   nameAr: "إسلام الشيخ",
@@ -5,10 +7,15 @@ export const site = {
   alternateNames: [
     "المهندس إسلام الشيخ",
     "المهندس اسلام الشيخ",
+    "المهندس إسلام",
+    "المهندس اسلام",
     "اسلام الشيخ",
+    "إسلام الشيخ",
     "إسلام الشيخ | Eslam Elshikh",
     "Eslam Elshikh",
+    "ESLAM ELSHIKH",
     "Islam Elshikh",
+    "ISLAM ELSHIKH",
     "Eslam El Sheikh"
   ],
   siteAlternateNames: ["إسلام الشيخ", "اسلام الشيخ", "Eslam Elshikh", "Islam Elshikh", "eslam-elshikh.com"],
@@ -44,7 +51,7 @@ export const site = {
     { value: "472", label: "ملفًا تجاريًا على Google تم دعم توثيقه" },
     { value: "233", label: "مشكلة ملف تجاري تم حلها ومعالجتها" },
     { value: "63", label: "نموذجًا منشورًا يمكن مراجعته على الخرائط" },
-    { value: "12", label: "مشروع ويب حيًا ضمن معرض الأعمال" }
+    { value: String(projectAudit.verifiedLiveProjects), label: "مشروع ويب حيًا موثقًا" }
   ]
 };
 

@@ -2,6 +2,7 @@ import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { site, services, projects, mapsProjects, posts, homeFaq, localSeoFaq } from "./src/content.mjs";
+import { projectAudit, webProjects } from "./src/web-projects.mjs";
 import { guides } from "./src/guides.mjs";
 import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
 import { renderAbout } from "./src/about.mjs";
@@ -11,7 +12,7 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.6.5";
+const version = "3.7.0";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)
@@ -87,6 +88,7 @@ const baseGraph = () => ([
     givenName: "إسلام",
     familyName: "الشيخ",
     url: `${site.url}/`,
+    mainEntityOfPage: { "@id": `${site.url}/about/#profile` },
     image: absolute(site.logo),
     description: site.description,
     jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"],
@@ -103,7 +105,7 @@ const baseGraph = () => ([
       { "@type": "EducationalOccupationalCredential", name: "دبلوم الأمن السيبراني", credentialCategory: "Diploma", recognizedBy: { "@type": "CollegeOrUniversity", name: "الجامعة العربية المفتوحة" } }
     ],
     knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "Google Search", "Google Search Console", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"],
-    sameAs: [site.social.wikidata, site.social.googleDeveloper, site.social.github, site.social.x, site.social.instagram, site.social.youtube]
+    sameAs: [...new Set([...Object.values(site.social), site.googleMapsProfile])]
   },
   {
     "@type": "WebSite",
@@ -112,6 +114,7 @@ const baseGraph = () => ([
     name: site.brandName,
     alternateName: site.siteAlternateNames,
     inLanguage: ["ar-SA", "en"],
+    creator: { "@id": `${site.url}/#person` },
     publisher: { "@id": `${site.url}/#person` }
   },
   {
@@ -187,8 +190,7 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>${esc(fullTitle)}</title>
   <meta name="description" content="${esc(description)}">
-  ${keywords.length ? `<meta name="keywords" content="${esc(keywords.join(", "))}">` : ""}
-  <meta name="robots" content="${esc(robots)}">
+${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))}">\n` : ""}  <meta name="robots" content="${esc(robots)}">
   <meta name="author" content="${esc(site.nameAr)}">
   <meta name="application-name" content="${esc(site.brandName)}">
   <meta name="theme-color" content="#06131f" data-theme-color>
@@ -230,8 +232,7 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
   <meta name="twitter:image:alt" content="${esc(fullTitle)}">
   <script src="/assets/js/theme.js?v=${version}"></script>
   <link rel="stylesheet" href="/assets/css/main.css?v=${version}">
-  ${stylesheets.map((href) => `<link rel="stylesheet" href="${esc(href)}">`).join("\n  ")}
-  <script src="/assets/js/analytics.js?v=${version}" defer></script>
+${stylesheets.length ? `${stylesheets.map((href) => `  <link rel="stylesheet" href="${esc(href)}">`).join("\n")}\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
   <script type="application/ld+json">${safeJson({ "@context": "https://schema.org", "@graph": graph })}</script>
 </head>`;
 }
@@ -355,6 +356,19 @@ function projectsShowcase({ home = false } = {}) {
   const highlights = projects.slice(1, home ? 3 : 5);
   const archive = home ? [] : projects.slice(5);
   return `<div class="portfolio-showcase">${featuredProject(projects[0])}<div class="portfolio-highlight-grid">${highlights.map((project, index) => showcaseProject(project, index + 1)).join("")}</div>${archive.length ? `<div class="portfolio-archive" aria-label="المزيد من الأعمال">${archive.map((project, index) => archiveProject(project, index + 5)).join("")}</div>` : ""}</div>`;
+}
+
+function verifiedWorkArchive() {
+  const sectors = [...new Set(webProjects.map((project) => project.sector))];
+  const cards = webProjects.map((project, index) => {
+    const domain = new URL(project.liveUrl).hostname.replace(/^www\./, "");
+    const sourceLink = project.sourceUrl
+      ? `<a href="${esc(project.sourceUrl)}" target="_blank" rel="noopener" aria-label="عرض مصدر مشروع ${esc(project.title)} على GitHub">المصدر ${icon("code")}</a>`
+      : "";
+    return `<article class="work-ledger-card reveal" data-work-card data-work-sector="${esc(project.sector)}"><div class="work-ledger-top"><span dir="ltr">${String(index + 1).padStart(2, "0")}</span><span>${esc(project.sector)}</span></div><h3>${esc(project.title)}</h3><p dir="ltr">${esc(domain)}</p><div class="work-ledger-actions"><a href="${esc(project.liveUrl)}" target="_blank" rel="noopener" aria-label="فتح الموقع الحي لمشروع ${esc(project.title)}">الموقع الحي ${icon("external")}</a>${sourceLink}</div></article>`;
+  }).join("");
+
+  return `<section class="section-pad work-ledger-section" data-work-archive><div class="container"><div class="section-heading reveal">${eyebrow("السجل الكامل الموثق")}<h2>${projectAudit.verifiedLiveProjects} مشروع ويب حيًا وفريدًا</h2><p>راجعت ${projectAudit.githubRepositories} مستودعًا على GitHub و${projectAudit.vercelProjects} مشروعًا على Vercel، ثم استبعدت المستودعات الفارغة والنسخ المكررة والتجارب والروابط غير العامة. النتيجة أدناه هي الأعمال الحية التي أمكن فتحها والتحقق منها بتاريخ 2 سبتمبر 2026.</p></div><div class="work-audit-summary reveal" aria-label="ملخص تدقيق أعمال الويب"><div><strong>${projectAudit.githubRepositories}</strong><span>مستودع GitHub تمت مراجعته</span></div><div><strong>${projectAudit.vercelProjects}</strong><span>مشروع Vercel تمت مراجعته</span></div><div><strong>${projectAudit.verifiedLiveProjects}</strong><span>مشروعًا حيًا وفريدًا</span></div></div><div class="work-ledger-controls reveal"><label class="work-search"><span>ابحث في الأعمال</span><span class="work-search-field">${icon("search")}<input type="search" inputmode="search" autocomplete="off" placeholder="اسم المشروع أو القطاع أو النطاق" data-work-search></span></label><div class="work-sector-filters" aria-label="تصفية الأعمال حسب القطاع">${[`الكل`, ...sectors].map((sector, index) => `<button type="button" data-work-filter="${index === 0 ? "all" : esc(sector)}" aria-pressed="${index === 0 ? "true" : "false"}">${esc(sector)}</button>`).join("")}</div><p class="work-results-status" data-work-status aria-live="polite">عرض ${webProjects.length} من أصل ${webProjects.length} مشروعًا</p></div><div class="work-ledger-grid">${cards}</div><div class="work-ledger-more"><button class="button button-ghost" type="button" data-work-more hidden>عرض المزيد ${icon("arrow", "button-icon")}</button></div><p class="work-empty" data-work-empty hidden>لا توجد أعمال مطابقة لعبارة البحث أو القطاع المحدد.</p><div class="independent-note reveal">${icon("shield")}<p><strong>حدود الدليل:</strong> الروابط تثبت وجود المشروع العام وقت المراجعة، ولا تعني ادعاء أرقام زيارات أو تحويلات أو ملكية تجارية للجهات المعروضة. الروابط الخارجية قد تتغير بعد النشر.</p></div></div></section>`;
 }
 
 function postCard(post, { featured = false } = {}) {
@@ -568,7 +582,7 @@ function aboutPage() {
   const body = renderAbout({
     site,
     mapsCount: mapsProjects.length,
-    projectCount: projects.length,
+    projectCount: webProjects.length,
     projects,
     profilePhoto,
     innerHero,
@@ -624,11 +638,12 @@ function googleExpertPage() {
   const body = `${innerHero({ eyebrowText: "خبير منتجات Google · الرياض والسعودية", title: "إسلام الشيخ — خبير خرائط جوجل والملفات التجارية", lead: "أنا إسلام الشيخ، خبير منتجات Google ومتخصص في خرائط جوجل والملفات التجارية. أساعد أصحاب الأنشطة على حل مشكلات التحقق والتعليق وإثبات الملكية وتحسين بيانات النشاط ورفع كفاءة الظهور في نتائج البحث وخرائط Google من خلال حلول عملية متوافقة مع السياسات.", path: "/google-expert/", crumbs: [{ name: "خبير خرائط جوجل", path: "/google-expert/" }], aside: `<span class="google-mark">G</span><strong>خبرة موثقة في Google Maps</strong><p>مساهمات عملية في منتجات Google ونماذج ملفات تجارية منشورة يمكن مراجعتها مباشرة.</p>` })}
 <section class="section-pad"><div class="container google-stats"><div class="google-stat reveal"><strong>472</strong><span>ملفًا تجاريًا على Google تم دعم توثيقه</span></div><div class="google-stat reveal"><strong>233</strong><span>مشكلة ملف تجاري تم حلها ومعالجتها</span></div><div class="google-stat reveal"><strong>${mapsProjects.length}</strong><span>نموذجًا عامًا منشورًا يمكن مراجعته</span></div><div class="google-stat reveal"><strong>Google</strong><span>ملف خبير منتجات ومساهمات عملية</span></div></div></section>
 <section class="section-pad muted-section"><div class="container service-intro-grid"><div class="rich-copy reveal"><h2>خبير جوجل ماب يساعدك على اتخاذ القرار الصحيح</h2><p>أبدأ بفهم نموذج النشاط الحقيقي، سواء كان يستقبل العملاء في موقع واضح أو يعمل في نطاق خدمة، ثم أراجع الاسم والفئة والعنوان أو المناطق والخدمات والموقع الإلكتروني والمستخدمين والتغييرات السابقة وإشعارات Google.</p><p>بعد التشخيص أحدد التناقضات والمخاطر والتصحيحات المطلوبة، وأرتب الأدلة والخطوات المناسبة للتحقق أو الاستئناف أو استعادة الوصول. وبعد استقرار الملف أعمل على تحسين اكتمال البيانات وربطها بالموقع والمحتوى والسيو المحلي وقياس التفاعل.</p>${button("/services/google-business-profile/", "عرض خدمات الملفات التجارية")}</div><aside class="disclaimer-card professional-summary-card reveal"><span>عن إسلام الشيخ</span><h2>خبرة منتجات Google مدعومة بمساهمات ونماذج منشورة</h2><p>يجمع إسلام الشيخ بين خبرة منتجات Google وإدارة الملفات التجارية والسيو المحلي وتطوير المواقع، لتقديم معالجة مترابطة تبدأ من صحة الملف وتصل إلى تجربة الموقع والتحويل والقياس.</p><a class="text-link" href="${site.social.googleDeveloper}" target="_blank" rel="noopener">عرض ملف خبير منتجات Google ${icon("external")}</a><a class="text-link" href="${site.googleMapsProfile}" target="_blank" rel="noopener">عرض الملف التجاري على خرائط Google ${icon("external")}</a></aside></div></section>
+<section class="section-pad"><div class="container case-method reveal"><div><span>توحيد الهوية في البحث</span><h2>المهندس إسلام الشيخ هو Eslam Elshikh</h2></div><p>الاسم العربي الرسمي هو «المهندس إسلام الشيخ»، والاسم الإنجليزي المستخدم مهنيًا هو «Eslam Elshikh»، وتظهر أحيانًا كتابة «Islam Elshikh». لذلك فإن عمليات البحث مثل «إسلام الشيخ جوجل» و«المهندس إسلام الشيخ جوجل» و«Eslam Elshikh Google» تشير إلى هذا الملف المهني الرسمي.</p>${button("/about/", "تحقق من الملف المهني", "button-ghost")}</div></section>
 <section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("الحالات التي أتعامل معها")}<h2>من إنشاء الملف إلى استعادة الاستقرار والظهور</h2></div><div class="scope-grid"><article class="scope-card reveal"><span>01</span>${icon("pin")}<p>إعداد ملف مؤهل يعكس نموذج النشاط الحقيقي والفئة والخدمات ونطاق العمل.</p></article><article class="scope-card reveal"><span>02</span>${icon("shield")}<p>تشخيص تعليق الملف أو تعطيله ومراجعة التغييرات والمخاطر والملكية.</p></article><article class="scope-card reveal"><span>03</span>${icon("google")}<p>تجهيز إثبات الملكية بالفيديو أو الأدلة المتاحة بصورة منظمة ومتوافقة.</p></article><article class="scope-card reveal"><span>04</span>${icon("search")}<p>ربط الملف بالموقع والسيو المحلي والاتساق والمحتوى والقياس.</p></article><article class="scope-card reveal"><span>05</span>${icon("layers")}<p>مراجعة الملفات المكررة والملكية والمستخدمين والمواقع والفروع.</p></article><article class="scope-card reveal"><span>06</span>${icon("chart")}<p>تحليل الظهور والاستفسارات وجودة التحويل بعد استقرار الملف.</p></article></div></div></section>
 <section class="section-pad maps-section"><div class="container"><div class="section-heading reveal">${eyebrow("نماذج منشورة")}<h2>ملفات تجارية حقيقية يمكن فتحها على خرائط Google</h2><p>مختارات من قطاعات ومدن مختلفة، مع صفحة مستقلة تضم السجل الكامل للأعمال.</p></div><div class="map-case-grid">${mapsProjects.filter((item) => item.featured).slice(0, 6).map(featuredMapCard).join("")}</div><div class="section-action">${button("/google-maps-projects/", `استعرض ${mapsProjects.length} ملفًا تجاريًا`, "button-ghost")}</div></div></section>
 <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة خبير خرائط جوجل")}<h2>إجابات واضحة قبل تعديل ملفك التجاري</h2><p>الدقة والاتساق والأهلية أهم من كثرة المحاولات والتغييرات العشوائية.</p>${button(`${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، لدي مشكلة في ملف Google التجاري وأرغب في تشخيصها.")}`, "أرسل تفاصيل الحالة", "button-ghost", true)}</div>${faqBlock(faq)}</div></section>
 ${finalCta("ملفك التجاري معلق أو تعذر إثبات ملكيته؟", "أرسل رابط الملف ونص الإشعار وتسلسل التعديلات والمحاولات السابقة دون مشاركة كلمة مرور أو رمز تحقق.")}`;
-  return page({ title: "إسلام الشيخ — خبير خرائط جوجل والملفات التجارية", description: "إسلام الشيخ خبير منتجات Google ومتخصص في خرائط جوجل والملفات التجارية بالسعودية، يقدم حلول التحقق والتعليق وتحسين الظهور المحلي وفق السياسات.", path: "/google-expert/", active: "google", body, schema: [expertService, faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "خبير خرائط جوجل", path: "/google-expert/" }])] });
+  return page({ title: "المهندس إسلام الشيخ | خبير خرائط جوجل والملفات التجارية", description: "المهندس إسلام الشيخ، Eslam Elshikh، خبير منتجات Google ومتخصص في خرائط جوجل والملفات التجارية بالسعودية وحلول التحقق والتعليق والظهور المحلي.", path: "/google-expert/", active: "google", body, schema: [expertService, faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "خبير خرائط جوجل", path: "/google-expert/" }])] });
 }
 
 function googleAdsPage() {
@@ -753,12 +768,12 @@ function projectsPage() {
     "@type": "ItemList",
     "@id": `${site.url}/projects/#project-list`,
     name: "مشروعات المواقع المنشورة للمهندس إسلام الشيخ",
-    numberOfItems: projects.length,
-    itemListElement: projects.map((project, index) => ({
+    numberOfItems: webProjects.length,
+    itemListElement: webProjects.map((project, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: project.title,
-      url: project.slug ? `${site.url}/projects/${project.slug}/` : project.liveUrl
+      url: project.liveUrl
     }))
   };
   const collectionSchema = {
@@ -766,17 +781,18 @@ function projectsPage() {
     "@id": `${site.url}/projects/#collection`,
     url: `${site.url}/projects/`,
     name: "أعمال ومشروعات المهندس إسلام الشيخ",
-    description: "مجموعة منتقاة من أعمال إسلام الشيخ المنشورة في تطوير المواقع وتجربة المستخدم والسيو التقني والمحلي.",
+    description: `${projectAudit.verifiedLiveProjects} مشروع ويب حيًا وموثقًا من أعمال إسلام الشيخ، إلى جانب مجموعة مختارة بدراسات حالة وتفاصيل تنفيذ.`,
     creator: { "@id": `${site.url}/#person` },
     mainEntity: { "@id": projectList["@id"] },
     dateModified: site.lastUpdated
   };
-  const body = `${innerHero({ eyebrowText: "الأعمال والمشروعات", title: "نماذج من تطوير المواقع والسيو المحلي والحضور الرقمي", lead: "مشروعات عامة توضح كيف يتحول الهدف التجاري إلى بنية محتوى وتجربة متجاوبة ومسارات تواصل وقياس، مع الاهتمام بالتفاصيل التي تظهر على الجوال قبل سطح المكتب.", path: "/projects/", crumbs: [{ name: "الأعمال", path: "/projects/" }], aside: `<span class="aside-kicker">Selected Work</span><strong>تصميم وتطوير وسيو في منظومة واحدة</strong><p>كل مشروع يعالج سياقًا مختلفًا؛ من المقاولات والخدمات المحلية إلى شركات التقنية والذكاء الاصطناعي.</p>` })}
-<section class="section-pad portfolio-page-section"><div class="container"><div class="portfolio-page-heading reveal"><span>${projects.length} مشروعًا منشورًا</span><p>مجموعة منتقاة من المواقع والمنصات العامة، مرتبة بصريًا لتوضّح تنوع القطاعات وطبيعة الحل في كل مشروع.</p></div>${projectsShowcase()}</div></section>
+  const body = `${innerHero({ eyebrowText: "الأعمال والمشروعات", title: `${projectAudit.verifiedLiveProjects} مشروعًا حيًا موثقًا، ومختارات تشرح طريقة التنفيذ`, lead: "سجل عام جرى التحقق من روابطه، مع مشروعات مختارة توضح كيف يتحول الهدف التجاري إلى بنية محتوى وتجربة متجاوبة ومسارات تواصل وقياس على الجوال وسطح المكتب.", path: "/projects/", crumbs: [{ name: "الأعمال", path: "/projects/" }], aside: `<span class="aside-kicker">VERIFIED WORK / ${projectAudit.verifiedLiveProjects}</span><strong>تصميم وتطوير وسيو في منظومة واحدة</strong><p>تدقيق GitHub وVercel يفصل الأعمال الحية عن النسخ التجريبية والمكررة، مع روابط مباشرة قابلة للمراجعة.</p>` })}
+<section class="section-pad portfolio-page-section"><div class="container"><div class="portfolio-page-heading reveal"><span>${projects.length} مشروعًا مختارًا</span><p>مجموعة منتقاة مرتبة بصريًا لتوضّح تنوع القطاعات وطبيعة الحل، ثم يأتي بعدها السجل الكامل لجميع الأعمال الحية الموثقة.</p></div>${projectsShowcase()}</div></section>
+${verifiedWorkArchive()}
 ${mapsWorkTeaser()}
 <section class="section-pad"><div class="container case-method reveal"><div><span>منهج المشروع</span><h2>لا توجد نسخة واحدة تُكرر على كل نشاط</h2></div><p>تختلف بنية الموقع والمحتوى والدعوات والبيانات المنظمة حسب نموذج النشاط ورحلة العميل والمنافسة والقدرة التشغيلية. الهدف هو حل يناسب العمل الحقيقي، لا قالبًا يغير الألوان والشعار فقط.</p>${button("/contact/", "ناقش مشروعًا مشابهًا")}</div></section>
 ${finalCta("هل تريد تحويل نشاطك إلى تجربة رقمية احترافية؟", "أرسل رابط الموقع أو الملف التجاري والخدمات المستهدفة والمدينة والهدف، وسنحدد ما يحتاج إعادة بناء وما يمكن تحسينه تدريجيًا.")}`;
-  return page({ title: "أعمال ومشروعات المهندس إسلام الشيخ", description: "نماذج أعمال المهندس إسلام الشيخ في تطوير المواقع وتجربة المستخدم والسيو التقني والمحلي وملفات Google التجارية للشركات والأنشطة في السعودية.", path: "/projects/", active: "projects", body, schema: [collectionSchema, projectList, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }])] });
+  return page({ title: `${projectAudit.verifiedLiveProjects} مشروع ويب موثق | أعمال المهندس إسلام الشيخ`, description: `استعرض ${projectAudit.verifiedLiveProjects} مشروع ويب حيًا وموثقًا من أعمال المهندس إسلام الشيخ في تطوير المواقع والمنصات وتجربة المستخدم والسيو التقني والمحلي.`, path: "/projects/", active: "projects", body, schema: [collectionSchema, projectList, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }])] });
 }
 
 function projectCaseStudyPage(project) {
@@ -929,7 +945,7 @@ function termsPage() {
 }
 
 function englishPage() {
-  const body = `<section class="hero section-pad hero-en"><div class="container hero-grid"><div class="hero-copy reveal"><span class="eyebrow"><span></span>Cybersecurity Engineer · Software Developer · Google Product Expert</span><h1>I build digital systems that are <span>secure, useful, and ready to grow.</span></h1><p class="hero-lead">I am Eslam Elshikh, based in Riyadh. I combine cybersecurity, web and software engineering, practical AI agents, Google product expertise, cloud architecture, and search visibility into clear project scopes with reviewable outcomes.</p><p class="hero-support">From diagnosis and information architecture to implementation, testing, launch, and measurement, the goal is to reduce complexity and help your team make better technical decisions.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start a conversation", "", true)}${button("/services/", "Explore services", "button-ghost")}</div><div class="hero-trust"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>Google Developer Profile</a><a href="${site.social.github}" target="_blank" rel="noopener"><span class="trust-dot"></span>GitHub</a><span><span class="trust-dot trust-live"></span>Saudi Arabia & remote</span></div></div><div class="hero-visual reveal"><div class="visual-glow"></div><div class="visual-shell"><div class="visual-top"><span>Digital Engineering</span><span class="visual-status"><i></i> Operational</span></div><div class="visual-core">${logo("hero-logo", "Eslam Elshikh logo")}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div><div class="visual-capabilities"><span>${icon("shield")}Cybersecurity</span><span>${icon("code")}Web & Apps</span><span>${icon("spark")}AI Agents</span><span>${icon("google")}Google</span><span>${icon("chart")}SEO</span><span>${icon("cloud")}Cloud</span></div><div class="visual-metric"><span>Approach</span><strong>360°</strong><p>Security, user experience, discoverability, and measurement in one system.</p></div></div></div></div><div class="container stats-bar reveal">${site.stats.map((stat, index) => `<div><strong>${esc(stat.value)}</strong><span>${["Google Business Profiles supported through verification", "Business profile issues resolved", "Public Google Maps examples", "Live web projects in the portfolio"][index]}</span></div>`).join("")}</div></section>
+  const body = `<section class="hero section-pad hero-en"><div class="container hero-grid"><div class="hero-copy reveal"><span class="eyebrow"><span></span>Cybersecurity Engineer · Software Developer · Google Product Expert</span><h1>I build digital systems that are <span>secure, useful, and ready to grow.</span></h1><p class="hero-lead">I am Eslam Elshikh, based in Riyadh. I combine cybersecurity, web and software engineering, practical AI agents, Google product expertise, cloud architecture, and search visibility into clear project scopes with reviewable outcomes.</p><p class="hero-support">From diagnosis and information architecture to implementation, testing, launch, and measurement, the goal is to reduce complexity and help your team make better technical decisions.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start a conversation", "", true)}${button("/services/", "Explore services", "button-ghost")}</div><div class="hero-trust"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>Google Developer Profile</a><a href="${site.social.github}" target="_blank" rel="noopener"><span class="trust-dot"></span>GitHub</a><span><span class="trust-dot trust-live"></span>Saudi Arabia & remote</span></div></div><div class="hero-visual reveal"><div class="visual-glow"></div><div class="visual-shell"><div class="visual-top"><span>Digital Engineering</span><span class="visual-status"><i></i> Operational</span></div><div class="visual-core">${logo("hero-logo", "Eslam Elshikh logo")}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div><div class="visual-capabilities"><span>${icon("shield")}Cybersecurity</span><span>${icon("code")}Web & Apps</span><span>${icon("spark")}AI Agents</span><span>${icon("google")}Google</span><span>${icon("chart")}SEO</span><span>${icon("cloud")}Cloud</span></div><div class="visual-metric"><span>Approach</span><strong>360°</strong><p>Security, user experience, discoverability, and measurement in one system.</p></div></div></div></div><div class="container stats-bar reveal">${site.stats.map((stat, index) => `<div><strong>${esc(stat.value)}</strong><span>${["Google Business Profiles supported through verification", "Business profile issues resolved", "Public Google Maps examples", "Verified live web projects"][index]}</span></div>`).join("")}</div></section>
 <section class="section-pad" id="services"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Core capabilities</span><h2>Specialist work that can operate independently or as one delivery plan</h2><p>Each engagement starts with the business outcome, current state, constraints, risks, and a measurable definition of done.</p></div><div class="services-grid">${services.map((service) => { const translation = serviceTranslations[service.slug]; return `<article class="service-card reveal"><div class="service-card-top"><span class="service-number">${service.number}</span><span class="service-icon">${icon(service.icon)}</span></div><p class="service-group">${esc(translation.group)}</p><h3><a href="/services/${service.slug}/">${esc(translation.title)}</a></h3><p>${esc(translation.short)}</p><a class="text-link" href="/services/${service.slug}/" aria-label="View details for ${esc(translation.title)}">View service details ${icon("arrow")}</a></article>`; }).join("")}</div></div></section>
 <section class="section-pad muted-section"><div class="container promise-grid"><div class="promise-copy reveal"><span class="eyebrow"><span></span>How I work</span><h2>A strong digital project is more than a polished interface</h2><p>It should be understandable, secure in operation, responsive on real devices, discoverable by search engines, measurable, and maintainable after launch.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome first</h3><p>We define the user decision and business result before selecting tools.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Secure by design</h3><p>Data, permissions, and failure modes are considered from the start.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for devices</h3><p>Mobile-first testing across iOS, Android, Huawei, tablets, and desktops.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Ready to improve</h3><p>Performance, SEO, analytics, and conversion are part of operations.</p></article></div></div></section>
 <section class="section-pad"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>Google product expertise</span><h2>Structured diagnosis instead of random profile changes</h2><p>I help eligible businesses understand verification, suspension, ownership, category, consistency, and local visibility issues using official paths and realistic expectations.</p></div><div class="proof-actions">${button("/google-expert/", "Google expertise")}${button(site.social.googleDeveloper, "Official profile", "button-ghost", true)}</div></div></section>
@@ -1020,13 +1036,14 @@ async function build() {
     givenName: "إسلام",
     familyName: "الشيخ",
     url: `${site.url}/`,
+    mainEntityOfPage: `${site.url}/about/#profile`,
     image: absolute(profilePhoto),
     telephone: site.phone,
     jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"],
-    sameAs: Object.values(site.social),
+    sameAs: [...new Set([...Object.values(site.social), site.googleMapsProfile])],
     knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "Google Search", "Google Search Console", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"]
   }, null, 2));
-  await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- About: ${absolute("/about/")}\n- Google expertise: ${absolute("/google-expert/")}\n- Google Maps work: ${absolute("/google-maps-projects/")}\n- Google Ads management: ${absolute("/google-ads/")}\n- Local SEO: ${absolute("/local-seo/")}\n- Work: ${absolute("/projects/")}\n- Contact: ${absolute("/contact/")}\n`);
+  await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Verified public work\n- ${projectAudit.verifiedLiveProjects} unique live web projects, audited from ${projectAudit.githubRepositories} GitHub repositories and ${projectAudit.vercelProjects} Vercel projects on ${projectAudit.auditedAt}: ${absolute("/projects/")}\n- ${mapsProjects.length} public Google Maps examples: ${absolute("/google-maps-projects/")}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- About: ${absolute("/about/")}\n- Google expertise: ${absolute("/google-expert/")}\n- Google Ads management: ${absolute("/google-ads/")}\n- Local SEO: ${absolute("/local-seo/")}\n- Contact: ${absolute("/contact/")}\n`);
   if (isDistBuild) await cp(join(root, "llms-full.txt"), join(outDir, "llms-full.txt"));
   await writeText("humans.txt", `Site: ${site.brandName}\nCanonical identity: ${site.nameAr} | ${site.nameEn}\nEnglish alternate: Islam Elshikh\nOfficial website: ${site.url}/\nLocation: ${site.city}, ${site.country}\nDesign and development: ${site.nameEn}\nUpdated: ${site.lastUpdated}\n`);
   await writeText("CNAME", "www.eslam-elshikh.com\n");

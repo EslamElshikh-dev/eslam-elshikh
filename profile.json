@@ -1,9 +1,29 @@
 {
   "@context": "https://schema.org",
   "@type": "Person",
+  "@id": "https://www.eslam-elshikh.com/#person",
   "name": "إسلام الشيخ",
-  "alternateName": "Eslam Elshikh",
-  "url": "https://www.eslam-elshikh.com",
+  "honorificPrefix": "المهندس",
+  "alternateName": [
+    "المهندس إسلام الشيخ",
+    "المهندس اسلام الشيخ",
+    "المهندس إسلام",
+    "المهندس اسلام",
+    "اسلام الشيخ",
+    "إسلام الشيخ",
+    "إسلام الشيخ | Eslam Elshikh",
+    "Eslam Elshikh",
+    "ESLAM ELSHIKH",
+    "Islam Elshikh",
+    "ISLAM ELSHIKH",
+    "Eslam El Sheikh"
+  ],
+  "givenName": "إسلام",
+  "familyName": "الشيخ",
+  "url": "https://www.eslam-elshikh.com/",
+  "mainEntityOfPage": "https://www.eslam-elshikh.com/about/#profile",
+  "image": "https://www.eslam-elshikh.com/assets/brand/eslam-elshikh-portrait-20260827.webp",
+  "telephone": "+966579395299",
   "jobTitle": [
     "مهندس أمن سيبراني",
     "مطور برمجيات",
@@ -11,7 +31,6 @@
   ],
   "sameAs": [
     "https://github.com/EslamElshikh-dev",
-    "https://www.linkedin.com/in/eslam-elshikh",
     "https://facebook.com/remesoo",
     "https://x.com/remoesoo10",
     "https://www.instagram.com/remoesoo10",
@@ -20,7 +39,8 @@
     "https://www.tiktok.com/@remoesoo",
     "https://www.wikidata.org/wiki/Q138800449",
     "https://me.developers.google.com/u/EslamElshikh",
-    "https://blog.eslam-elshikh.com"
+    "https://blog.eslam-elshikh.com",
+    "https://maps.app.goo.gl/EbiR3AKJEZhkbMn66"
   ],
   "knowsAbout": [
     "الأمن السيبراني وحماية الأنظمة",
@@ -31,6 +51,13 @@
     "حل مشكلات ملفات Google التجارية",
     "قواعد المعرفة والبحث الذكي",
     "تحسين محركات البحث SEO والسيو المحلي",
-    "إدارة الإعلانات الرقمية وصفحات الهبوط"
+    "إدارة الإعلانات الرقمية وصفحات الهبوط",
+    "خرائط Google",
+    "Google Business Profile",
+    "Google Search",
+    "Google Search Console",
+    "السيو المحلي",
+    "إعلانات Google",
+    "إدارة حملات Google Ads"
   ]
 }

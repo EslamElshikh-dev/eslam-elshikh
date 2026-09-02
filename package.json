@@ -1,6 +1,6 @@
 {
   "name": "eslam-elshikh-portfolio",
-  "version": "3.6.5",
+  "version": "3.7.0",
   "private": true,
   "type": "module",
   "description": "Professional Arabic-first website for Eng. Eslam Elshikh: cybersecurity, software, AI agents, Google products, SEO, and cloud solutions.",
@@ -13,7 +13,7 @@
     "seo:self-test": "node scripts/seo-control-center.mjs --self-test",
     "identity:clients": "node scripts/sync-client-identity.mjs",
     "identity:clients:check": "node scripts/validate-client-identity.mjs",
-    "check": "node --check build.mjs && node --check src/content.mjs && node --check src/editorial.mjs && node --check src/guides.mjs && node --check assets/js/theme.js && node --check assets/js/analytics.js && node --check assets/js/main.js && node --check assets/js/enhancements.js && node --check scripts/finalize-site.mjs && node --check scripts/persist-brand-google-expert.mjs && node --check scripts/finalize-brand-images.mjs && node --check scripts/enrich-topic-hubs.mjs && node --check scripts/validate-topic-hubs.mjs && node --check scripts/finalize-sitemap.mjs && node --check scripts/seo-control-center.mjs && node --check scripts/seo-control-center-server.mjs && node --check scripts/sync-client-identity.mjs && node --check scripts/validate-client-identity.mjs && npm run seo:self-test && npm run build:vercel && npm run validate && npm run smoke"
+    "check": "node --check build.mjs && node --check src/content.mjs && node --check src/web-projects.mjs && node --check src/editorial.mjs && node --check src/guides.mjs && node --check assets/js/theme.js && node --check assets/js/analytics.js && node --check assets/js/main.js && node --check assets/js/enhancements.js && node --check scripts/finalize-site.mjs && node --check scripts/persist-brand-google-expert.mjs && node --check scripts/finalize-brand-images.mjs && node --check scripts/enrich-topic-hubs.mjs && node --check scripts/validate-topic-hubs.mjs && node --check scripts/finalize-sitemap.mjs && node --check scripts/seo-control-center.mjs && node --check scripts/seo-control-center-server.mjs && node --check scripts/sync-client-identity.mjs && node --check scripts/validate-client-identity.mjs && npm run seo:self-test && npm run build:vercel && npm run validate && npm run smoke"
   },
   "engines": {
     "node": "24.x"

@@ -120,6 +120,72 @@
     });
   }
 
+  const workArchive = doc.querySelector("[data-work-archive]");
+  if (workArchive) {
+    const workCards = [...workArchive.querySelectorAll("[data-work-card]")];
+    const workSearch = workArchive.querySelector("[data-work-search]");
+    const workFilters = [...workArchive.querySelectorAll("[data-work-filter]")];
+    const workStatus = workArchive.querySelector("[data-work-status]");
+    const workMore = workArchive.querySelector("[data-work-more]");
+    const workEmpty = workArchive.querySelector("[data-work-empty]");
+    const pageSize = 18;
+    let activeSector = "all";
+    let visibleLimit = pageSize;
+
+    const normalizeWorkText = (value) => String(value || "")
+      .normalize("NFKD")
+      .replace(/[\u064B-\u065F\u0670]/g, "")
+      .replace(/[أإآٱ]/g, "ا")
+      .replace(/ى/g, "ي")
+      .replace(/ة/g, "ه")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const applyWorkView = () => {
+      const query = normalizeWorkText(workSearch?.value);
+      const matches = workCards.filter((card) => {
+        const sectorMatches = activeSector === "all" || card.dataset.workSector === activeSector;
+        const queryMatches = !query || normalizeWorkText(card.textContent).includes(query);
+        return sectorMatches && queryMatches;
+      });
+      const visible = new Set(matches.slice(0, visibleLimit));
+
+      workCards.forEach((card) => {
+        card.hidden = !visible.has(card);
+        if (!card.hidden) card.classList.add("is-visible");
+      });
+
+      const shown = Math.min(matches.length, visibleLimit);
+      if (workStatus) workStatus.textContent = matches.length
+        ? `عرض ${shown} من أصل ${matches.length} مشروعًا مطابقًا — ${workCards.length} مشروعًا في السجل`
+        : `لا توجد نتائج مطابقة — ${workCards.length} مشروعًا في السجل`;
+      if (workMore) workMore.hidden = shown >= matches.length;
+      if (workEmpty) workEmpty.hidden = matches.length !== 0;
+    };
+
+    workFilters.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeSector = button.dataset.workFilter || "all";
+        visibleLimit = pageSize;
+        workFilters.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        applyWorkView();
+      });
+    });
+
+    workSearch?.addEventListener("input", () => {
+      visibleLimit = pageSize;
+      applyWorkView();
+    });
+
+    workMore?.addEventListener("click", () => {
+      visibleLimit += pageSize;
+      applyWorkView();
+    });
+
+    applyWorkView();
+  }
+
   doc.querySelectorAll(".mobile-bottom-nav a").forEach((link) => {
     const baseOrigin = window.location.origin === "null" ? "https://www.eslam-elshikh.com" : window.location.origin;
     const linkPath = normalizePath(new URL(link.getAttribute("href") || "/", baseOrigin).pathname);

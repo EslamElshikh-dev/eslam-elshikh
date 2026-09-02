@@ -25,10 +25,15 @@ const creator = {
   alternateName: [
     "المهندس إسلام الشيخ",
     "المهندس اسلام الشيخ",
+    "المهندس إسلام",
+    "المهندس اسلام",
     "اسلام الشيخ",
+    "إسلام الشيخ",
     "إسلام الشيخ | Eslam Elshikh",
     "Eslam Elshikh",
+    "ESLAM ELSHIKH",
     "Islam Elshikh",
+    "ISLAM ELSHIKH",
     "Eslam El Sheikh"
   ],
   url: canonicalUrl
@@ -91,6 +96,7 @@ function normalizeDeveloperLinks(content) {
       .replace(/aria-label=(["'])[^"']*(?:واتساب|المطور)[^"']*\1/gi, 'aria-label="الموقع الرسمي للمهندس إسلام الشيخ"');
     return `<a${attributes}>${linkedText}</a>`;
   });
+  next = next.replace(/href=(["'])https?:\/\/(?:www\.)?eslam-elshikh\.com(?:\/[^"']*)?\1/gi, (_full, quote) => `href=${quote}${canonicalUrl}${quote}`);
   for (const pattern of legacyWhatsAppPatterns) next = next.replace(pattern, canonicalUrl);
   return next.replace(/https?:\/\/(?:www\.)?eslam-elshikh\.com\/?/gi, canonicalUrl);
 }
