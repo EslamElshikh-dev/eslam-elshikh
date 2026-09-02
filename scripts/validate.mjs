@@ -169,7 +169,7 @@ for (const route of sitemapRoutes) {
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
   if (/<style\b|\sstyle=["']/i.test(html)) errors.push(`${route}: contains inline CSS that weakens the CSP`);
-  if (!html.includes('/assets/js/theme.js?v=3.6.4') || !html.includes('/assets/js/analytics.js?v=3.6.4')) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
+  if (!html.includes('/assets/js/theme.js?v=3.6.5') || !html.includes('/assets/js/analytics.js?v=3.6.5')) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
   if (!html.includes('/assets/og/eslam-elshikh-social-card.png')) errors.push(`${route}: social metadata does not use the 1200x630 sharing card`);
   if (/https:\/\/(?:i\.ibb\.co|avatars\.githubusercontent\.com)/i.test(html)) errors.push(`${route}: references a legacy third-party image host`);
   for (const image of html.matchAll(/<img\b([^>]*)>/gi)) {
@@ -186,6 +186,10 @@ for (const route of sitemapRoutes) {
     if (!/مهندس أمن سيبراني ومطور مواقع وبرمجيات في الرياض/.test(html)) errors.push(`${route}: hero is missing its primary location and service intent`);
     if (!/الهندسةُ الحقّة لا تتباهى بذكائها/.test(html) || /الهندسة الجيدة لا تجعل الحل يبدو أذكى/.test(html)) errors.push(`${route}: engineering quote was not upgraded`);
     if (!html.includes('"relatedLink"')) errors.push(`${route}: ProfilePage schema does not reference the featured case studies`);
+    if (!/class=["'][^"']*\babout-name-registry\b/i.test(html)) errors.push(`${route}: missing the visible Arabic and English identity registry`);
+    for (const identityName of ["المهندس إسلام الشيخ", "المهندس اسلام الشيخ", "اسلام الشيخ", "Eslam Elshikh", "Islam Elshikh"]) {
+      if (!html.includes(identityName)) errors.push(`${route}: missing identity spelling ${identityName}`);
+    }
   }
   const isArticle = route.startsWith("/blog/") && route !== "/blog/" && !route.startsWith("/blog/topics/");
   if (isArticle) {
@@ -247,7 +251,15 @@ if (!/\bnoindex\b/i.test(notFoundRobots) || !/\bfollow\b/i.test(notFoundRobots))
 for (const publicFile of ["sitemap.xml", "robots.txt", "feed.xml", "profile.json", "llms.txt", "llms-full.txt", ".well-known/security.txt"]) {
   const content = await readFile(join(output, publicFile), "utf8").catch(() => "");
   if (content.includes(deprecatedCanonicalBase)) errors.push(`${publicFile}: contains deprecated non-www canonical references`);
+  if (/\+966547194788|054\s*719\s*4788/.test(content)) errors.push(`${publicFile}: contains the retired developer phone number`);
 }
+
+const profileJson = await readFile(join(output, "profile.json"), "utf8").then(JSON.parse).catch(() => null);
+if (!profileJson || profileJson["@id"] !== `${canonicalBase}/#person`) errors.push("profile.json is missing the canonical Person @id");
+for (const identityName of ["المهندس إسلام الشيخ", "المهندس اسلام الشيخ", "اسلام الشيخ", "إسلام الشيخ | Eslam Elshikh", "Eslam Elshikh", "Islam Elshikh"]) {
+  if (!profileJson?.alternateName?.includes(identityName)) errors.push(`profile.json is missing alternateName ${identityName}`);
+}
+if (profileJson?.telephone !== "+966579395299") errors.push("profile.json does not use the confirmed primary phone number");
 
 const robotsText = await readFile(join(output, "robots.txt"), "utf8").catch(() => "");
 if (!robotsText.includes(`Sitemap: ${canonicalBase}/sitemap.xml`)) errors.push("robots.txt does not reference the canonical sitemap");
@@ -261,6 +273,14 @@ if (/<script\b[^>]*\bsrc=["']https:\/\/www\.googletagmanager\.com/i.test(home)) 
 if (!home.includes('<strong>472</strong>') || !home.includes('<strong>233</strong>') || !home.includes('<strong>63</strong>') || !home.includes('<strong>12</strong>')) errors.push("Homepage trust metrics are missing the verified 472/233/63/12 figures");
 if (!/href=["']\/local-seo\/riyadh\/["']/.test(home)) errors.push("Homepage needs a direct internal link to /local-seo/riyadh/");
 if (wordCount(home) < 900) warnings.push(`Homepage content is shorter than 900 words (${wordCount(home)})`);
+for (const [route, html] of pages) {
+  if (/\+966547194788|054\s*719\s*4788/.test(html)) errors.push(`${route}: contains the retired developer phone number`);
+}
+
+const projectsPageHtml = pages.get("/projects/") || "";
+if (!projectsPageHtml.includes('"@type":"CollectionPage"') || !projectsPageHtml.includes('"@id":"https://www.eslam-elshikh.com/projects/#project-list"')) {
+  errors.push("Projects page is missing CollectionPage and ItemList identity evidence");
+}
 for (const [route, html] of pages) {
   const mapSectionCount = (html.match(/id="google-business-map"/g) || []).length;
   if (mapSectionCount !== 1) errors.push(`${route}: expected one sitewide Google Maps section, found ${mapSectionCount}`);
