@@ -170,7 +170,7 @@ for (const route of sitemapRoutes) {
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
   if (/<style\b|\sstyle=["']/i.test(html)) errors.push(`${route}: contains inline CSS that weakens the CSP`);
-  if (!html.includes('/assets/js/theme.js?v=3.7.0') || !html.includes('/assets/js/analytics.js?v=3.7.0')) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
+  if (!html.includes('/assets/js/theme.js?v=3.7.1') || !html.includes('/assets/js/analytics.js?v=3.7.1')) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
   if (!html.includes('/assets/og/eslam-elshikh-social-card.png')) errors.push(`${route}: social metadata does not use the 1200x630 sharing card`);
   if (/https:\/\/(?:i\.ibb\.co|avatars\.githubusercontent\.com)/i.test(html)) errors.push(`${route}: references a legacy third-party image host`);
   for (const image of html.matchAll(/<img\b([^>]*)>/gi)) {

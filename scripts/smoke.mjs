@@ -40,7 +40,7 @@ const cssRequirements = [
 ];
 for (const [needle, label] of cssRequirements) if (!css.includes(needle)) failures.push(`CSS missing ${label}`);
 
-for (const [needle, label] of [["IntersectionObserver", "progressive reveal"], ["data-project-form", "contact form handler"], ["data-service-filter", "service filters"], ["aria-selected", "accessible filters"], ["normalizePath", "mobile navigation state"]]) {
+for (const [needle, label] of [["IntersectionObserver", "progressive reveal"], ["data-project-form", "contact form handler"], ["data-service-filter", "service filters"], ["aria-pressed", "accessible filters"], ["normalizePath", "mobile navigation state"]]) {
   if (!js.includes(needle)) failures.push(`JavaScript missing ${label}`);
 }
 

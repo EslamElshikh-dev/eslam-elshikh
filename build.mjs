@@ -12,7 +12,7 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.7.0";
+const version = "3.7.1";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)
@@ -68,7 +68,8 @@ const icons = {
 const icon = (name, className = "icon") => `<svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${icons[name] ?? icons.shield}</svg>`;
 const logo = (className = "brand-logo", alt = "") => {
   const size = /(?:hero|profile)-logo/.test(className) ? 280 : 128;
-  return `<img class="${className}" src="${site.logo}" width="${size}" height="${size}" alt="${esc(alt)}" decoding="async">`;
+  const priority = className === "hero-logo" ? ' loading="eager" fetchpriority="high"' : "";
+  return `<img class="${className}" src="${site.logo}" width="${size}" height="${size}" alt="${esc(alt)}" decoding="async"${priority}>`;
 };
 
 const socialLinks = [
@@ -417,7 +418,7 @@ function homePage() {
 </section>
 <section class="section-pad services-section" id="services"><div class="container">
   <div class="section-heading reveal">${eyebrow("الخدمات المتخصصة")}<h2>حلول مترابطة تبدأ من المشكلة وتنتهي بنتيجة قابلة للقياس</h2><p>كل خدمة لها نطاق واضح ومخرجات محددة، ويمكن دمج المسارات عند الحاجة لبناء مشروع متكامل يجمع الحماية والتطوير والظهور والنمو.</p></div>
-  <div class="service-filters" role="tablist" aria-label="تصفية الخدمات"><button type="button" role="tab" aria-selected="true" data-service-filter="all">كل الخدمات</button>${[...new Set(services.map((s) => s.group))].map((group) => `<button type="button" role="tab" aria-selected="false" data-service-filter="${esc(group)}">${esc(group)}</button>`).join("")}</div>
+  <div class="service-filters" role="group" aria-label="تصفية الخدمات"><button type="button" aria-pressed="true" data-service-filter="all">كل الخدمات</button>${[...new Set(services.map((s) => s.group))].map((group) => `<button type="button" aria-pressed="false" data-service-filter="${esc(group)}">${esc(group)}</button>`).join("")}</div>
   <div class="services-grid" data-services-grid>${services.map(serviceCard).join("")}</div>
 </div></section>
 <section class="section-pad promise-section"><div class="container promise-grid"><div class="promise-copy reveal">${eyebrow("منهجية التنفيذ")}<h2>واجهة جميلة وحدها لا تصنع مشروعًا ناجحًا</h2><p>المشروع الاحترافي يجب أن يكون مفهومًا للعميل، متينًا تقنيًا، آمنًا في التشغيل، قابلًا للفهرسة، وسهل التطوير بعد الإطلاق. لذلك تُراجع جميع الطبقات باعتبارها منتجًا واحدًا.</p>${button("/about/", "تعرف على منهجية العمل", "button-ghost")}</div><div class="principles-grid">
@@ -454,7 +455,7 @@ function businessMapSection(language = "ar") {
 function servicesIndexPage() {
   const groups = [...new Set(services.map((service) => service.group))];
   const body = `${innerHero({ eyebrowText: "خدمات هندسية واستشارية", title: "خدمات رقمية متكاملة للأمان والتطوير والظهور والنمو", lead: "اختر خدمة مستقلة أو ابنِ مشروعًا متعدد المسارات يجمع الأمن السيبراني والبرمجيات والذكاء الاصطناعي وخبرة Google والسيو في خطة واضحة ومخرجات قابلة للقياس.", path: "/services/", crumbs: [{ name: "الخدمات", path: "/services/" }], aside: `<span class="aside-kicker">9 مسارات متخصصة</span><strong>من التشخيص إلى الإطلاق والتحسين</strong><p>كل صفحة توضح النطاق والمخرجات والخطوات والأسئلة الشائعة قبل التواصل.</p>` })}
-<section class="section-pad"><div class="container"><div class="service-filters" role="tablist" aria-label="تصفية الخدمات"><button type="button" role="tab" aria-selected="true" data-service-filter="all">كل الخدمات</button>${groups.map((group) => `<button type="button" role="tab" aria-selected="false" data-service-filter="${esc(group)}">${esc(group)}</button>`).join("")}</div><div class="services-grid services-grid-index" data-services-grid>${services.map(serviceCard).join("")}</div></div></section>
+<section class="section-pad"><div class="container"><div class="service-filters" role="group" aria-label="تصفية الخدمات"><button type="button" aria-pressed="true" data-service-filter="all">كل الخدمات</button>${groups.map((group) => `<button type="button" aria-pressed="false" data-service-filter="${esc(group)}">${esc(group)}</button>`).join("")}</div><div class="services-grid services-grid-index" data-services-grid>${services.map(serviceCard).join("")}</div></div></section>
 <section class="section-pad muted-section"><div class="container decision-grid"><div class="decision-copy reveal">${eyebrow("كيف تختار نقطة البداية؟")}<h2>ابدأ بالمشكلة والنتيجة، لا باسم الأداة</h2><p>قد يكون بطء الموقع سببه التصميم أو الاستضافة أو الصور أو JavaScript، وقد يكون ضعف الظهور سببه الفهرسة أو المحتوى أو الملف التجاري أو القياس. التشخيص الصحيح يمنع الإنفاق على حل لا يعالج السبب.</p></div><div class="decision-steps"><article class="reveal"><span>01</span><h3>صف الوضع الحالي</h3><p>الرابط، المشكلة، أثرها، وما الذي جُرّب سابقًا.</p></article><article class="reveal"><span>02</span><h3>حدد النتيجة المطلوبة</h3><p>تحسين أمان، إطلاق منتج، ظهور محلي، أو أتمتة عملية.</p></article><article class="reveal"><span>03</span><h3>رتب القيود</h3><p>الموعد والميزانية والفريق والأنظمة والاعتماديات.</p></article><article class="reveal"><span>04</span><h3>اختر النطاق</h3><p>تدقيق، تنفيذ كامل، تحسين مرحلي، أو متابعة مستمرة.</p></article></div></div></section>
 ${finalCta("لست متأكدًا أي خدمة تناسب حالتك؟", "أرسل المشكلة والهدف والروابط المتاحة، وسنحدد نقطة البداية والنطاق الأكثر منطقية دون إضافة خدمات لا تحتاجها.")}`;
   return page({ title: "الخدمات التقنية والاستشارية", description: "خدمات المهندس إسلام الشيخ في الأمن السيبراني وتطوير المواقع ووكلاء الذكاء الاصطناعي وخدمات Google والسيو والحلول السحابية والإعلانات في السعودية.", path: "/services/", active: "services", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الخدمات", path: "/services/" }])] });

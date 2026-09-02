@@ -96,7 +96,7 @@
   if (filterButtons.length && serviceCards.length) {
     const applyFilter = (selected) => {
       const value = selected.dataset.serviceFilter;
-      filterButtons.forEach((button) => button.setAttribute("aria-selected", String(button === selected)));
+      filterButtons.forEach((button) => button.setAttribute("aria-pressed", String(button === selected)));
       serviceCards.forEach((card) => {
         const visible = value === "all" || card.dataset.serviceGroup === value;
         card.hidden = !visible;
