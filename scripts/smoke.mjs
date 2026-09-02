@@ -22,6 +22,7 @@ const css = await readFile(cssPath, "utf8").catch(() => "");
 const js = await readFile(jsPath, "utf8").catch(() => "");
 const analytics = await readFile(analyticsPath, "utf8").catch(() => "");
 const home = await readFile(join(output, "index.html"), "utf8").catch(() => "");
+const about = await readFile(join(output, "about/index.html"), "utf8").catch(() => "");
 const contact = await readFile(join(output, "contact/index.html"), "utf8").catch(() => "");
 
 const cssRequirements = [
@@ -57,6 +58,10 @@ if (!/storageKey = "es-analytics-consent"/.test(analytics) || !/choice !== "deni
 if (/createElement\("aside"\)/.test(analytics) || !/createElement\("div"\)/.test(analytics)) failures.push("Analytics preferences use an incompatible dialog host element");
 if (!/aria-label="اقرأ الدليل كاملًا: [^"]+"/.test(home)) failures.push("Homepage article links lack unique accessible names");
 if (/<style\b|\sstyle=["']/.test(home) || /<script\b(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)/i.test(home)) failures.push("Homepage contains inline code incompatible with the strict CSP");
+if (!/class="about-hero-actions"/.test(about) || !/class="about-quick-facts"/.test(about)) failures.push("About page lacks contextual hero actions or quick facts");
+if ((about.match(/class="about-case-card reveal"/g) || []).length !== 3) failures.push("About page must feature exactly three verifiable case studies");
+if (!/class="about-h1-line"/.test(about) || /إسلام الشيخ\.<br/i.test(about)) failures.push("About page H1 does not preserve readable text separation");
+if (!/href="https:\/\/github\.com\/EslamElshikh-dev"[^>]*target="_blank"[^>]*rel="noopener"/.test(about)) failures.push("About page lacks the verified GitHub profile link");
 
 for (const match of home.matchAll(/<img\b([^>]*)>/gi)) {
   if (!/\bwidth="\d+"/.test(match[1]) || !/\bheight="\d+"/.test(match[1])) failures.push(`Image missing dimensions: ${match[0].slice(0, 120)}`);

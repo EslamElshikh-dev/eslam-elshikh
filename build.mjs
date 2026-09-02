@@ -11,7 +11,7 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.6.1";
+const version = "3.6.2";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)
@@ -425,9 +425,9 @@ function finalCta(title = "لنحوّل فكرتك أو مشكلتك إلى خط
   return `<section class="section-pad final-cta"><div class="container"><div class="cta-panel reveal"><div>${eyebrow("ابدأ من تشخيص صحيح")}<h2>${esc(title)}</h2><p>${esc(text)}</p></div><div class="cta-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، أرغب في مناقشة مشروع تقني.")}`, "ابدأ عبر واتساب", "button-light", true)}<a class="cta-phone" href="tel:${site.phone}" dir="ltr">${site.phoneDisplay}</a></div></div></div></section>`;
 }
 
-function innerHero({ eyebrowText, title, lead, path, crumbs = [], aside, className = "" }) {
+function innerHero({ eyebrowText, title, lead, path, crumbs = [], aside, afterLead = "", className = "" }) {
   const breadcrumb = [{ name: "الرئيسية", path: "/" }, ...crumbs];
-  return `<section class="inner-hero${className ? ` ${esc(className)}` : ""}"><div class="container"><nav class="breadcrumbs" aria-label="مسار الصفحة">${breadcrumb.map((item, index) => `${index ? icon("chevron") : ""}<a href="${item.path}"${index === breadcrumb.length - 1 ? ' aria-current="page"' : ""}>${esc(item.name)}</a>`).join("")}</nav><div class="inner-hero-grid"><div class="inner-hero-copy reveal">${eyebrow(eyebrowText)}<h1>${title}</h1><p>${esc(lead)}</p></div>${aside ? `<div class="inner-hero-aside reveal">${aside}</div>` : ""}</div></div></section>`;
+  return `<section class="inner-hero${className ? ` ${esc(className)}` : ""}"><div class="container"><nav class="breadcrumbs" aria-label="مسار الصفحة">${breadcrumb.map((item, index) => `${index ? icon("chevron") : ""}<a href="${item.path}"${index === breadcrumb.length - 1 ? ' aria-current="page"' : ""}>${esc(item.name)}</a>`).join("")}</nav><div class="inner-hero-grid"><div class="inner-hero-copy reveal">${eyebrow(eyebrowText)}<h1>${title}</h1><p>${esc(lead)}</p>${afterLead}</div>${aside ? `<div class="inner-hero-aside reveal">${aside}</div>` : ""}</div></div></section>`;
 }
 
 function businessMapSection(language = "ar") {
@@ -567,11 +567,14 @@ function aboutPage() {
     site,
     mapsCount: mapsProjects.length,
     projectCount: projects.length,
+    projects,
     profilePhoto,
     innerHero,
     icon,
     eyebrow,
     button,
+    esc,
+    projectImage,
     finalCta
   });
   const profileSchema = {
@@ -580,11 +583,12 @@ function aboutPage() {
     url: `${site.url}/about/`,
     name: "الملف المهني للمهندس إسلام الشيخ",
     mainEntity: { "@id": `${site.url}/#person` },
+    relatedLink: projects.filter((project) => project.caseStudy && project.slug).slice(0, 3).map((project) => `${site.url}/projects/${project.slug}/`),
     dateModified: site.lastUpdated
   };
   return page({
     title: "عن إسلام الشيخ | مهندس أمن سيبراني ومطور وخبير Google",
-    description: "تعرّف على إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض، وعلى تعليمه وخبرته ومنهجه وأعماله في المواقع والذكاء الاصطناعي وخرائط جوجل والسيو المحلي.",
+    description: "تعرّف على إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض، من خلال خبرته ومنهجه ودراسات حالة ومشروعات منشورة في الويب والذكاء الاصطناعي والسيو المحلي.",
     path: "/about/",
     active: "about",
     body,
