@@ -72,6 +72,9 @@ for (const repository of repositories) {
     if (legacyPhone.test(content)) errors.push(`${relativePath}: retired developer phone remains`);
     if (roleStack.test(content)) errors.push(`${relativePath}: keyword-stacked developer role remains`);
     if (developerWhatsapp.test(content)) errors.push(`${relativePath}: developer WhatsApp link remains`);
+    for (const match of content.matchAll(/<a\b[^>]*href=["']https?:\/\/(?:www\.)?(?:wa\.me\/|api\.whatsapp\.com\/)[^"']*["'][^>]*>([\s\S]*?)<\/a>/gi)) {
+      if (signatureMarker.test(match[1])) errors.push(`${relativePath}: name/signature still links to WhatsApp`);
+    }
     for (const match of content.matchAll(/href=["'](https?:\/\/(?:www\.)?eslam-elshikh\.com\/[^"']*)["']/gi)) {
       if (match[1] !== canonicalUrl) errors.push(`${relativePath}: non-canonical visible identity link ${match[1]}`);
     }

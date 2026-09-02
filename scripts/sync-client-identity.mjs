@@ -67,6 +67,7 @@ function normalizeSignatureText(content) {
     .replace(/\s*<a\b(?=[^>]*(?:className|class)=["'][^"']*(?:developer|dev[-_]|designer|signature)[^"']*whatsapp[^"']*["'])(?=[^>]*href=["']https?:\/\/(?:www\.)?(?:wa\.me\/|api\.whatsapp\.com\/)[^"']*["'])[^>]*>[\s\S]*?<\/a>/gi, "")
     .replace(/\s*<small\b[^>]*>\s*Cybersecurity Engineer\s*(?:\||·)\s*Web Developer\s*(?:\||·)\s*Google Product Expert\s*<\/small>/gi, "")
     .replace(/(?:<br\s*\/?>)?\s*Cybersecurity Engineer\s*(?:\||·)\s*Web Developer\s*(?:\||·)\s*Google Product Expert(?:\s*<br\s*\/?>)?/gi, "")
+    .replace(/\s*<span\b[^>]*class=["'][^"']*dev-roles[^"']*["'][^>]*>\s*<\/span>/gi, "")
     .replace(/(?:<br\s*\/?>)?\s*(?:·\s*)?واتساب\s*:\s*0?54\s*719\s*4788/gi, "");
   return normalized
     .replace(/(<span\b[^>]*(?:class=["'](?:ar|en)["']|data-i18n=["']dev-sig["'])[^>]*>)\s*([\s\S]*?)\s*(<\/span>)/gi, (full, open, text, close) => signatureMarker.test(text) ? `${open}${text.trim()}${close}` : full)
@@ -75,7 +76,16 @@ function normalizeSignatureText(content) {
 }
 
 function normalizeDeveloperLinks(content) {
-  let next = content.replace(/<a\b([^>]*?)href=(["'])https?:\/\/(?:www\.)?wa\.me\/966547194788(?:\?[^"']*)?\2([^>]*)>([\s\S]*?)<\/a>/gi, (_full, before, quote, after, inner) => {
+  let next = content.replace(/<a\b([^>]*?)href=(["'])https?:\/\/(?:www\.)?(?:wa\.me\/|api\.whatsapp\.com\/)[^"']*\2([^>]*)>([\s\S]*?)<\/a>/gi, (full, before, quote, after, inner) => {
+    if (!signatureMarker.test(inner)) return full;
+    const linkedText = inner
+      .replace(/\s*<i\b[^>]*(?:fa-whatsapp|whatsapp)[^>]*><\/i>\s*/gi, "")
+      .trim();
+    const attributes = `${before}href=${quote}${canonicalUrl}${quote}${after}`
+      .replace(/aria-label=(["'])[^"']*(?:واتساب|WhatsApp|المطور)[^"']*\1/gi, 'aria-label="الموقع الرسمي للمهندس إسلام الشيخ"');
+    return `<a${attributes}>${linkedText}</a>`;
+  });
+  next = next.replace(/<a\b([^>]*?)href=(["'])https?:\/\/(?:www\.)?wa\.me\/966547194788(?:\?[^"']*)?\2([^>]*)>([\s\S]*?)<\/a>/gi, (_full, before, quote, after, inner) => {
     const linkedText = signatureMarker.test(inner) ? inner : "<span>المهندس إسلام الشيخ</span>";
     const attributes = `${before}href=${quote}${canonicalUrl}${quote}${after}`
       .replace(/aria-label=(["'])[^"']*(?:واتساب|المطور)[^"']*\1/gi, 'aria-label="الموقع الرسمي للمهندس إسلام الشيخ"');
