@@ -11,9 +11,8 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.5.2";
+const version = "3.6.0";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
-const aboutStyles = await readFile(join(root, "assets", "css", "about.css"), "utf8");
 
 const esc = (value = "") => String(value)
   .replaceAll("&", "&amp;")
@@ -149,7 +148,7 @@ const faqSchema = (faq) => ({
   mainEntity: faq.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } }))
 });
 
-function head({ title, description, path = "/", lang = "ar", schema = [], image = site.shareImage, type = "website", published, modified, keywords = [], articleSection = "", inlineCss = "", robots = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" }) {
+function head({ title, description, path = "/", lang = "ar", schema = [], image = site.shareImage, type = "website", published, modified, keywords = [], articleSection = "", stylesheets = [], robots = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" }) {
   const isEnglish = lang === "en";
   const canonical = absolute(path);
   const titleHasBrand = title.includes(site.nameAr) || title.includes(site.nameEn) || title.includes(site.brandName);
@@ -215,6 +214,8 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${canonical}">
   <meta property="og:image" content="${absolute(image)}">
+  <meta property="og:image:secure_url" content="${absolute(image)}">
+  <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="${esc(fullTitle)}">
@@ -224,10 +225,11 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
   <meta name="twitter:title" content="${esc(fullTitle)}">
   <meta name="twitter:description" content="${esc(description)}">
   <meta name="twitter:image" content="${absolute(image)}">
-  <script>document.documentElement.classList.add("js");try{const s=localStorage.getItem("es-theme");const t=s||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.dataset.theme=t;document.querySelector("meta[data-theme-color]")?.setAttribute("content",t==="light"?"#f5f8fb":"#06131f")}catch(e){}</script>
+  <meta name="twitter:image:alt" content="${esc(fullTitle)}">
+  <script src="/assets/js/theme.js?v=${version}"></script>
   <link rel="stylesheet" href="/assets/css/main.css?v=${version}">
-  ${inlineCss ? `<style data-page-styles>${inlineCss}</style>` : ""}
-  <noscript><style>.reveal{opacity:1!important;transform:none!important}.mobile-menu{display:none!important}</style></noscript>
+  ${stylesheets.map((href) => `<link rel="stylesheet" href="${esc(href)}">`).join("\n  ")}
+  <script src="/assets/js/analytics.js?v=${version}" defer></script>
   <script type="application/ld+json">${safeJson({ "@context": "https://schema.org", "@graph": graph })}</script>
 </head>`;
 }
@@ -298,8 +300,8 @@ function footer(language = "ar") {
 <script src="/assets/js/main.js?v=${version}" defer></script>`;
 }
 
-function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image, keywords = [], articleSection = "", inlineCss = "", pageScripts = [] }) {
-  return `${head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection, inlineCss })}
+function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image, keywords = [], articleSection = "", stylesheets = [], pageScripts = [] }) {
+  return `${head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection, stylesheets })}
 <body>${header(active, lang)}<main id="main">${body}${businessMapSection(lang)}</main>${footer(lang)}${pageScripts.map((src) => `<script src="${esc(src)}" defer></script>`).join("")}</body></html>`;
 }
 
@@ -320,8 +322,15 @@ function serviceCard(service) {
 
 function projectActions(project, className = "") {
   const requestMessage = `مرحبًا م. إسلام، شاهدت مشروع «${project.title}» وأرغب في تنفيذ مشروع مشابه يناسب نشاطي.`;
-  return `<div class="portfolio-actions${className ? ` ${className}` : ""}"><a class="button button-small" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="معاينة موقع ${esc(project.title)} المنشور">معاينة المشروع ${icon("external", "button-icon")}</a><a class="button button-small button-ghost portfolio-request-link" href="${site.whatsapp}?text=${encodeURIComponent(requestMessage)}" target="_blank" rel="noopener" aria-label="طلب مشروع مشابه لمشروع ${esc(project.title)}">ابدأ مشروعًا مشابهًا ${icon("whatsapp", "button-icon")}</a></div>`;
+  const caseStudyLink = project.caseStudy && project.slug
+    ? `<a class="button button-small" href="/projects/${project.slug}/" aria-label="قراءة دراسة حالة ${esc(project.title)}">دراسة الحالة ${icon("arrow", "button-icon")}</a>`
+    : "";
+  return `<div class="portfolio-actions${className ? ` ${className}` : ""}">${caseStudyLink}<a class="button button-small button-ghost" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="معاينة موقع ${esc(project.title)} المنشور">الموقع الحي ${icon("external", "button-icon")}</a><a class="portfolio-request-link" href="${site.whatsapp}?text=${encodeURIComponent(requestMessage)}" target="_blank" rel="noopener" aria-label="طلب مشروع مشابه لمشروع ${esc(project.title)}">ابدأ مشروعًا مشابهًا ${icon("whatsapp")}</a></div>`;
 }
+
+const projectHeading = (project) => project.caseStudy && project.slug
+  ? `<a href="/projects/${project.slug}/">${esc(project.title)}</a>`
+  : esc(project.title);
 
 function projectImage(project, { eager = false } = {}) {
   return `<img src="${project.image}" width="1200" height="750" alt="لقطة من واجهة موقع ${esc(project.title)}" loading="${eager ? "eager" : "lazy"}" decoding="async"${eager ? ' fetchpriority="high"' : ""}>`;
@@ -329,15 +338,15 @@ function projectImage(project, { eager = false } = {}) {
 
 function featuredProject(project) {
   const domain = new URL(project.liveUrl).hostname.replace(/^www\./, "");
-  return `<article class="portfolio-featured reveal"><div class="portfolio-featured-copy"><span class="portfolio-index" dir="ltr">FEATURED / 01</span><p class="portfolio-kicker">${esc(project.category)}</p><h3>${esc(project.title)}</h3><p class="portfolio-description">${esc(project.description)}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div>${projectActions(project)}</div><a class="portfolio-stage" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="فتح موقع ${esc(project.title)} المنشور"><span class="portfolio-stage-orbit" aria-hidden="true"></span><span class="portfolio-browser"><span class="portfolio-browser-bar"><span class="browser-dots" aria-hidden="true"><i></i><i></i><i></i></span><span dir="ltr">${esc(domain)}</span></span>${projectImage(project)}</span></a></article>`;
+  return `<article class="portfolio-featured reveal"><div class="portfolio-featured-copy"><span class="portfolio-index" dir="ltr">FEATURED / 01</span><p class="portfolio-kicker">${esc(project.category)}</p><h3>${projectHeading(project)}</h3><p class="portfolio-description">${esc(project.description)}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div>${projectActions(project)}</div><a class="portfolio-stage" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="فتح موقع ${esc(project.title)} المنشور"><span class="portfolio-stage-orbit" aria-hidden="true"></span><span class="portfolio-browser"><span class="portfolio-browser-bar"><span class="browser-dots" aria-hidden="true"><i></i><i></i><i></i></span><span dir="ltr">${esc(domain)}</span></span>${projectImage(project)}</span></a></article>`;
 }
 
 function showcaseProject(project, index) {
-  return `<article class="portfolio-project reveal"><a class="portfolio-project-media" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="فتح موقع ${esc(project.title)} المنشور"><span class="portfolio-project-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span>${projectImage(project)}</a><div class="portfolio-project-copy"><p class="portfolio-kicker">${esc(project.category)}</p><h3>${esc(project.title)}</h3><p>${esc(project.description)}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div>${projectActions(project)}</div></article>`;
+  return `<article class="portfolio-project reveal"><a class="portfolio-project-media" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="فتح موقع ${esc(project.title)} المنشور"><span class="portfolio-project-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span>${projectImage(project)}</a><div class="portfolio-project-copy"><p class="portfolio-kicker">${esc(project.category)}</p><h3>${projectHeading(project)}</h3><p>${esc(project.description)}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div>${projectActions(project)}</div></article>`;
 }
 
 function archiveProject(project, index) {
-  return `<article class="portfolio-archive-row reveal"><span class="portfolio-archive-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span><a class="portfolio-archive-media" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="فتح موقع ${esc(project.title)} المنشور">${projectImage(project)}</a><div class="portfolio-archive-copy"><p class="portfolio-kicker">${esc(project.category)}</p><h3>${esc(project.title)}</h3><p>${esc(project.description)}</p></div>${projectActions(project, "portfolio-archive-actions")}</article>`;
+  return `<article class="portfolio-archive-row reveal"><span class="portfolio-archive-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span><a class="portfolio-archive-media" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="فتح موقع ${esc(project.title)} المنشور">${projectImage(project)}</a><div class="portfolio-archive-copy"><p class="portfolio-kicker">${esc(project.category)}</p><h3>${projectHeading(project)}</h3><p>${esc(project.description)}</p></div>${projectActions(project, "portfolio-archive-actions")}</article>`;
 }
 
 function projectsShowcase({ home = false } = {}) {
@@ -369,7 +378,8 @@ function homePage() {
   <div class="container hero-grid">
     <div class="hero-copy reveal">
       ${eyebrow("مهندس أمن سيبراني · مطور برمجيات · خبير منتجات Google")}
-      <h1>أبني حضورك الرقمي ليكون <span>آمنًا، سريعًا، ومؤثرًا</span></h1>
+      <h1>مهندس أمن سيبراني ومطور مواقع وخبير Google <span>في الرياض</span></h1>
+      <p class="hero-tagline">أبني حضورك الرقمي ليكون آمنًا، سريعًا، ومؤثرًا.</p>
       <p class="hero-lead">أنا المهندس إسلام الشيخ. أوحّد الأمن السيبراني وتطوير المواقع ووكلاء الذكاء الاصطناعي وخبرة Google والسيو في حلول عملية تساعد الشركات على حماية أعمالها، تحسين تجربة عملائها، وزيادة ظهورها بثقة.</p>
       <p class="hero-support">من التشخيص والاستراتيجية إلى التصميم والتطوير والقياس، تحصل على مسار واضح ومخرجات قابلة للمراجعة بدل حلول متفرقة يصعب تشغيلها أو تطويرها.</p>
       <div class="hero-actions">${button("/contact/", "ناقش مشروعك")}${button("/services/", "استكشف الخدمات", "button-ghost")}</div>
@@ -387,6 +397,7 @@ function homePage() {
     </div>
   </div>
   <div class="container stats-bar reveal">${site.stats.map((stat) => `<div><strong>${esc(stat.value)}</strong><span>${esc(stat.label)}</span></div>`).join("")}</div>
+  <p class="container stats-note">أرقام خبرة محدثة حتى سبتمبر 2026؛ ويمكن مراجعة النماذج العامة المنشورة في قسمي الأعمال وخرائط Google.</p>
 </section>
 <section class="section-pad services-section" id="services"><div class="container">
   <div class="section-heading reveal">${eyebrow("الخدمات المتخصصة")}<h2>حلول مترابطة تبدأ من المشكلة وتنتهي بنتيجة قابلة للقياس</h2><p>كل خدمة لها نطاق واضح ومخرجات محددة، ويمكن دمج المسارات عند الحاجة لبناء مشروع متكامل يجمع الحماية والتطوير والظهور والنمو.</p></div>
@@ -402,12 +413,12 @@ function homePage() {
 <section class="section-pad results-section"><div class="container"><div class="section-heading reveal">${eyebrow("ما الذي تحصل عليه؟")}<h2>مخرجات تساعدك على اتخاذ القرار والتشغيل بثقة</h2></div><div class="result-grid"><article class="result-card reveal">${icon("layers")}<h3>بنية قابلة للتوسع</h3><p>محتوى وكود ومسارات واضحة تقلل إعادة العمل وتسمح بإضافة خدمات وصفحات وتكاملات دون فوضى.</p></article><article class="result-card reveal">${icon("search")}<h3>وضوح لمحركات البحث والعملاء</h3><p>عناوين ومحتوى وروابط وبيانات منظمة تشرح من أنت، ماذا تقدم، ولمن، وأين، دون حشو أو تكرار.</p></article><article class="result-card reveal">${icon("shield")}<h3>مخاطر أقل وتشغيل أفضل</h3><p>قرارات أمنية وتقنية موثقة، وأولويات قابلة للمتابعة، وتجربة متجاوبة لا تعتمد على جهاز واحد.</p></article></div></div></section>
 <section class="section-pad projects-section"><div class="container"><div class="section-heading reveal">${eyebrow("مختارات من الأعمال")}<h2>مشروعات حقيقية، لكل واحد منها قصة وهوية</h2><p>نماذج حية من مواقع ومنتجات رقمية تم تطويرها للشركات والأنشطة، مع الجمع بين التصميم والتقنية والسيو ومسارات التحويل.</p></div>${projectsShowcase({ home: true })}<div class="section-action">${button("/projects/", "استكشف جميع الأعمال", "button-ghost")}</div></div></section>
 ${mapsWorkTeaser()}
-<section class="section-pad google-proof-section"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>إسلام الشيخ — خبير خرائط جوجل</span><h2>خبرة موثقة في خرائط Google والملفات التجارية</h2><p>تشخيص مشكلات التحقق والتعليق والملكية والفئات، وتحسين اتساق بيانات النشاط والظهور المحلي وفق سياسات Google، مع نماذج أعمال منشورة يمكن مراجعتها.</p><div class="proof-numbers"><span><strong>1411+</strong> مساهمة في توثيق وإدارة الملفات</span><span><strong>Google</strong> ملف خبير منتجات موثق</span></div></div><div class="proof-actions">${button("/google-expert/", "تعرف على خبير خرائط جوجل")}${button(site.social.googleDeveloper, "عرض الملف الرسمي", "button-ghost", true)}</div></div></section>
+<section class="section-pad google-proof-section"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>إسلام الشيخ — خبير خرائط جوجل</span><h2>خبرة موثقة في خرائط Google والملفات التجارية</h2><p>تشخيص مشكلات التحقق والتعليق والملكية والفئات، وتحسين اتساق بيانات النشاط والظهور المحلي وفق سياسات Google، مع نماذج أعمال منشورة يمكن مراجعتها.</p><div class="proof-numbers"><span><strong>472</strong> ملفًا تم دعم توثيقه</span><span><strong>233</strong> مشكلة ملف تجاري تمت معالجتها</span><span><strong>${mapsProjects.length}</strong> نموذجًا عامًا منشورًا</span></div></div><div class="proof-actions">${button("/google-expert/", "تعرف على خبير خرائط جوجل")}${button(site.social.googleDeveloper, "عرض الملف الرسمي", "button-ghost", true)}</div></div></section>
 <section class="section-pad process-section"><div class="container"><div class="section-heading reveal">${eyebrow("مسار العمل")}<h2>وضوح من أول سؤال حتى ما بعد الإطلاق</h2></div><ol class="process-list"><li class="reveal"><span>01</span><h3>تشخيص الهدف</h3><p>فهم المستخدم والنتيجة والقيود والمخاطر والبيانات المتاحة قبل اختيار الأدوات.</p></li><li class="reveal"><span>02</span><h3>تصميم الحل</h3><p>تحديد البنية والمحتوى والنطاق والمخرجات ومعايير القبول وخطة التنفيذ.</p></li><li class="reveal"><span>03</span><h3>تنفيذ ومراجعة</h3><p>بناء على مراحل قصيرة قابلة للاختبار، مع توثيق القرارات والملاحظات.</p></li><li class="reveal"><span>04</span><h3>إطلاق وتحسين</h3><p>فحص الأداء والأجهزة والفهرسة والروابط، ثم متابعة المؤشرات وفرص التطوير.</p></li></ol></div></section>
 <section class="section-pad blog-section"><div class="container"><div class="section-heading reveal">${eyebrow("معرفة عملية")}<h2>مقالات تساعدك على اتخاذ قرارات تقنية أكثر وضوحًا</h2></div><div class="posts-grid">${allPosts.slice(0, 3).map((post) => postCard(post)).join("")}</div><div class="section-action">${button("/blog/", "استكشف المدونة", "button-ghost")}</div></div></section>
 <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>إجابات صريحة قبل بدء المشروع</h2><p>لا توجد باقة واحدة تناسب الجميع؛ لذلك أوضح الحدود والمخرجات والاعتماديات من البداية.</p>${button("/contact/", "أرسل تفاصيل مشروعك", "button-ghost")}</div>${faqBlock(faq)}</div></section>
 ${finalCta()}`;
-  return page({ title: site.brandName, description: site.description, path: "/", active: "home", body, schema: [faqSchema(faq)] });
+  return page({ title: "المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع وخبير Google بالرياض", description: site.description, path: "/", active: "home", body, schema: [faqSchema(faq)] });
 }
 
 function finalCta(title = "لنحوّل فكرتك أو مشكلتك إلى خطة واضحة قابلة للتنفيذ", text = "أرسل الهدف والوضع الحالي والروابط المتاحة والموعد المتوقع. ستحصل على نقطة بداية منظمة تساعدك على اتخاذ القرار الصحيح.") {
@@ -421,7 +432,7 @@ function innerHero({ eyebrowText, title, lead, path, crumbs = [], aside, classNa
 
 function businessMapSection(language = "ar") {
   const isEnglish = language === "en";
-  return `<section class="business-map-section" id="google-business-map" aria-labelledby="google-business-map-title"><div class="wide-map-container"><div class="business-map-heading reveal"><div>${eyebrow(isEnglish ? "Google Business Profile" : "الملف التجاري على Google")}<h2 id="google-business-map-title">${isEnglish ? "Eng. Eslam Elshikh on Google Maps" : "المهندس إسلام الشيخ على خرائط Google"}</h2><p>${isEnglish ? "View the verified business profile, service area, and contact options directly on Google Maps." : "استعرض الملف التجاري ونطاق الخدمة وبيانات التواصل مباشرة على خرائط Google."}</p></div><a class="text-link map-profile-link" href="${site.googleMapsProfile}" target="_blank" rel="noopener">${isEnglish ? "Open the business profile" : "فتح الملف التجاري"} ${icon("external")}</a></div><div class="business-map-frame reveal"><iframe src="${esc(site.googleMapsEmbed)}" width="600" height="450" style="border:0;" title="${isEnglish ? "Google Maps business profile for Eng. Eslam Elshikh" : "خريطة الملف التجاري للمهندس إسلام الشيخ على Google Maps"}" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><a class="business-map-name-tag" href="${site.googleMapsProfile}" target="_blank" rel="noopener" aria-label="${isEnglish ? "Open Eng. Eslam Elshikh on Google Maps" : "فتح ملف المهندس إسلام الشيخ على خرائط Google"}"><span class="business-map-name-icon">${icon("pin")}</span><span><strong>${isEnglish ? "Eng. Eslam Elshikh" : "المهندس إسلام الشيخ"}</strong><small>${isEnglish ? "Google Business Profile · Riyadh" : "ملف تجاري على Google · الرياض"}</small></span></a></div><div class="business-map-bar reveal"><span>${icon("pin")}<span>${isEnglish ? "Service area: Riyadh, Saudi Arabia" : `نطاق الخدمة: ${site.city}، ${site.country}`}</span></span><span>${icon("clock")}<span>${isEnglish ? "Requests accepted 24/7" : "استقبال الطلبات على مدار الساعة"}</span></span><a href="tel:${site.phone}" dir="ltr">${icon("phone")}<span>${esc(site.phoneDisplay)}</span></a></div></div></section>`;
+  return `<section class="business-map-section" id="google-business-map" aria-labelledby="google-business-map-title"><div class="wide-map-container"><div class="business-map-heading reveal"><div>${eyebrow(isEnglish ? "Google Business Profile" : "الملف التجاري على Google")}<h2 id="google-business-map-title">${isEnglish ? "Eng. Eslam Elshikh on Google Maps" : "المهندس إسلام الشيخ على خرائط Google"}</h2><p>${isEnglish ? "View the verified business profile, service area, and contact options directly on Google Maps." : "استعرض الملف التجاري ونطاق الخدمة وبيانات التواصل مباشرة على خرائط Google."}</p></div><a class="text-link map-profile-link" href="${site.googleMapsProfile}" target="_blank" rel="noopener">${isEnglish ? "Open the business profile" : "فتح الملف التجاري"} ${icon("external")}</a></div><div class="business-map-frame reveal"><iframe src="${esc(site.googleMapsEmbed)}" width="600" height="450" title="${isEnglish ? "Google Maps business profile for Eng. Eslam Elshikh" : "خريطة الملف التجاري للمهندس إسلام الشيخ على Google Maps"}" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><a class="business-map-name-tag" href="${site.googleMapsProfile}" target="_blank" rel="noopener" aria-label="${isEnglish ? "Open Eng. Eslam Elshikh on Google Maps" : "فتح ملف المهندس إسلام الشيخ على خرائط Google"}"><span class="business-map-name-icon">${icon("pin")}</span><span><strong>${isEnglish ? "Eng. Eslam Elshikh" : "المهندس إسلام الشيخ"}</strong><small>${isEnglish ? "Google Business Profile · Riyadh" : "ملف تجاري على Google · الرياض"}</small></span></a></div><div class="business-map-bar reveal"><span>${icon("pin")}<span>${isEnglish ? "Service area: Riyadh, Saudi Arabia" : `نطاق الخدمة: ${site.city}، ${site.country}`}</span></span><span>${icon("clock")}<span>${isEnglish ? "Requests accepted 24/7" : "استقبال الطلبات على مدار الساعة"}</span></span><a href="tel:${site.phone}" dir="ltr">${icon("phone")}<span>${esc(site.phoneDisplay)}</span></a></div></div></section>`;
 }
 
 function servicesIndexPage() {
@@ -433,8 +444,93 @@ ${finalCta("لست متأكدًا أي خدمة تناسب حالتك؟", "أر�
   return page({ title: "الخدمات التقنية والاستشارية", description: "خدمات المهندس إسلام الشيخ في الأمن السيبراني وتطوير المواقع ووكلاء الذكاء الاصطناعي وخدمات Google والسيو والحلول السحابية والإعلانات في السعودية.", path: "/services/", active: "services", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الخدمات", path: "/services/" }])] });
 }
 
+const serviceSectionCopy = {
+  cybersecurity: {
+    quick: "أصول وصلاحيات وأعراض تساعد على تحديد الخطر",
+    scope: "نقاط الحماية التي يمكن تقييمها وتقويتها",
+    deliverables: "تقرير وخطة معالجة يمكن إغلاقها وإعادة التحقق منها",
+    audience: "متى يصبح التقييم الأمني أولوية؟",
+    process: "من التصريح المكتوب إلى إعادة التحقق",
+    faq: "حدود الفحص والتصريح والأدلة",
+    related: "مسارات تقلل المخاطر المحيطة بالنظام"
+  },
+  "cloud-solutions": {
+    quick: "حمل النظام والبيانات والاعتماديات قبل اختيار السحابة",
+    scope: "طبقات بنية سحابية قابلة للتشغيل والاستعادة",
+    deliverables: "معمارية وصلاحيات ومراقبة يفهمها فريقك",
+    audience: "حالات تحتاج إعادة تصميم أو ترحيلًا سحابيًا",
+    process: "من قياس الحمل إلى تشغيل بيئة مستقرة",
+    faq: "المنصة والتكلفة والترحيل والمتابعة",
+    related: "خدمات تكمل استقرار البنية السحابية"
+  },
+  "ai-agents": {
+    quick: "مهمة محددة ومصدر موثوق وحدود واضحة للوكيل",
+    scope: "قدرات AI يمكن ربطها بسير العمل الحقيقي",
+    deliverables: "نموذج مُقيّم بصلاحيات وحالات فشل موثقة",
+    audience: "عمليات تستحق تجربة وكيل ذكاء اصطناعي",
+    process: "من حالة استخدام ضيقة إلى إطلاق مراقَب",
+    faq: "البيانات والدقة والتكلفة والرقابة البشرية",
+    related: "بنية ومعرفة تساعد الوكيل على العمل بثقة"
+  },
+  "web-development": {
+    quick: "جمهور وهدف ومحتوى قبل اختيار شكل الواجهة",
+    scope: "طبقات الموقع من المحتوى حتى الأداء والقياس",
+    deliverables: "موقع قابل للاستخدام والفهرسة والتطوير",
+    audience: "مشروعات تحتاج بناءً جديدًا أو إعادة هندسة",
+    process: "من بنية المحتوى إلى الاختبار والإطلاق",
+    faq: "التقنية والملكية والصيانة وموعد التسليم",
+    related: "مسارات تزيد أمان الموقع وظهوره وتحويله"
+  },
+  "google-support": {
+    quick: "المنتج والحساب ورسالة الخطأ وتسلسل المحاولات",
+    scope: "تشخيص منظم لمسارات منتجات Google ودعمها",
+    deliverables: "ملف حالة واضح وخطوات تصعيد قابلة للمتابعة",
+    audience: "مشكلات تحتاج فهم القرار والمسار الرسمي",
+    process: "من جمع الأدلة إلى المتابعة دون تشتيت الحالة",
+    faq: "الصلاحيات والضمانات وقنوات الدعم الرسمية",
+    related: "خدمات تربط منتجات Google بحضورك الرقمي"
+  },
+  "google-business-profile": {
+    quick: "رابط الملف والأهلية والملكية وما يظهر في اللوحة",
+    scope: "التوثيق والتعليق والملكية والظهور المحلي",
+    deliverables: "تشخيص وأدلة ومسار مراجعة منظم",
+    audience: "حالات ملفات تجارية تحتاج تدخلًا دقيقًا",
+    process: "من فحص الأهلية إلى المراجعة والمتابعة",
+    faq: "قرارات Google والأدلة والتعديلات الآمنة",
+    related: "مسارات تقوي اتساق الملف والموقع والبحث المحلي"
+  },
+  "knowledge-bases": {
+    quick: "المصادر والمستخدمون والأسئلة قبل اختيار محرك البحث",
+    scope: "من تنظيم المعرفة إلى الاسترجاع والصلاحيات",
+    deliverables: "قاعدة معرفة قابلة للبحث والقياس والتحديث",
+    audience: "فرق تعاني معرفة مبعثرة أو إجابات غير متسقة",
+    process: "من جرد المصادر إلى تقييم جودة الاسترجاع",
+    faq: "التحديث والدقة والصلاحيات وربط الأنظمة",
+    related: "خدمات تحول المعرفة إلى أداة عمل يومية"
+  },
+  seo: {
+    quick: "الصفحات والاستعلامات والفهرسة قبل كتابة محتوى جديد",
+    scope: "محاور السيو التقني والمحتوى والبحث المحلي",
+    deliverables: "أولويات إصلاح وقياس بدل قائمة توصيات عامة",
+    audience: "مواقع تحتاج استعادة الوضوح أو بناء نمو عضوي",
+    process: "من خط الأساس إلى الإصلاح والقياس",
+    faq: "المدة والترتيب والمحتوى وقياس الأثر",
+    related: "مسارات تدعم الفهرسة والتجربة والتحويل"
+  },
+  "digital-advertising": {
+    quick: "العرض والجمهور والصفحة والقياس قبل إطلاق الميزانية",
+    scope: "الحملة وصفحة الهبوط وتتبع التحويل في مسار واحد",
+    deliverables: "إعلانات وقياس وتحسين يمكن مراجعتها",
+    audience: "حملات تحتاج وضوحًا أكبر في الطلب والتكلفة",
+    process: "من فرضية الاستهداف إلى تحسين عبارات البحث",
+    faq: "الميزانية والنتائج والصفحة وجودة العملاء",
+    related: "خدمات تحسن الصفحة والظهور والقياس"
+  }
+};
+
 function serviceDetailPage(service) {
   const path = `/services/${service.slug}/`;
+  const sectionCopy = serviceSectionCopy[service.slug];
   const related = services.filter((item) => item.slug !== service.slug && (item.group === service.group || ["web-development", "seo", "cybersecurity"].includes(item.slug))).slice(0, 3);
   const serviceSchema = {
     "@type": "Service",
@@ -454,14 +550,14 @@ function serviceDetailPage(service) {
       ? `<section class="section-pad"><div class="container proof-panel reveal"><div class="proof-icon">${icon("pin")}</div><div><span>مسار محلي مخصص للرياض</span><h2>هل هدفك الظهور للعملاء الباحثين داخل الرياض؟</h2><p>تجمع الصفحة المحلية بين بنية الموقع وصفحات الخدمات وملف Google التجاري والاتساق والسمعة والقياس، مع محتوى خاص بسوق الرياض دون تكرار صفحات الأحياء.</p></div><div class="proof-actions">${button("/local-seo/riyadh/", "السيو المحلي في الرياض")}</div></div></section>`
       : "";
   const body = `${innerHero({ eyebrowText: service.group, title: esc(service.h1), lead: service.short, path, crumbs: [{ name: "الخدمات", path: "/services/" }, { name: service.title, path }], aside: `<span class="service-hero-number">${service.number}</span><span class="service-hero-icon">${icon(service.icon)}</span><strong>${esc(service.value)}</strong>` })}
-<section class="section-pad service-intro-section"><div class="container service-intro-grid"><div class="rich-copy reveal">${service.intro.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}</div><aside class="service-quick-card reveal"><span>نقطة البداية</span><h2>وصف مختصر يساعد على التشخيص</h2>${checkList(["الهدف أو المشكلة الحالية", "الأنظمة أو الروابط المتأثرة", "الأثر على العملاء أو التشغيل", "الموعد المتوقع والقيود الرئيسية"])}${button(`${site.whatsapp}?text=${encodeURIComponent(`مرحبًا م. إسلام، أرغب في مناقشة خدمة ${service.title}.`)}`, "ناقش الخدمة عبر واتساب", "", true)}</aside></div></section>
+<section class="section-pad service-intro-section"><div class="container service-intro-grid"><div class="rich-copy reveal">${service.intro.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}</div><aside class="service-quick-card reveal"><span>نقطة البداية</span><h2>${esc(sectionCopy.quick)}</h2>${checkList(["الهدف أو المشكلة الحالية", "الأنظمة أو الروابط المتأثرة", "الأثر على العملاء أو التشغيل", "الموعد المتوقع والقيود الرئيسية"])}${button(`${site.whatsapp}?text=${encodeURIComponent(`مرحبًا م. إسلام، أرغب في مناقشة خدمة ${service.title}.`)}`, "ناقش الخدمة عبر واتساب", "", true)}</aside></div></section>
 ${specializedPageLink}
-<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("نطاق الخدمة")}<h2>ما الذي يمكن أن يشمله العمل؟</h2><p>يُحدد النطاق النهائي بعد التشخيص؛ وتوضح العناصر التالية المجالات التي يمكن دمجها حسب احتياج المشروع.</p></div><div class="scope-grid">${service.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon(service.icon)}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
-<section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("المخرجات")}<h2>ما الذي تستلمه في نهاية النطاق؟</h2><p>المخرجات تُكتب بصورة عملية لتكون قابلة للمراجعة والمتابعة، لا مجرد وصف عام للعمل.</p></div><div class="deliverables-panel reveal">${checkList(service.deliverables, "deliverables-list")}</div></div></section>
-<section class="section-pad audience-section"><div class="container"><div class="section-heading reveal">${eyebrow("لمن تناسب الخدمة؟")}<h2>حالات تستفيد من هذا المسار</h2></div><div class="audience-grid">${service.forWho.map((item, index) => `<article class="audience-card reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></article>`).join("")}</div></div></section>
-<section class="section-pad process-section"><div class="container"><div class="section-heading reveal">${eyebrow("خطوات التنفيذ")}<h2>من التشخيص إلى التسليم والمتابعة</h2></div><ol class="process-list service-process">${service.steps.map((step, index) => `<li class="reveal"><span>${String(index + 1).padStart(2, "0")}</span><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p></li>`).join("")}</ol></div></section>
-<section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة الخدمة")}<h2>تفاصيل مهمة قبل بدء العمل</h2><p>الإجابات التالية توضح الحدود والتوقعات. النطاق الفعلي يعتمد على حالة المشروع والأنظمة المتاحة.</p>${button("/contact/", "أرسل تفاصيل حالتك", "button-ghost")}</div>${faqBlock(service.faq)}</div></section>
-<section class="section-pad related-section"><div class="container"><div class="section-heading reveal">${eyebrow("خدمات مترابطة")}<h2>مسارات قد تكمل المشروع</h2></div><div class="services-grid related-services">${related.map(serviceCard).join("")}</div></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("نطاق الخدمة")}<h2>${esc(sectionCopy.scope)}</h2><p>${esc(service.value)}</p></div><div class="scope-grid">${service.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon(service.icon)}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("المخرجات")}<h2>${esc(sectionCopy.deliverables)}</h2></div><div class="deliverables-panel reveal">${checkList(service.deliverables, "deliverables-list")}</div></div></section>
+<section class="section-pad audience-section"><div class="container"><div class="section-heading reveal">${eyebrow("لمن تناسب الخدمة؟")}<h2>${esc(sectionCopy.audience)}</h2></div><div class="audience-grid">${service.forWho.map((item, index) => `<article class="audience-card reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad process-section"><div class="container"><div class="section-heading reveal">${eyebrow("خطوات التنفيذ")}<h2>${esc(sectionCopy.process)}</h2></div><ol class="process-list service-process">${service.steps.map((step, index) => `<li class="reveal"><span>${String(index + 1).padStart(2, "0")}</span><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p></li>`).join("")}</ol></div></section>
+<section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة الخدمة")}<h2>${esc(sectionCopy.faq)}</h2>${button("/contact/", "أرسل تفاصيل حالتك", "button-ghost")}</div>${faqBlock(service.faq)}</div></section>
+<section class="section-pad related-section"><div class="container"><div class="section-heading reveal">${eyebrow("خدمات مترابطة")}<h2>${esc(sectionCopy.related)}</h2></div><div class="services-grid related-services">${related.map(serviceCard).join("")}</div></div></section>
 ${finalCta(`هل تحتاج ${service.title} ضمن مشروع واضح؟`, `أرسل الوضع الحالي والنتيجة المطلوبة، وسنحدد نطاقًا واقعيًا ومخرجات واضحة وخطوات قابلة للمتابعة.`)}`;
   return page({ title: service.seoTitle || service.title, description: service.meta, path, active: "services", body, schema: [serviceSchema, faqSchema(service.faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الخدمات", path: "/services/" }, { name: service.title, path }])] });
 }
@@ -470,7 +566,7 @@ function aboutPage() {
   const body = renderAbout({
     site,
     mapsCount: mapsProjects.length,
-    serviceCount: services.length,
+    projectCount: projects.length,
     profilePhoto,
     innerHero,
     icon,
@@ -492,7 +588,7 @@ function aboutPage() {
     path: "/about/",
     active: "about",
     body,
-    inlineCss: aboutStyles,
+    stylesheets: [`/assets/css/about.css?v=${version}`],
     pageScripts: [`/assets/js/about.js?v=${version}`],
     schema: [profileSchema, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "عن إسلام", path: "/about/" }])]
   });
@@ -520,7 +616,7 @@ function googleExpertPage() {
     areaServed: [{ "@type": "City", name: "الرياض" }, { "@type": "Country", name: "المملكة العربية السعودية" }]
   };
   const body = `${innerHero({ eyebrowText: "خبير منتجات Google · الرياض والسعودية", title: "إسلام الشيخ — خبير خرائط جوجل والملفات التجارية", lead: "أنا إسلام الشيخ، خبير منتجات Google ومتخصص في خرائط جوجل والملفات التجارية. أساعد أصحاب الأنشطة على حل مشكلات التحقق والتعليق وإثبات الملكية وتحسين بيانات النشاط ورفع كفاءة الظهور في نتائج البحث وخرائط Google من خلال حلول عملية متوافقة مع السياسات.", path: "/google-expert/", crumbs: [{ name: "خبير خرائط جوجل", path: "/google-expert/" }], aside: `<span class="google-mark">G</span><strong>خبرة موثقة في Google Maps</strong><p>مساهمات عملية في منتجات Google ونماذج ملفات تجارية منشورة يمكن مراجعتها مباشرة.</p>` })}
-<section class="section-pad"><div class="container google-stats"><div class="google-stat reveal"><strong>1411+</strong><span>مساهمة في توثيق وإدارة ملفات Google التجارية</span></div><div class="google-stat reveal"><strong>Google</strong><span>خبرة عملية في خرائط جوجل والملفات التجارية</span></div><div class="google-stat reveal"><strong>السعودية</strong><span>خدمات للأنشطة في الرياض وجميع المناطق</span></div><div class="google-stat reveal"><strong>موثق</strong><span>ملف خبير منتجات ونماذج أعمال عامة</span></div></div></section>
+<section class="section-pad"><div class="container google-stats"><div class="google-stat reveal"><strong>472</strong><span>ملفًا تجاريًا على Google تم دعم توثيقه</span></div><div class="google-stat reveal"><strong>233</strong><span>مشكلة ملف تجاري تم حلها ومعالجتها</span></div><div class="google-stat reveal"><strong>${mapsProjects.length}</strong><span>نموذجًا عامًا منشورًا يمكن مراجعته</span></div><div class="google-stat reveal"><strong>Google</strong><span>ملف خبير منتجات ومساهمات عملية</span></div></div></section>
 <section class="section-pad muted-section"><div class="container service-intro-grid"><div class="rich-copy reveal"><h2>خبير جوجل ماب يساعدك على اتخاذ القرار الصحيح</h2><p>أبدأ بفهم نموذج النشاط الحقيقي، سواء كان يستقبل العملاء في موقع واضح أو يعمل في نطاق خدمة، ثم أراجع الاسم والفئة والعنوان أو المناطق والخدمات والموقع الإلكتروني والمستخدمين والتغييرات السابقة وإشعارات Google.</p><p>بعد التشخيص أحدد التناقضات والمخاطر والتصحيحات المطلوبة، وأرتب الأدلة والخطوات المناسبة للتحقق أو الاستئناف أو استعادة الوصول. وبعد استقرار الملف أعمل على تحسين اكتمال البيانات وربطها بالموقع والمحتوى والسيو المحلي وقياس التفاعل.</p>${button("/services/google-business-profile/", "عرض خدمات الملفات التجارية")}</div><aside class="disclaimer-card professional-summary-card reveal"><span>عن إسلام الشيخ</span><h2>خبرة منتجات Google مدعومة بمساهمات ونماذج منشورة</h2><p>يجمع إسلام الشيخ بين خبرة منتجات Google وإدارة الملفات التجارية والسيو المحلي وتطوير المواقع، لتقديم معالجة مترابطة تبدأ من صحة الملف وتصل إلى تجربة الموقع والتحويل والقياس.</p><a class="text-link" href="${site.social.googleDeveloper}" target="_blank" rel="noopener">عرض ملف خبير منتجات Google ${icon("external")}</a><a class="text-link" href="${site.googleMapsProfile}" target="_blank" rel="noopener">عرض الملف التجاري على خرائط Google ${icon("external")}</a></aside></div></section>
 <section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("الحالات التي أتعامل معها")}<h2>من إنشاء الملف إلى استعادة الاستقرار والظهور</h2></div><div class="scope-grid"><article class="scope-card reveal"><span>01</span>${icon("pin")}<p>إعداد ملف مؤهل يعكس نموذج النشاط الحقيقي والفئة والخدمات ونطاق العمل.</p></article><article class="scope-card reveal"><span>02</span>${icon("shield")}<p>تشخيص تعليق الملف أو تعطيله ومراجعة التغييرات والمخاطر والملكية.</p></article><article class="scope-card reveal"><span>03</span>${icon("google")}<p>تجهيز إثبات الملكية بالفيديو أو الأدلة المتاحة بصورة منظمة ومتوافقة.</p></article><article class="scope-card reveal"><span>04</span>${icon("search")}<p>ربط الملف بالموقع والسيو المحلي والاتساق والمحتوى والقياس.</p></article><article class="scope-card reveal"><span>05</span>${icon("layers")}<p>مراجعة الملفات المكررة والملكية والمستخدمين والمواقع والفروع.</p></article><article class="scope-card reveal"><span>06</span>${icon("chart")}<p>تحليل الظهور والاستفسارات وجودة التحويل بعد استقرار الملف.</p></article></div></div></section>
 <section class="section-pad maps-section"><div class="container"><div class="section-heading reveal">${eyebrow("نماذج منشورة")}<h2>ملفات تجارية حقيقية يمكن فتحها على خرائط Google</h2><p>مختارات من قطاعات ومدن مختلفة، مع صفحة مستقلة تضم السجل الكامل للأعمال.</p></div><div class="map-case-grid">${mapsProjects.filter((item) => item.featured).slice(0, 6).map(featuredMapCard).join("")}</div><div class="section-action">${button("/google-maps-projects/", `استعرض ${mapsProjects.length} ملفًا تجاريًا`, "button-ghost")}</div></div></section>
@@ -648,11 +744,37 @@ ${finalCta("هل لديك ملف يحتاج توثيقًا أو استعادة �
 
 function projectsPage() {
   const body = `${innerHero({ eyebrowText: "الأعمال والمشروعات", title: "نماذج من تطوير المواقع والسيو المحلي والحضور الرقمي", lead: "مشروعات عامة توضح كيف يتحول الهدف التجاري إلى بنية محتوى وتجربة متجاوبة ومسارات تواصل وقياس، مع الاهتمام بالتفاصيل التي تظهر على الجوال قبل سطح المكتب.", path: "/projects/", crumbs: [{ name: "الأعمال", path: "/projects/" }], aside: `<span class="aside-kicker">Selected Work</span><strong>تصميم وتطوير وسيو في منظومة واحدة</strong><p>كل مشروع يعالج سياقًا مختلفًا؛ من المقاولات والخدمات المحلية إلى شركات التقنية والذكاء الاصطناعي.</p>` })}
-<section class="section-pad portfolio-page-section"><div class="container"><div class="portfolio-page-heading reveal"><span>12 مشروعًا منشورًا</span><p>مجموعة منتقاة من المواقع والمنصات العامة، مرتبة بصريًا لتوضّح تنوع القطاعات وطبيعة الحل في كل مشروع.</p></div>${projectsShowcase()}</div></section>
+<section class="section-pad portfolio-page-section"><div class="container"><div class="portfolio-page-heading reveal"><span>${projects.length} مشروعًا منشورًا</span><p>مجموعة منتقاة من المواقع والمنصات العامة، مرتبة بصريًا لتوضّح تنوع القطاعات وطبيعة الحل في كل مشروع.</p></div>${projectsShowcase()}</div></section>
 ${mapsWorkTeaser()}
 <section class="section-pad"><div class="container case-method reveal"><div><span>منهج المشروع</span><h2>لا توجد نسخة واحدة تُكرر على كل نشاط</h2></div><p>تختلف بنية الموقع والمحتوى والدعوات والبيانات المنظمة حسب نموذج النشاط ورحلة العميل والمنافسة والقدرة التشغيلية. الهدف هو حل يناسب العمل الحقيقي، لا قالبًا يغير الألوان والشعار فقط.</p>${button("/contact/", "ناقش مشروعًا مشابهًا")}</div></section>
 ${finalCta("هل تريد تحويل نشاطك إلى تجربة رقمية احترافية؟", "أرسل رابط الموقع أو الملف التجاري والخدمات المستهدفة والمدينة والهدف، وسنحدد ما يحتاج إعادة بناء وما يمكن تحسينه تدريجيًا.")}`;
   return page({ title: "أعمال ومشروعات المهندس إسلام الشيخ", description: "نماذج أعمال المهندس إسلام الشيخ في تطوير المواقع وتجربة المستخدم والسيو التقني والمحلي وملفات Google التجارية للشركات والأنشطة في السعودية.", path: "/projects/", active: "projects", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }])] });
+}
+
+function projectCaseStudyPage(project) {
+  const path = `/projects/${project.slug}/`;
+  const study = project.caseStudy;
+  const domain = new URL(project.liveUrl).hostname.replace(/^www\./, "");
+  const requestMessage = `مرحبًا م. إسلام، قرأت دراسة حالة «${project.title}» وأرغب في مناقشة مشروع مشابه.`;
+  const creativeWorkSchema = {
+    "@type": "CreativeWork",
+    "@id": `${absolute(path)}#project`,
+    name: project.title,
+    description: project.description,
+    url: absolute(path),
+    image: absolute(project.image),
+    sameAs: project.liveUrl,
+    author: { "@id": `${site.url}/#person` },
+    keywords: project.tags,
+    dateModified: site.lastUpdated
+  };
+  const body = `${innerHero({ eyebrowText: "دراسة حالة مشروع", title: esc(project.title), lead: project.description, path, crumbs: [{ name: "الأعمال", path: "/projects/" }, { name: project.title, path }], aside: `<div class="case-study-preview"><span>${esc(project.category)}</span>${projectImage(project, { eager: true })}<small dir="ltr">${esc(domain)}</small></div>` })}
+<section class="section-pad case-study-overview"><div class="container case-study-layout"><article class="rich-copy reveal"><span class="case-study-label">الهدف</span><h2>ما الذي كان مطلوبًا من التجربة؟</h2><p>${esc(study.objective)}</p><div class="tag-row" aria-label="محاور المشروع">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div></article><aside class="case-study-facts reveal"><span>بطاقة المشروع</span><dl><div><dt>نوع العمل</dt><dd>${esc(project.category)}</dd></div><div><dt>النطاق المعروض</dt><dd>تصميم وتنفيذ وتجربة رقمية</dd></div><div><dt>حالة النسخة</dt><dd>رابط عام قابل للمراجعة</dd></div></dl>${button(project.liveUrl, "فتح المشروع الحي", "button-ghost", true)}</aside></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("نطاق التنفيذ")}<h2>الأجزاء التي شملها العمل</h2><p>العناصر التالية تصف نطاق النسخة العامة المنشورة ولا تفترض نتائج تجارية لم يتم قياسها أو توثيقها.</p></div><div class="case-study-scope">${study.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon("layers")}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("قرارات التصميم")}<h2>لماذا اتُّخذت هذه القرارات؟</h2><p>القرار الجيد يربط طريقة العرض بهدف المستخدم وطبيعة النشاط، لا بالشكل البصري وحده.</p></div><ol class="case-study-decisions">${study.decisions.map((item, index) => `<li class="reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></li>`).join("")}</ol></div></section>
+<section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("المخرجات")}<h2>ما الذي يمكن مراجعته اليوم؟</h2><p>هذه المخرجات مرتبطة بما يظهر في النسخة المنشورة، ولذلك يمكن التحقق منها مباشرة عبر رابط المشروع.</p></div><div class="deliverables-panel reveal">${checkList(study.delivered, "deliverables-list")}<p class="case-study-disclaimer">لا تتضمن هذه الدراسة أرقام زيارات أو تحويلات أو عائد استثمار؛ لم تُنشر بيانات موثقة تسمح بإسناد تلك النتائج للمشروع.</p></div></div></section>
+<section class="section-pad"><div class="container case-method reveal"><div><span>الخطوة التالية</span><h2>هل تحتاج مشروعًا يناسب سياق نشاطك؟</h2></div><p>يمكن الاستفادة من المنهج، لكن بنية الصفحات والمحتوى والتقنية تُحدد بعد فهم نشاطك ومستخدميك والنتيجة المطلوبة.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent(requestMessage)}`, "ناقش مشروعًا مشابهًا", "", true)}${button("/projects/", "العودة إلى جميع الأعمال", "button-ghost")}</div></div></section>`;
+  return page({ title: `دراسة حالة ${project.title}`, description: `دراسة حالة مشروع ${project.title}: الهدف، نطاق التنفيذ، قرارات التصميم، والمخرجات القابلة للمراجعة مع رابط النسخة المنشورة.`, path, active: "projects", body, schema: [creativeWorkSchema, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }, { name: project.title, path }])] });
 }
 
 function localSeoPage(citySpecific = false) {
@@ -761,14 +883,14 @@ ${finalCta("لديك حالة تحتاج تطبيقًا عمليًا؟", "أرس
 function contactPage() {
   const body = `${innerHero({ eyebrowText: "ابدأ التواصل", title: "أرسل تفاصيل تساعد على تشخيص مشروعك من أول رسالة", lead: "كلما كان وصف الهدف والوضع الحالي والروابط والموعد أوضح، كان من الأسهل تحديد نقطة البداية والنطاق والمخرجات دون جولات طويلة من الأسئلة العامة.", path: "/contact/", crumbs: [{ name: "تواصل", path: "/contact/" }], aside: `<span class="aside-kicker">Response Ready</span><strong>ابدأ عبر WhatsApp أو الاتصال أو البريد</strong><p>لا ترسل كلمات مرور أو رموز تحقق أو مفاتيح API أو بيانات حساسة في الرسالة الأولى.</p>` })}
 <section class="section-pad"><div class="container contact-grid"><div class="contact-options"><a class="contact-card reveal" href="${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، أرغب في مناقشة مشروع تقني.")}" target="_blank" rel="noopener"><span class="contact-icon contact-whatsapp">${icon("whatsapp")}</span><div><small>الأسرع لبدء التشخيص</small><h2>WhatsApp</h2><p dir="ltr">${site.phoneDisplay}</p></div>${icon("external")}</a><a class="contact-card reveal" href="tel:${site.phone}"><span class="contact-icon contact-call">${icon("phone")}</span><div><small>اتصال مباشر</small><h2>الهاتف</h2><p dir="ltr">${site.phoneDisplay}</p></div>${icon("arrow")}</a><a class="contact-card reveal" href="mailto:${site.email}"><span class="contact-icon contact-mail">${icon("mail")}</span><div><small>للتفاصيل والمرفقات</small><h2>البريد الإلكتروني</h2><p dir="ltr">${site.email}</p></div>${icon("arrow")}</a><div class="contact-note reveal"><span>${icon("shield")}</span><div><h2>حماية معلوماتك</h2><p>أرسل وصفًا عامًا وروابط عامة في البداية. تُحدد قناة آمنة عند الحاجة إلى معلومات حساسة أو وصول تقني.</p></div></div></div>
-<form class="project-form reveal" data-project-form novalidate><div class="form-head"><span>نموذج تجهيز رسالة المشروع</span><h2>كوّن رسالة WhatsApp منظمة</h2><p>لن تُرسل البيانات إلى خادم؛ يُفتح WhatsApp برسالة جاهزة بعد مراجعتك.</p></div><label><span>الاسم أو اسم الشركة</span><input type="text" name="name" autocomplete="name" maxlength="80" required placeholder="مثال: شركة ..."></label><label><span>الخدمة الأقرب</span><select name="service" required><option value="">اختر الخدمة</option>${services.map((service) => `<option value="${esc(service.title)}">${esc(service.title)}</option>`).join("")}<option value="استشارة متعددة التخصصات">استشارة متعددة التخصصات</option></select></label><label><span>رابط الموقع أو الملف — اختياري</span><input type="url" name="url" inputmode="url" autocomplete="url" maxlength="300" placeholder="https://"></label><label><span>الهدف والوضع الحالي</span><textarea name="details" rows="6" maxlength="1500" required placeholder="اشرح المشكلة، ما الذي تريد تحقيقه، وما الذي جربته حتى الآن..."></textarea><small><span data-character-count>0</span> / 1500</small></label><label><span>الموعد المتوقع — اختياري</span><input type="text" name="timeline" maxlength="120" placeholder="مثال: خلال شهر أو قبل إطلاق محدد"></label><div class="form-message" role="status" aria-live="polite" data-form-message></div><button class="button" type="submit">فتح الرسالة في WhatsApp ${icon("whatsapp", "button-icon")}</button></form></div></section>
+<div class="project-form reveal" data-project-form role="form" aria-labelledby="project-form-title"><div class="form-head"><span>نموذج تجهيز رسالة المشروع</span><h2 id="project-form-title">كوّن رسالة WhatsApp منظمة</h2><p>لن تُرسل البيانات إلى خادم؛ يُفتح WhatsApp برسالة جاهزة بعد مراجعتك. إذا كان JavaScript متوقفًا، استخدم رابط WhatsApp المباشر أعلاه.</p></div><label><span>الاسم أو اسم الشركة</span><input type="text" name="name" autocomplete="name" maxlength="80" required placeholder="مثال: شركة ..."></label><label><span>الخدمة الأقرب</span><select name="service" required><option value="">اختر الخدمة</option>${services.map((service) => `<option value="${esc(service.title)}">${esc(service.title)}</option>`).join("")}<option value="استشارة متعددة التخصصات">استشارة متعددة التخصصات</option></select></label><label><span>رابط الموقع أو الملف — اختياري</span><input type="url" name="url" inputmode="url" autocomplete="url" maxlength="300" placeholder="https://"></label><label><span>الهدف والوضع الحالي</span><textarea name="details" rows="6" maxlength="1500" required placeholder="اشرح المشكلة، ما الذي تريد تحقيقه، وما الذي جربته حتى الآن..."></textarea><small><span data-character-count>0</span> / 1500</small></label><label><span>الموعد المتوقع — اختياري</span><input type="text" name="timeline" maxlength="120" placeholder="مثال: خلال شهر أو قبل إطلاق محدد"></label><div class="form-message" role="status" aria-live="polite" data-form-message></div><button class="button" type="button" data-project-submit>فتح الرسالة في WhatsApp ${icon("whatsapp", "button-icon")}</button></div></div></section>
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("ماذا ترسل؟")}<h2>أربع نقاط تختصر وقت التشخيص</h2></div><div class="audience-grid"><article class="audience-card reveal"><span>01</span><h3>الهدف</h3><p>ما النتيجة التي تريد الوصول إليها، ولماذا هي مهمة الآن؟</p></article><article class="audience-card reveal"><span>02</span><h3>الوضع الحالي</h3><p>الروابط والأنظمة والمشكلة والتأثير وما الذي يعمل وما الذي لا يعمل.</p></article><article class="audience-card reveal"><span>03</span><h3>المحاولات السابقة</h3><p>التعديلات أو الأدوات أو طلبات الدعم التي تمت ونتيجتها.</p></article><article class="audience-card reveal"><span>04</span><h3>القيود</h3><p>الموعد والميزانية التقريبية والفريق والاعتماديات أو الموافقات.</p></article></div></div></section>`;
   return page({ title: "تواصل مع المهندس إسلام الشيخ", description: "تواصل مع المهندس إسلام الشيخ لمناقشة الأمن السيبراني وتطوير المواقع ووكلاء الذكاء الاصطناعي وخدمات Google والسيو والحلول السحابية في السعودية.", path: "/contact/", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "تواصل", path: "/contact/" }])] });
 }
 
 function privacyPage() {
   const body = `${innerHero({ eyebrowText: "الخصوصية", title: "سياسة الخصوصية", lead: "توضح هذه الصفحة نوع البيانات التي قد تُعالج عند استخدام الموقع أو التواصل، وكيف يتم التعامل معها بصورة مسؤولة.", path: "/privacy/", crumbs: [{ name: "سياسة الخصوصية", path: "/privacy/" }] })}
-<section class="section-pad legal-section"><div class="container legal-content"><section><h2>1. المعلومات التي يقدمها الزائر</h2><p>لا يطلب الموقع إنشاء حساب. قد تقدم اسمك أو بريدك أو رقمك أو تفاصيل مشروعك عند التواصل عبر الهاتف أو البريد أو WhatsApp. لا ترسل كلمات مرور أو رموز تحقق أو مفاتيح API أو بيانات شخصية غير لازمة في الرسالة الأولى.</p></section><section><h2>2. نموذج تجهيز الرسالة</h2><p>نموذج التواصل داخل الموقع يُستخدم لتجهيز نص رسالة وفتح WhatsApp على جهازك. لا يرسل النموذج بياناته إلى خادم تابع للموقع بحسب النسخة الحالية.</p></section><section><h2>3. السجلات والتحليلات</h2><p>قد تسجل منصة الاستضافة معلومات تقنية أساسية لازمة لتقديم الخدمة والحماية، مثل عنوان IP ونوع المتصفح والمسار ووقت الطلب. قد تُضاف أدوات قياس مستقبلًا بعد تحديث هذه السياسة وتهيئتها بما يلائم المتطلبات القانونية والتشغيلية.</p></section><section><h2>4. الروابط والخدمات الخارجية</h2><p>يتضمن الموقع روابط إلى WhatsApp وGoogle وGitHub ومنصات أخرى. تخضع معالجة البيانات لدى هذه الجهات لسياساتها وشروطها المستقلة.</p></section><section><h2>5. الاحتفاظ والأمان</h2><p>تُحفظ مراسلات المشروع بالقدر اللازم للتواصل والتنفيذ والتوثيق، مع تطبيق ضوابط معقولة للوصول. لا توجد وسيلة إلكترونية تضمن أمانًا مطلقًا، لذلك يُتفق على قناة مناسبة قبل تبادل أي معلومات حساسة.</p></section><section><h2>6. التواصل بشأن الخصوصية</h2><p>لطلب تصحيح أو حذف معلومات قدمتها مباشرة، تواصل عبر البريد <a href="mailto:${site.email}">${site.email}</a> مع توضيح الطلب والهوية المرتبطة بالمراسلة.</p></section><p class="legal-updated">آخر تحديث: 30 أغسطس 2026</p></div></section>`;
+<section class="section-pad legal-section"><div class="container legal-content"><section><h2>1. المسؤول عن معالجة البيانات والغرض</h2><p>يدير المهندس إسلام الشيخ هذا الموقع للتعريف بالخدمات، استقبال طلبات التواصل، حماية الخدمة، وفهم أداء الصفحات بعد موافقة الزائر على التحليلات. يمكن التواصل بخصوص الخصوصية عبر <a href="mailto:${site.email}">${site.email}</a>.</p></section><section><h2>2. البيانات التي تقدمها عند التواصل</h2><p>لا يطلب الموقع إنشاء حساب. قد تقدم اسمك أو اسم منشأتك أو بريدك أو رقمك أو رابطًا عامًا أو تفاصيل مشروعك عند التواصل عبر الهاتف أو البريد أو WhatsApp. تُستخدم هذه المعلومات للرد على طلبك، تشخيص الاحتياج، وإدارة العلاقة أو المشروع عند الاتفاق. لا ترسل كلمات مرور أو رموز تحقق أو مفاتيح API أو بيانات حساسة في الرسالة الأولى.</p></section><section><h2>3. نموذج تجهيز رسالة WhatsApp</h2><p>النموذج الموجود في صفحة التواصل يعمل داخل متصفحك لتجهيز نص الرسالة، ثم يفتح WhatsApp لمراجعتها قبل الإرسال. النموذج ليس نموذج إرسال إلى خادم الموقع، ولا يستخدم طلب GET أو POST. إذا تعطل JavaScript فلن تُرسل الحقول تلقائيًا، ويمكنك استخدام رابط WhatsApp المباشر.</p></section><section><h2>4. السجلات التقنية والاستضافة</h2><p>قد تعالج منصة الاستضافة Vercel معلومات تقنية لازمة لتقديم الموقع وحمايته، مثل عنوان IP ونوع المتصفح والمسار ووقت الطلب وسجلات الأمان. يكون الغرض تشغيل الموقع، منع إساءة الاستخدام، تشخيص الأعطال، والمحافظة على أمن الخدمة.</p></section><section><h2>5. التحليلات وملفات الارتباط</h2><p>يستخدم الموقع Google Analytics 4 بالمعرّف G-MDJ2HGF9E1 فقط بعد اختيار «السماح بالتحليلات». قد تضع Google عندها ملفات ارتباط أو معرّفات تقنية لقياس الصفحات والأجهزة والأحداث بصورة إجمالية. يمكنك رفض التحليلات من الإشعار دون أن تتأثر وظائف الموقع الأساسية، كما يمكنك سحب الموافقة وإظهار خياراتها مجددًا من الزر التالي.</p><button class="button button-ghost privacy-preferences" type="button" data-analytics-preferences>تغيير تفضيلات التحليلات</button><p>يستخدم الموقع التخزين المحلي أيضًا لحفظ اختيار الوضع الفاتح أو الداكن وقرار الموافقة؛ وهما إعدادان وظيفيان على جهازك وليسا نموذجًا لتعريف حساب شخصي.</p></section><section><h2>6. الجهات الخارجية ونقل البيانات</h2><p>قد تنتقل بيانات إلى مزودي الخدمة بحسب اختيارك واستخدامك: Vercel للاستضافة، Google Analytics عند الموافقة، Google Maps عند تحميل الخريطة، وWhatsApp أو البريد عند بدء التواصل. قد تعالج هذه الجهات بيانات خارج المملكة وفق بنيتها وسياساتها وضوابطها الخاصة؛ لذا راجع سياسة الجهة قبل استخدام خدمتها.</p></section><section><h2>7. الأساس والغرض وحدود الاستخدام</h2><p>تُعالج مراسلاتك لاتخاذ خطوات بناءً على طلبك والرد على استفسارك وتنفيذ أي اتفاق لاحق، بينما تعتمد التحليلات الاختيارية على موافقتك. لا تُباع بيانات الزوار، ولا تُستخدم تفاصيل المشروع لإرسال تسويق غير مطلوب.</p></section><section><h2>8. الاحتفاظ والأمان</h2><p>تُحفظ مراسلات المشروع بالقدر اللازم للرد والتنفيذ والتوثيق أو الوفاء بمتطلب نظامي، ثم تُحذف أو تُخفى هويتها عندما لا تبقى حاجة مشروعة لها. تخضع بيانات التحليلات لمدد الاحتفاظ المضبوطة في Google Analytics. تُطبق ضوابط تقنية وتنظيمية معقولة، مع الإقرار بأنه لا توجد وسيلة إلكترونية تضمن أمانًا مطلقًا.</p></section><section><h2>9. حقوق صاحب البيانات</h2><p>وفق الأنظمة السارية، يمكنك طلب العلم بكيفية استخدام بياناتك، الوصول إليها أو الحصول عليها بصيغة مقروءة، تصحيحها أو تحديثها، وطلب إتلافها عندما ينطبق ذلك، كما يمكنك سحب موافقتك على التحليلات في أي وقت. أرسل الطلب إلى <a href="mailto:${site.email}">${site.email}</a> مع معلومات كافية للتحقق من صلته بالمراسلة دون إرسال بيانات إضافية غير لازمة.</p></section><section><h2>10. التحديثات</h2><p>قد تُحدّث هذه السياسة عند تغيير أدوات الموقع أو أغراض المعالجة. سيظهر تاريخ المراجعة في هذه الصفحة، وتُطلب موافقة جديدة إذا أصبح التغيير مؤثرًا على التحليلات الاختيارية.</p></section><p class="legal-updated">آخر تحديث: 2 سبتمبر 2026</p></div></section>`;
   return page({ title: "سياسة الخصوصية", description: "سياسة خصوصية موقع المهندس إسلام الشيخ وتوضيح البيانات المستخدمة عند تصفح الموقع أو التواصل بخصوص الخدمات التقنية.", path: "/privacy/", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "سياسة الخصوصية", path: "/privacy/" }])] });
 }
 
@@ -779,7 +901,7 @@ function termsPage() {
 }
 
 function englishPage() {
-  const body = `<section class="hero section-pad hero-en"><div class="container hero-grid"><div class="hero-copy reveal"><span class="eyebrow"><span></span>Cybersecurity Engineer · Software Developer · Google Product Expert</span><h1>I build digital systems that are <span>secure, useful, and ready to grow.</span></h1><p class="hero-lead">I am Eslam Elshikh, based in Riyadh. I combine cybersecurity, web and software engineering, practical AI agents, Google product expertise, cloud architecture, and search visibility into clear project scopes with reviewable outcomes.</p><p class="hero-support">From diagnosis and information architecture to implementation, testing, launch, and measurement, the goal is to reduce complexity and help your team make better technical decisions.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start a conversation", "", true)}${button("/services/", "Explore services", "button-ghost")}</div><div class="hero-trust"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>Google Developer Profile</a><a href="${site.social.github}" target="_blank" rel="noopener"><span class="trust-dot"></span>GitHub</a><span><span class="trust-dot trust-live"></span>Saudi Arabia & remote</span></div></div><div class="hero-visual reveal"><div class="visual-glow"></div><div class="visual-shell"><div class="visual-top"><span>Digital Engineering</span><span class="visual-status"><i></i> Operational</span></div><div class="visual-core">${logo("hero-logo", "Eslam Elshikh logo")}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div><div class="visual-capabilities"><span>${icon("shield")}Cybersecurity</span><span>${icon("code")}Web & Apps</span><span>${icon("spark")}AI Agents</span><span>${icon("google")}Google</span><span>${icon("chart")}SEO</span><span>${icon("cloud")}Cloud</span></div><div class="visual-metric"><span>Approach</span><strong>360°</strong><p>Security, user experience, discoverability, and measurement in one system.</p></div></div></div></div><div class="container stats-bar reveal">${site.stats.map((stat, index) => `<div><strong>${esc(stat.value)}</strong><span>${["Google Business Profile contributions", "Business profile cases handled", "Connected service tracks", "Security, product, and growth view"][index]}</span></div>`).join("")}</div></section>
+  const body = `<section class="hero section-pad hero-en"><div class="container hero-grid"><div class="hero-copy reveal"><span class="eyebrow"><span></span>Cybersecurity Engineer · Software Developer · Google Product Expert</span><h1>I build digital systems that are <span>secure, useful, and ready to grow.</span></h1><p class="hero-lead">I am Eslam Elshikh, based in Riyadh. I combine cybersecurity, web and software engineering, practical AI agents, Google product expertise, cloud architecture, and search visibility into clear project scopes with reviewable outcomes.</p><p class="hero-support">From diagnosis and information architecture to implementation, testing, launch, and measurement, the goal is to reduce complexity and help your team make better technical decisions.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start a conversation", "", true)}${button("/services/", "Explore services", "button-ghost")}</div><div class="hero-trust"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>Google Developer Profile</a><a href="${site.social.github}" target="_blank" rel="noopener"><span class="trust-dot"></span>GitHub</a><span><span class="trust-dot trust-live"></span>Saudi Arabia & remote</span></div></div><div class="hero-visual reveal"><div class="visual-glow"></div><div class="visual-shell"><div class="visual-top"><span>Digital Engineering</span><span class="visual-status"><i></i> Operational</span></div><div class="visual-core">${logo("hero-logo", "Eslam Elshikh logo")}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div><div class="visual-capabilities"><span>${icon("shield")}Cybersecurity</span><span>${icon("code")}Web & Apps</span><span>${icon("spark")}AI Agents</span><span>${icon("google")}Google</span><span>${icon("chart")}SEO</span><span>${icon("cloud")}Cloud</span></div><div class="visual-metric"><span>Approach</span><strong>360°</strong><p>Security, user experience, discoverability, and measurement in one system.</p></div></div></div></div><div class="container stats-bar reveal">${site.stats.map((stat, index) => `<div><strong>${esc(stat.value)}</strong><span>${["Google Business Profiles supported through verification", "Business profile issues resolved", "Public Google Maps examples", "Live web projects in the portfolio"][index]}</span></div>`).join("")}</div></section>
 <section class="section-pad" id="services"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Core capabilities</span><h2>Specialist work that can operate independently or as one delivery plan</h2><p>Each engagement starts with the business outcome, current state, constraints, risks, and a measurable definition of done.</p></div><div class="services-grid">${services.map((service) => { const translation = serviceTranslations[service.slug]; return `<article class="service-card reveal"><div class="service-card-top"><span class="service-number">${service.number}</span><span class="service-icon">${icon(service.icon)}</span></div><p class="service-group">${esc(translation.group)}</p><h3><a href="/services/${service.slug}/">${esc(translation.title)}</a></h3><p>${esc(translation.short)}</p><a class="text-link" href="/services/${service.slug}/" aria-label="View details for ${esc(translation.title)}">View service details ${icon("arrow")}</a></article>`; }).join("")}</div></div></section>
 <section class="section-pad muted-section"><div class="container promise-grid"><div class="promise-copy reveal"><span class="eyebrow"><span></span>How I work</span><h2>A strong digital project is more than a polished interface</h2><p>It should be understandable, secure in operation, responsive on real devices, discoverable by search engines, measurable, and maintainable after launch.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome first</h3><p>We define the user decision and business result before selecting tools.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Secure by design</h3><p>Data, permissions, and failure modes are considered from the start.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for devices</h3><p>Mobile-first testing across iOS, Android, Huawei, tablets, and desktops.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Ready to improve</h3><p>Performance, SEO, analytics, and conversion are part of operations.</p></article></div></div></section>
 <section class="section-pad"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>Google product expertise</span><h2>Structured diagnosis instead of random profile changes</h2><p>I help eligible businesses understand verification, suspension, ownership, category, consistency, and local visibility issues using official paths and realistic expectations.</p></div><div class="proof-actions">${button("/google-expert/", "Google expertise")}${button(site.social.googleDeveloper, "Official profile", "button-ghost", true)}</div></div></section>
@@ -844,6 +966,9 @@ async function build() {
   await writeRoute("/google-expert/", googleExpertPage());
   await writeRoute("/google-ads/", googleAdsPage());
   await writeRoute("/projects/", projectsPage());
+  for (const project of projects.filter((item) => item.slug && item.caseStudy)) {
+    await writeRoute(`/projects/${project.slug}/`, projectCaseStudyPage(project));
+  }
   await writeRoute("/google-maps-projects/", googleMapsProjectsPage());
   await writeRoute("/blog/", blogIndexPage());
   for (const post of allPosts) await writeRoute(`/blog/${post.slug}/`, articlePage(post));

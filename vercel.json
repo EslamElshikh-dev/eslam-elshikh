@@ -27,7 +27,7 @@
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-src 'self' https://www.google.com https://maps.google.com; frame-ancestors 'none'; form-action 'self' https://wa.me; img-src 'self' data: https:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com; upgrade-insecure-requests" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-src https://www.google.com https://maps.google.com; frame-ancestors 'none'; form-action 'none'; img-src 'self' data: https://www.google-analytics.com; font-src 'self' data:; style-src 'self'; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com; manifest-src 'self'; media-src 'none'; upgrade-insecure-requests" }
       ]
     },
     {

@@ -1,13 +1,11 @@
 import { readFile, readdir, writeFile } from "node:fs/promises";
-import { join, relative } from "node:path";
+import { join } from "node:path";
 
 const outDir = process.argv[2] || "dist";
 const canonical = "https://www.eslam-elshikh.com";
 const primaryLogo = "/assets/brand/eslam-elshikh-primary.svg";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
-const gaId = "G-MDJ2HGF9E1";
 
-const gaTag = `<script>(()=>{const id="${gaId}";window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){dataLayer.push(arguments)};gtag("js",new Date());gtag("config",id,{anonymize_ip:true});const load=()=>{if(window.__gaLoaded)return;window.__gaLoaded=true;const script=document.createElement("script");script.async=true;script.src="https://www.googletagmanager.com/gtag/js?id="+id;document.head.appendChild(script)};["pointerdown","keydown","touchstart"].forEach(type=>addEventListener(type,load,{once:true,passive:true}));addEventListener("load",()=>setTimeout(load,8000),{once:true})})();</script>`;
 const isDistBuild = /(^|[\\/])dist$/.test(outDir);
 const extraHead = isDistBuild ? "" : `<link rel="stylesheet" href="/assets/css/enhancements.css?v=1.0.2">`;
 const extraBody = `<script src="/assets/js/enhancements.js?v=1.0.0" defer></script>`;
@@ -56,23 +54,13 @@ for (const path of htmlFiles) {
   html = html.replace(/(<img[^>]+class="profile-logo"[^>]+src=")[^"]+("[^>]*>)/g, `$1${profilePhoto}$2`);
   html = html.replace(/(<img[^>]+class="hero-logo"[^>]+alt=")[^"]*(")/g, `$1${isEnglish ? "Portrait of Eng. Eslam Elshikh" : "صورة المهندس إسلام الشيخ"}$2`);
   html = html.replace(/(<img[^>]+class="profile-logo"[^>]+alt=")[^"]*(")/g, `$1${isEnglish ? "Portrait of Eng. Eslam Elshikh" : "صورة المهندس إسلام الشيخ"}$2`);
-  if (!html.includes("googletagmanager.com/gtag/js?id=")) html = html.replace("</head>", `${gaTag}\n</head>`);
   if (extraHead && !html.includes("/assets/css/enhancements.css")) html = html.replace("</head>", `${extraHead}\n</head>`);
   if (!html.includes("/assets/js/enhancements.js")) html = html.replace("</body>", `${extraBody}\n</body>`);
   html = html.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g, (full, raw) => {
     try { return `<script type="application/ld+json">${json(normalizeSchema(JSON.parse(raw)))}</script>`; } catch { return full; }
   });
-  if (relative(outDir, path).replaceAll("\\", "/") === "index.html") {
-    html = html.replace("<strong>472+</strong><span>مساهمة في توثيق وإدارة ملفات Google التجارية</span>", "<strong data-counter=\"1411\" data-suffix=\"+\">0+</strong><span>مساهمة في توثيق وإدارة ملفات Google التجارية</span>");
-    html = html.replace("<strong>233+</strong><span>حالة ومشكلة لملفات تجارية تمت معالجتها</span>", "<strong data-counter=\"105\" data-suffix=\"+\">0+</strong><span>موقع وتطبيق ومتجر إلكتروني تم تصميمها وتطويرها</span>");
-    html = html.replace(/<strong>9<\/strong><span>[^<]*<\/span>/, "<strong data-counter=\"653\" data-suffix=\"+\">0+</strong><span>مساعد بالذكاء الاصطناعي ومشروع سحابي</span>");
-    html = html.replace("<strong>360°</strong><span>رؤية تجمع الأمن والتطوير والظهور الرقمي</span>", "<strong data-counter=\"360\" data-suffix=\"°\">0°</strong><span>رؤية تجمع الأمن والتطوير والظهور الرقمي</span>");
-  }
   if ((path.endsWith("about/index.html") || path.endsWith("contact/index.html")) && !html.includes("service-area-note") && !html.includes("business-map-section")) {
     html = html.replace("</main>", `<section class="section-pad"><div class="container"><div class="service-area-note"><strong>نطاق الخدمة: مدينة الرياض بالكامل</strong><p>تُقدَّم الخدمات عن بُعد، مع إمكانية زيارة مواقع العملاء داخل الرياض بموعد مسبق. لا يوجد مقر لاستقبال العملاء.</p></div></div></section></main>`);
-  }
-  if (path.endsWith("privacy/index.html") && !html.includes("Google Analytics 4")) {
-    html = html.replace("</main>", `<section class="section-pad"><div class="container rich-copy"><h2>إحصاءات الاستخدام</h2><p>يستخدم الموقع Google Analytics 4 بالمعرّف ${gaId} لفهم أداء الصفحات وتحسين تجربة المستخدم. تُستخدم البيانات بصورة إجمالية ولا يتم بيع بيانات الزوار للمعلنين.</p></div></section></main>`);
   }
   await writeFile(path, html);
 }

@@ -135,6 +135,7 @@
     const details = form.querySelector('[name="details"]');
     const counter = form.querySelector("[data-character-count]");
     const message = form.querySelector("[data-form-message]");
+    const submitButton = form.querySelector("[data-project-submit]");
 
     const updateCount = () => {
       if (counter && details) counter.textContent = String(details.value.length);
@@ -142,19 +143,18 @@
     updateCount();
     details?.addEventListener("input", updateCount);
 
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
+    const openProjectMessage = () => {
       message.textContent = "";
-      const data = new FormData(form);
-      const name = String(data.get("name") || "").trim();
-      const service = String(data.get("service") || "").trim();
-      const url = String(data.get("url") || "").trim();
-      const projectDetails = String(data.get("details") || "").trim();
-      const timeline = String(data.get("timeline") || "").trim();
+      const valueOf = (name) => String(form.querySelector(`[name="${name}"]`)?.value || "").trim();
+      const name = valueOf("name");
+      const service = valueOf("service");
+      const url = valueOf("url");
+      const projectDetails = valueOf("details");
+      const timeline = valueOf("timeline");
 
       if (!name || !service || projectDetails.length < 20) {
         message.textContent = "يرجى كتابة الاسم، واختيار الخدمة، وإضافة وصف لا يقل عن 20 حرفًا.";
-        const invalid = !name ? form.elements.name : !service ? form.elements.service : form.elements.details;
+        const invalid = !name ? form.querySelector('[name="name"]') : !service ? form.querySelector('[name="service"]') : details;
         invalid?.focus();
         return;
       }
@@ -162,7 +162,7 @@
       if (url) {
         try { new URL(url); } catch (_) {
           message.textContent = "يرجى كتابة رابط صحيح يبدأ بـ https:// أو ترك حقل الرابط فارغًا.";
-          form.elements.url?.focus();
+          form.querySelector('[name="url"]')?.focus();
           return;
         }
       }
@@ -183,7 +183,9 @@
       message.textContent = "تم تجهيز الرسالة. سيفتح WhatsApp لمراجعتها قبل الإرسال.";
       const opened = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
       if (!opened) window.location.href = whatsappUrl;
-    });
+    };
+
+    submitButton?.addEventListener("click", openProjectMessage);
   }
 
   doc.querySelectorAll(".accordion details").forEach((details) => {
@@ -195,6 +197,4 @@
       });
     });
   });
-
-  import("/assets/js/final-updates.js?v=20260730").catch(() => {});
 })();

@@ -1,7 +1,7 @@
 import { access, readFile, readdir } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { posts } from "../src/content.mjs";
+import { posts, projects } from "../src/content.mjs";
 import { guides } from "../src/guides.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -21,6 +21,8 @@ const requiredRoutes = [
 ];
 const expectedArticleRoutes = [...posts, ...guides].map((post) => `/blog/${post.slug}/`);
 for (const route of expectedArticleRoutes) if (!requiredRoutes.includes(route)) requiredRoutes.push(route);
+const expectedCaseStudyRoutes = projects.filter((project) => project.slug && project.caseStudy).map((project) => `/projects/${project.slug}/`);
+for (const route of expectedCaseStudyRoutes) if (!requiredRoutes.includes(route)) requiredRoutes.push(route);
 
 const routeFile = (route) => route === "/" ? join(output, "index.html") : join(output, route.replace(/^\//, "").replace(/\/$/, ""), "index.html");
 const normalizeRoute = (route) => route === "/" ? "/" : `/${route.replace(/^\//, "").replace(/\/$/, "")}/`;
@@ -115,6 +117,8 @@ const contentSecurityPolicy = globalHeaders.find((header) => header.key.toLowerC
 if (!/frame-src[^;]*https:\/\/www\.google\.com\b/.test(contentSecurityPolicy)) {
   errors.push("Global Content-Security-Policy does not permit the Google Maps embed origin");
 }
+if (/['\"]unsafe-inline['\"]/.test(contentSecurityPolicy)) errors.push("Global Content-Security-Policy still permits unsafe-inline resources");
+if (!/form-action\s+'none'/.test(contentSecurityPolicy)) errors.push("Global Content-Security-Policy must block native form submissions");
 for (const redirect of vercelConfig.redirects || []) {
   if (vercelConfig.trailingSlash && (!redirect.source.endsWith("/") || !redirect.destination.endsWith("/"))) {
     errors.push(`Redirect must use trailing-slash paths when trailingSlash is enabled: ${redirect.source} -> ${redirect.destination}`);
@@ -160,8 +164,13 @@ for (const route of sitemapRoutes) {
   if (!/<script\s+type=["']application\/ld\+json["']>/i.test(html)) errors.push(`${route}: missing JSON-LD`);
   if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/main\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned main stylesheet`);
   const stylesheetCount = (html.match(/<link\b[^>]*\brel=["']stylesheet["'][^>]*>/gi) || []).length;
-  if (stylesheetCount !== 1) errors.push(`${route}: expected one render-blocking stylesheet, found ${stylesheetCount}`);
+  const expectedStylesheets = route === "/about/" ? 2 : 1;
+  if (stylesheetCount !== expectedStylesheets) errors.push(`${route}: expected ${expectedStylesheets} stylesheet link(s), found ${stylesheetCount}`);
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
+  if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
+  if (/<style\b|\sstyle=["']/i.test(html)) errors.push(`${route}: contains inline CSS that weakens the CSP`);
+  if (!html.includes('/assets/js/theme.js?v=3.6.0') || !html.includes('/assets/js/analytics.js?v=3.6.0')) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
+  if (!html.includes('/assets/og/eslam-elshikh-social-card.png')) errors.push(`${route}: social metadata does not use the 1200x630 sharing card`);
   if (/https:\/\/(?:i\.ibb\.co|avatars\.githubusercontent\.com)/i.test(html)) errors.push(`${route}: references a legacy third-party image host`);
   for (const image of html.matchAll(/<img\b([^>]*)>/gi)) {
     if (!/\bwidth=["']\d+["']/i.test(image[1]) || !/\bheight=["']\d+["']/i.test(image[1])) errors.push(`${route}: image is missing explicit width and height`);
@@ -238,8 +247,8 @@ if (/^Host:/im.test(robotsText)) errors.push("robots.txt contains the unsupporte
 const home = pages.get("/") || "";
 if ((home.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("Homepage does not render all 9 services");
 if ((home.match(/aria-label=["']تفاصيل خدمة /g) || []).length !== 9) errors.push("Homepage service detail links need unique accessible labels");
-if (/<script\b[^>]*\bsrc=["']https:\/\/www\.googletagmanager\.com/i.test(home)) errors.push("Homepage loads Google Analytics before the deferred loader");
-if (!/setTimeout\(load,8000\)/.test(home)) errors.push("Homepage is missing the delayed Google Analytics fallback");
+if (/<script\b[^>]*\bsrc=["']https:\/\/www\.googletagmanager\.com/i.test(home)) errors.push("Homepage loads Google Analytics before consent");
+if (!home.includes('<strong>472</strong>') || !home.includes('<strong>233</strong>') || !home.includes('<strong>63</strong>') || !home.includes('<strong>12</strong>')) errors.push("Homepage trust metrics are missing the verified 472/233/63/12 figures");
 if (!/href=["']\/local-seo\/riyadh\/["']/.test(home)) errors.push("Homepage needs a direct internal link to /local-seo/riyadh/");
 if (wordCount(home) < 900) warnings.push(`Homepage content is shorter than 900 words (${wordCount(home)})`);
 for (const [route, html] of pages) {
@@ -248,9 +257,18 @@ for (const [route, html] of pages) {
   if (!html.includes("www.google.com/maps/embed?pb=")) errors.push(`${route}: missing Google Maps embed`);
   if (!html.includes('referrerpolicy="strict-origin-when-cross-origin"')) errors.push(`${route}: Google Maps embed is missing its referrer policy`);
   if (!html.includes("https://maps.app.goo.gl/EbiR3AKJEZhkbMn66")) errors.push(`${route}: missing direct Google Business Profile link`);
-  if (!html.includes('width="600" height="450" style="border:0;"')) errors.push(`${route}: map embed does not preserve the supplied iframe dimensions and border setting`);
+  if (!html.includes('width="600" height="450"')) errors.push(`${route}: map embed does not preserve the supplied iframe dimensions`);
   if (!/id="google-business-map"[\s\S]*<\/section><\/main><footer class="site-footer">/.test(html)) errors.push(`${route}: sitewide map is not placed immediately before the footer`);
 }
+for (const route of expectedCaseStudyRoutes) {
+  const html = pages.get(route) || "";
+  if (!html.includes('"@type":"CreativeWork"')) errors.push(`${route}: missing CreativeWork structured data`);
+  if (!html.includes("لا تتضمن هذه الدراسة أرقام زيارات أو تحويلات")) errors.push(`${route}: missing the evidence boundary for unverified business outcomes`);
+}
+
+const contactPageHtml = pages.get("/contact/") || "";
+if (/<form\b[^>]*data-project-form/i.test(contactPageHtml)) errors.push("Contact project composer must not use a native form submission fallback");
+if (!/<div\b[^>]*data-project-form[^>]*role="form"/i.test(contactPageHtml) || !/data-project-submit/.test(contactPageHtml)) errors.push("Contact page is missing the safe client-side project message composer");
 if (!home.includes('"hasMap":"https://maps.app.goo.gl/EbiR3AKJEZhkbMn66"')) errors.push("Homepage ProfessionalService schema is missing hasMap");
 for (const [route, html] of pages) {
   if (route.startsWith("/services/") && route !== "/services/" && !html.includes('class="check-list deliverables-list"')) {

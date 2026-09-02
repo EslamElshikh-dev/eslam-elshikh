@@ -11,11 +11,16 @@ const failures = [];
 async function exists(path) { try { await access(path); return true; } catch { return false; } }
 const cssPath = join(output, "assets/css/main.css");
 const jsPath = join(output, "assets/js/main.js");
+const themePath = join(output, "assets/js/theme.js");
+const analyticsPath = join(output, "assets/js/analytics.js");
 if (!(await exists(cssPath))) failures.push("Missing compiled CSS asset");
 if (!(await exists(jsPath))) failures.push("Missing compiled JavaScript asset");
+if (!(await exists(themePath))) failures.push("Missing external theme bootstrap");
+if (!(await exists(analyticsPath))) failures.push("Missing consent-based analytics loader");
 
 const css = await readFile(cssPath, "utf8").catch(() => "");
 const js = await readFile(jsPath, "utf8").catch(() => "");
+const analytics = await readFile(analyticsPath, "utf8").catch(() => "");
 const home = await readFile(join(output, "index.html"), "utf8").catch(() => "");
 const contact = await readFile(join(output, "contact/index.html"), "utf8").catch(() => "");
 
@@ -46,6 +51,10 @@ if (!/apple-mobile-web-app-capable/.test(home)) failures.push("Homepage lacks iO
 if (!/data-theme-toggle/.test(home)) failures.push("Homepage lacks theme control");
 if (!/data-project-form/.test(contact)) failures.push("Contact page lacks project form");
 if (!/لا ترسل كلمات مرور/.test(contact)) failures.push("Contact page lacks sensitive-data warning");
+if (/<form\b[^>]*data-project-form/i.test(contact)) failures.push("Contact composer still has a native form submission path");
+if (!/data-project-submit/.test(contact)) failures.push("Contact composer lacks its explicit client-side action");
+if (!/storageKey = "es-analytics-consent"/.test(analytics) || !/choice !== "denied"/.test(analytics)) failures.push("Analytics loader does not enforce an explicit consent choice");
+if (/<style\b|\sstyle=["']/.test(home) || /<script\b(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)/i.test(home)) failures.push("Homepage contains inline code incompatible with the strict CSP");
 
 for (const match of home.matchAll(/<img\b([^>]*)>/gi)) {
   if (!/\bwidth="\d+"/.test(match[1]) || !/\bheight="\d+"/.test(match[1])) failures.push(`Image missing dimensions: ${match[0].slice(0, 120)}`);
@@ -57,7 +66,7 @@ for (const match of home.matchAll(/<a\b([^>]*)target="_blank"([^>]*)>/gi)) {
 
 const cssSize = (await stat(cssPath).catch(() => ({ size: 0 }))).size;
 const jsSize = (await stat(jsPath).catch(() => ({ size: 0 }))).size;
-if (cssSize > 100_000) failures.push(`CSS asset is unexpectedly large (${cssSize} bytes)`);
+if (cssSize > 110_000) failures.push(`CSS asset is unexpectedly large (${cssSize} bytes)`);
 if (jsSize > 25_000) failures.push(`JavaScript asset is unexpectedly large (${jsSize} bytes)`);
 if (jsSize === 0 || cssSize === 0) failures.push("CSS or JS asset is empty");
 

@@ -6,6 +6,7 @@ const canonical = "https://www.eslam-elshikh.com";
 const approvedLogo = `${canonical}/assets/brand/eslam-elshikh-logo-20260827.webp`;
 const interfaceLogo = `${canonical}/assets/brand/eslam-elshikh-logo-ui-20260827.webp`;
 const profilePhoto = `${canonical}/assets/brand/eslam-elshikh-portrait-20260827.webp`;
+const shareImage = `${canonical}/assets/og/eslam-elshikh-social-card.png`;
 const brandName = "المهندس إسلام الشيخ";
 
 async function walk(dir) {
@@ -59,17 +60,18 @@ for (const path of htmlFiles) {
   html = html.replace(/\s*<link\b[^>]*\brel=["'](?:icon|shortcut icon|apple-touch-icon)["'][^>]*>\s*/gi, "\n");
   html = html.replace("</head>", `  ${iconTags}\n</head>`);
 
-  html = upsertMeta(html, "property", "og:image", approvedLogo);
-  html = upsertMeta(html, "property", "og:image:secure_url", approvedLogo);
-  html = upsertMeta(html, "property", "og:image:type", "image/webp");
+  html = upsertMeta(html, "property", "og:image", shareImage);
+  html = upsertMeta(html, "property", "og:image:secure_url", shareImage);
+  html = upsertMeta(html, "property", "og:image:type", "image/png");
   html = upsertMeta(html, "property", "og:image:alt", brandName);
-  html = html.replace(/\s*<meta\b[^>]*\bproperty=["']og:image:(?:width|height)["'][^>]*>\s*/gi, "\n");
+  html = upsertMeta(html, "property", "og:image:width", "1200");
+  html = upsertMeta(html, "property", "og:image:height", "630");
 
-  html = upsertMeta(html, "name", "twitter:card", "summary");
-  html = upsertMeta(html, "name", "twitter:image", approvedLogo);
+  html = upsertMeta(html, "name", "twitter:card", "summary_large_image");
+  html = upsertMeta(html, "name", "twitter:image", shareImage);
   html = upsertMeta(html, "name", "twitter:image:alt", brandName);
-  html = upsertMeta(html, "name", "image", approvedLogo);
-  html = upsertMeta(html, "itemprop", "image", approvedLogo);
+  html = upsertMeta(html, "name", "image", shareImage);
+  html = upsertMeta(html, "itemprop", "image", shareImage);
 
   html = html.replace(/(<script type=["']application\/ld\+json["']>)([\s\S]*?)(<\/script>)/gi, (match, open, payload, close) => {
     try {
