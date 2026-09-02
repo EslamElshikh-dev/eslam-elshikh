@@ -207,7 +207,7 @@
 .about-journey-rail li > b { padding: 0.45rem 0.62rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted-2); font: 850 0.52rem/1 "Segoe UI", sans-serif; letter-spacing: 0.08em; direction: ltr; }
 
 .about-focus-shell { border: 1px solid var(--line); border-radius: 1.75rem; background: linear-gradient(145deg, var(--surface), var(--surface-2)); overflow: hidden; box-shadow: var(--shadow-lg); }
-.about-focus-shell.is-enhanced { display: grid; grid-template-columns: 270px minmax(0, 1fr); min-height: 560px; }
+.about-focus-shell.is-enhanced { display: grid; grid-template-columns: 270px minmax(0, 1fr); min-height: 660px; }
 .about-focus-tabs { display: none; }
 .about-focus-shell.is-enhanced .about-focus-tabs { display: flex; flex-direction: column; border-inline-end: 1px solid var(--line); background: rgba(6,19,31,0.24); }
 .about-focus-tabs button { position: relative; flex: 1; display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; gap: 0.7rem; min-height: 116px; padding: 1rem 1.15rem; border-bottom: 1px solid var(--line); background: transparent; color: var(--muted); text-align: start; cursor: pointer; transition: color 0.2s ease, background 0.2s ease; }
@@ -220,7 +220,7 @@
 .about-focus-tabs strong { display: block; font-size: 0.9rem; }
 .about-focus-tabs small { display: block; margin-top: 0.32rem; color: var(--muted-2); font: 850 0.52rem/1 "Segoe UI", sans-serif; letter-spacing: 0.11em; direction: ltr; text-align: start; }
 .about-focus-stage { min-width: 0; }
-.about-focus-panel { display: grid; grid-template-columns: minmax(220px, 0.58fr) minmax(0, 1fr); align-items: center; gap: clamp(2rem, 5vw, 4.5rem); min-height: 558px; padding: clamp(1.5rem, 4vw, 3.5rem); }
+.about-focus-panel { display: grid; grid-template-columns: minmax(220px, 0.58fr) minmax(0, 1fr); align-items: center; gap: clamp(2rem, 5vw, 4.5rem); min-height: 658px; padding: clamp(1.5rem, 4vw, 3.5rem); }
 .about-focus-panel[hidden] { display: none; }
 .about-focus-panel + .about-focus-panel { border-top: 1px solid var(--line); }
 .about-focus-shell.is-enhanced .about-focus-panel + .about-focus-panel { border-top: 0; }
