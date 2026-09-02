@@ -706,7 +706,12 @@ input, textarea, select { min-width: 0; }
 
 /* Footer and floating controls */
 .site-footer { border-top: 1px solid var(--line); background: #04101a; padding-top: 4.5rem; padding-bottom: calc(1.25rem + env(safe-area-inset-bottom)); }
-:root[data-theme="light"] .site-footer { background: #eaf1f5; }
+:root[data-theme="light"] .site-footer {
+  --muted: #3f5866;
+  --primary: #056a55;
+  --text-soft: #263f4d;
+  background: #eaf1f5;
+}
 .footer-grid { display: grid; grid-template-columns: minmax(250px, 1.3fr) 0.65fr 1fr 1fr; gap: clamp(2rem, 5vw, 4.5rem); }
 .footer-intro > p { max-width: 390px; margin: 1.2rem 0; color: var(--muted); font-size: 0.84rem; }
 .social-row { display: flex; flex-wrap: wrap; gap: 0.45rem; }

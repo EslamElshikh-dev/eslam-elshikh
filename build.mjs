@@ -11,7 +11,7 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.6.0";
+const version = "3.6.1";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)
@@ -366,7 +366,7 @@ function postCard(post, { featured = false } = {}) {
       <h3><a href="/blog/${post.slug}/">${esc(post.title)}</a></h3>
       <p>${esc(post.excerpt)}</p>
       ${keywords.length ? `<div class="keyword-row" aria-label="أهم موضوعات المقال">${keywords.map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div>` : ""}
-      <a class="text-link post-card-link" href="/blog/${post.slug}/">اقرأ الدليل كاملًا ${icon("arrow")}</a>
+      <a class="text-link post-card-link" href="/blog/${post.slug}/" aria-label="اقرأ الدليل كاملًا: ${esc(post.title)}">اقرأ الدليل كاملًا ${icon("arrow")}</a>
     </div>
   </article>`;
 }

@@ -54,6 +54,8 @@ if (!/لا ترسل كلمات مرور/.test(contact)) failures.push("Contact p
 if (/<form\b[^>]*data-project-form/i.test(contact)) failures.push("Contact composer still has a native form submission path");
 if (!/data-project-submit/.test(contact)) failures.push("Contact composer lacks its explicit client-side action");
 if (!/storageKey = "es-analytics-consent"/.test(analytics) || !/choice !== "denied"/.test(analytics)) failures.push("Analytics loader does not enforce an explicit consent choice");
+if (/createElement\("aside"\)/.test(analytics) || !/createElement\("div"\)/.test(analytics)) failures.push("Analytics preferences use an incompatible dialog host element");
+if (!/aria-label="اقرأ الدليل كاملًا: [^"]+"/.test(home)) failures.push("Homepage article links lack unique accessible names");
 if (/<style\b|\sstyle=["']/.test(home) || /<script\b(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)/i.test(home)) failures.push("Homepage contains inline code incompatible with the strict CSP");
 
 for (const match of home.matchAll(/<img\b([^>]*)>/gi)) {

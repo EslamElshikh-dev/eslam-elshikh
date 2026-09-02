@@ -51,7 +51,7 @@
 
   const showPreferences = () => {
     removeBanner();
-    const banner = document.createElement("aside");
+    const banner = document.createElement("div");
     banner.className = "analytics-consent";
     banner.dataset.analyticsConsent = "true";
     banner.setAttribute("role", "dialog");
