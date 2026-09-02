@@ -66,6 +66,8 @@ if (/<article\b[^>]*\brole="tabpanel"/i.test(about)) failures.push("About tabpan
 if (!/\.about-focus-panel\[hidden\]\s*\{\s*display:\s*none;?\s*\}/.test(aboutCss)) failures.push("About inactive tabpanels are not visually hidden");
 if (!/الهندسةُ الحقّة لا تتباهى بذكائها/.test(about) || /الهندسة الجيدة لا تجعل الحل يبدو أذكى/.test(about)) failures.push("About page still uses the superseded engineering quote");
 if (!/href="https:\/\/github\.com\/EslamElshikh-dev"[^>]*target="_blank"[^>]*rel="noopener"/.test(about)) failures.push("About page lacks the verified GitHub profile link");
+if (!/class="about-name-registry"/.test(about) || !/المهندس اسلام الشيخ/.test(about) || !/Islam Elshikh/.test(about)) failures.push("About page lacks the visible identity spelling registry");
+if (/\+966547194788|054\s*719\s*4788/.test(`${home}\n${about}\n${contact}`)) failures.push("Public pages still expose the retired developer phone number");
 
 for (const match of home.matchAll(/<img\b([^>]*)>/gi)) {
   if (!/\bwidth="\d+"/.test(match[1]) || !/\bheight="\d+"/.test(match[1])) failures.push(`Image missing dimensions: ${match[0].slice(0, 120)}`);

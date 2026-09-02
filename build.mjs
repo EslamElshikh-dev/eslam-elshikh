@@ -11,7 +11,7 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.6.4";
+const version = "3.6.5";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)
@@ -83,8 +83,10 @@ const baseGraph = () => ([
     "@id": `${site.url}/#person`,
     name: site.nameAr,
     honorificPrefix: "المهندس",
-    alternateName: [site.brandName, site.nameEn, "Islam Elshikh", "Eslam El Sheikh"],
-    url: site.url,
+    alternateName: site.alternateNames,
+    givenName: "إسلام",
+    familyName: "الشيخ",
+    url: `${site.url}/`,
     image: absolute(site.logo),
     description: site.description,
     jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"],
@@ -100,15 +102,15 @@ const baseGraph = () => ([
       { "@type": "EducationalOccupationalCredential", name: "بكالوريوس أمن المعلومات", credentialCategory: "Bachelor degree", recognizedBy: { "@type": "CollegeOrUniversity", name: "جامعة 6 أكتوبر" } },
       { "@type": "EducationalOccupationalCredential", name: "دبلوم الأمن السيبراني", credentialCategory: "Diploma", recognizedBy: { "@type": "CollegeOrUniversity", name: "الجامعة العربية المفتوحة" } }
     ],
-    knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"],
+    knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "Google Search", "Google Search Console", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"],
     sameAs: [site.social.wikidata, site.social.googleDeveloper, site.social.github, site.social.x, site.social.instagram, site.social.youtube]
   },
   {
     "@type": "WebSite",
     "@id": `${site.url}/#website`,
-    url: site.url,
+    url: `${site.url}/`,
     name: site.brandName,
-    alternateName: [site.nameAr, site.nameEn],
+    alternateName: site.siteAlternateNames,
     inLanguage: ["ar-SA", "en"],
     publisher: { "@id": `${site.url}/#person` }
   },
@@ -747,12 +749,34 @@ ${finalCta("هل لديك ملف يحتاج توثيقًا أو استعادة �
 }
 
 function projectsPage() {
+  const projectList = {
+    "@type": "ItemList",
+    "@id": `${site.url}/projects/#project-list`,
+    name: "مشروعات المواقع المنشورة للمهندس إسلام الشيخ",
+    numberOfItems: projects.length,
+    itemListElement: projects.map((project, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: project.title,
+      url: project.slug ? `${site.url}/projects/${project.slug}/` : project.liveUrl
+    }))
+  };
+  const collectionSchema = {
+    "@type": "CollectionPage",
+    "@id": `${site.url}/projects/#collection`,
+    url: `${site.url}/projects/`,
+    name: "أعمال ومشروعات المهندس إسلام الشيخ",
+    description: "مجموعة منتقاة من أعمال إسلام الشيخ المنشورة في تطوير المواقع وتجربة المستخدم والسيو التقني والمحلي.",
+    creator: { "@id": `${site.url}/#person` },
+    mainEntity: { "@id": projectList["@id"] },
+    dateModified: site.lastUpdated
+  };
   const body = `${innerHero({ eyebrowText: "الأعمال والمشروعات", title: "نماذج من تطوير المواقع والسيو المحلي والحضور الرقمي", lead: "مشروعات عامة توضح كيف يتحول الهدف التجاري إلى بنية محتوى وتجربة متجاوبة ومسارات تواصل وقياس، مع الاهتمام بالتفاصيل التي تظهر على الجوال قبل سطح المكتب.", path: "/projects/", crumbs: [{ name: "الأعمال", path: "/projects/" }], aside: `<span class="aside-kicker">Selected Work</span><strong>تصميم وتطوير وسيو في منظومة واحدة</strong><p>كل مشروع يعالج سياقًا مختلفًا؛ من المقاولات والخدمات المحلية إلى شركات التقنية والذكاء الاصطناعي.</p>` })}
 <section class="section-pad portfolio-page-section"><div class="container"><div class="portfolio-page-heading reveal"><span>${projects.length} مشروعًا منشورًا</span><p>مجموعة منتقاة من المواقع والمنصات العامة، مرتبة بصريًا لتوضّح تنوع القطاعات وطبيعة الحل في كل مشروع.</p></div>${projectsShowcase()}</div></section>
 ${mapsWorkTeaser()}
 <section class="section-pad"><div class="container case-method reveal"><div><span>منهج المشروع</span><h2>لا توجد نسخة واحدة تُكرر على كل نشاط</h2></div><p>تختلف بنية الموقع والمحتوى والدعوات والبيانات المنظمة حسب نموذج النشاط ورحلة العميل والمنافسة والقدرة التشغيلية. الهدف هو حل يناسب العمل الحقيقي، لا قالبًا يغير الألوان والشعار فقط.</p>${button("/contact/", "ناقش مشروعًا مشابهًا")}</div></section>
 ${finalCta("هل تريد تحويل نشاطك إلى تجربة رقمية احترافية؟", "أرسل رابط الموقع أو الملف التجاري والخدمات المستهدفة والمدينة والهدف، وسنحدد ما يحتاج إعادة بناء وما يمكن تحسينه تدريجيًا.")}`;
-  return page({ title: "أعمال ومشروعات المهندس إسلام الشيخ", description: "نماذج أعمال المهندس إسلام الشيخ في تطوير المواقع وتجربة المستخدم والسيو التقني والمحلي وملفات Google التجارية للشركات والأنشطة في السعودية.", path: "/projects/", active: "projects", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }])] });
+  return page({ title: "أعمال ومشروعات المهندس إسلام الشيخ", description: "نماذج أعمال المهندس إسلام الشيخ في تطوير المواقع وتجربة المستخدم والسيو التقني والمحلي وملفات Google التجارية للشركات والأنشطة في السعودية.", path: "/projects/", active: "projects", body, schema: [collectionSchema, projectList, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }])] });
 }
 
 function projectCaseStudyPage(project) {
@@ -768,7 +792,7 @@ function projectCaseStudyPage(project) {
     url: absolute(path),
     image: absolute(project.image),
     sameAs: project.liveUrl,
-    author: { "@id": `${site.url}/#person` },
+    creator: { "@id": `${site.url}/#person` },
     keywords: project.tags,
     dateModified: site.lastUpdated
   };
@@ -986,10 +1010,25 @@ async function build() {
   await writeText("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\n`);
   await writeText("manifest.webmanifest", JSON.stringify({ name: site.brandName, short_name: site.nameAr, description: site.description, lang: "ar", dir: "rtl", start_url: "/", scope: "/", display: "standalone", background_color: "#06131f", theme_color: "#06131f", icons: [{ src: "/assets/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }, { src: "/assets/brand/eslam-elshikh-logo-transparent.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }] }, null, 2));
   await writeText("feed.xml", feedXml());
-  await writeText("profile.json", JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: site.nameAr, alternateName: site.nameEn, url: site.url, jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"], sameAs: Object.values(site.social), knowsAbout: [...services.map((service) => service.title), "إعلانات Google", "إدارة حملات Google Ads"] }, null, 2));
+  await writeText("profile.json", JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": `${site.url}/#person`,
+    name: site.nameAr,
+    honorificPrefix: "المهندس",
+    alternateName: site.alternateNames,
+    givenName: "إسلام",
+    familyName: "الشيخ",
+    url: `${site.url}/`,
+    image: absolute(profilePhoto),
+    telephone: site.phone,
+    jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير منتجات Google"],
+    sameAs: Object.values(site.social),
+    knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "Google Search", "Google Search Console", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"]
+  }, null, 2));
   await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- About: ${absolute("/about/")}\n- Google expertise: ${absolute("/google-expert/")}\n- Google Maps work: ${absolute("/google-maps-projects/")}\n- Google Ads management: ${absolute("/google-ads/")}\n- Local SEO: ${absolute("/local-seo/")}\n- Work: ${absolute("/projects/")}\n- Contact: ${absolute("/contact/")}\n`);
   if (isDistBuild) await cp(join(root, "llms-full.txt"), join(outDir, "llms-full.txt"));
-  await writeText("humans.txt", `Site: ${site.brandName}\nLocation: ${site.city}, ${site.country}\nDesign and development: ${site.nameEn}\nUpdated: ${site.lastUpdated}\n`);
+  await writeText("humans.txt", `Site: ${site.brandName}\nCanonical identity: ${site.nameAr} | ${site.nameEn}\nEnglish alternate: Islam Elshikh\nOfficial website: ${site.url}/\nLocation: ${site.city}, ${site.country}\nDesign and development: ${site.nameEn}\nUpdated: ${site.lastUpdated}\n`);
   await writeText("CNAME", "www.eslam-elshikh.com\n");
   await writeText(join(".well-known", "security.txt"), `Contact: mailto:${site.email}\nCanonical: ${site.url}/.well-known/security.txt\nPreferred-Languages: ar, en\nExpires: 2027-07-29T00:00:00.000Z\nPolicy: ${site.url}/terms/\n`);
   console.log(`Built ${generatedRoutes.length} indexed routes in ${outDir}`);
