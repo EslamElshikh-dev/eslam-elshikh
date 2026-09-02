@@ -341,7 +341,7 @@ const english = pages.get("/en/") || "";
 const englishServices = matchOne(english, /<section\s+class=["']section-pad["']\s+id=["']services["']>([\s\S]*?)<\/section>/i);
 const englishFooterServices = matchOne(english, /<div\s+class=["']footer-column footer-services["']>([\s\S]*?)<\/div>/i);
 if ((englishServices.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("English homepage does not render all 9 translated services");
-if ((englishServices.match(/aria-label=["']View details for /g) || []).length !== 9) errors.push("English service detail links need unique accessible labels");
+if ((englishServices.match(/aria-label=["']Discuss /g) || []).length !== 9) errors.push("English service links need unique accessible labels");
 if (/[\u0600-\u06ff]/.test(englishServices)) errors.push("English service cards still contain Arabic text");
 if (/[\u0600-\u06ff]/.test(englishFooterServices)) errors.push("English footer service links still contain Arabic text");
 if (/اتصل الآن|راسلني واتساب/.test(textContent(english))) errors.push("English page still contains Arabic floating-contact labels");
