@@ -11,7 +11,7 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.6.3";
+const version = "3.6.4";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)
@@ -587,8 +587,8 @@ function aboutPage() {
     dateModified: site.lastUpdated
   };
   return page({
-    title: "عن إسلام الشيخ | مهندس أمن سيبراني ومطور وخبير Google",
-    description: "تعرّف على إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض، من خلال خبرته ومنهجه ودراسات حالة ومشروعات منشورة في الويب والذكاء الاصطناعي والسيو المحلي.",
+    title: "عن المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع وخبير Google بالرياض",
+    description: "تعرّف على المهندس إسلام الشيخ، مهندس أمن سيبراني ومطور مواقع وبرمجيات في الرياض وخبير منتجات Google، مع مشروعات منشورة في تطوير الويب والذكاء الاصطناعي وخرائط جوجل والسيو المحلي.",
     path: "/about/",
     active: "about",
     body,

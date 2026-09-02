@@ -21,6 +21,11 @@
 .about-identity-links .icon { width: 0.9rem; height: 0.9rem; color: var(--primary); }
 .about-identity-copy > small { display: block; margin-top: 0.9rem; color: var(--muted-2); font-size: 0.62rem; }
 
+.about-manifesto-section, .about-focus-section, .about-method-section { position: relative; overflow: clip; isolation: isolate; }
+.about-manifesto-section::before, .about-focus-section::before, .about-method-section::before { content: ""; position: absolute; z-index: -1; width: min(44vw, 640px); aspect-ratio: 1; border-radius: 50%; pointer-events: none; filter: blur(1px); opacity: 0.5; }
+.about-manifesto-section::before { top: -24%; inset-inline-end: -20%; background: radial-gradient(circle, rgba(88,201,255,0.09), transparent 68%); }
+.about-focus-section::before { top: 15%; inset-inline-start: -28%; background: radial-gradient(circle, rgba(88,224,189,0.075), transparent 69%); }
+.about-method-section::before { bottom: -38%; inset-inline-end: -20%; background: radial-gradient(circle, rgba(154,132,255,0.075), transparent 68%); }
 .about-manifesto { display: grid; grid-template-columns: 80px minmax(0, 1.15fr) minmax(280px, 0.55fr); align-items: start; gap: clamp(1.5rem, 4vw, 4.5rem); }
 .about-section-marker { display: grid; gap: 0.45rem; padding-top: 0.7rem; border-top: 2px solid var(--primary); }
 .about-section-marker span { color: var(--primary); font-size: 1.3rem; font-weight: 900; line-height: 1; }
@@ -29,9 +34,12 @@
 .about-manifesto-copy .about-lead { max-width: 780px; margin: 0; color: var(--text-soft); font-size: clamp(1.05rem, 1.55vw, 1.25rem); line-height: 2; }
 .about-story-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-top: 2rem; padding-top: 1.6rem; border-top: 1px solid var(--line); }
 .about-story-columns p { margin: 0; color: var(--muted); font-size: 0.86rem; line-height: 2; }
-.about-quote { position: relative; margin: 5.2rem 0 0; padding: 1.4rem 1.35rem 1.35rem; border: 0; border-inline-start: 2px solid var(--secondary); background: linear-gradient(135deg, rgba(88,201,255,0.08), transparent 72%); }
-.about-quote .icon { width: 1.8rem; height: 1.8rem; color: var(--secondary); }
-.about-quote p { margin: 1.35rem 0 0; color: var(--text-soft); font-size: clamp(1rem, 1.5vw, 1.2rem); font-weight: 750; line-height: 1.9; }
+.about-quote { position: relative; margin: 5.2rem 0 0; padding: clamp(1.45rem, 3vw, 2.1rem); border: 1px solid var(--line-strong); border-radius: 1.55rem; background: radial-gradient(circle at 88% 4%, rgba(88,224,189,0.14), transparent 36%), linear-gradient(145deg, rgba(88,201,255,0.09), rgba(154,132,255,0.035) 54%, var(--surface)); box-shadow: var(--shadow-lg); overflow: hidden; isolation: isolate; }
+.about-quote::before { content: "«"; position: absolute; top: -1rem; inset-inline-end: 0.55rem; z-index: -1; color: var(--primary); font-size: clamp(6rem, 10vw, 9rem); font-weight: 900; line-height: 1; opacity: 0.08; }
+.about-quote::after { content: ""; position: absolute; right: 0; bottom: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--secondary), var(--primary), var(--violet)); transform: scaleX(0); transform-origin: right center; transition: transform 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.16s; }
+.about-quote.reveal.is-visible::after { transform: scaleX(1); }
+.about-quote .icon { width: 2.7rem; height: 2.7rem; padding: 0.68rem; border: 1px solid rgba(88,224,189,0.28); border-radius: 50%; background: rgba(88,224,189,0.07); color: var(--primary); box-shadow: 0 0 0 8px rgba(88,224,189,0.025); }
+.about-quote p { margin: 1.45rem 0 0; color: var(--text); font-size: clamp(1.08rem, 1.65vw, 1.38rem); font-weight: 800; line-height: 2; text-wrap: pretty; }
 
 .about-heading-row { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(280px, 0.48fr); align-items: end; gap: 3rem; margin-bottom: clamp(2.2rem, 4vw, 3.7rem); }
 .about-heading-row h2, .about-proof-heading h2 { margin-bottom: 0; }
@@ -132,7 +140,7 @@
 
 /* About v2 — living professional identity */
 .about-hero-v2 .inner-hero-grid { grid-template-columns: minmax(0, 1fr) minmax(410px, 0.56fr); gap: clamp(2.5rem, 6vw, 5.5rem); }
-.about-hero-v2 .inner-hero-copy h1 { max-width: 870px; }
+.about-hero-v2 .inner-hero-copy h1 { max-width: 900px; font-size: clamp(2.55rem, 4.8vw, 4.9rem); line-height: 1.1; text-wrap: balance; }
 .about-hero-v2 .inner-hero-copy h1 .about-h1-line { display: block; }
 .about-hero-v2 .inner-hero-copy h1 span { background: linear-gradient(100deg, var(--primary), var(--secondary) 75%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .about-hero-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1.55rem; }
@@ -213,6 +221,7 @@
 .about-focus-tabs small { display: block; margin-top: 0.32rem; color: var(--muted-2); font: 850 0.52rem/1 "Segoe UI", sans-serif; letter-spacing: 0.11em; direction: ltr; text-align: start; }
 .about-focus-stage { min-width: 0; }
 .about-focus-panel { display: grid; grid-template-columns: minmax(220px, 0.58fr) minmax(0, 1fr); align-items: center; gap: clamp(2rem, 5vw, 4.5rem); min-height: 558px; padding: clamp(1.5rem, 4vw, 3.5rem); }
+.about-focus-panel[hidden] { display: none; }
 .about-focus-panel + .about-focus-panel { border-top: 1px solid var(--line); }
 .about-focus-shell.is-enhanced .about-focus-panel + .about-focus-panel { border-top: 0; }
 .about-focus-panel.is-active { animation: aboutPanelIn 0.42s ease both; }
@@ -265,6 +274,10 @@
 @keyframes aboutStatusPulse { 50% { opacity: 0.5; transform: scale(0.78); } }
 @keyframes aboutSignatureMove { to { transform: translateX(-50%); } }
 @keyframes aboutPanelIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes aboutHeroCopyIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes aboutHeroCardIn { from { opacity: 0; transform: translateY(22px) scale(0.985); } to { opacity: 1; transform: none; } }
+@keyframes aboutFactIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes aboutCaseIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 
 :root[data-theme="light"] .about-orbit-node { background: rgba(255,255,255,0.92); }
 :root[data-theme="light"] .about-orbit-node b { color: var(--text); }
@@ -273,6 +286,21 @@
 :root[data-theme="light"] .about-focus-shell.is-enhanced .about-focus-tabs { background: rgba(230,240,245,0.45); }
 :root[data-theme="light"] .about-focus-art > div { background: rgba(255,255,255,0.88); }
 :root[data-theme="light"] .about-quick-facts li { background: rgba(255,255,255,0.58); }
+:root[data-theme="light"] .about-quote { background: radial-gradient(circle at 88% 4%, rgba(17,153,129,0.12), transparent 36%), linear-gradient(145deg, rgba(54,162,207,0.075), rgba(106,86,212,0.025) 54%, var(--surface)); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .about-hero-v2 .inner-hero-copy h1 { animation: aboutHeroCopyIn 0.72s cubic-bezier(0.2, 0.8, 0.2, 1) 0.08s both; }
+  .js .about-hero-v2 .inner-hero-copy > p { animation: aboutHeroCopyIn 0.72s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both; }
+  .js .about-hero-v2 .about-hero-actions { animation: aboutHeroCopyIn 0.72s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s both; }
+  .js .about-hero-v2 .inner-hero-aside { animation: aboutHeroCardIn 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.16s both; }
+  .js .about-quick-facts li { animation: aboutFactIn 0.55s ease both; }
+  .js .about-quick-facts li:nth-child(1) { animation-delay: 0.38s; }
+  .js .about-quick-facts li:nth-child(2) { animation-delay: 0.46s; }
+  .js .about-quick-facts li:nth-child(3) { animation-delay: 0.54s; }
+  .js .about-case-card.reveal.is-visible { animation: aboutCaseIn 0.58s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .js .about-case-card:nth-child(2).is-visible { animation-delay: 0.08s; }
+  .js .about-case-card:nth-child(3).is-visible { animation-delay: 0.16s; }
+}
 
 @media (max-width: 1120px) {
   .about-hero-v2 .inner-hero-grid { grid-template-columns: minmax(0, 1fr) minmax(370px, 0.52fr); }
@@ -345,5 +373,6 @@
 @media (prefers-reduced-motion: reduce) {
   .about-system-status i, .about-orbit-ring, .about-journey-seal::before, .about-signature-track, .about-focus-panel.is-active { animation: none !important; }
   .about-signature-track { width: 100%; justify-content: center; flex-wrap: wrap; transform: none; }
-  .about-signature-track span:nth-child(n+6) { display: none; }
+  .about-signature-track span:nth-child(n+7) { display: none; }
+  .about-quote::after { transform: scaleX(1); transition: none; }
 }

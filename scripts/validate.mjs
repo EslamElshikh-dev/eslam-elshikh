@@ -169,7 +169,7 @@ for (const route of sitemapRoutes) {
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
   if (/<style\b|\sstyle=["']/i.test(html)) errors.push(`${route}: contains inline CSS that weakens the CSP`);
-  if (!html.includes('/assets/js/theme.js?v=3.6.3') || !html.includes('/assets/js/analytics.js?v=3.6.3')) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
+  if (!html.includes('/assets/js/theme.js?v=3.6.4') || !html.includes('/assets/js/analytics.js?v=3.6.4')) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
   if (!html.includes('/assets/og/eslam-elshikh-social-card.png')) errors.push(`${route}: social metadata does not use the 1200x630 sharing card`);
   if (/https:\/\/(?:i\.ibb\.co|avatars\.githubusercontent\.com)/i.test(html)) errors.push(`${route}: references a legacy third-party image host`);
   for (const image of html.matchAll(/<img\b([^>]*)>/gi)) {
@@ -183,6 +183,8 @@ for (const route of sitemapRoutes) {
     if (caseStudyCount !== 3) errors.push(`${route}: expected exactly 3 featured case studies, found ${caseStudyCount}`);
     if (!/class=["'][^"']*\babout-h1-line\b/i.test(html) || /إسلام الشيخ\.<br/i.test(html)) errors.push(`${route}: H1 text separation is not accessible`);
     if (/<article\b[^>]*\brole=["']tabpanel["']/i.test(html)) errors.push(`${route}: tabpanel uses an incompatible article element`);
+    if (!/مهندس أمن سيبراني ومطور مواقع وبرمجيات في الرياض/.test(html)) errors.push(`${route}: hero is missing its primary location and service intent`);
+    if (!/الهندسةُ الحقّة لا تتباهى بذكائها/.test(html) || /الهندسة الجيدة لا تجعل الحل يبدو أذكى/.test(html)) errors.push(`${route}: engineering quote was not upgraded`);
     if (!html.includes('"relatedLink"')) errors.push(`${route}: ProfilePage schema does not reference the featured case studies`);
   }
   const isArticle = route.startsWith("/blog/") && route !== "/blog/" && !route.startsWith("/blog/topics/");

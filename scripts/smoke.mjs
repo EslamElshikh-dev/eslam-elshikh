@@ -21,6 +21,7 @@ if (!(await exists(analyticsPath))) failures.push("Missing consent-based analyti
 const css = await readFile(cssPath, "utf8").catch(() => "");
 const js = await readFile(jsPath, "utf8").catch(() => "");
 const analytics = await readFile(analyticsPath, "utf8").catch(() => "");
+const aboutCss = await readFile(join(output, "assets/css/about.css"), "utf8").catch(() => "");
 const home = await readFile(join(output, "index.html"), "utf8").catch(() => "");
 const about = await readFile(join(output, "about/index.html"), "utf8").catch(() => "");
 const contact = await readFile(join(output, "contact/index.html"), "utf8").catch(() => "");
@@ -62,6 +63,8 @@ if (!/class="about-hero-actions"/.test(about) || !/class="about-quick-facts"/.te
 if ((about.match(/class="about-case-card reveal"/g) || []).length !== 3) failures.push("About page must feature exactly three verifiable case studies");
 if (!/class="about-h1-line"/.test(about) || /إسلام الشيخ\.<br/i.test(about)) failures.push("About page H1 does not preserve readable text separation");
 if (/<article\b[^>]*\brole="tabpanel"/i.test(about)) failures.push("About tabpanel uses an incompatible article element");
+if (!/\.about-focus-panel\[hidden\]\s*\{\s*display:\s*none;?\s*\}/.test(aboutCss)) failures.push("About inactive tabpanels are not visually hidden");
+if (!/الهندسةُ الحقّة لا تتباهى بذكائها/.test(about) || /الهندسة الجيدة لا تجعل الحل يبدو أذكى/.test(about)) failures.push("About page still uses the superseded engineering quote");
 if (!/href="https:\/\/github\.com\/EslamElshikh-dev"[^>]*target="_blank"[^>]*rel="noopener"/.test(about)) failures.push("About page lacks the verified GitHub profile link");
 
 for (const match of home.matchAll(/<img\b([^>]*)>/gi)) {
