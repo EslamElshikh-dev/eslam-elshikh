@@ -201,6 +201,7 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   <meta name="geo.region" content="SA-01">
   <meta name="geo.placename" content="${esc(site.city)}">
   <link rel="canonical" href="${canonical}">
+  <link rel="sitemap" type="application/xml" href="${site.url}/sitemap.xml">
   ${path === "/" || path === "/en/" ? `<link rel="alternate" hreflang="ar" href="${site.url}/"><link rel="alternate" hreflang="ar-SA" href="${site.url}/"><link rel="alternate" hreflang="en" href="${site.url}/en/"><link rel="alternate" hreflang="x-default" href="${site.url}/">` : `<link rel="alternate" hreflang="ar-SA" href="${canonical}"><link rel="alternate" hreflang="x-default" href="${canonical}">`}
   <link rel="me" href="${site.social.googleDeveloper}">
   <link rel="me" href="${site.social.wikidata}">
@@ -398,7 +399,7 @@ function homePage() {
   <div class="container hero-grid">
     <div class="hero-copy reveal">
       ${eyebrow("مهندس أمن سيبراني · مطور برمجيات · خبير منتجات Google")}
-      <h1>مهندس أمن سيبراني ومطور مواقع وخبير Google <span>في الرياض</span></h1>
+      <h1>المهندس إسلام الشيخ <span>مهندس أمن سيبراني ومطور مواقع وخبير Google في الرياض</span></h1>
       <p class="hero-tagline">أبني حضورك الرقمي ليكون آمنًا، سريعًا، ومؤثرًا.</p>
       <p class="hero-lead">أنا المهندس إسلام الشيخ. أوحّد الأمن السيبراني وتطوير المواقع ووكلاء الذكاء الاصطناعي وخبرة Google والسيو في حلول عملية تساعد الشركات على حماية أعمالها، تحسين تجربة عملائها، وزيادة ظهورها بثقة.</p>
       <p class="hero-support">من التشخيص والاستراتيجية إلى التصميم والتطوير والقياس، تحصل على مسار واضح ومخرجات قابلة للمراجعة بدل حلول متفرقة يصعب تشغيلها أو تطويرها.</p>
@@ -868,6 +869,9 @@ ${finalCta("لديك سؤال يحتاج تشخيصًا يخص حالتك؟", "�
 function articlePage(post) {
   const path = `/blog/${post.slug}/`;
   const service = serviceBySlug(post.relatedService);
+  const topicSlug = topicDefinitions[post.topic] ? post.topic : "web-development";
+  const topic = topicDefinitions[topicSlug];
+  const topicPath = `/blog/topics/${topicSlug}/`;
   const faq = completeFaqs(post);
   const publishedDate = new Intl.DateTimeFormat("ar-SA", { dateStyle: "long" }).format(new Date(`${post.date}T12:00:00Z`));
   const modifiedDate = new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium" }).format(new Date(`${post.modified}T12:00:00Z`));
@@ -891,7 +895,7 @@ function articlePage(post) {
     .sort((left, right) => right.score - left.score)
     .slice(0, 3)
     .map(({ item }) => item);
-  const body = `${innerHero({ eyebrowText: post.category, title: esc(post.title), lead: post.excerpt, path, crumbs: [{ name: "المدونة", path: "/blog/" }, { name: post.category, path }], aside: `<div class="article-meta-card"><span>دليل مهني محدث</span><strong>${esc(post.readTime)}</strong><p>نُشر في ${publishedDate}</p><p>آخر مراجعة: ${modifiedDate}</p></div>`, className: "article-hero" })}
+  const body = `${innerHero({ eyebrowText: post.category, title: esc(post.title), lead: post.excerpt, path, crumbs: [{ name: "المدونة", path: "/blog/" }, { name: topic.title, path: topicPath }, { name: post.title, path }], aside: `<div class="article-meta-card"><span>دليل مهني محدث</span><strong>${esc(post.readTime)}</strong><p>نُشر في ${publishedDate}</p><p>آخر مراجعة: ${modifiedDate}</p></div>`, className: "article-hero" })}
 <div class="container article-hero-keywords" aria-label="الكلمات والموضوعات الرئيسية">${keywords.map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div>
 <section class="section-pad article-section"><div class="container article-layout"><article class="article-content reveal"><p class="article-intro">${esc(post.description)}</p>
 ${post.sections.map(([heading, ...paragraphs], index) => `<section id="section-${index + 1}"><span class="article-number">${String(index + 1).padStart(2, "0")}</span><h2>${esc(heading)}</h2>${paragraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}</section>`).join("")}
@@ -900,11 +904,12 @@ ${post.sections.map(([heading, ...paragraphs], index) => `<section id="section-$
 <section id="article-summary" class="article-conclusion"><span class="article-number">${String(post.sections.length + 3).padStart(2, "0")}</span><h2>الخلاصة التنفيذية: ${esc(keywords[0] || post.category)}</h2><p>${esc(post.description)} ابدأ بالجزء الذي يزيل أكبر مخاطرة أو يثبت أهم افتراض، ثم وثق خط الأساس والقرار والنتيجة قبل الانتقال إلى المرحلة التالية.</p>${service?.value ? `<p>النتيجة المستهدفة من هذا المسار هي: ${esc(service.value)}</p>` : ""}</section></article>
 <aside class="article-sidebar"><section class="article-author-card reveal" aria-labelledby="article-author-name"><div class="article-author-head"><img class="article-author-photo" src="${profilePhoto}" width="128" height="128" alt="المهندس إسلام الشيخ" loading="lazy" decoding="async"><div><span>كتبه وراجعه</span><h2 id="article-author-name">${esc(site.nameAr)}</h2><p>مهندس أمن سيبراني · مطور برمجيات · خبير منتجات Google</p></div></div><dl><div><dt>تاريخ النشر</dt><dd><time datetime="${post.date}">${publishedDate}</time></dd></div><div><dt>آخر تحديث</dt><dd><time datetime="${post.modified}">${modifiedDate}</time></dd></div></dl><div class="article-author-keywords" aria-label="أهم كلمات المقال">${keywords.slice(0, 4).map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div><a class="text-link" href="/about/">تعرف على الكاتب ${icon("arrow")}</a></section>
 <div class="toc-card reveal"><span>محتويات الدليل</span><nav aria-label="محتويات المقال">${contents.map((item, index) => `<a href="#${item.id}"><span>${String(index + 1).padStart(2, "0")}</span>${esc(item.title)}</a>`).join("")}</nav></div>
+<div class="related-service-card reveal"><span>المسار المعرفي</span><div>${icon(topic.icon)}<h2>${esc(topic.title)}</h2></div><p>${esc(topic.description)}</p>${button(topicPath, "استكشف المسار كاملًا", "button-ghost")}</div>
 <div class="related-service-card reveal"><span>الخدمة المرتبطة</span><div>${icon(service?.icon || "briefcase")}<h2>${esc(service?.title || "الخدمات التقنية")}</h2></div><p>${esc(service?.short || site.positioning)}</p>${button(service ? `/services/${service.slug}/` : "/services/", "استكشف نطاق الخدمة", "button-ghost")}</div></aside></div></section>
 <section class="section-pad muted-section article-faq-section" id="article-faq"><div class="container article-faq-grid"><div class="article-faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>إجابات مرتبطة مباشرة بموضوع الدليل</h2><p>أسئلة مختارة من أكثر ما يسبق القرار في هذا الموضوع، بإجابات محددة دون تكرار أسئلة عامة بين المقالات.</p><div class="faq-count" aria-label="عدد الأسئلة"><strong>${faq.length}</strong><span>أسئلة وإجابات متخصصة</span></div></div>${faqBlock(faq)}</div></section>
 <section class="section-pad related-articles-section"><div class="container"><div class="section-heading reveal">${eyebrow("أدلة مرتبطة")}<h2>واصل بناء الصورة الكاملة</h2><p>موضوعات منتقاة تكمل هذا الدليل من زاوية الخدمة أو الأمان أو الظهور والقياس.</p></div><div class="posts-grid">${relatedPosts.map((item) => postCard(item)).join("")}</div></div></section>
 ${finalCta("هل تريد تطبيق هذا الإطار على مشروعك؟", "أرسل الحالة الحالية والهدف والبيانات المتاحة، وسنحدد خطوة أولى صغيرة وواضحة وقابلة للقياس.")}`;
-  return page({ title: post.seoTitle, description: post.description, path, active: "blog", body, type: "article", published: post.date, modified: post.modified, keywords, articleSection: post.category, schema: [faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "المدونة", path: "/blog/" }, { name: post.title, path }])] });
+  return page({ title: post.seoTitle, description: post.description, path, active: "blog", body, type: "article", published: post.date, modified: post.modified, keywords, articleSection: post.category, schema: [faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "المدونة", path: "/blog/" }, { name: topic.title, path: topicPath }, { name: post.title, path }])] });
 }
 
 const topicDefinitions = {

@@ -161,6 +161,7 @@ for (const route of sitemapRoutes) {
   if (description.length < 85 || description.length > 230) warnings.push(`${route}: description length ${description.length}`);
   if (!robots || !/\bindex\b/i.test(robots) || !/\bfollow\b/i.test(robots) || /\bnoindex\b/i.test(robots)) errors.push(`${route}: invalid robots directive (${robots || "missing"})`);
   if (canonical !== `${canonicalBase}${route}`) errors.push(`${route}: canonical mismatch (${canonical})`);
+  if (!html.includes(`<link rel="sitemap" type="application/xml" href="${canonicalBase}/sitemap.xml">`)) errors.push(`${route}: missing canonical sitemap discovery link`);
   if (!/<meta\s+property=["']og:title["']/i.test(html) || !/<meta\s+name=["']twitter:card["']/i.test(html)) errors.push(`${route}: incomplete social metadata`);
   if (!/<script\s+type=["']application\/ld\+json["']>/i.test(html)) errors.push(`${route}: missing JSON-LD`);
   if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/main\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned main stylesheet`);
@@ -204,6 +205,9 @@ for (const route of sitemapRoutes) {
     if (!html.includes('"@type":"FAQPage"')) errors.push(`${route}: missing FAQPage structured data`);
     if (!html.includes('"@type":"BlogPosting"')) errors.push(`${route}: missing BlogPosting structured data`);
     if (!/<meta\s+name=["']keywords["']/i.test(html)) errors.push(`${route}: missing article keyword metadata`);
+    const topicPath = html.match(/href=["'](\/blog\/topics\/[^"']+\/)["']/i)?.[1];
+    if (!topicPath) errors.push(`${route}: missing a crawlable topic-hub link`);
+    else if (!html.includes(`"item":"${canonicalBase}${topicPath}"`)) errors.push(`${route}: topic hub is absent from BreadcrumbList structured data`);
   }
 
   for (const match of html.matchAll(/<script\s+type=["']application\/ld\+json["']>([\s\S]*?)<\/script>/gi)) {

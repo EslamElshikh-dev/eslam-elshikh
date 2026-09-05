@@ -32,7 +32,7 @@ export const site = {
   googleMapsEmbed: "https://www.google.com/maps?q=Riyadh%2C%20Saudi%20Arabia&z=11&output=embed",
   logo: "/assets/brand/eslam-elshikh-logo-ui-20260827.webp",
   shareImage: "/assets/og/eslam-elshikh-social-card.png",
-  lastUpdated: "2026-09-02",
+  lastUpdated: "2026-09-05",
   description: "المهندس إسلام الشيخ في الرياض: مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google ومتخصص في خرائط جوجل والملفات التجارية والسيو المحلي في السعودية.",
   positioning: "هندسة رقمية تجمع الأمان والبرمجة والذكاء الاصطناعي وخبرة Google والسيو في خطة واحدة قابلة للقياس.",
   social: {
