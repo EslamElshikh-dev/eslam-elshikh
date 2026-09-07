@@ -625,7 +625,8 @@ function aboutPage() {
     name: "الملف المهني للمهندس إسلام الشيخ",
     mainEntity: { "@id": `${site.url}/#person` },
     relatedLink: projects.filter((project) => project.caseStudy && project.slug).slice(0, 3).map((project) => `${site.url}/projects/${project.slug}/`),
-    dateModified: site.lastUpdated
+    // Google ProfilePage expects DateTime rather than a date-only value.
+    dateModified: `${site.lastUpdated}T00:00:00+03:00`
   };
   return page({
     title: "عن المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع وخبير Google بالرياض",
