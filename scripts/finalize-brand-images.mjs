@@ -56,6 +56,8 @@ const iconTags = [
 const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
 for (const path of htmlFiles) {
   let html = await readFile(path, "utf8");
+  const isEnglish = /<html\s+lang="en"\s+dir="ltr"/i.test(html);
+  const socialAlt = isEnglish ? "Eslam Elshikh" : brandName;
 
   html = html.replace(/\s*<link\b[^>]*\brel=["'](?:icon|shortcut icon|apple-touch-icon)["'][^>]*>\s*/gi, "\n");
   html = html.replace("</head>", `  ${iconTags}\n</head>`);
@@ -63,13 +65,13 @@ for (const path of htmlFiles) {
   html = upsertMeta(html, "property", "og:image", shareImage);
   html = upsertMeta(html, "property", "og:image:secure_url", shareImage);
   html = upsertMeta(html, "property", "og:image:type", "image/png");
-  html = upsertMeta(html, "property", "og:image:alt", brandName);
+  html = upsertMeta(html, "property", "og:image:alt", socialAlt);
   html = upsertMeta(html, "property", "og:image:width", "1200");
   html = upsertMeta(html, "property", "og:image:height", "630");
 
   html = upsertMeta(html, "name", "twitter:card", "summary_large_image");
   html = upsertMeta(html, "name", "twitter:image", shareImage);
-  html = upsertMeta(html, "name", "twitter:image:alt", brandName);
+  html = upsertMeta(html, "name", "twitter:image:alt", socialAlt);
   html = upsertMeta(html, "name", "image", shareImage);
   html = upsertMeta(html, "itemprop", "image", shareImage);
 

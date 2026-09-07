@@ -22,25 +22,27 @@ async function walk(dir) {
   return files;
 }
 
-function normalizeSchema(value) {
-  if (Array.isArray(value)) return value.map(normalizeSchema);
+function normalizeSchema(value, isEnglish = false) {
+  if (Array.isArray(value)) return value.map((item) => normalizeSchema(item, isEnglish));
   if (!value || typeof value !== "object") return value;
   const type = value["@type"];
   if (type === "ProfilePage") {
     value.mainEntity = { "@id": `${canonical}/#person` };
-    value.url = value.url ? String(value.url).replace("https://eslam-elshikh.com", canonical) : `${canonical}/en/`;
+    value.url = value.url ? String(value.url).replace("https://eslam-elshikh.com", canonical) : `${canonical}${isEnglish ? "/en/" : "/"}`;
   }
   if (type === "Person") {
     value.image = `${canonical}${primaryLogo}`;
-    value.workLocation = { "@type": "Place", name: "الرياض", address: { "@type": "PostalAddress", addressLocality: "الرياض", addressRegion: "منطقة الرياض", addressCountry: "SA" } };
-    value.areaServed = { "@type": "City", name: "الرياض" };
+    value.workLocation = { "@type": "Place", name: isEnglish ? "Riyadh" : "الرياض", address: { "@type": "PostalAddress", addressLocality: isEnglish ? "Riyadh" : "الرياض", addressRegion: isEnglish ? "Riyadh Province" : "منطقة الرياض", addressCountry: "SA" } };
+    value.areaServed = { "@type": "City", name: isEnglish ? "Riyadh" : "الرياض" };
   }
   if (type === "ProfessionalService") {
     value.logo = `${canonical}${primaryLogo}`;
-    value.areaServed = { "@type": "City", name: "الرياض" };
-    value.category = ["مصمم مواقع ويب", "استشاري كمبيوتر", "خدمة التسويق عبر الإنترنت", "دعم الكمبيوتر والخدمات"];
+    value.areaServed = { "@type": "City", name: isEnglish ? "Riyadh" : "الرياض" };
+    value.category = isEnglish
+      ? ["Web developer", "Cybersecurity consultant", "Software engineer", "Digital marketing consultant"]
+      : ["مصمم مواقع ويب", "استشاري كمبيوتر", "خدمة التسويق عبر الإنترنت", "دعم الكمبيوتر والخدمات"];
   }
-  for (const key of Object.keys(value)) value[key] = normalizeSchema(value[key]);
+  for (const key of Object.keys(value)) value[key] = normalizeSchema(value[key], isEnglish);
   return value;
 }
 
@@ -57,10 +59,13 @@ for (const path of htmlFiles) {
   if (extraHead && !html.includes("/assets/css/enhancements.css")) html = html.replace("</head>", `${extraHead}\n</head>`);
   if (!html.includes("/assets/js/enhancements.js")) html = html.replace("</body>", `${extraBody}\n</body>`);
   html = html.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g, (full, raw) => {
-    try { return `<script type="application/ld+json">${json(normalizeSchema(JSON.parse(raw)))}</script>`; } catch { return full; }
+    try { return `<script type="application/ld+json">${json(normalizeSchema(JSON.parse(raw), isEnglish))}</script>`; } catch { return full; }
   });
   if ((path.endsWith("about/index.html") || path.endsWith("contact/index.html")) && !html.includes("service-area-note") && !html.includes("business-map-section")) {
-    html = html.replace("</main>", `<section class="section-pad"><div class="container"><div class="service-area-note"><strong>نطاق الخدمة: مدينة الرياض بالكامل</strong><p>تُقدَّم الخدمات عن بُعد، مع إمكانية زيارة مواقع العملاء داخل الرياض بموعد مسبق. لا يوجد مقر لاستقبال العملاء.</p></div></div></section></main>`);
+    const note = isEnglish
+      ? `<strong>Service area: Riyadh</strong><p>Services are available remotely, with on-site visits in Riyadh by prior appointment. There is no walk-in customer office.</p>`
+      : `<strong>نطاق الخدمة: مدينة الرياض بالكامل</strong><p>تُقدَّم الخدمات عن بُعد، مع إمكانية زيارة مواقع العملاء داخل الرياض بموعد مسبق. لا يوجد مقر لاستقبال العملاء.</p>`;
+    html = html.replace("</main>", `<section class="section-pad"><div class="container"><div class="service-area-note">${note}</div></div></section></main>`);
   }
   await writeFile(path, html);
 }

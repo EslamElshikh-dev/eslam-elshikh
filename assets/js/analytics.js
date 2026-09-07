@@ -55,7 +55,7 @@
   const track = (name, parameters = {}, onComplete) => {
     if (sessionChoice !== "granted" || !eventNames.has(name)) return false;
     loadAnalytics();
-    const pathService = window.location.pathname.match(/^\/services\/([^/]+)\//)?.[1];
+    const pathService = window.location.pathname.match(/^\/(?:en\/)?services\/([^/]+)\//)?.[1];
     const service = serviceNames.has(parameters.service) ? parameters.service : pathService;
     const values = {
       page_path: window.location.pathname,
@@ -116,7 +116,7 @@
 
     const actions = document.createElement("div");
     const privacy = document.createElement("a");
-    privacy.href = "/privacy/";
+    privacy.href = isEnglish ? "/en/privacy/" : "/privacy/";
     privacy.textContent = isEnglish ? "Privacy" : "الخصوصية";
     const reject = document.createElement("button");
     reject.type = "button";

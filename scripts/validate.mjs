@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { posts, projects } from "../src/content.mjs";
 import { projectAudit, webProjects } from "../src/web-projects.mjs";
 import { guides } from "../src/guides.mjs";
+import { englishArticles, englishServices, englishTopics } from "../src/english.mjs";
 
 const buildVersion = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8")).version;
 
@@ -26,6 +27,12 @@ const expectedArticleRoutes = [...posts, ...guides].map((post) => `/blog/${post.
 for (const route of expectedArticleRoutes) if (!requiredRoutes.includes(route)) requiredRoutes.push(route);
 const expectedCaseStudyRoutes = projects.filter((project) => project.slug && project.caseStudy).map((project) => `/projects/${project.slug}/`);
 for (const route of expectedCaseStudyRoutes) if (!requiredRoutes.includes(route)) requiredRoutes.push(route);
+const arabicRoutes = [...requiredRoutes].filter((route) => route !== "/en/");
+const englishMirrorRoute = (route) => route === "/" ? "/en/" : `/en${route}`;
+const arabicMirrorRoute = (route) => route === "/en/" ? "/" : route.replace(/^\/en/, "") || "/";
+for (const route of arabicRoutes.map(englishMirrorRoute)) if (!requiredRoutes.includes(route)) requiredRoutes.push(route);
+const expectedEnglishArticleRoutes = englishArticles.map((post) => `/en/blog/${post.slug}/`);
+const expectedEnglishCaseStudyRoutes = expectedCaseStudyRoutes.map(englishMirrorRoute);
 
 const routeFile = (route) => route === "/" ? join(output, "index.html") : join(output, route.replace(/^\//, "").replace(/\/$/, ""), "index.html");
 const normalizeRoute = (route) => route === "/" ? "/" : `/${route.replace(/^\//, "").replace(/\/$/, "")}/`;
@@ -93,16 +100,18 @@ for (const entry of sitemapEntries) {
 
 if (!/xmlns:xhtml=["']http:\/\/www\.w3\.org\/1999\/xhtml["']/.test(sitemap)) errors.push("Sitemap is missing the xhtml namespace for language alternates");
 if (/<(?:changefreq|priority)>/i.test(sitemap)) errors.push("Sitemap contains changefreq or priority fields that Google ignores");
-const expectedHomeAlternates = new Map([
-  ["ar-SA", `${canonicalBase}/`],
-  ["en", `${canonicalBase}/en/`],
-  ["x-default", `${canonicalBase}/`]
-]);
-for (const route of ["/", "/en/"]) {
+for (const route of requiredRoutes) {
   const loc = `${canonicalBase}${route}`;
   const entry = sitemapEntries.find((item) => item.loc === loc);
   const alternates = new Map((entry?.alternates || []).map((item) => [item.hreflang, item.href]));
-  for (const [hreflang, href] of expectedHomeAlternates) {
+  const arabicRoute = route.startsWith("/en/") ? arabicMirrorRoute(route) : route;
+  const englishRoute = route.startsWith("/en/") ? route : englishMirrorRoute(route);
+  const expectedAlternates = new Map([
+    ["ar-SA", `${canonicalBase}${arabicRoute}`],
+    ["en", `${canonicalBase}${englishRoute}`],
+    ["x-default", `${canonicalBase}${arabicRoute}`]
+  ]);
+  for (const [hreflang, href] of expectedAlternates) {
     if (alternates.get(hreflang) !== href) errors.push(`Sitemap ${route} is missing reciprocal ${hreflang} alternate ${href}`);
   }
 }
@@ -162,6 +171,8 @@ for (const route of sitemapRoutes) {
 
   if (!/^<!doctype html>/i.test(html)) errors.push(`${route}: missing HTML5 doctype`);
   if (!/<html\s+lang=["'](?:ar|en)["']\s+dir=["'](?:rtl|ltr)["']/i.test(html)) errors.push(`${route}: missing correct lang/dir attributes`);
+  if (route.startsWith("/en/") && !/<html\s+lang=["']en["']\s+dir=["']ltr["']/i.test(html)) errors.push(`${route}: English route must declare lang=en and dir=ltr`);
+  if (!route.startsWith("/en/") && !/<html\s+lang=["']ar["']\s+dir=["']rtl["']/i.test(html)) errors.push(`${route}: Arabic route must declare lang=ar and dir=rtl`);
   if (viewportCount !== 1) errors.push(`${route}: expected one viewport meta, found ${viewportCount}`);
   if (h1Count !== 1) errors.push(`${route}: expected exactly one H1, found ${h1Count}`);
   if (!title) errors.push(`${route}: missing title`);
@@ -170,6 +181,12 @@ for (const route of sitemapRoutes) {
   if (description.length < 110 || description.length > 170) warnings.push(`${route}: description length ${description.length}`);
   if (!robots || !/\bindex\b/i.test(robots) || !/\bfollow\b/i.test(robots) || /\bnoindex\b/i.test(robots)) errors.push(`${route}: invalid robots directive (${robots || "missing"})`);
   if (canonical !== `${canonicalBase}${route}`) errors.push(`${route}: canonical mismatch (${canonical})`);
+  const headAlternates = new Map([...html.matchAll(/<link\s+rel=["']alternate["']\s+hreflang=["']([^"']+)["']\s+href=["']([^"']+)["']/gi)].map((match) => [match[1], match[2]]));
+  const arabicAlternateRoute = route.startsWith("/en/") ? arabicMirrorRoute(route) : route;
+  const englishAlternateRoute = route.startsWith("/en/") ? route : englishMirrorRoute(route);
+  for (const [hreflang, href] of [["ar-SA", `${canonicalBase}${arabicAlternateRoute}`], ["en", `${canonicalBase}${englishAlternateRoute}`], ["x-default", `${canonicalBase}${arabicAlternateRoute}`]]) {
+    if (headAlternates.get(hreflang) !== href) errors.push(`${route}: missing head hreflang ${hreflang} alternate ${href}`);
+  }
   if (!html.includes(`<link rel="sitemap" type="application/xml" href="${canonicalBase}/sitemap.xml">`)) errors.push(`${route}: missing canonical sitemap discovery link`);
   if (!/<meta\s+property=["']og:title["']/i.test(html) || !/<meta\s+name=["']twitter:card["']/i.test(html)) errors.push(`${route}: incomplete social metadata`);
   if (!/<script\s+type=["']application\/ld\+json["']>/i.test(html)) errors.push(`${route}: missing JSON-LD`);
@@ -202,7 +219,7 @@ for (const route of sitemapRoutes) {
       if (!html.includes(identityName)) errors.push(`${route}: missing identity spelling ${identityName}`);
     }
   }
-  const isArticle = route.startsWith("/blog/") && route !== "/blog/" && !route.startsWith("/blog/topics/");
+  const isArticle = /^\/(?:en\/)?blog\/[^/]+\/$/.test(route);
   if (isArticle) {
     const coreWords = wordCount(articleCore(html));
     if (coreWords < 450) errors.push(`${route}: core article content is too thin (${coreWords} words; expected at least 450)`);
@@ -214,7 +231,7 @@ for (const route of sitemapRoutes) {
     if (!html.includes('"@type":"FAQPage"')) errors.push(`${route}: missing FAQPage structured data`);
     if (!html.includes('"@type":"BlogPosting"')) errors.push(`${route}: missing BlogPosting structured data`);
     if (!/<meta\s+name=["']keywords["']/i.test(html)) errors.push(`${route}: missing article keyword metadata`);
-    const topicPath = html.match(/href=["'](\/blog\/topics\/[^"']+\/)["']/i)?.[1];
+    const topicPath = html.match(/href=["'](\/(?:en\/)?blog\/topics\/[^"']+\/)["']/i)?.[1];
     if (!topicPath) errors.push(`${route}: missing a crawlable topic-hub link`);
     else if (!html.includes(`"item":"${canonicalBase}${topicPath}"`)) errors.push(`${route}: topic hub is absent from BreadcrumbList structured data`);
   }
@@ -231,10 +248,10 @@ for (const route of sitemapRoutes) {
     if (descriptions.has(description)) warnings.push(`${route}: duplicate description with ${descriptions.get(description)}`);
     else descriptions.set(description, route);
   }
-  if (route.startsWith("/services/") && route !== "/services/" && words < 520) warnings.push(`${route}: service page is shorter than 520 words (${words})`);
+  if (/^\/(?:en\/)?services\/[^/]+\/$/.test(route) && words < 520) warnings.push(`${route}: service page is shorter than 520 words (${words})`);
 }
 
-const linkedFiles = new Set(["/feed.xml", "/manifest.webmanifest", "/sitemap.xml", "/robots.txt", "/profile.json", "/llms.txt", "/humans.txt", "/favicon.ico", "/.well-known/security.txt"]);
+const linkedFiles = new Set(["/feed.xml", "/en/feed.xml", "/manifest.webmanifest", "/sitemap.xml", "/robots.txt", "/profile.json", "/llms.txt", "/humans.txt", "/favicon.ico", "/.well-known/security.txt"]);
 for (const [route, html] of pages) {
   for (const match of html.matchAll(/href=["']([^"']+)["']/gi)) {
     const href = match[1];
@@ -255,14 +272,14 @@ for (const [route, html] of pages) {
   }
 }
 
-for (const required of ["robots.txt", "manifest.webmanifest", "feed.xml", "profile.json", "llms.txt", "llms-full.txt", "humans.txt", "CNAME", ".well-known/security.txt", "404.html"]) {
+for (const required of ["robots.txt", "manifest.webmanifest", "feed.xml", "en/feed.xml", "profile.json", "llms.txt", "llms-full.txt", "humans.txt", "CNAME", ".well-known/security.txt", "404.html"]) {
   if (!(await exists(join(output, required)))) errors.push(`Missing generated file: ${required}`);
 }
 const notFound = await readFile(join(output, "404.html"), "utf8").catch(() => "");
 const notFoundRobots = matchOne(notFound, /<meta\s+name=["']robots["']\s+content=["']([^"']*)/i);
 if (!/\bnoindex\b/i.test(notFoundRobots) || !/\bfollow\b/i.test(notFoundRobots)) errors.push(`404 page must use noindex, follow (${notFoundRobots || "missing"})`);
 
-for (const publicFile of ["sitemap.xml", "robots.txt", "feed.xml", "profile.json", "llms.txt", "llms-full.txt", ".well-known/security.txt"]) {
+for (const publicFile of ["sitemap.xml", "robots.txt", "feed.xml", "en/feed.xml", "profile.json", "llms.txt", "llms-full.txt", ".well-known/security.txt"]) {
   const content = await readFile(join(output, publicFile), "utf8").catch(() => "");
   if (content.includes(deprecatedCanonicalBase)) errors.push(`${publicFile}: contains deprecated non-www canonical references`);
   if (/\+966547194788|054\s*719\s*4788/.test(content)) errors.push(`${publicFile}: contains the retired developer phone number`);
@@ -301,6 +318,16 @@ if (!projectsPageHtml.includes(`"numberOfItems":${webProjects.length}`)) errors.
 for (const marker of ["data-work-search", "data-work-filter=\"all\"", "data-work-more", `${projectAudit.githubRepositories} مستودعًا على GitHub`, `${projectAudit.vercelProjects} مشروعًا على Vercel`]) {
   if (!projectsPageHtml.includes(marker)) errors.push(`Projects page is missing verified archive marker: ${marker}`);
 }
+const englishProjectsPageHtml = pages.get("/en/projects/") || "";
+if (!englishProjectsPageHtml.includes('"@type":"CollectionPage"') || !englishProjectsPageHtml.includes('"@id":"https://www.eslam-elshikh.com/en/projects/#project-list"')) {
+  errors.push("English projects page is missing CollectionPage and ItemList identity evidence");
+}
+const englishWorkCardCount = (englishProjectsPageHtml.match(/\bdata-work-card(?:\s|>)/g) || []).length;
+if (englishWorkCardCount !== webProjects.length) errors.push(`English projects page renders ${englishWorkCardCount} verified work cards; expected ${webProjects.length}`);
+if (!englishProjectsPageHtml.includes(`"numberOfItems":${webProjects.length}`)) errors.push(`English projects ItemList does not declare ${webProjects.length} items`);
+for (const marker of ["data-work-search", "data-work-filter=\"all\"", "data-work-more", `${projectAudit.verifiedLiveProjects} unique live web projects`]) {
+  if (!englishProjectsPageHtml.includes(marker)) errors.push(`English projects page is missing verified archive marker: ${marker}`);
+}
 const uniqueLiveUrls = new Set(webProjects.map((project) => project.liveUrl));
 if (uniqueLiveUrls.size !== webProjects.length) errors.push(`Verified work data contains ${webProjects.length - uniqueLiveUrls.size} duplicate live URL(s)`);
 for (const [route, html] of pages) {
@@ -317,6 +344,11 @@ for (const route of expectedCaseStudyRoutes) {
   if (!html.includes('"@type":"CreativeWork"')) errors.push(`${route}: missing CreativeWork structured data`);
   if (!html.includes("لا تتضمن هذه الدراسة أرقام زيارات أو تحويلات")) errors.push(`${route}: missing the evidence boundary for unverified business outcomes`);
 }
+for (const route of expectedEnglishCaseStudyRoutes) {
+  const html = pages.get(route) || "";
+  if (!html.includes('"@type":"CreativeWork"')) errors.push(`${route}: missing CreativeWork structured data`);
+  if (!html.includes("does not claim traffic, conversion, or return-on-investment figures")) errors.push(`${route}: missing the English evidence boundary for unverified business outcomes`);
+}
 
 for (const [route, html] of pages) {
   if (html.includes('class="mobile-bottom-nav"')) errors.push(`${route}: retired mobile bottom navigation is still rendered`);
@@ -327,9 +359,12 @@ if (home.indexOf('class="section-pad projects-section"') > home.indexOf('id="ser
 const contactPageHtml = pages.get("/contact/") || "";
 if (/<form\b[^>]*data-project-form/i.test(contactPageHtml)) errors.push("Contact project composer must not use a native form submission fallback");
 if (!/<div\b[^>]*data-project-form[^>]*role="form"/i.test(contactPageHtml) || !/data-project-submit/.test(contactPageHtml)) errors.push("Contact page is missing the safe client-side project message composer");
+const englishContactPageHtml = pages.get("/en/contact/") || "";
+if (/<form\b[^>]*data-project-form/i.test(englishContactPageHtml)) errors.push("English contact project composer must not use a native form submission fallback");
+if (!/<div\b[^>]*data-project-form[^>]*role="form"/i.test(englishContactPageHtml) || !/data-project-submit/.test(englishContactPageHtml)) errors.push("English contact page is missing the safe client-side project message composer");
 if (!home.includes('"hasMap":"https://maps.app.goo.gl/EbiR3AKJEZhkbMn66"')) errors.push("Homepage ProfessionalService schema is missing hasMap");
 for (const [route, html] of pages) {
-  if (route.startsWith("/services/") && route !== "/services/" && !html.includes('class="check-list deliverables-list"')) {
+  if (/^\/(?:en\/)?services\/[^/]+\/$/.test(route) && !html.includes('class="check-list deliverables-list"')) {
     errors.push(`${route}: deliverables list is missing shared checklist styling`);
   }
 }
@@ -339,6 +374,13 @@ const blogCardCount = (blog.match(/class=["']post-card(?:\s|["'])/g) || []).leng
 if (blogCardCount !== expectedArticleRoutes.length) errors.push(`Blog index renders ${blogCardCount} article cards; expected ${expectedArticleRoutes.length}`);
 for (const route of expectedArticleRoutes) {
   if (!new RegExp(`href=["']${route.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`).test(blog)) errors.push(`Blog index does not link to ${route}`);
+}
+
+const englishBlog = pages.get("/en/blog/") || "";
+const englishBlogCardCount = (englishBlog.match(/class=["']post-card(?:\s|["'])/g) || []).length;
+if (englishBlogCardCount !== expectedEnglishArticleRoutes.length) errors.push(`English blog index renders ${englishBlogCardCount} article cards; expected ${expectedEnglishArticleRoutes.length}`);
+for (const route of expectedEnglishArticleRoutes) {
+  if (!new RegExp(`href=["']${route.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`).test(englishBlog)) errors.push(`English blog index does not link to ${route}`);
 }
 
 const articleShingles = expectedArticleRoutes
@@ -356,14 +398,38 @@ for (let left = 0; left < articleShingles.length; left += 1) {
   }
 }
 
+const englishArticleShingles = expectedEnglishArticleRoutes
+  .map((route) => ({ route, values: shingles(articleCore(pages.get(route) || "")) }))
+  .filter((article) => article.values.size > 0);
+for (let left = 0; left < englishArticleShingles.length; left += 1) {
+  for (let right = left + 1; right < englishArticleShingles.length; right += 1) {
+    const first = englishArticleShingles[left];
+    const second = englishArticleShingles[right];
+    let intersection = 0;
+    for (const value of first.values) if (second.values.has(value)) intersection += 1;
+    const union = first.values.size + second.values.size - intersection;
+    const similarity = union ? intersection / union : 0;
+    if (similarity > 0.3) errors.push(`${first.route} and ${second.route}: English core article similarity is ${(similarity * 100).toFixed(1)}%; expected at most 30%`);
+  }
+}
+
 const english = pages.get("/en/") || "";
-const englishServices = matchOne(english, /<section\s+class=["']section-pad["']\s+id=["']services["']>([\s\S]*?)<\/section>/i);
+const englishServicesSection = matchOne(english, /<section\s+class=["']section-pad["']\s+id=["']services["']>([\s\S]*?)<\/section>/i);
 const englishFooterServices = matchOne(english, /<div\s+class=["']footer-column footer-services["']>([\s\S]*?)<\/div>/i);
-if ((englishServices.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("English homepage does not render all 9 translated services");
-if ((englishServices.match(/aria-label=["']Discuss /g) || []).length !== 9) errors.push("English service links need unique accessible labels");
-if (/[\u0600-\u06ff]/.test(englishServices)) errors.push("English service cards still contain Arabic text");
+if ((englishServicesSection.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("English homepage does not render all 9 translated services");
+if ((englishServicesSection.match(/aria-label=["']View /g) || []).length !== 9) errors.push("English service links need unique accessible labels");
+if (/[\u0600-\u06ff]/.test(englishServicesSection)) errors.push("English service cards still contain Arabic text");
 if (/[\u0600-\u06ff]/.test(englishFooterServices)) errors.push("English footer service links still contain Arabic text");
 if (/اتصل الآن|راسلني واتساب/.test(textContent(english))) errors.push("English page still contains Arabic floating-contact labels");
+if (!english.includes('href="/en/services/')) errors.push("English homepage does not link to the complete English service routes");
+if (!english.includes('href="/en/blog/')) errors.push("English homepage does not link to the English insight routes");
+
+for (const [route, html] of pages) {
+  const expectedSwitch = route.startsWith("/en/") ? arabicMirrorRoute(route) : englishMirrorRoute(route);
+  if (!new RegExp(`<a class=["']language-switch["'] href=["']${expectedSwitch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`).test(html)) {
+    errors.push(`${route}: language switch does not preserve the equivalent route (${expectedSwitch})`);
+  }
+}
 
 const productionCss = await readFile(join(output, "assets", "css", "main.css"), "utf8").catch(() => "");
 if (!productionCss.includes(".js .hero .hero-copy.reveal")) errors.push("Production CSS is missing the above-the-fold reveal override");

@@ -6,13 +6,20 @@ import { projectAudit, webProjects } from "./src/web-projects.mjs";
 import { guides } from "./src/guides.mjs";
 import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
 import { renderAbout } from "./src/about.mjs";
+import {
+  englishArticles,
+  englishProjectStudies,
+  englishSectorNames,
+  englishServices,
+  englishTopics
+} from "./src/english.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.7.2";
+const version = "3.8.0";
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)
@@ -31,6 +38,13 @@ const allPosts = [...posts.map(enrichPost), ...guides.map(guideToPost)].sort((le
   return dateDifference || new Date(`${right.date}T12:00:00Z`) - new Date(`${left.date}T12:00:00Z`);
 });
 const postBySlug = (slug) => allPosts.find((post) => post.slug === slug);
+const englishServiceBySlug = (slug) => englishServices.find((service) => service.slug === slug);
+const englishArticleBySlug = (slug) => englishArticles.find((post) => post.slug === slug);
+const routePair = (path = "/") => {
+  if (path === "/" || path === "/en/") return { ar: "/", en: "/en/" };
+  if (path.startsWith("/en/")) return { ar: path.slice(3) || "/", en: path };
+  return { ar: path, en: `/en${path}` };
+};
 
 const icons = {
   shield: '<path d="M12 3 5 6v5c0 4.7 2.8 8.1 7 10 4.2-1.9 7-5.3 7-10V6l-7-3Z"/><path d="m9.4 12 1.7 1.7 3.8-4"/>',
@@ -92,33 +106,41 @@ const personIdentifier = {
   url: site.social.wikidata
 };
 
-const baseGraph = () => ([
+const baseGraph = (language = "ar") => {
+  const isEnglish = language === "en";
+  return ([
   {
     "@type": "Person",
     "@id": `${site.url}/#person`,
-    name: site.nameAr,
-    honorificPrefix: "المهندس",
+    name: isEnglish ? site.nameEn : site.nameAr,
+    honorificPrefix: isEnglish ? "Eng." : "المهندس",
     alternateName: site.alternateNames,
-    givenName: "إسلام",
-    familyName: "الشيخ",
+    givenName: isEnglish ? "Eslam" : "إسلام",
+    familyName: isEnglish ? "Elshikh" : "الشيخ",
     url: `${site.url}/`,
-    mainEntityOfPage: { "@id": `${site.url}/about/#profile` },
+    mainEntityOfPage: { "@id": `${site.url}${isEnglish ? "/en/about/" : "/about/"}#profile` },
     image: absolute(site.logo),
-    description: site.description,
-    jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "متخصص خرائط Google"],
+    description: isEnglish
+      ? "Eslam Elshikh is a cybersecurity engineer, software developer, and Google Maps specialist in Riyadh, building secure digital products and measurable search experiences."
+      : site.description,
+    jobTitle: isEnglish
+      ? ["Cybersecurity Engineer", "Software Developer", "Google Maps Specialist"]
+      : ["مهندس أمن سيبراني", "مطور برمجيات", "متخصص خرائط Google"],
     email: `mailto:${site.email}`,
     telephone: site.phone,
-    workLocation: { "@type": "Place", name: site.city, address: { "@type": "PostalAddress", addressLocality: site.city, addressRegion: site.region, addressCountry: site.countryCode } },
-    areaServed: { "@type": "Country", name: site.country },
+    workLocation: { "@type": "Place", name: isEnglish ? "Riyadh" : site.city, address: { "@type": "PostalAddress", addressLocality: isEnglish ? "Riyadh" : site.city, addressRegion: isEnglish ? "Riyadh Province" : site.region, addressCountry: site.countryCode } },
+    areaServed: { "@type": "Country", name: isEnglish ? "Saudi Arabia" : site.country },
     alumniOf: [
-      { "@type": "CollegeOrUniversity", name: "جامعة 6 أكتوبر", alternateName: "October 6 University" },
-      { "@type": "CollegeOrUniversity", name: "الجامعة العربية المفتوحة", alternateName: "Arab Open University" }
+      { "@type": "CollegeOrUniversity", name: isEnglish ? "October 6 University" : "جامعة 6 أكتوبر", alternateName: isEnglish ? "جامعة 6 أكتوبر" : "October 6 University" },
+      { "@type": "CollegeOrUniversity", name: isEnglish ? "Arab Open University" : "الجامعة العربية المفتوحة", alternateName: isEnglish ? "الجامعة العربية المفتوحة" : "Arab Open University" }
     ],
     hasCredential: [
-      { "@type": "EducationalOccupationalCredential", name: "بكالوريوس أمن المعلومات", credentialCategory: "Bachelor degree", recognizedBy: { "@type": "CollegeOrUniversity", name: "جامعة 6 أكتوبر" } },
-      { "@type": "EducationalOccupationalCredential", name: "دبلوم الأمن السيبراني", credentialCategory: "Diploma", recognizedBy: { "@type": "CollegeOrUniversity", name: "الجامعة العربية المفتوحة" } }
+      { "@type": "EducationalOccupationalCredential", name: isEnglish ? "Bachelor's degree in Information Security" : "بكالوريوس أمن المعلومات", credentialCategory: "Bachelor degree", recognizedBy: { "@type": "CollegeOrUniversity", name: isEnglish ? "October 6 University" : "جامعة 6 أكتوبر" } },
+      { "@type": "EducationalOccupationalCredential", name: isEnglish ? "Diploma in Cybersecurity" : "دبلوم الأمن السيبراني", credentialCategory: "Diploma", recognizedBy: { "@type": "CollegeOrUniversity", name: isEnglish ? "Arab Open University" : "الجامعة العربية المفتوحة" } }
     ],
-    knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "Google Search", "Google Search Console", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"],
+    knowsAbout: isEnglish
+      ? [...englishServices.map((service) => service.title), "Google Maps", "Google Business Profile", "Google Search", "Google Search Console", "Local SEO", "Google Ads"]
+      : [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "Google Search", "Google Search Console", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"],
     identifier: personIdentifier,
     sameAs: personSameAs
   },
@@ -126,7 +148,7 @@ const baseGraph = () => ([
     "@type": "WebSite",
     "@id": `${site.url}/#website`,
     url: `${site.url}/`,
-    name: site.brandName,
+    name: isEnglish ? site.nameEn : site.brandName,
     alternateName: site.siteAlternateNames,
     inLanguage: ["ar-SA", "en"],
     creator: { "@id": `${site.url}/#person` },
@@ -135,8 +157,8 @@ const baseGraph = () => ([
   {
     "@type": "ProfessionalService",
     "@id": `${site.url}/#professional-service`,
-    name: "خدمات المهندس إسلام الشيخ التقنية والاستشارية",
-    alternateName: "Eslam Elshikh Digital Engineering Services",
+    name: isEnglish ? "Eslam Elshikh Digital Engineering Services" : "خدمات المهندس إسلام الشيخ التقنية والاستشارية",
+    alternateName: isEnglish ? "خدمات المهندس إسلام الشيخ التقنية والاستشارية" : "Eslam Elshikh Digital Engineering Services",
     url: site.url,
     logo: absolute(site.logo),
     image: absolute(site.shareImage),
@@ -145,8 +167,8 @@ const baseGraph = () => ([
     email: site.email,
     telephone: site.phone,
     founder: { "@id": `${site.url}/#person` },
-    address: { "@type": "PostalAddress", addressLocality: site.city, addressRegion: site.region, addressCountry: site.countryCode },
-    areaServed: [{ "@type": "City", name: site.city }, { "@type": "Country", name: site.country }],
+    address: { "@type": "PostalAddress", addressLocality: isEnglish ? "Riyadh" : site.city, addressRegion: isEnglish ? "Riyadh Province" : site.region, addressCountry: site.countryCode },
+    areaServed: [{ "@type": "City", name: isEnglish ? "Riyadh" : site.city }, { "@type": "Country", name: isEnglish ? "Saudi Arabia" : site.country }],
     openingHoursSpecification: [{
       "@type": "OpeningHoursSpecification",
       dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
@@ -156,7 +178,8 @@ const baseGraph = () => ([
     availableLanguage: ["ar", "en"],
     priceRange: "$$"
   }
-]);
+  ]);
+};
 
 const breadcrumbSchema = (items) => ({
   "@type": "BreadcrumbList",
@@ -171,11 +194,13 @@ const faqSchema = (faq) => ({
 function head({ title, description, path = "/", lang = "ar", schema = [], image = site.shareImage, type = "website", published, modified, keywords = [], articleSection = "", stylesheets = [], robots = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" }) {
   const isEnglish = lang === "en";
   const canonical = absolute(path);
+  const alternates = path === "/404.html" ? null : routePair(path);
+  const titleBrand = isEnglish ? site.nameEn : site.brandName;
   const titleHasBrand = title.includes(site.nameAr) || title.includes(site.nameEn) || title.includes(site.brandName);
-  const brandedTitle = `${title} | ${site.brandName}`;
-  const fullTitle = title === site.brandName || titleHasBrand || brandedTitle.length > 65 ? title : brandedTitle;
+  const brandedTitle = `${title} | ${titleBrand}`;
+  const fullTitle = title === titleBrand || titleHasBrand || brandedTitle.length > 65 ? title : brandedTitle;
   const graph = [
-    ...baseGraph(),
+    ...baseGraph(lang),
     {
       "@type": type === "article" ? "BlogPosting" : "WebPage",
       "@id": `${canonical}#${type === "article" ? "article" : "webpage"}`,
@@ -207,30 +232,30 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
   <title>${esc(fullTitle)}</title>
   <meta name="description" content="${esc(description)}">
 ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))}">\n` : ""}  <meta name="robots" content="${esc(robots)}">
-  <meta name="author" content="${esc(site.nameAr)}">
-  <meta name="application-name" content="${esc(site.brandName)}">
+  <meta name="author" content="${esc(isEnglish ? site.nameEn : site.nameAr)}">
+  <meta name="application-name" content="${esc(isEnglish ? site.nameEn : site.brandName)}">
   <meta name="theme-color" content="#06131f" data-theme-color>
   <meta name="color-scheme" content="dark light">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="format-detection" content="telephone=yes">
   <meta name="geo.region" content="SA-01">
-  <meta name="geo.placename" content="${esc(site.city)}">
+  <meta name="geo.placename" content="${esc(isEnglish ? "Riyadh" : site.city)}">
   <link rel="canonical" href="${canonical}">
   <link rel="sitemap" type="application/xml" href="${site.url}/sitemap.xml">
-  ${path === "/" || path === "/en/" ? `<link rel="alternate" hreflang="ar" href="${site.url}/"><link rel="alternate" hreflang="ar-SA" href="${site.url}/"><link rel="alternate" hreflang="en" href="${site.url}/en/"><link rel="alternate" hreflang="x-default" href="${site.url}/">` : `<link rel="alternate" hreflang="ar-SA" href="${canonical}"><link rel="alternate" hreflang="x-default" href="${canonical}">`}
+  ${alternates ? `<link rel="alternate" hreflang="ar" href="${absolute(alternates.ar)}"><link rel="alternate" hreflang="ar-SA" href="${absolute(alternates.ar)}"><link rel="alternate" hreflang="en" href="${absolute(alternates.en)}"><link rel="alternate" hreflang="x-default" href="${absolute(alternates.ar)}">` : ""}
   <link rel="me" href="${site.social.googleDeveloper}">
   <link rel="me" href="${site.social.wikidata}">
   <link rel="me" href="${site.social.github}">
   <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml" sizes="any">
   <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
   <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="alternate" type="application/rss+xml" title="${isEnglish ? "Eslam Elshikh Insights" : `مدونة ${esc(site.brandName)}`}" href="/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="${isEnglish ? "Eslam Elshikh Insights" : `مدونة ${esc(site.brandName)}`}" href="${isEnglish ? "/en/feed.xml" : "/feed.xml"}">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="${esc(site.brandName)}">
+  <meta name="apple-mobile-web-app-title" content="${esc(isEnglish ? site.nameEn : site.brandName)}">
   <meta property="og:locale" content="${isEnglish ? "en_US" : "ar_SA"}">
   <meta property="og:type" content="${type}">
-  <meta property="og:site_name" content="${esc(site.brandName)}">
+  <meta property="og:site_name" content="${esc(isEnglish ? site.nameEn : site.brandName)}">
   <meta property="og:title" content="${esc(fullTitle)}">
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${canonical}">
@@ -254,15 +279,17 @@ ${stylesheets.length ? `${stylesheets.map((href) => `  <link rel="stylesheet" hr
 </head>`;
 }
 
-function header(active = "", language = "ar") {
+function header(active = "", language = "ar", path = "/") {
   const isEnglish = language === "en";
+  const alternatePath = isEnglish ? routePair(path).ar : routePair(path).en;
   const nav = isEnglish ? [
     ["home", "/en/", "Home"],
-    ["services", "/en/#services", "Services"],
-    ["projects", "/en/#work", "Work"],
-    ["about", "/en/#about", "About"],
-    ["google", "/en/#google-expertise", "Google expertise"],
-    ["blog", "/en/#insights", "Insights"]
+    ["services", "/en/services/", "Services"],
+    ["projects", "/en/projects/", "Work"],
+    ["maps", "/en/google-maps-projects/", "Google Maps"],
+    ["about", "/en/about/", "About"],
+    ["google", "/en/google-expert/", "Google expertise"],
+    ["blog", "/en/blog/", "Insights"]
   ] : [
     ["home", "/", "الرئيسية"],
     ["services", "/services/", "الخدمات"],
@@ -282,14 +309,14 @@ function header(active = "", language = "ar") {
     </a>
     <nav class="desktop-nav" aria-label="${isEnglish ? "Main navigation" : "التنقل الرئيسي"}">${links}</nav>
     <div class="header-tools">
-      <a class="language-switch" href="${isEnglish ? "/" : "/en/"}" lang="${isEnglish ? "ar" : "en"}" dir="${isEnglish ? "rtl" : "ltr"}" aria-label="${isEnglish ? "النسخة العربية" : "English version"}">${isEnglish ? "عربي" : "EN"}</a>
+      <a class="language-switch" href="${alternatePath}" lang="${isEnglish ? "ar" : "en"}" dir="${isEnglish ? "rtl" : "ltr"}" aria-label="${isEnglish ? "النسخة العربية من هذه الصفحة" : "English version of this page"}">${isEnglish ? "عربي" : "EN"}</a>
       <button class="theme-toggle" type="button" aria-label="${isEnglish ? "Change color theme" : "تغيير نمط الألوان"}" aria-pressed="false" data-theme-toggle><span class="theme-sun">${icon("sun")}</span><span class="theme-moon">${icon("moon")}</span></button>
       <a class="button button-small header-cta" href="${site.whatsapp}?text=${encodeURIComponent(isEnglish ? "Hello Eng. Eslam, I would like to discuss a digital project." : "مرحبًا م. إسلام، أرغب في مناقشة مشروع تقني.")}" target="_blank" rel="noopener">${isEnglish ? "WhatsApp" : "تواصل عبر واتساب"} ${icon("whatsapp", "button-icon")}</a>
       <button class="menu-toggle" type="button" aria-label="${isEnglish ? "Open menu" : "فتح القائمة"}" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle><span class="menu-open">${icon("menu")}</span><span class="menu-close">${icon("close")}</span></button>
     </div>
   </div>
   <nav class="mobile-menu" id="mobile-menu" aria-label="${isEnglish ? "Mobile navigation" : "قائمة الجوال"}" data-mobile-menu>
-    <div class="mobile-menu-inner">${links}<a class="mobile-language" href="${isEnglish ? "/" : "/en/"}">${isEnglish ? "النسخة العربية" : "English version"}</a><a class="button" href="${site.whatsapp}?text=${encodeURIComponent(isEnglish ? "Hello Eng. Eslam, I would like to discuss a digital project." : "مرحبًا م. إسلام، أرغب في مناقشة مشروع تقني.")}" target="_blank" rel="noopener">${isEnglish ? "Start a project" : "ابدأ محادثة"}</a></div>
+    <div class="mobile-menu-inner">${links}<a class="mobile-language" href="${alternatePath}">${isEnglish ? "النسخة العربية" : "English version"}</a><a class="button" href="${site.whatsapp}?text=${encodeURIComponent(isEnglish ? "Hello Eng. Eslam, I would like to discuss a digital project." : "مرحبًا م. إسلام، أرغب في مناقشة مشروع تقني.")}" target="_blank" rel="noopener">${isEnglish ? "Start a project" : "ابدأ محادثة"}</a></div>
   </nav>
 </header>`;
 }
@@ -298,9 +325,9 @@ function footer(language = "ar") {
   const isEnglish = language === "en";
   const social = socialLinks.map(([label, href, mark]) => `<a href="${href}" target="_blank" rel="noopener" aria-label="${label}" title="${label}">${mark}</a>`).join("");
   const exploreLinks = isEnglish
-    ? `<a href="/en/#about">About</a><a href="/en/#work">Selected work</a><a href="/en/#google-expertise">Google expertise</a><a href="/en/#insights">Insights</a><a href="/en/#contact">Contact</a>`
+    ? `<a href="/en/about/">About</a><a href="/en/projects/">Selected work</a><a href="/en/google-maps-projects/">Google Maps work</a><a href="/en/local-seo/riyadh/">Local SEO in Riyadh</a><a href="/en/google-ads/">Google Ads</a><a href="/en/google-expert/">Google expertise</a><a href="/en/blog/">Insights</a><a href="/en/contact/">Contact</a>`
     : `<a href="/about/">عن إسلام</a><a href="/projects/">أعمال المواقع</a><a href="/google-maps-projects/">أعمال خرائط Google</a><a href="/local-seo/riyadh/">السيو المحلي في الرياض</a><a href="/google-ads/">إعلانات جوجل</a><a href="/google-expert/">متخصص خرائط Google</a><a href="/blog/">المدونة</a><a href="/contact/">تواصل</a>`;
-  const serviceLinks = services.slice(0, 6).map((service) => `<a href="${isEnglish ? `/en/#service-${service.slug}` : `/services/${service.slug}/`}">${esc(isEnglish ? serviceTranslations[service.slug]?.title || service.title : service.title)}</a>`).join("");
+  const serviceLinks = services.slice(0, 6).map((service) => `<a href="${isEnglish ? `/en/services/${service.slug}/` : `/services/${service.slug}/`}">${esc(isEnglish ? englishServiceBySlug(service.slug)?.title || serviceTranslations[service.slug]?.title || service.title : service.title)}</a>`).join("");
   return `<footer class="site-footer">
   <div class="container footer-grid">
     <div class="footer-intro">
@@ -309,10 +336,10 @@ function footer(language = "ar") {
       <div class="social-row" aria-label="${isEnglish ? "Social profiles" : "الحسابات الاجتماعية"}">${social}</div>
     </div>
     <div class="footer-column"><h2>${isEnglish ? "Explore" : "روابط سريعة"}</h2>${exploreLinks}</div>
-    <div class="footer-column footer-services"><h2>${isEnglish ? "Core services" : "الخدمات الرئيسية"}</h2>${serviceLinks}<a class="footer-more" href="${isEnglish ? "/en/#services" : "/services/"}">${isEnglish ? "View all services" : "عرض جميع الخدمات"}</a></div>
+    <div class="footer-column footer-services"><h2>${isEnglish ? "Core services" : "الخدمات الرئيسية"}</h2>${serviceLinks}<a class="footer-more" href="${isEnglish ? "/en/services/" : "/services/"}">${isEnglish ? "View all services" : "عرض جميع الخدمات"}</a></div>
     <div class="footer-column footer-contact"><h2>${isEnglish ? "Contact" : "بيانات التواصل"}</h2><a dir="ltr" href="tel:${site.phone}">${icon("phone")}<span>${site.phoneDisplay}</span></a><a href="${site.whatsapp}" target="_blank" rel="noopener">${icon("whatsapp")}<span>WhatsApp</span></a><a href="mailto:${site.email}">${icon("mail")}<span>${site.email}</span></a><a href="${site.googleMapsProfile}" target="_blank" rel="noopener">${icon("pin")}<span>${isEnglish ? "Google Maps business profile" : "الملف التجاري على خرائط Google"}</span></a><span>${icon("globe")}<span>${isEnglish ? "Riyadh service area" : `نطاق الخدمة: ${site.city}`}</span></span></div>
   </div>
-  <div class="container footer-bottom"><p>© ${new Date().getFullYear()} ${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}. ${isEnglish ? "All rights reserved." : "جميع الحقوق محفوظة."}</p><div><a href="/privacy/">${isEnglish ? "Privacy" : "الخصوصية"}</a><a href="/terms/">${isEnglish ? "Terms" : "الشروط"}</a><a href="/.well-known/security.txt">${isEnglish ? "Security" : "الإبلاغ الأمني"}</a></div></div>
+  <div class="container footer-bottom"><p>© ${new Date().getFullYear()} ${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}. ${isEnglish ? "All rights reserved." : "جميع الحقوق محفوظة."}</p><div><a href="${isEnglish ? "/en/privacy/" : "/privacy/"}">${isEnglish ? "Privacy" : "الخصوصية"}</a><a href="${isEnglish ? "/en/terms/" : "/terms/"}">${isEnglish ? "Terms" : "الشروط"}</a><a href="/.well-known/security.txt">${isEnglish ? "Security" : "الإبلاغ الأمني"}</a></div></div>
 </footer>
 <div class="floating-contact" role="group" aria-label="${isEnglish ? "Quick contact" : "تواصل سريع"}">
   <a class="floating-action floating-call" href="tel:${site.phone}" aria-label="${isEnglish ? "Call Eng. Eslam" : "اتصال مباشر بالمهندس إسلام الشيخ"}">${icon("phone")}<span>${isEnglish ? "Call" : "اتصال"}</span></a>
@@ -324,7 +351,7 @@ function footer(language = "ar") {
 
 function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image, keywords = [], articleSection = "", stylesheets = [], pageScripts = [] }) {
   return `${head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection, stylesheets })}
-<body>${header(active, lang)}<main id="main">${body}${businessMapSection(lang)}</main>${footer(lang)}${pageScripts.map((src) => `<script src="${esc(src)}" defer></script>`).join("")}</body></html>`;
+<body>${header(active, lang, path)}<main id="main">${body}${businessMapSection(lang)}</main>${footer(lang)}${pageScripts.map((src) => `<script src="${esc(src)}" defer></script>`).join("")}</body></html>`;
 }
 
 const eyebrow = (text) => `<span class="eyebrow"><span aria-hidden="true"></span>${esc(text)}</span>`;
@@ -467,9 +494,10 @@ function finalCta(title = "لنحوّل فكرتك أو مشكلتك إلى خط
   return `<section class="section-pad final-cta"><div class="container"><div class="cta-panel reveal"><div>${eyebrow("ابدأ من تشخيص صحيح")}<h2>${esc(title)}</h2><p>${esc(text)}</p></div><div class="cta-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، أرغب في مناقشة مشروع تقني.")}`, "ابدأ عبر واتساب", "button-light", true)}<a class="cta-phone" href="tel:${site.phone}" dir="ltr">${site.phoneDisplay}</a></div></div></div></section>`;
 }
 
-function innerHero({ eyebrowText, title, lead, path, crumbs = [], aside, afterLead = "", className = "" }) {
-  const breadcrumb = [{ name: "الرئيسية", path: "/" }, ...crumbs];
-  return `<section class="inner-hero${className ? ` ${esc(className)}` : ""}"><div class="container"><nav class="breadcrumbs" aria-label="مسار الصفحة">${breadcrumb.map((item, index) => `${index ? icon("chevron") : ""}<a href="${item.path}"${index === breadcrumb.length - 1 ? ' aria-current="page"' : ""}>${esc(item.name)}</a>`).join("")}</nav><div class="inner-hero-grid"><div class="inner-hero-copy reveal">${eyebrow(eyebrowText)}<h1>${title}</h1><p>${esc(lead)}</p>${afterLead}</div>${aside ? `<div class="inner-hero-aside reveal">${aside}</div>` : ""}</div></div></section>`;
+function innerHero({ eyebrowText, title, lead, path, crumbs = [], aside, afterLead = "", className = "", language = "ar" }) {
+  const isEnglish = language === "en";
+  const breadcrumb = [{ name: isEnglish ? "Home" : "الرئيسية", path: isEnglish ? "/en/" : "/" }, ...crumbs];
+  return `<section class="inner-hero${className ? ` ${esc(className)}` : ""}"><div class="container"><nav class="breadcrumbs" aria-label="${isEnglish ? "Breadcrumb" : "مسار الصفحة"}">${breadcrumb.map((item, index) => `${index ? icon("chevron") : ""}<a href="${item.path}"${index === breadcrumb.length - 1 ? ' aria-current="page"' : ""}>${esc(item.name)}</a>`).join("")}</nav><div class="inner-hero-grid"><div class="inner-hero-copy reveal">${eyebrow(eyebrowText)}<h1>${title}</h1><p>${esc(lead)}</p>${afterLead}</div>${aside ? `<div class="inner-hero-aside reveal">${aside}</div>` : ""}</div></div></section>`;
 }
 
 function businessMapSection(language = "ar") {
@@ -988,6 +1016,441 @@ function termsPage() {
   return page({ title: "شروط الاستخدام", description: "شروط استخدام موقع المهندس إسلام الشيخ وحدود المحتوى والخدمات التقنية والاستشارية والأمنية وخدمات الجهات الخارجية.", path: "/terms/", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "شروط الاستخدام", path: "/terms/" }])] });
 }
 
+function englishFinalCta(title = "Turn the next technical decision into a clear delivery plan", text = "Share the objective, current state, public links, constraints, and expected timing. You will receive a structured starting point without unnecessary scope.") {
+  return `<section class="section-pad final-cta"><div class="container"><div class="cta-panel reveal"><div>${eyebrow("Start with the right diagnosis")}<h2>${esc(title)}</h2><p>${esc(text)}</p></div><div class="cta-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start on WhatsApp", "button-light", true)}<a class="cta-phone" href="mailto:${site.email}">${esc(site.email)}</a></div></div></div></section>`;
+}
+
+function englishServiceCard(service) {
+  return `<article class="service-card reveal" data-service-group="${esc(service.group)}">
+    <div class="service-card-top"><span class="service-number">${service.number}</span><span class="service-icon">${icon(service.icon)}</span></div>
+    <p class="service-group">${esc(service.group)}</p>
+    <h3><a href="/en/services/${service.slug}/">${esc(service.title)}</a></h3>
+    <p>${esc(service.short)}</p>
+    <a class="text-link" href="/en/services/${service.slug}/" aria-label="View ${esc(service.title)} service details">Explore this service ${icon("arrow")}</a>
+  </article>`;
+}
+
+function englishServicesIndexPage() {
+  const groups = [...new Set(englishServices.map((service) => service.group))];
+  const path = "/en/services/";
+  const body = `${innerHero({ eyebrowText: "Engineering & advisory services", title: "Specialist services for security, software, visibility, and growth", lead: "Choose a focused engagement or combine several disciplines into one delivery plan with clear scope, evidence, ownership, and measurable acceptance criteria.", path, language: "en", crumbs: [{ name: "Services", path }], aside: `<span class="aside-kicker">9 specialist tracks</span><strong>From diagnosis to launch and improvement</strong><p>Each service page explains the scope, deliverables, process, fit, and practical limits before you make contact.</p>` })}
+<section class="section-pad"><div class="container"><div class="service-filters" role="group" aria-label="Filter services"><button type="button" aria-pressed="true" data-service-filter="all">All services</button>${groups.map((group) => `<button type="button" aria-pressed="false" data-service-filter="${esc(group)}">${esc(group)}</button>`).join("")}</div><div class="services-grid services-grid-index" data-services-grid>${englishServices.map(englishServiceCard).join("")}</div></div></section>
+<section class="section-pad muted-section"><div class="container decision-grid"><div class="decision-copy reveal">${eyebrow("Choose the right starting point")}<h2>Begin with the problem and the outcome—not the tool name</h2><p>A slow website can be caused by architecture, hosting, images, or JavaScript. Weak search visibility may begin with indexing, content, the business profile, or measurement. A short diagnosis prevents investment in a solution that never reaches the root cause.</p></div><div class="decision-steps"><article class="reveal"><span>01</span><h3>Describe the current state</h3><p>Share the public link, the observed problem, its impact, and what has already been tried.</p></article><article class="reveal"><span>02</span><h3>Define the outcome</h3><p>Clarify whether success means safer operations, a launch, local discovery, or a faster workflow.</p></article><article class="reveal"><span>03</span><h3>Surface the constraints</h3><p>List timing, budget, team capacity, existing systems, approvals, and non-negotiable boundaries.</p></article><article class="reveal"><span>04</span><h3>Shape the engagement</h3><p>Choose an audit, complete delivery, staged improvement, or ongoing support based on evidence.</p></article></div></div></section>
+${englishFinalCta("Not sure which service fits your situation?", "Send the problem, desired outcome, and available links. I will help identify the most logical starting point without adding work the project does not need.")}`;
+  return page({ title: "Digital Engineering Services", description: "Explore Eslam Elshikh's services in cybersecurity, web development, AI agents, Google Business Profile, cloud architecture, SEO, and digital advertising.", path, active: "services", body, lang: "en", schema: [breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Services", path }])] });
+}
+
+function englishServiceDetailPage(service) {
+  const path = `/en/services/${service.slug}/`;
+  const related = englishServices.filter((item) => item.slug !== service.slug && (item.group === service.group || ["web-development", "seo", "cybersecurity"].includes(item.slug))).slice(0, 3);
+  const serviceSchema = {
+    "@type": "Service",
+    "@id": `${absolute(path)}#service`,
+    name: service.title,
+    serviceType: service.title,
+    description: service.meta,
+    url: absolute(path),
+    provider: { "@id": `${site.url}/#professional-service` },
+    areaServed: [{ "@type": "City", name: "Riyadh" }, { "@type": "Country", name: "Saudi Arabia" }],
+    availableChannel: { "@type": "ServiceChannel", serviceUrl: absolute("/en/contact/"), availableLanguage: ["en", "ar"] },
+    hasOfferCatalog: { "@type": "OfferCatalog", name: `${service.title} scope`, itemListElement: service.scope.map((item) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: item } })) }
+  };
+  const specializedLink = service.slug === "digital-advertising"
+    ? `<section class="section-pad"><div class="container proof-panel reveal"><div class="proof-icon">${icon("megaphone")}</div><div><span>Dedicated Google Ads service</span><h2>Is paid search your immediate acquisition priority?</h2><p>Review the dedicated page for search campaign structure, search-term control, conversion tracking, budget decisions, and landing-page alignment.</p></div><div class="proof-actions">${button("/en/google-ads/", "Explore Google Ads")}</div></div></section>`
+    : service.slug === "seo"
+      ? `<section class="section-pad"><div class="container proof-panel reveal"><div class="proof-icon">${icon("pin")}</div><div><span>Dedicated Riyadh market page</span><h2>Do you need stronger discovery for customers searching in Riyadh?</h2><p>The local program connects the website, service pages, Google Business Profile, reputation, consistency, and qualified-enquiry measurement.</p></div><div class="proof-actions">${button("/en/local-seo/riyadh/", "Local SEO in Riyadh")}</div></div></section>`
+      : "";
+  const body = `${innerHero({ eyebrowText: service.group, title: esc(service.h1), lead: service.short, path, language: "en", crumbs: [{ name: "Services", path: "/en/services/" }, { name: service.title, path }], aside: `<span class="service-hero-number">${service.number}</span><span class="service-hero-icon">${icon(service.icon)}</span><strong>${esc(service.value)}</strong>` })}
+<section class="section-pad service-intro-section"><div class="container service-intro-grid"><div class="rich-copy reveal">${service.intro.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}</div><aside class="service-quick-card reveal"><span>Useful first brief</span><h2>Give the diagnosis enough context</h2>${checkList(["The business outcome or current problem", "Affected systems, accounts, or public links", "Operational or customer impact", "Expected timing and major constraints"])}${button(`${site.whatsapp}?text=${encodeURIComponent(`Hello Eng. Eslam, I would like to discuss ${service.title}.`)}`, "Discuss on WhatsApp", "", true)}</aside></div></section>
+${specializedLink}
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Service scope")}<h2>What the engagement can cover</h2><p>${esc(service.value)}</p></div><div class="scope-grid">${service.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon(service.icon)}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("Reviewable deliverables")}<h2>Evidence your team can use after handover</h2><p>The exact format follows the project, but each output has an owner, purpose, and acceptance check.</p></div><div class="deliverables-panel reveal">${checkList(service.deliverables, "deliverables-list")}</div></div></section>
+<section class="section-pad audience-section"><div class="container"><div class="section-heading reveal">${eyebrow("Who it is for")}<h2>Situations where this service creates the most value</h2></div><div class="audience-grid">${service.forWho.map((item, index) => `<article class="audience-card reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad process-section"><div class="container"><div class="section-heading reveal">${eyebrow("Delivery process")}<h2>Four stages from context to a verified result</h2></div><ol class="process-list service-process">${service.steps.map((step, index) => `<li class="reveal"><span>${String(index + 1).padStart(2, "0")}</span><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p></li>`).join("")}</ol></div></section>
+<section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("Service questions")}<h2>Scope, risk, ownership, and expectations</h2>${button(`/en/contact/?service=${service.slug}#project-brief`, "Request a scoped discussion", "button-ghost")}</div>${faqBlock(service.faq)}</div></section>
+<section class="section-pad related-section"><div class="container"><div class="section-heading reveal">${eyebrow("Connected capabilities")}<h2>Services that can strengthen the same outcome</h2></div><div class="services-grid related-services">${related.map(englishServiceCard).join("")}</div></div></section>
+${englishFinalCta(`Need ${service.title} within a clearly bounded project?`, "Share the current state and desired outcome. We can define realistic scope, reviewable deliverables, dependencies, and a practical first release.")}`;
+  return page({ title: service.seoTitle, description: service.meta, path, active: "services", body, lang: "en", keywords: service.keywords, schema: [serviceSchema, faqSchema(service.faq), breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Services", path: "/en/services/" }, { name: service.title, path }])] });
+}
+
+function englishLocalSeoPage() {
+  const path = "/en/local-seo/riyadh/";
+  const faq = [
+    ["Do I need a page for every Riyadh neighborhood?", "No. Create a location page only when it adds distinct, useful information. Thin neighborhood pages can dilute quality and compete with stronger service pages."],
+    ["Can a service-area business rank without showing an address?", "An eligible service-area business can hide its address and use realistic areas. Visibility still varies with relevance, distance, prominence, competition, and context."],
+    ["Can you guarantee a top local ranking?", "No. Local results vary by query, location, device, competition, and search-system decisions. The engagement guarantees scope, implementation, and measurement—not a fixed position."],
+    ["How should we measure local SEO?", "Combine queries and landing pages with Business Profile actions, calls, WhatsApp, forms, directions, booked work, and lead quality by service where possible."]
+  ];
+  const lead = "Local SEO for Riyadh service businesses connecting the website, Google Business Profile, genuine coverage, reputation, content, and qualified enquiries.";
+  const body = `${innerHero({ eyebrowText: "Local SEO for Riyadh", title: "Build local visibility around a real business—not a list of district names", lead, path, language: "en", crumbs: [{ name: "Local SEO in Riyadh", path }], aside: `<span class="service-hero-icon">${icon("pin")}</span><strong>Riyadh is a large, competitive market with different intent by service and location.</strong><p>The work starts with real demand, eligibility, and customer decisions, then prioritizes pages and fixes that can be measured.</p>` })}
+<section class="section-pad"><div class="container service-intro-grid"><div class="rich-copy reveal"><h2>How a stronger local presence is built</h2><p>Local search combines service meaning, location, relevance, trust, website experience, business data, and real-world prominence. Improving the profile alone may not work when the website is thin, important pages are not indexed, or the business is represented inconsistently.</p><p>I review the website, indexed pages, Business Profile, categories, services, operating model, competitors, reputation, and conversion paths. The resulting roadmap separates urgent foundation work from longer-term opportunities across content, local authority, and measurement.</p></div><aside class="service-quick-card reveal"><span>Starting audit</span><h2>Evidence reviewed first</h2>${checkList(["Website and indexable service pages", "Business Profile eligibility, categories, and services", "Name, phone, location, and service-area consistency", "Local results and relevant competitors", "Content, reviews, links, and real-world proof", "Calls, messages, forms, and lead-quality data"])}${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like a local SEO review for my Riyadh business.")}`, "Request an initial review", "", true)}</aside></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Connected workstreams")}<h2>From technical access to discovery and conversion</h2></div><div class="scope-grid">${[
+    ["search", "Crawlability, indexing, metadata, speed, mobile UX, and internal links"],
+    ["pin", "Business Profile eligibility, categories, services, coverage, and ownership"],
+    ["layers", "Service and topic architecture that prevents duplication and cannibalization"],
+    ["globe", "Consistent business identity across important websites and platforms"],
+    ["quote", "Genuine-review and content systems based on real customer questions"],
+    ["chart", "Measurement for visibility, calls, messages, forms, and qualified demand"]
+  ].map(([mark, copy], index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon(mark)}<p>${esc(copy)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("Practical roadmap")}<h2>Prioritized releases instead of an unranked audit dump</h2><p>Work is ordered by impact, likelihood, dependency, and the team's ability to implement. A foundational problem is treated differently from a long-term growth opportunity.</p></div><div class="deliverables-panel reveal">${checkList(["Evidence-backed audit with priority and ownership", "Service, topic, query, and location map", "Page, metadata, internal-link, and schema improvements", "Business Profile, consistency, content, and genuine-review plan", "Dashboard for visibility, actions, and enquiry quality"], "deliverables-list")}</div></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Riyadh market coverage")}<h2>Use neighborhood context only when it helps the customer</h2><p>North, central, east, west, and south Riyadh—and districts such as Al Malqa, Al Yasmin, An Narjis, Hittin, Al Aqiq, As Sahafah, Qurtubah, and Ar Rawabi—may matter when they reflect real coverage, travel, branches, or customer needs. They should not become interchangeable doorway pages.</p></div><div class="neighborhood-cloud" aria-label="Riyadh areas"><span>North Riyadh</span><span>Al Malqa</span><span>Al Yasmin</span><span>An Narjis</span><span>Hittin</span><span>Al Aqiq</span><span>As Sahafah</span><span>Qurtubah</span><span>East Riyadh</span><span>Central Riyadh</span><span>West Riyadh</span><span>South Riyadh</span></div></div></section>
+<section class="section-pad"><div class="container local-paths"><article class="reveal"><span>Customer-facing locations</span><h3>Stores and offices that receive visitors</h3><p>Review address eligibility, frontage, hours, categories, local pages, consistency, and direction requests.</p></article><article class="reveal"><span>Service-area businesses</span><h3>Teams that travel to the customer</h3><p>Configure hidden addresses and realistic service areas while describing coverage without false locations.</p></article><article class="reveal"><span>Multi-location companies</span><h3>Real branches with distinct local journeys</h3><p>Give each eligible branch accurate ownership, content, and pages while managing duplication centrally.</p></article></div></section>
+<section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("Local SEO questions")}<h2>Realistic decisions before implementation</h2><p>Local visibility is cumulative and depends on the market, current website and profile, eligibility, competition, and execution speed.</p>${button("/en/services/seo/", "Explore the full SEO service", "button-ghost")}</div>${faqBlock(faq)}</div></section>
+${englishFinalCta("Want to improve qualified local discovery in Riyadh?", "Share the website, Business Profile, target services, and genuine service coverage. I will identify where visibility or conversion is being lost and what to address first.")}`;
+  const schema = [{ "@type": "Service", name: "Local SEO in Riyadh", serviceType: "Local SEO", provider: { "@id": `${site.url}/#professional-service` }, areaServed: { "@type": "City", name: "Riyadh" }, description: lead }, faqSchema(faq), breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Local SEO in Riyadh", path }])];
+  return page({ title: "Local SEO Services in Riyadh", description: lead, path, active: "services", body, lang: "en", keywords: ["local SEO Riyadh", "Google Maps visibility", "service business SEO Saudi Arabia"], schema });
+}
+
+function englishAboutPage() {
+  const path = "/en/about/";
+  const body = `${innerHero({ eyebrowText: "About Eslam Elshikh", title: "Cybersecurity engineer, software developer, and digital problem-solver in Riyadh", lead: "I combine secure engineering, web and application development, practical AI, Google product experience, and search visibility to turn complex digital work into clear, reviewable outcomes.", path, language: "en", crumbs: [{ name: "About", path }], aside: `<div class="article-author-head"><img class="article-author-photo" src="${profilePhoto}" width="128" height="128" alt="Eslam Elshikh" loading="eager" decoding="async"><div><span>Based in Riyadh</span><strong>${esc(site.nameEn)}</strong><p>Saudi Arabia & remote collaboration</p></div></div>` })}
+<section class="section-pad"><div class="container service-intro-grid"><div class="rich-copy reveal"><h2>I work across the boundaries where digital projects usually break</h2><p>A website can look polished and still be difficult to find, insecure to operate, or unclear to customers. An AI assistant can be impressive in a demo and unreliable inside a real workflow. A Business Profile can contain complete fields and still represent the business incorrectly. My work connects these disciplines so decisions remain coherent from diagnosis through launch.</p><p>I begin with the business outcome, the current system, the people who operate it, and the evidence available. Technology is selected after the problem is framed. The engagement is then divided into reviewable stages with explicit scope, dependencies, risk, acceptance criteria, and handover.</p><p>My public work includes live web projects and Google Maps examples across companies and service businesses. Public links demonstrate the existence and presentation of those projects; they do not imply invented revenue, traffic, or ranking results. Where outcome data is unavailable, I say so.</p></div><aside class="service-quick-card reveal"><span>Professional focus</span><h2>One accountable delivery perspective</h2>${checkList(["Cybersecurity and systems protection", "Websites, applications, and technical products", "AI agents, knowledge systems, and automation", "Google Business Profile and product support", "Technical, content, and local SEO", "Cloud architecture, analytics, and conversion"])}${button("/en/contact/", "Discuss a project")}</aside></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Working principles")}<h2>Good engineering makes the important decisions easier to see</h2><p>The work should remain understandable to the business, maintainable by the team, and testable after delivery.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome before tooling</h3><p>Define the decision, user, constraint, and evidence of success before choosing a platform.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Security by design</h3><p>Consider identities, permissions, data, recovery, and failure paths from the beginning.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for real use</h3><p>Design for actual devices, content, operating capacity, accessibility, and edge cases.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Evidence over theatre</h3><p>Measure useful outcomes and state clearly where third-party or business results cannot be guaranteed.</p></article></div></div></section>
+<section class="section-pad"><div class="container case-method reveal"><div><span>Identity across languages</span><h2>Eslam Elshikh · إسلام الشيخ</h2></div><p>The professional English name used across the website and public profiles is “Eslam Elshikh”. Arabic references such as “إسلام الشيخ” and “المهندس إسلام الشيخ” refer to the same person and official digital identity.</p><div class="hero-actions">${button(site.social.wikidata, "View Wikidata", "button-ghost", true)}${button(site.social.github, "View GitHub", "button-ghost", true)}</div></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Public evidence")}<h2>Work you can open and review</h2><p>Explore selected case studies, the verified live web-project archive, and public Google Maps examples.</p></div><div class="stats-bar reveal"><div><strong>${projectAudit.verifiedLiveProjects}</strong><span>verified live web projects</span></div><div><strong>${mapsProjects.length}</strong><span>public Google Maps examples</span></div><div><strong>${projectAudit.githubRepositories}</strong><span>GitHub repositories reviewed</span></div><div><strong>${projectAudit.vercelProjects}</strong><span>Vercel projects reviewed</span></div></div><div class="section-action">${button("/en/projects/", "Explore the work")}</div></div></section>
+${englishFinalCta("Have a project that crosses several disciplines?", "Share the business objective and the current technical situation. We can separate the problem into a practical sequence without losing the connections between security, experience, visibility, and operations.")}`;
+  const profileSchema = { "@type": "ProfilePage", "@id": `${absolute(path)}#profile`, url: absolute(path), mainEntity: { "@id": `${site.url}/#person` }, dateModified: site.lastUpdated, relatedLink: projects.filter((item) => item.slug && item.caseStudy).map((item) => absolute(`/en/projects/${item.slug}/`)) };
+  return page({ title: "About Eslam Elshikh | Cybersecurity & Software Engineer", description: "Meet Eslam Elshikh, a Riyadh-based cybersecurity engineer and software developer working across websites, AI agents, Google products, cloud systems, and SEO.", path, active: "about", body, lang: "en", schema: [profileSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "About", path }])] });
+}
+
+function englishGoogleExpertPage() {
+  const path = "/en/google-expert/";
+  const faq = [
+    ["What does a Google Maps and Business Profile specialist do?", "The work starts with eligibility, ownership, business model, data, website alignment, notices, and prior changes. It then identifies the safest correction, evidence, and official route for verification, recovery, appeal, or local improvement."],
+    ["Are you employed by or representing Google?", "No. I provide independent consulting based on practical product experience and official processes. Google makes all final verification, reinstatement, product, and ranking decisions."],
+    ["Can you guarantee profile approval or a top map position?", "No independent specialist can responsibly guarantee a platform decision or fixed ranking. I can provide structured diagnosis, evidence preparation, policy-aware corrections, and measurable local improvements."],
+    ["What should I send for an initial diagnosis?", "Share the public profile link, exact notice, business model, non-sensitive timeline, and previous changes or support attempts. Never send passwords, one-time codes, recovery codes, or private keys."]
+  ];
+  const expertService = { "@type": "Service", "@id": `${absolute(path)}#service`, name: "Google Maps and Business Profile consulting", serviceType: ["Google Business Profile consulting", "Google Maps profile support", "Local visibility consulting"], url: absolute(path), description: "Independent consulting for Google Business Profile verification, suspension, ownership, data quality, and local visibility in Riyadh and Saudi Arabia.", provider: { "@id": `${site.url}/#person` }, areaServed: [{ "@type": "City", name: "Riyadh" }, { "@type": "Country", name: "Saudi Arabia" }] };
+  const body = `${innerHero({ eyebrowText: "Google Maps specialist · Riyadh & Saudi Arabia", title: "Eslam Elshikh — Google Maps and Business Profile specialist", lead: "I help eligible businesses diagnose verification, suspension, ownership, category, and local visibility issues through policy-aware corrections, organized evidence, and the appropriate official route.", path, language: "en", crumbs: [{ name: "Google expertise", path }], aside: `<span class="google-mark">G</span><strong>Practical Google Maps experience</strong><p>Public contribution profiles and business examples can be reviewed directly, alongside clear limits on claims and platform decisions.</p>` })}
+<section class="section-pad"><div class="container google-stats"><div class="google-stat reveal"><strong>472</strong><span>Business Profiles supported through verification</span></div><div class="google-stat reveal"><strong>233</strong><span>Profile issues handled and resolved</span></div><div class="google-stat reveal"><strong>${mapsProjects.length}</strong><span>Public business examples available to review</span></div><div class="google-stat reveal"><strong>Google</strong><span>Hands-on product and profile experience</span></div></div></section>
+<section class="section-pad muted-section"><div class="container service-intro-grid"><div class="rich-copy reveal"><h2>Understand the case before changing the profile</h2><p>I first identify how the business serves customers: at a genuine staffed location, within a service area, or through an eligible hybrid model. I then review the name, categories, address or coverage, services, website, users, prior changes, and notices.</p><p>The diagnosis separates eligibility, identity, access, data, and policy problems. Corrections are made deliberately, evidence is matched to the point it proves, and the official verification, recovery, or reinstatement route is used without fragmenting the case through repeated random requests.</p>${button("/en/services/google-business-profile/", "Explore profile support")}</div><aside class="disclaimer-card professional-summary-card reveal"><span>Independent specialist</span><h2>Google experience connected to web and local search</h2><p>The profile does not operate in isolation. Website content, technical SEO, business identity, reputation, and conversion measurement are reviewed as one local discovery system.</p><a class="text-link" href="${site.social.googleDeveloper}" target="_blank" rel="noopener">Google Developer Profile ${icon("external")}</a><a class="text-link" href="${site.googleMapsProfile}" target="_blank" rel="noopener">Google Maps business profile ${icon("external")}</a></aside></div></section>
+<section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("Cases I work on")}<h2>From eligibility and ownership to a healthier local presence</h2></div><div class="scope-grid">${[
+    ["pin", "Set up an eligible profile that matches the real business model and customer contact."],
+    ["shield", "Diagnose suspension, restriction, risky edits, ownership, and access history."],
+    ["google", "Prepare video verification or supporting evidence in a clear proof sequence."],
+    ["search", "Connect the profile to service pages, technical SEO, content, and measurement."],
+    ["layers", "Review duplicates, branches, users, locations, and permission structures."],
+    ["chart", "Analyze discovery, calls, directions, website actions, and enquiry quality."]
+  ].map(([mark, copy], index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon(mark)}<p>${esc(copy)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad maps-section"><div class="container"><div class="section-heading reveal">${eyebrow("Public examples")}<h2>Business Profiles you can open on Google Maps</h2><p>A selection across industries and cities, with a separate archive containing the full public set.</p></div><div class="map-case-grid">${mapsProjects.filter((item) => item.featured).slice(0, 6).map((item, index) => englishFeaturedMapCard(item, index)).join("")}</div><div class="section-action">${button("/en/google-maps-projects/", `Explore ${mapsProjects.length} Google Maps examples`, "button-ghost")}</div></div></section>
+<section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("Google profile questions")}<h2>Clear expectations before making another change</h2><p>Eligibility, accurate representation, and relevant evidence matter more than the number of edits or support requests.</p>${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I need help diagnosing a Google Business Profile issue.")}`, "Share the case", "button-ghost", true)}</div>${faqBlock(faq)}</div></section>
+${englishFinalCta("Is your profile suspended, unverified, or inaccessible?", "Send the public link, exact notice, and a safe timeline of changes. I will help identify the right diagnosis before another edit or review request.")}`;
+  return page({ title: "Google Maps & Business Profile Specialist | Eslam Elshikh", description: "Independent Google Maps and Business Profile specialist in Riyadh for verification, suspension, ownership, categories, evidence, website alignment, and local visibility.", path, active: "google", body, lang: "en", keywords: ["Google Maps specialist Riyadh", "Google Business Profile expert Saudi Arabia", "profile verification support"], schema: [expertService, faqSchema(faq), breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Google expertise", path }])] });
+}
+
+function englishGoogleAdsPage() {
+  const path = "/en/google-ads/";
+  const faq = [
+    ["Can you guarantee a specific number of leads?", "No. Demand, competition, offer, pricing, sales response, and platform auctions all influence results. The work guarantees a clear campaign structure, tested measurement, and evidence-based optimization."],
+    ["Do I need a dedicated landing page?", "Often yes. A focused page can match search intent, explain the offer, present relevant proof, load quickly on mobile, and make the conversion action easier to measure."],
+    ["How is the starting budget decided?", "It follows expected demand, click costs, service economics, conversion capacity, and the amount of data required for a useful test—not an arbitrary platform minimum."],
+    ["Who should own the advertising account?", "The client should normally retain ownership and billing control. Access can be granted through the platform's proper manager and user permissions rather than shared passwords."]
+  ];
+  const body = `${innerHero({ eyebrowText: "Google Ads management", title: "Paid search built around qualified intent—not click volume", lead: "Campaign structure, search terms, landing pages, conversion tracking, and lead-quality feedback are designed as one system for businesses in Saudi Arabia.", path, language: "en", crumbs: [{ name: "Google Ads", path }], aside: `<span class="service-hero-icon">${icon("megaphone")}</span><strong>Campaign and landing page in one decision journey</strong><p>The promise in the keyword and ad continues through the page, contact action, and measurement model.</p>` })}
+<section class="section-pad"><div class="container service-intro-grid"><div class="rich-copy reveal"><h2>Start with commercial intent and delivery capacity</h2><p>Before launching spend, I clarify the offer, target customer, service area, exclusions, unit economics, response process, and meaningful conversion. This reveals which searches deserve budget and which messages the business can support.</p><p>Campaigns are organized around tightly related intent with deliberate negative keywords. Landing pages are written and designed for the same decision, while calls, WhatsApp, forms, and qualified opportunities are measured separately so click volume does not disguise weak commercial outcomes.</p></div><aside class="service-quick-card reveal"><span>Campaign readiness</span><h2>What to prepare before launch</h2>${checkList(["Priority services, margins, and operating capacity", "Target cities, schedules, and genuine exclusions", "Existing account, campaign, and search-term history", "Current pages, offers, proof, and response process", "Conversion definitions and lead-quality feedback"])}${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss Google Ads and landing pages.")}`, "Discuss the campaign", "", true)}</aside></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Campaign system")}<h2>Five connected layers that can be reviewed and improved</h2></div><div class="scope-grid">${[
+    ["target", "Intent, offer, audience, location, exclusions, and commercial hypothesis"],
+    ["search", "Campaign, ad group, keyword, match type, and negative-keyword structure"],
+    ["quote", "Original ads and extensions aligned with the actual landing-page promise"],
+    ["code", "Fast, focused mobile landing pages with relevant proof and clear actions"],
+    ["chart", "Tracking, search-term review, qualified-lead feedback, and budget decisions"],
+    ["shield", "Account ownership, permissions, policy awareness, and safe handover"]
+  ].map(([mark, copy], index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon(mark)}<p>${esc(copy)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("Delivery evidence")}<h2>What a campaign engagement should leave behind</h2><p>The account remains understandable: assumptions, structure, tracking, changes, and business outcomes can be reviewed without relying on a dashboard screenshot.</p></div><div class="deliverables-panel reveal">${checkList(["Campaign architecture and documented targeting assumptions", "Keyword, search-term, and negative-keyword framework", "Ad variants and conversion-focused landing page", "Verified call, WhatsApp, and form event definitions", "Reporting across spend, queries, actions, and lead quality", "Account ownership and handover notes"], "deliverables-list")}</div></div></section>
+<section class="section-pad"><div class="container case-method reveal"><div><span>Landing-page alignment</span><h2>Advertising cannot repair an unclear offer</h2></div><p>If the ad promises one service and the page presents a broad company introduction, the visitor must solve the message gap. The page should confirm the search, explain the offer, reduce the relevant risk, and make the next step clear on mobile.</p>${button("/en/blog/landing-pages-google-ads/", "Read the landing-page guide", "button-ghost")}</div></section>
+<section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("Google Ads questions")}<h2>Budgets, ownership, tracking, and realistic expectations</h2>${button("/en/services/digital-advertising/", "Explore digital advertising", "button-ghost")}</div>${faqBlock(faq)}</div></section>
+${englishFinalCta("Want a paid-search plan you can actually audit?", "Share the offer, target market, current account or landing page, expected budget, and sales process. We can define a controlled first test and the evidence needed to improve it.")}`;
+  const serviceSchema = { "@type": "Service", "@id": `${absolute(path)}#service`, name: "Google Ads management and landing pages", serviceType: "Google Ads management", url: absolute(path), description: "Google Ads campaign management and landing page delivery for Saudi businesses, with search intent, conversion measurement, and lead-quality review.", provider: { "@id": `${site.url}/#professional-service` }, areaServed: { "@type": "Country", name: "Saudi Arabia" } };
+  return page({ title: "Google Ads Management & Landing Pages", description: "Google Ads management in Saudi Arabia with search-intent structure, negative keywords, conversion landing pages, tracking, and qualified-lead optimization.", path, active: "services", body, lang: "en", keywords: ["Google Ads management Saudi Arabia", "paid search Riyadh", "landing page design"], schema: [serviceSchema, faqSchema(faq), breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Google Ads", path }])] });
+}
+
+const englishProjectCategory = (value) => ({
+  "منصة شركة ومحتوى خدمات": "Corporate platform & service content",
+  "هوية تقنية وموقع شركة ذكاء اصطناعي": "Technology identity & AI company website",
+  "موقع طبي متعدد الصفحات": "Multi-page healthcare website",
+  "عرض تنفيذي تفاعلي": "Interactive executive proposal",
+  "موقع شركة خدمات في جدة": "Service company website in Jeddah",
+  "موقع تجارة ومقاولات": "Trading and contracting website",
+  "موقع خدمات تشطيب محلية": "Local finishing-services website",
+  "منصة خدمات ديكور وخزائن": "Interior and cabinetry service platform",
+  "موقع خدمات محلية": "Local service-business website",
+  "صفحة هبوط تحويلية": "Conversion-focused landing page",
+  "موقع خدمات منزلية": "Home-services website",
+  "موقع نجارة وديكور محلي": "Local carpentry and interior website"
+}[value] || "Digital web project");
+
+const englishProjectDescription = (project) => englishProjectStudies[project.slug]?.description || ({
+  "موقع شركة خدمات في جدة": "A responsive service-business website designed to explain the offer, build local confidence, and move mobile visitors toward a direct enquiry.",
+  "موقع تجارة ومقاولات": "A focused corporate presence that organizes trading and contracting services into clear customer paths with accessible contact actions.",
+  "موقع خدمات تشطيب محلية": "A local service experience structured around customer intent, visual proof, mobile usability, and fast call or WhatsApp access.",
+  "منصة خدمات ديكور وخزائن": "A scalable content system for interior and cabinetry services, connecting detailed pages with local discovery and conversion paths.",
+  "موقع خدمات محلية": "A search-ready local website that presents services, coverage, evidence, and direct customer contact without unnecessary complexity.",
+  "صفحة هبوط تحويلية": "A concise landing experience built around one service decision, relevant trust signals, mobile speed, and measurable contact actions.",
+  "موقع خدمات منزلية": "A mobile-first home-services website that makes urgent service choices and direct contact straightforward.",
+  "موقع نجارة وديكور محلي": "A visual local-business website balancing craftsmanship, service detail, discovery, and conversion across devices."
+}[project.category] || "A live digital project with a responsive interface, clear content hierarchy, and practical customer journeys.");
+
+const officialProjectName = (project, customTitle) => {
+  const title = customTitle || project.title;
+  return /[\u0600-\u06ff]/.test(title) ? `<span lang="ar" dir="rtl">${esc(title)}</span>` : esc(title);
+};
+
+function englishProjectImage(project, { eager = false } = {}) {
+  const title = englishProjectStudies[project.slug]?.title || project.title;
+  return `<img src="${project.image}" width="1200" height="750" alt="Interface preview of ${esc(title)}" loading="${eager ? "eager" : "lazy"}" decoding="async"${eager ? ' fetchpriority="high"' : ""}>`;
+}
+
+function englishProjectActions(project, className = "") {
+  const title = englishProjectStudies[project.slug]?.title || project.title;
+  const requestMessage = `Hello Eng. Eslam, I reviewed the ${title} project and would like to discuss a project with a similar delivery approach.`;
+  const caseStudyLink = project.caseStudy && project.slug ? `<a class="button button-small" href="/en/projects/${project.slug}/" aria-label="Read the ${esc(title)} case study">Case study ${icon("arrow", "button-icon")}</a>` : "";
+  return `<div class="portfolio-actions${className ? ` ${className}` : ""}">${caseStudyLink}<a class="button button-small button-ghost" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="Open the live ${esc(title)} website">Live site ${icon("external", "button-icon")}</a><a class="portfolio-request-link" href="${site.whatsapp}?text=${encodeURIComponent(requestMessage)}" target="_blank" rel="noopener" aria-label="Discuss a project similar to ${esc(title)}">Discuss a similar project ${icon("whatsapp")}</a></div>`;
+}
+
+function englishFeaturedProject(project) {
+  const study = englishProjectStudies[project.slug];
+  const domain = new URL(project.liveUrl).hostname.replace(/^www\./, "");
+  return `<article class="portfolio-featured reveal"><div class="portfolio-featured-copy"><span class="portfolio-index" dir="ltr">FEATURED / 01</span><p class="portfolio-kicker">${esc(study?.category || englishProjectCategory(project.category))}</p><h3><a href="/en/projects/${project.slug}/">${officialProjectName(project, study?.title)}</a></h3><p class="portfolio-description">${esc(englishProjectDescription(project))}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div>${englishProjectActions(project)}</div><a class="portfolio-stage" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="Open the live ${esc(study?.title || project.title)} website"><span class="portfolio-stage-orbit" aria-hidden="true"></span><span class="portfolio-browser"><span class="portfolio-browser-bar"><span class="browser-dots" aria-hidden="true"><i></i><i></i><i></i></span><span dir="ltr">${esc(domain)}</span></span>${englishProjectImage(project)}</span></a></article>`;
+}
+
+function englishShowcaseProject(project, index) {
+  const study = englishProjectStudies[project.slug];
+  const heading = project.caseStudy && project.slug ? `<a href="/en/projects/${project.slug}/">${officialProjectName(project, study?.title)}</a>` : officialProjectName(project);
+  return `<article class="portfolio-project reveal"><a class="portfolio-project-media" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="Open the live ${esc(study?.title || project.title)} website"><span class="portfolio-project-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span>${englishProjectImage(project)}</a><div class="portfolio-project-copy"><p class="portfolio-kicker">${esc(study?.category || englishProjectCategory(project.category))}</p><h3>${heading}</h3><p>${esc(englishProjectDescription(project))}</p><div class="tag-row">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div>${englishProjectActions(project)}</div></article>`;
+}
+
+function englishArchiveProject(project, index) {
+  const study = englishProjectStudies[project.slug];
+  const heading = project.caseStudy && project.slug ? `<a href="/en/projects/${project.slug}/">${officialProjectName(project, study?.title)}</a>` : officialProjectName(project);
+  return `<article class="portfolio-archive-row reveal"><span class="portfolio-archive-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span><a class="portfolio-archive-media" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="Open the live ${esc(study?.title || project.title)} website">${englishProjectImage(project)}</a><div class="portfolio-archive-copy"><p class="portfolio-kicker">${esc(study?.category || englishProjectCategory(project.category))}</p><h3>${heading}</h3><p>${esc(englishProjectDescription(project))}</p></div>${englishProjectActions(project, "portfolio-archive-actions")}</article>`;
+}
+
+function englishProjectsShowcase({ home = false } = {}) {
+  const highlights = projects.slice(1, home ? 3 : 5);
+  const archive = home ? [] : projects.slice(5);
+  return `<div class="portfolio-showcase">${englishFeaturedProject(projects[0])}<div class="portfolio-highlight-grid">${highlights.map((project, index) => englishShowcaseProject(project, index + 1)).join("")}</div>${archive.length ? `<div class="portfolio-archive" aria-label="More selected work">${archive.map((project, index) => englishArchiveProject(project, index + 5)).join("")}</div>` : ""}</div>`;
+}
+
+function englishVerifiedWorkArchive() {
+  const sectors = [...new Set(webProjects.map((project) => project.sector))];
+  const cards = webProjects.map((project, index) => {
+    const domain = new URL(project.liveUrl).hostname.replace(/^www\./, "");
+    const sector = englishSectorNames[project.sector] || "Digital project";
+    const sourceLink = project.sourceUrl ? `<a href="${esc(project.sourceUrl)}" target="_blank" rel="noopener" aria-label="View the source for ${esc(project.title)} on GitHub">Source ${icon("code")}</a>` : "";
+    return `<article class="work-ledger-card reveal" data-work-card data-work-sector="${esc(sector)}"><div class="work-ledger-top"><span dir="ltr">${String(index + 1).padStart(2, "0")}</span><span>${esc(sector)}</span></div><h3>${officialProjectName(project)}</h3><p dir="ltr">${esc(domain)}</p><div class="work-ledger-actions"><a href="${esc(project.liveUrl)}" target="_blank" rel="noopener" aria-label="Open the live website for ${esc(project.title)}">Live site ${icon("external")}</a>${sourceLink}</div></article>`;
+  }).join("");
+  const englishSectors = sectors.map((sector) => englishSectorNames[sector] || "Digital project");
+  return `<section class="section-pad work-ledger-section" data-work-archive><div class="container"><div class="section-heading reveal">${eyebrow("Verified public archive")}<h2>${projectAudit.verifiedLiveProjects} unique live web projects</h2><p>I reviewed ${projectAudit.githubRepositories} GitHub repositories and ${projectAudit.vercelProjects} Vercel projects, then excluded empty repositories, duplicates, experiments, and non-public links. The archive below contains the live projects that could be opened and verified on September 2, 2026.</p></div><div class="work-audit-summary reveal" aria-label="Web work audit summary"><div><strong>${projectAudit.githubRepositories}</strong><span>GitHub repositories reviewed</span></div><div><strong>${projectAudit.vercelProjects}</strong><span>Vercel projects reviewed</span></div><div><strong>${projectAudit.verifiedLiveProjects}</strong><span>unique live projects</span></div></div><div class="work-ledger-controls reveal"><label class="work-search"><span>Search the archive</span><span class="work-search-field">${icon("search")}<input type="search" inputmode="search" autocomplete="off" placeholder="Project, sector, or domain" data-work-search></span></label><div class="work-sector-filters" aria-label="Filter projects by sector">${["All", ...englishSectors].map((sector, index) => `<button type="button" data-work-filter="${index === 0 ? "all" : esc(sector)}" aria-pressed="${index === 0 ? "true" : "false"}">${esc(sector)}</button>`).join("")}</div><p class="work-results-status" data-work-status aria-live="polite">Showing ${webProjects.length} of ${webProjects.length} projects</p></div><div class="work-ledger-grid">${cards}</div><div class="work-ledger-more"><button class="button button-ghost" type="button" data-work-more hidden>Show more ${icon("arrow", "button-icon")}</button></div><p class="work-empty" data-work-empty hidden>No projects match the current search and sector.</p><div class="independent-note reveal">${icon("shield")}<p><strong>Evidence boundary:</strong> these links verify that a public project existed at the review date. They do not claim traffic, conversion, revenue, or commercial ownership of the businesses shown. External links may change later.</p></div></div></section>`;
+}
+
+function englishMapsWorkTeaser() {
+  const samples = mapsProjects.filter((item) => item.featured).slice(0, 5);
+  return `<section class="section-pad maps-work-teaser"><div class="container"><div class="maps-teaser-panel reveal"><div class="maps-teaser-copy">${eyebrow("Google Maps work")}<h2>A public record across industries and Saudi cities</h2><p>${mapsProjects.length} unique Business Profile links demonstrate experience across verification support, ownership, restrictions, and local visibility. Official business names remain in their published language.</p><div class="maps-teaser-actions">${button("/en/google-maps-projects/", "Explore the Maps archive")} ${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like help diagnosing a Google Business Profile.")}`, "Discuss your profile", "button-ghost", true)}</div></div><div class="maps-teaser-stack" aria-label="Selected Google Maps work">${samples.map((item, index) => `<a href="${item.url}" target="_blank" rel="noopener"><span dir="ltr">${String(index + 1).padStart(2, "0")}</span><strong lang="ar" dir="rtl">${esc(item.title)}</strong>${icon("external")}</a>`).join("")}</div></div></div></section>`;
+}
+
+function englishProjectsPage() {
+  const path = "/en/projects/";
+  const projectList = { "@type": "ItemList", "@id": `${absolute(path)}#project-list`, name: "Verified live web projects by Eslam Elshikh", numberOfItems: webProjects.length, itemListElement: webProjects.map((project, index) => ({ "@type": "ListItem", position: index + 1, name: project.title, url: project.liveUrl })) };
+  const collectionSchema = { "@type": "CollectionPage", "@id": `${absolute(path)}#collection`, url: absolute(path), name: "Web projects and case studies by Eslam Elshikh", description: `${projectAudit.verifiedLiveProjects} verified live web projects, supported by selected case studies explaining delivery decisions and public evidence.`, creator: { "@id": `${site.url}/#person` }, mainEntity: { "@id": projectList["@id"] }, dateModified: site.lastUpdated };
+  const body = `${innerHero({ eyebrowText: "Work & case studies", title: `${projectAudit.verifiedLiveProjects} verified live projects—and selected stories behind the work`, lead: "A public archive of live websites, supported by case studies showing how a business objective becomes content architecture, responsive UX, technical implementation, and measurable contact paths.", path, language: "en", crumbs: [{ name: "Work", path }], aside: `<span class="aside-kicker">VERIFIED WORK / ${projectAudit.verifiedLiveProjects}</span><strong>Design, engineering, and search as one system</strong><p>The audit separates live public work from empty repositories, duplicates, experiments, and inaccessible links.</p>` })}
+<section class="section-pad portfolio-page-section"><div class="container"><div class="portfolio-page-heading reveal"><span>${projects.length} selected projects</span><p>A curated visual collection demonstrates different sectors and delivery choices before the complete verified archive.</p></div>${englishProjectsShowcase()}</div></section>
+${englishVerifiedWorkArchive()}
+${englishMapsWorkTeaser()}
+<section class="section-pad"><div class="container case-method reveal"><div><span>Project method</span><h2>No single template is repeated across every business</h2></div><p>Page structure, content, proof, calls to action, data, and technology follow the operating model, customer journey, market, and constraints. The objective is a system that fits the real business—not the same layout with a different logo.</p>${button("/en/contact/", "Discuss a similar project")}</div></section>
+${englishFinalCta("Want to turn your business into a stronger digital experience?", "Share the current website or Business Profile, target services, market, and objective. We can decide what needs rebuilding and what can be improved in stages.")}`;
+  return page({ title: `${projectAudit.verifiedLiveProjects} Verified Web Projects | Eslam Elshikh`, description: `Explore ${projectAudit.verifiedLiveProjects} verified live web projects by Eslam Elshikh across corporate websites, local services, platforms, responsive UX, and SEO.`, path, active: "projects", body, lang: "en", schema: [collectionSchema, projectList, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Work", path }])] });
+}
+
+function englishProjectCaseStudyPage(project) {
+  const study = englishProjectStudies[project.slug];
+  const path = `/en/projects/${project.slug}/`;
+  const domain = new URL(project.liveUrl).hostname.replace(/^www\./, "");
+  const requestMessage = `Hello Eng. Eslam, I read the ${study.title} case study and would like to discuss a project with a similar approach.`;
+  const creativeWorkSchema = { "@type": "CreativeWork", "@id": `${absolute(path)}#project`, name: study.title, description: study.description, url: absolute(path), image: absolute(project.image), sameAs: project.liveUrl, creator: { "@id": `${site.url}/#person` }, keywords: project.tags, dateModified: site.lastUpdated };
+  const body = `${innerHero({ eyebrowText: "Project case study", title: esc(study.title), lead: study.description, path, language: "en", crumbs: [{ name: "Work", path: "/en/projects/" }, { name: study.title, path }], aside: `<div class="case-study-preview"><span>${esc(study.category)}</span>${englishProjectImage(project, { eager: true })}<small dir="ltr">${esc(domain)}</small></div>` })}
+<section class="section-pad case-study-overview"><div class="container case-study-layout"><article class="rich-copy reveal"><span class="case-study-label">Objective</span><h2>What the public experience needed to accomplish</h2><p>${esc(study.objective)}</p><div class="tag-row" aria-label="Project disciplines">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div></article><aside class="case-study-facts reveal"><span>Project card</span><dl><div><dt>Type</dt><dd>${esc(study.category)}</dd></div><div><dt>Visible scope</dt><dd>Design, implementation, and digital experience</dd></div><div><dt>Evidence</dt><dd>Public link available for review</dd></div></dl>${button(project.liveUrl, "Open the live project", "button-ghost", true)}</aside></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Delivery scope")}<h2>What the work included</h2><p>These items describe the public version and do not assume commercial outcomes that have not been measured or independently documented.</p></div><div class="case-study-scope">${study.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon("layers")}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("Design decisions")}<h2>Why the experience took this direction</h2><p>Each decision connects presentation to user intent and the operating model, not visual preference alone.</p></div><ol class="case-study-decisions">${study.decisions.map((item, index) => `<li class="reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></li>`).join("")}</ol></div></section>
+<section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("Reviewable output")}<h2>What can be inspected today</h2><p>The listed output is tied to the published experience and can be reviewed directly through the live-project link.</p></div><div class="deliverables-panel reveal">${checkList(study.delivered, "deliverables-list")}<p class="case-study-disclaimer">This case study does not claim traffic, conversion, or return-on-investment figures because verified data supporting those outcomes has not been published.</p></div></div></section>
+<section class="section-pad"><div class="container case-method reveal"><div><span>Next step</span><h2>Need a project designed for your own context?</h2></div><p>The method can be reused, but the pages, content, and technology should follow your business, customers, evidence, and desired outcome.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent(requestMessage)}`, "Discuss a similar project", "", true)}${button("/en/projects/", "Back to all work", "button-ghost")}</div></div></section>`;
+  return page({ title: `${study.title} Case Study`, description: `${study.title} case study covering the objective, delivery scope, design decisions, and reviewable public output, with a direct link to the live project.`, path, active: "projects", body, lang: "en", schema: [creativeWorkSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Work", path: "/en/projects/" }, { name: study.title, path }])] });
+}
+
+const englishMapCategory = (value) => ({
+  "نجارة وديكور خشبي": "Carpentry & Wood Interiors",
+  "ألمنيوم وزجاج": "Aluminum & Glass",
+  "مقاولات وتشطيبات": "Contracting & Finishing",
+  "سباكة وكهرباء": "Plumbing & Electrical",
+  "تجارة وخدمات": "Trade & Services",
+  "تبريد وتكييف": "Cooling & Air Conditioning",
+  "ديكور وتشطيبات": "Interiors & Finishing",
+  "دهانات وتشطيبات": "Painting & Finishing",
+  "أنظمة أمنية ومراقبة": "Security & Surveillance Systems",
+  "رعاية صحية": "Healthcare",
+  "مطاعم وضيافة": "Restaurants & Hospitality",
+  "زهور وهدايا": "Flowers & Gifts",
+  "بناء وترميم": "Construction & Renovation",
+  "ديكورات جبسية": "Gypsum Interiors",
+  "بلاط وسيراميك": "Tile & Ceramic Services"
+}[value] || "Local Business");
+
+const englishMapLocation = (value) => ({
+  "المصيف، الرياض": "Al Masif, Riyadh",
+  "الياسمين، الرياض": "Al Yasmin, Riyadh",
+  "الوادي، الرياض": "Al Wadi, Riyadh",
+  "الصحافة، الرياض": "As Sahafah, Riyadh",
+  "الروضة، الرياض": "Ar Rawdah, Riyadh",
+  "الملك فيصل، الرياض": "King Faisal District, Riyadh",
+  "الخليج، الرياض": "Al Khaleej, Riyadh",
+  "طويق، الرياض": "Tuwaiq, Riyadh",
+  "النهضة، الرياض": "An Nahdah, Riyadh",
+  "قرطبة، الرياض": "Qurtubah, Riyadh",
+  "النرجس، الرياض": "An Narjis, Riyadh",
+  "اليرموك، الرياض": "Al Yarmuk, Riyadh",
+  "الرمال، الرياض": "Ar Rimal, Riyadh",
+  "الملك فهد، الرياض": "King Fahd District, Riyadh",
+  "نشاط نطاق خدمة": "Service-area business",
+  "نجران": "Najran",
+  "خميس مشيط": "Khamis Mushait",
+  "العارض، الرياض": "Al Arid, Riyadh",
+  "النفل، الرياض": "An Nafal, Riyadh",
+  "الملقا، الرياض": "Al Malqa, Riyadh",
+  "إشبيلية، الرياض": "Ishbiliyah, Riyadh",
+  "ظهرة لبن، الرياض": "Dhahrat Laban, Riyadh"
+}[value] || "Saudi Arabia");
+
+function englishMapRequestHref(item) {
+  return `${site.whatsapp}?text=${encodeURIComponent(`Hello Eng. Eslam, I reviewed the public Google Maps example for ${item.title} and would like help with a similar Business Profile case.`)}`;
+}
+
+function englishFeaturedMapCard(item, index) {
+  return `<article class="map-case-card reveal"><div class="map-case-top"><span class="map-case-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span><span class="map-case-pin">${icon("pin")}</span></div><p class="map-case-category">${esc(englishMapCategory(item.category))}</p><h3 lang="ar" dir="rtl">${esc(item.title)}</h3><p class="map-case-location">${icon("pin")}<span>${esc(englishMapLocation(item.location))}</span></p><div class="map-case-actions"><a class="button button-small" href="${item.url}" target="_blank" rel="noopener" aria-label="Open the Google Maps profile for ${esc(item.title)}">Open profile ${icon("external", "button-icon")}</a><a class="button button-small button-ghost" href="${englishMapRequestHref(item)}" target="_blank" rel="noopener" aria-label="Discuss a similar Google Maps case">Discuss a similar case ${icon("whatsapp", "button-icon")}</a></div></article>`;
+}
+
+function englishMapLedgerCard(item, index) {
+  return `<article class="map-ledger-card reveal"><span class="map-ledger-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span><div><p>${esc(englishMapCategory(item.category))}</p><h3 lang="ar" dir="rtl">${esc(item.title)}</h3><span>${icon("pin")} ${esc(englishMapLocation(item.location))}</span></div><a href="${item.url}" target="_blank" rel="noopener" aria-label="Open the Google Maps profile for ${esc(item.title)}">${icon("external")}</a></article>`;
+}
+
+function englishGoogleMapsProjectsPage() {
+  const path = "/en/google-maps-projects/";
+  const featured = mapsProjects.filter((item) => item.featured);
+  const archive = mapsProjects.filter((item) => !item.featured);
+  const categories = [...new Set(mapsProjects.map((item) => item.category))];
+  const tracks = [
+    { number: "01", title: "Verification readiness", text: "Review eligibility, business information, and evidence before selecting the available verification route." },
+    { number: "02", title: "Ownership and access", text: "Diagnose ownership conflicts and access requests without exchanging passwords or one-time verification codes." },
+    { number: "03", title: "Restrictions and suspension", text: "Identify the material issue, correct it, and prepare a focused official review supported by relevant evidence." },
+    { number: "04", title: "Local visibility and SEO", text: "Improve services, categories, content, consistency, website alignment, reputation, and measurable customer actions." }
+  ];
+  const mapListSchema = { "@type": "ItemList", name: "Public Google Maps and Business Profile work", numberOfItems: mapsProjects.length, itemListElement: mapsProjects.map((item, index) => ({ "@type": "ListItem", position: index + 1, name: item.title, url: item.url })) };
+  const body = `${innerHero({ eyebrowText: "Google Maps work", title: `${mapsProjects.length} real public Business Profiles—not an unsupported number`, lead: "Public examples connected to verification readiness, ownership and access, restrictions, data quality, website alignment, and local visibility across several Saudi industries and cities.", path, language: "en", crumbs: [{ name: "Work", path: "/en/projects/" }, { name: "Google Maps work", path }], aside: `<span class="aside-kicker">Google Business Profile</span><strong>Every external link opens a real public profile</strong><p>Official business names remain in their published language. No case implies a guaranteed decision, fixed ranking, or invented commercial result.</p>` })}
+<section class="section-pad maps-method-section"><div class="container"><div class="maps-work-stats reveal"><div><strong>${mapsProjects.length}</strong><span>unique public profiles</span></div><div><strong>${categories.length}</strong><span>business categories</span></div><div><strong>${tracks.length}</strong><span>core support tracks</span></div><div><strong>Google</strong><span>open links for direct review</span></div></div><div class="section-heading reveal">${eyebrow("Experience scope")}<h2>From eligibility and evidence to clearer local discovery</h2><p>There is rarely one decisive profile edit. The right sequence starts with the real business and current state, then uses the path that fits policy, risk, and the commercial objective.</p></div><div class="map-track-grid">${tracks.map((track) => `<article class="map-track-card reveal"><span dir="ltr">${track.number}</span><h3>${esc(track.title)}</h3><p>${esc(track.text)}</p></article>`).join("")}</div></div></section>
+<section class="section-pad muted-section maps-featured-section"><div class="container"><div class="portfolio-page-heading reveal"><span>${featured.length} selected cases</span><p>A varied selection across contracting, home services, healthcare, hospitality, retail, and security systems.</p></div><div class="map-case-grid">${featured.map(englishFeaturedMapCard).join("")}</div></div></section>
+<section class="section-pad maps-ledger-section"><div class="container"><div class="section-heading reveal">${eyebrow("Complete public archive")}<h2>All unique Business Profile links in the supplied record</h2><p>One duplicate link pointing to the same profile was removed, leaving ${mapsProjects.length} unique public profiles. Different branches or businesses remain separate when their public links and locations are distinct.</p></div><div class="map-category-cloud" aria-label="Google Maps work categories">${categories.map((category) => `<span>${esc(englishMapCategory(category))}</span>`).join("")}</div><div class="map-ledger-grid">${archive.map((item, index) => englishMapLedgerCard(item, index + featured.length)).join("")}</div><div class="independent-note reveal">${icon("shield")}<p><strong>Important transparency:</strong> Eslam Elshikh is an independent Google Maps and Business Profile specialist, not a Google employee. Verification, reinstatement, restrictions, and rankings are controlled by Google and depend on each business's eligibility and context.</p></div></div></section>
+${englishFinalCta("Does your Business Profile need verification, ownership recovery, or a restriction review?", "Send the public profile link, current status, and what appears in the management interface. I will begin by identifying the correct path before another change or request.")}`;
+  return page({ title: "Google Maps & Business Profile Work | Eslam Elshikh", description: `Explore ${mapsProjects.length} public Google Business Profile examples connected to verification, ownership, restrictions, website alignment, and local visibility work.`, path, active: "maps", body, lang: "en", keywords: ["Google Maps portfolio", "Business Profile verification", "Google Maps specialist", "local visibility Saudi Arabia"], schema: [mapListSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Work", path: "/en/projects/" }, { name: "Google Maps work", path }])] });
+}
+
+function englishPostCard(post, { featured = false } = {}) {
+  const keywords = (post.keywords || []).slice(0, featured ? 4 : 3);
+  const relatedService = englishServiceBySlug(post.relatedService);
+  const formattedDate = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${post.date}T12:00:00Z`));
+  return `<article class="post-card${featured ? " post-card-featured" : ""} reveal"><a class="post-art post-art-${post.relatedService}" href="/en/blog/${post.slug}/" aria-label="Read ${esc(post.title)}"><span>${esc(post.category)}</span><strong class="post-art-title">${esc(relatedService?.title || post.category)}</strong><span class="post-art-mark">${icon(relatedService?.icon || "book", "post-icon")}</span></a><div class="post-card-content"><div class="post-meta"><time datetime="${post.date}">${formattedDate}</time><span>${esc(post.readTime)}</span></div><h3><a href="/en/blog/${post.slug}/">${esc(post.title)}</a></h3><p>${esc(post.excerpt)}</p>${keywords.length ? `<div class="keyword-row" aria-label="Key topics">${keywords.map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div>` : ""}<a class="text-link post-card-link" href="/en/blog/${post.slug}/" aria-label="Read the complete guide: ${esc(post.title)}">Read the complete guide ${icon("arrow")}</a></div></article>`;
+}
+
+function englishBlogIndexPage() {
+  const path = "/en/blog/";
+  const [featuredPost, ...remainingPosts] = englishArticles;
+  const itemListSchema = { "@type": "ItemList", name: "English insights and guides by Eslam Elshikh", itemListElement: englishArticles.map((post, index) => ({ "@type": "ListItem", position: index + 1, url: absolute(`/en/blog/${post.slug}/`), name: post.title })) };
+  const body = `${innerHero({ eyebrowText: "Insights & guides", title: "Original English guidance for secure, visible, maintainable digital work", lead: "Decision-focused articles connecting cybersecurity, software, AI, Google Business Profile, cloud architecture, SEO, and conversion to practical delivery for companies in Saudi Arabia.", path, language: "en", crumbs: [{ name: "Insights", path }], aside: `<span class="aside-kicker">Practical English Insights</span><strong>Written for the decision—not translated sentence by sentence</strong><p>Each guide explains context, risks, implementation, evidence, and the questions that matter before a company invests.</p>`, className: "blog-hero" })}
+<section class="section-pad blog-latest-section"><div class="container"><div class="section-heading reveal">${eyebrow("Featured guide")}<h2>Begin with a topic that connects business risk to implementation</h2><p>The English library is written as original professional content, while covering the same service disciplines and decision needs as the Arabic site.</p></div><div class="blog-featured-shell">${englishPostCard(featuredPost, { featured: true })}</div></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Guide library")}<h2>Specialist topics for companies in Saudi Arabia</h2><p>Explore a problem in depth, then move directly to the related service, topic hub, or practical contact brief.</p></div><div class="posts-grid blog-library-grid">${remainingPosts.map((post) => englishPostCard(post)).join("")}</div></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Knowledge tracks")}<h2>Browse by discipline</h2></div><div class="topics-grid">${Object.entries(englishTopics).map(([slug, topic]) => `<a class="topic-card reveal" href="/en/blog/topics/${slug}/">${icon(topic.icon)}<strong>${esc(topic.title)}</strong><span>Related guides and services ${icon("arrow")}</span></a>`).join("")}</div></div></section>
+${englishFinalCta("Have a question that depends on your specific situation?", "The guides provide a rigorous frame. The right implementation still depends on your current systems, evidence, operating constraints, and desired outcome.")}`;
+  return page({ title: "Insights by Eslam Elshikh | Security, Web, AI & SEO", description: "Original English guides by Eslam Elshikh covering cybersecurity, web development, AI agents, Google Business Profile, cloud architecture, local SEO, and conversion.", path, active: "blog", body, lang: "en", keywords: ["cybersecurity guides", "web development insights", "AI agents Saudi Arabia", "Google Business Profile", "local SEO Riyadh"], schema: [itemListSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Insights", path }])] });
+}
+
+function englishArticlePage(post) {
+  const path = `/en/blog/${post.slug}/`;
+  const service = englishServiceBySlug(post.relatedService);
+  const topicSlug = englishTopics[post.topic] ? post.topic : "web-development";
+  const topic = englishTopics[topicSlug];
+  const topicPath = `/en/blog/topics/${topicSlug}/`;
+  const publishedDate = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(new Date(`${post.date}T12:00:00Z`));
+  const modifiedDate = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${post.modified}T12:00:00Z`));
+  const keywords = (post.keywords || []).slice(0, 6);
+  const roadmap = post.sections.slice(0, 4).map(([heading], index) => ({
+    title: ["Establish the baseline", "Turn evidence into decisions", "Release within a controlled boundary", "Measure and decide what follows"][index],
+    text: [
+      `Collect the current evidence, constraints, ownership, and failure signals relevant to “${heading}” before making a change.`,
+      `Translate the findings around “${heading}” into an owner, decision, dependency, and acceptance check the team can review.`,
+      `Apply the approach to a limited scope, test normal and failure paths, and preserve a rollback or escalation route.`,
+      `Track the indicator that proves whether “${heading}” improved, then document the result, remaining risk, and next review.`
+    ][index]
+  }));
+  const deliverables = [
+    `A documented baseline for ${keywords[0] || post.category}, including evidence gaps and current constraints`,
+    `A prioritized decision log with owners, dependencies, and acceptance criteria`,
+    `Test results covering the important success, failure, and recovery paths`,
+    `A measurement view connecting implementation signals to a useful business outcome`
+  ];
+  const contents = [...post.sections.map(([heading], index) => ({ id: `section-${index + 1}`, title: heading })), { id: "implementation-roadmap", title: "Implementation roadmap" }, { id: "expected-deliverables", title: "Reviewable deliverables" }, { id: "article-summary", title: "Executive summary" }];
+  const relatedPosts = englishArticles.filter((item) => item.slug !== post.slug).map((item) => ({ item, score: Number(item.relatedService === post.relatedService) * 3 + Number(item.topic === post.topic) * 2 })).sort((left, right) => right.score - left.score).slice(0, 3).map(({ item }) => item);
+  const body = `${innerHero({ eyebrowText: post.category, title: esc(post.title), lead: post.excerpt, path, language: "en", crumbs: [{ name: "Insights", path: "/en/blog/" }, { name: topic.title, path: topicPath }, { name: post.title, path }], aside: `<div class="article-meta-card"><span>Professional guide</span><strong>${esc(post.readTime)}</strong><p>Published ${publishedDate}</p><p>Reviewed ${modifiedDate}</p></div>`, className: "article-hero" })}
+<div class="container article-hero-keywords" aria-label="Key topics">${keywords.map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div>
+<section class="section-pad article-section"><div class="container article-layout"><article class="article-content reveal"><p class="article-intro">${esc(post.description)}</p>
+${post.sections.map(([heading, ...paragraphs], index) => `<section id="section-${index + 1}"><span class="article-number">${String(index + 1).padStart(2, "0")}</span><h2>${esc(heading)}</h2>${paragraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}</section>`).join("")}
+<section id="implementation-roadmap" class="article-roadmap-section"><span class="article-number">${String(post.sections.length + 1).padStart(2, "0")}</span><h2>Apply the guide through a controlled implementation roadmap</h2><p>A useful framework becomes operational when it is divided into short stages. Each stage needs an accountable owner, a reviewable output, an acceptance check, and a clear point for rollback, escalation, or the next release.</p><ol class="article-roadmap">${roadmap.map((step, index) => `<li><span>${String(index + 1).padStart(2, "0")}</span><div><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p></div></li>`).join("")}</ol></section>
+<section id="expected-deliverables" class="article-deliverables-section"><span class="article-number">${String(post.sections.length + 2).padStart(2, "0")}</span><h2>Deliverables that prove the work is complete</h2><p>A credible output explains what changed, what evidence the team reviewed, what remains outside scope, and which indicator will determine whether the decision should be kept or revised.</p><ul class="article-deliverables">${deliverables.map((item) => `<li>${icon("check")}<span>${esc(item)}</span></li>`).join("")}</ul></section>
+<section id="article-summary" class="article-conclusion"><span class="article-number">${String(post.sections.length + 3).padStart(2, "0")}</span><h2>Executive summary: ${esc(keywords[0] || post.category)}</h2><p>Begin with verified context, fix the highest-dependency problem, test within a limited boundary, and measure the outcome that matters. Keep the decision log and evidence visible so future changes build on what was learned instead of restarting the diagnosis.</p></section></article>
+<aside class="article-sidebar"><section class="article-author-card reveal" aria-labelledby="article-author-name"><div class="article-author-head"><img class="article-author-photo" src="${profilePhoto}" width="128" height="128" alt="Eslam Elshikh" loading="lazy" decoding="async"><div><span>Written and reviewed by</span><h2 id="article-author-name">${esc(site.nameEn)}</h2><p>Cybersecurity Engineer · Software Developer · Google Maps Specialist</p></div></div><dl><div><dt>Published</dt><dd><time datetime="${post.date}">${publishedDate}</time></dd></div><div><dt>Last reviewed</dt><dd><time datetime="${post.modified}">${modifiedDate}</time></dd></div></dl><div class="article-author-keywords" aria-label="Article keywords">${keywords.slice(0, 4).map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div><a class="text-link" href="/en/about/">About the author ${icon("arrow")}</a></section>
+<div class="toc-card reveal"><span>Inside this guide</span><nav aria-label="Article contents">${contents.map((item, index) => `<a href="#${item.id}"><span>${String(index + 1).padStart(2, "0")}</span>${esc(item.title)}</a>`).join("")}</nav></div>
+<div class="related-service-card reveal"><span>Knowledge track</span><div>${icon(topic.icon)}<h2>${esc(topic.title)}</h2></div><p>${esc(topic.description)}</p>${button(topicPath, "Explore the topic", "button-ghost")}</div>
+<div class="related-service-card reveal"><span>Related service</span><div>${icon(service?.icon || "briefcase")}<h2>${esc(service?.title || "Digital engineering")}</h2></div><p>${esc(service?.short || "A scoped technical engagement with reviewable outcomes.")}</p>${button(service ? `/en/services/${service.slug}/` : "/en/services/", "Explore the service", "button-ghost")}</div></aside></div></section>
+<section class="section-pad muted-section article-faq-section" id="article-faq"><div class="container article-faq-grid"><div class="article-faq-intro reveal">${eyebrow("Frequently asked questions")}<h2>Answers tied directly to this guide</h2><p>Four practical questions that commonly arise before implementation, answered without generic promises.</p><div class="faq-count" aria-label="Question count"><strong>${post.faq.length}</strong><span>topic-specific answers</span></div></div>${faqBlock(post.faq)}</div></section>
+<section class="section-pad related-articles-section"><div class="container"><div class="section-heading reveal">${eyebrow("Related guides")}<h2>Continue building the full decision picture</h2><p>Selected topics that connect this guide to security, delivery, visibility, or measurement.</p></div><div class="posts-grid">${relatedPosts.map((item) => englishPostCard(item)).join("")}</div></div></section>
+${englishFinalCta("Want to apply this framework to your project?", "Share the current situation, desired outcome, and available evidence. We can identify one small, clear, measurable first step.")}`;
+  return page({ title: post.seoTitle, description: post.description, path, active: "blog", body, lang: "en", type: "article", published: post.date, modified: post.modified, keywords, articleSection: post.category, schema: [faqSchema(post.faq), breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Insights", path: "/en/blog/" }, { name: topic.title, path: topicPath }, { name: post.title, path }])] });
+}
+
+function englishTopicPage(slug) {
+  const topic = englishTopics[slug];
+  const matchingPosts = englishArticles.filter((post) => post.topic === slug || (slug === "local-seo-saudi" && post.topic === "google-business-profile"));
+  const relatedServices = topic.services.map(englishServiceBySlug).filter(Boolean);
+  const path = `/en/blog/topics/${slug}/`;
+  const body = `${innerHero({ eyebrowText: "Knowledge track", title: esc(topic.title), lead: topic.description, path, language: "en", crumbs: [{ name: "Insights", path: "/en/blog/" }, { name: topic.title, path }], aside: `<span class="service-hero-icon">${icon(topic.icon)}</span><strong>Specialist guidance connected to implementation</strong><p>Move from the articles to the related services and practical next step without losing the decision context.</p>` })}
+<section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("Guides")}<h2>Original English articles about ${esc(topic.title)}</h2></div>${matchingPosts.length ? `<div class="posts-grid">${matchingPosts.map((post) => englishPostCard(post)).join("")}</div>` : `<div class="empty-state"><h2>This track is growing</h2><p>Begin with a related service or explore the complete guide library.</p></div>`}</div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Related services")}<h2>Turn the guidance into a scoped delivery plan</h2></div><div class="services-grid related-services">${relatedServices.map(englishServiceCard).join("")}</div></div></section>
+${slug === "local-seo-saudi" ? `<section class="section-pad"><div class="container case-method reveal"><div><span>Riyadh service</span><h2>A dedicated local SEO program for Riyadh businesses</h2></div><p>Connect the website, Business Profile, genuine service coverage, content, consistency, reputation, and conversion measurement without manufacturing repetitive district pages.</p>${button("/en/local-seo/riyadh/", "Explore Local SEO in Riyadh")}</div></section>` : ""}
+${englishFinalCta("Does your situation require practical implementation?", "Share the project context, public links, and desired outcome. We can identify the appropriate scope, dependencies, and first measurable release.")}`;
+  const pageTitle = slug === "web-development" ? "Web Development Guides & Services" : `${topic.title} Guides & Services`;
+  return page({ title: pageTitle, description: topic.description, path, active: "blog", body, lang: "en", schema: [breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Insights", path: "/en/blog/" }, { name: topic.title, path }])] });
+}
+
+function englishContactPage() {
+  const path = "/en/contact/";
+  const body = `${innerHero({ eyebrowText: "Start a conversation", title: "Give the project enough context for a useful next step", lead: "Choose a contact route or prepare a short brief describing the objective and current state. I will review the need before defining scope, deliverables, timing, and cost.", path, language: "en", crumbs: [{ name: "Contact", path }], aside: `<span class="aside-kicker">Response ready</span><strong>Use WhatsApp, phone, or email</strong><p>Do not include passwords, one-time codes, API keys, recovery codes, or sensitive customer data in the first message.</p>` })}
+<section class="section-pad"><div class="container contact-grid"><div class="contact-options"><a class="contact-card reveal" href="${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}" target="_blank" rel="noopener"><span class="contact-icon contact-whatsapp">${icon("whatsapp")}</span><div><small>Fastest route for an initial brief</small><h2>WhatsApp</h2><p dir="ltr">${site.phoneDisplay}</p></div>${icon("external")}</a><a class="contact-card reveal" href="tel:${site.phone}"><span class="contact-icon contact-call">${icon("phone")}</span><div><small>Direct conversation</small><h2>Phone</h2><p dir="ltr">${site.phoneDisplay}</p></div>${icon("arrow")}</a><a class="contact-card reveal" href="mailto:${site.email}"><span class="contact-icon contact-mail">${icon("mail")}</span><div><small>Useful for context and safe attachments</small><h2>Email</h2><p dir="ltr">${site.email}</p></div>${icon("arrow")}</a><div class="contact-note reveal"><span>${icon("shield")}</span><div><h2>Protect your information</h2><p>Begin with a general description and public links. A safer channel and least-privilege access method can be agreed if sensitive technical information is genuinely required.</p></div></div></div>
+<div class="project-form reveal" data-project-form role="form" aria-labelledby="project-form-title" id="project-brief"><div class="form-head"><span>Project brief builder</span><h2 id="project-form-title">Prepare a structured WhatsApp message</h2><p>Enter the useful context below, then review the message in WhatsApp before sending. The form does not submit data to this website.</p></div><label><span>Your name or company</span><input type="text" name="name" autocomplete="name" maxlength="80" required placeholder="Example: Company name"></label><label><span>Closest service</span><select name="service" required><option value="">Choose a service</option>${englishServices.map((service) => `<option value="${service.slug}">${esc(service.title)}</option>`).join("")}<option value="consultation">Cross-disciplinary consultation</option></select></label><label><span>Website or public profile — optional</span><input type="url" name="url" inputmode="url" autocomplete="url" maxlength="300" placeholder="https://"></label><label><span>Objective and current state</span><textarea name="details" rows="6" maxlength="1500" required placeholder="Describe the problem, desired outcome, impact, and what has already been tried..."></textarea><small><span data-character-count>0</span> / 1500</small></label><label><span>Expected timing — optional</span><input type="text" name="timeline" maxlength="120" placeholder="Example: within one month or before a specific launch"></label><div class="form-message" role="status" aria-live="polite" data-form-message></div><button class="button" type="button" data-project-submit>Review in WhatsApp ${icon("whatsapp", "button-icon")}</button></div></div></section>
+<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("What to include")}<h2>Four points that shorten the diagnosis</h2></div><div class="audience-grid"><article class="audience-card reveal"><span>01</span><h3>Outcome</h3><p>What needs to change, and why does it matter to the business now?</p></article><article class="audience-card reveal"><span>02</span><h3>Current state</h3><p>Share the public links, systems, symptoms, impact, and what still works.</p></article><article class="audience-card reveal"><span>03</span><h3>Previous attempts</h3><p>List meaningful edits, tools, releases, or support requests and their outcomes.</p></article><article class="audience-card reveal"><span>04</span><h3>Constraints</h3><p>Note timing, approximate budget, team capacity, dependencies, and approvals.</p></article></div></div></section>`;
+  return page({ title: "Contact Eslam Elshikh", description: "Contact Eslam Elshikh in Riyadh to discuss cybersecurity, web development, AI agents, Google Business Profile, cloud architecture, SEO, or digital advertising.", path, active: "", body, lang: "en", schema: [breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Contact", path }])] });
+}
+
+function englishPrivacyPage() {
+  const path = "/en/privacy/";
+  const body = `${innerHero({ eyebrowText: "Privacy", title: "Privacy policy", lead: "This policy explains what information may be processed when you browse the website or make contact, why it is used, and the choices available to you.", path, language: "en", crumbs: [{ name: "Privacy policy", path }] })}
+<section class="section-pad legal-section"><div class="container legal-content"><section><h2>1. Controller and purpose</h2><p>Eslam Elshikh operates this website to present professional services, receive enquiries, protect the service, and understand page performance after a visitor consents to analytics. Privacy questions can be sent to <a href="mailto:${site.email}">${site.email}</a>.</p></section><section><h2>2. Information you provide</h2><p>The website does not require an account. You may provide your name, company, email, phone number, public URL, and project details when you choose to contact me by phone, email, or WhatsApp. This information is used to respond, understand the need, and manage an agreed engagement. Do not send passwords, one-time codes, recovery codes, API keys, or sensitive customer data in an initial message.</p></section><section><h2>3. WhatsApp brief builder</h2><p>The contact-page brief builder runs in your browser and prepares a message that you can review inside WhatsApp before sending. It is not a server-submitted website form and does not send the entered fields to this website through GET or POST. If JavaScript is unavailable, the fields are not transmitted automatically and you can use the direct contact links.</p></section><section><h2>4. Hosting and technical logs</h2><p>Vercel may process technical information required to deliver and protect the website, including IP address, browser information, requested path, request time, and security logs. This processing supports service delivery, abuse prevention, troubleshooting, and security.</p></section><section><h2>5. Analytics, consent, and local storage</h2><p>Google Analytics 4, property G-MDJ2HGF9E1, is loaded only after you choose to allow analytics. It may then use cookies or technical identifiers to measure pages, devices, and events in aggregate. Events can include clicks on phone, WhatsApp, and email links, as well as starting or completing the project-message builder. Names, free-text project details, and entered URLs are not sent as analytics parameters, and preparing a message does not prove that it was sent or became a commercial engagement.</p><button class="button button-ghost privacy-preferences" type="button" data-analytics-preferences>Change analytics preferences</button><p>Local storage may also remember the light or dark color theme and your consent choice. These are functional settings on your device and do not create a personal website account.</p></section><section><h2>6. Third-party services and international processing</h2><p>Depending on your choices, information may be processed by Vercel for hosting, Google Analytics after consent, Google Maps when the embedded map loads, and WhatsApp or your email provider when you initiate contact. These providers may process data outside Saudi Arabia under their own infrastructure, policies, and safeguards. Review the relevant provider policy before using its service.</p></section><section><h2>7. Legal basis and use limits</h2><p>Enquiry information is processed to respond to your request and take steps toward any later agreement. Optional analytics relies on consent. Visitor data is not sold, and project details are not used for unsolicited marketing.</p></section><section><h2>8. Retention and security</h2><p>Project correspondence is retained only as needed to respond, deliver, document an engagement, or meet an applicable legal requirement, then deleted or de-identified when there is no longer a legitimate need. Analytics retention follows the configured Google Analytics controls. Reasonable technical and organizational safeguards are used, while no electronic method can promise absolute security.</p></section><section><h2>9. Your rights</h2><p>Subject to applicable law, you may ask how your personal data is used, request access or a readable copy, request correction or updating, and request deletion where the relevant conditions apply. You can withdraw analytics consent at any time. Send a request to <a href="mailto:${site.email}">${site.email}</a> with enough information to connect it to the relevant correspondence without adding unnecessary personal data.</p></section><section><h2>10. Changes to this policy</h2><p>This policy may be updated when the website tools or processing purposes change. The review date will be shown here, and renewed consent will be requested if an analytics change materially affects the optional processing.</p></section><p class="legal-updated">Last updated: 7 September 2026</p></div></section>`;
+  return page({ title: "Privacy Policy", description: "Privacy policy for Eslam Elshikh's website, including contact information, local message preparation, hosting logs, analytics consent, third parties, and data rights.", path, body, lang: "en", schema: [breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Privacy policy", path }])] });
+}
+
+function englishTermsPage() {
+  const path = "/en/terms/";
+  const body = `${innerHero({ eyebrowText: "Terms", title: "Terms of use", lead: "By using this website, you acknowledge that its content is general and informational, while the scope of any technical or commercial service requires a separate clear agreement.", path, language: "en", crumbs: [{ name: "Terms of use", path }] })}
+<section class="section-pad legal-section"><div class="container legal-content"><section><h2>1. Nature of the content</h2><p>The website presents services and general professional guidance. The published material alone does not form a contract, guarantee, legal opinion, or final technical decision for a situation that has not been reviewed.</p></section><section><h2>2. Service scope</h2><p>Each project's scope, deliverables, schedule, dependencies, responsibilities, access, and commercial terms are defined in a separate proposal or agreement. Examples and capability lists describe possible work and do not automatically form part of every engagement.</p></section><section><h2>3. Third-party platforms</h2><p>No independent consultant can guarantee decisions by Google, advertising platforms, hosting providers, search engines, or other third parties. Work can follow documented evidence and available official routes, while the relevant provider retains final authority over its systems and policies.</p></section><section><h2>4. Security and authorized use</h2><p>No active security testing is performed without explicit written authorization and a defined scope. You must not use the website, its content, or its contact channels to request unauthorized, harmful, deceptive, or unlawful activity.</p></section><section><h2>5. Intellectual property</h2><p>Unless otherwise stated, the website content, design, and Eslam Elshikh identity remain the property of their respective owners. Complete commercial copying or republication requires permission. Limited quotation with clear attribution and a source link is permitted where applicable.</p></section><section><h2>6. Changes and contact</h2><p>These terms may be updated as the website and services change. Questions can be sent to <a href="mailto:${site.email}">${site.email}</a>.</p></section><p class="legal-updated">Last updated: 7 September 2026</p></div></section>`;
+  return page({ title: "Terms of Use", description: "Terms of use for Eslam Elshikh's website, covering informational content, project scope, third-party decisions, authorized security work, and intellectual property.", path, body, lang: "en", schema: [breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Terms of use", path }])] });
+}
+
 const englishHomeFaq = [
   ["What types of projects does Eng. Eslam Elshikh deliver?", "I work with companies and business owners on cybersecurity, websites and applications, practical AI agents, secure cloud solutions, Google products, SEO, and digital advertising. Every engagement starts by defining the objective, scope, deliverables, constraints, and a measurable definition of success."],
   ["Can several services be combined in one project?", "Yes. A project can combine a fast and secure website, technical SEO, a Google Business Profile, analytics, landing pages, and advertising while keeping the message, data, and customer journey consistent."],
@@ -997,28 +1460,16 @@ const englishHomeFaq = [
   ["Will the website or system work across mobile, tablet, and desktop devices?", "Yes. Delivery follows a mobile-first approach and is tested across representative iOS, Android, Huawei, tablet, and desktop sizes, with accessible touch targets, safe-area support, responsive typography, and protection against horizontal overflow."]
 ];
 
-const englishCaseStudies = [
-  { number: "01", title: "Tawod General Contracting", category: "Contracting company website", description: "A structured Arabic digital presence for a Riyadh contracting company, combining service architecture, project content, technical SEO, and clear conversion paths across mobile and desktop.", image: "/assets/projects/tawod.webp", liveUrl: "https://tawodco.com/", tags: ["Web Development", "Technical SEO", "Content Architecture"] },
-  { number: "02", title: "BOWDY LABS", category: "AI and technology company", description: "A future-facing corporate website that turns a complex portfolio of AI, cloud, cybersecurity, and automation services into a focused, responsive, and scalable experience.", image: "/assets/projects/bowdy-labs.webp", liveUrl: "https://bowdylabs.com/", tags: ["Brand Experience", "AI Company", "Responsive UI"] },
-  { number: "03", title: "Sama Scan Center", category: "Healthcare website", description: "A multi-page medical imaging website for a Riyadh center, designed to explain sensitive services clearly, support local discovery, and make booking paths easy to use on every device.", image: "/assets/projects/sama-scan.webp", liveUrl: "https://samascan.vercel.app/", tags: ["Healthcare UX", "Local SEO", "Mobile First"] }
-];
-
-const englishInsights = [
-  { category: "Web Engineering", title: "Secure, fast websites: the decisions that matter before launch", description: "A practical view of information architecture, responsive design, performance, technical SEO, permissions, and testing as one delivery system.", icon: "code", className: "web-development", tags: ["Security", "Performance", "Technical SEO"] },
-  { category: "Google Business Profile", title: "Diagnose a suspended profile before submitting an appeal", description: "Review eligibility, business model, name, address or service area, categories, ownership, and evidence before making changes or opening repeated support requests.", icon: "google", className: "google-business-profile", tags: ["Eligibility", "Verification", "Evidence"] },
-  { category: "Local SEO", title: "Connect the website, business profile, and proof for local visibility", description: "Local visibility improves when pages, business data, service-area relevance, reputation, internal links, and conversion measurement reinforce the same real-world entity.", icon: "search", className: "seo", tags: ["Riyadh", "Entity signals", "Measurement"] }
-];
-
 function englishPage() {
-  const workCards = englishCaseStudies.map((project) => `<article class="portfolio-project reveal"><a class="portfolio-project-media" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="Open the live ${esc(project.title)} website"><span class="portfolio-project-number" dir="ltr">${project.number}</span><img src="${project.image}" width="1200" height="750" alt="Interface preview of ${esc(project.title)}" loading="lazy" decoding="async"></a><div class="portfolio-project-copy"><p class="portfolio-kicker">${esc(project.category)}</p><h3>${esc(project.title)}</h3><p>${esc(project.description)}</p><div class="tag-row" aria-label="Project disciplines">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div><div class="portfolio-actions"><a class="button button-small button-ghost" href="${project.liveUrl}" target="_blank" rel="noopener">View live site ${icon("external", "button-icon")}</a></div></div></article>`).join("");
-  const insightCards = englishInsights.map((insight) => `<article class="post-card reveal"><div class="post-art post-art-${insight.className}"><span>${esc(insight.category)}</span><strong class="post-art-title">${esc(insight.category)}</strong><span class="post-art-mark">${icon(insight.icon, "post-icon")}</span></div><div class="post-card-content"><div class="post-meta"><span>Practical insight</span><span>Decision focused</span></div><h3>${esc(insight.title)}</h3><p>${esc(insight.description)}</p><div class="keyword-row" aria-label="Topics">${insight.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div><a class="text-link post-card-link" href="/en/#contact">Discuss this topic ${icon("arrow")}</a></div></article>`).join("");
+  const workCards = projects.slice(0, 3).map((project, index) => englishShowcaseProject(project, index)).join("");
+  const insightCards = ["secure-website-development", "google-business-profile-suspension", "local-seo-riyadh-service-business"].map(englishArticleBySlug).filter(Boolean).map((post) => englishPostCard(post)).join("");
   const body = `<section class="hero section-pad hero-en"><div class="container hero-grid"><div class="hero-copy reveal"><span class="eyebrow"><span></span>Cybersecurity Engineer · Software Developer · Google Maps Specialist</span><h1>I build digital systems that are <span>secure, useful, and ready to grow.</span></h1><p class="hero-lead">I am Eslam Elshikh, based in Riyadh. I combine cybersecurity, web and software engineering, practical AI agents, Google Maps and Business Profile experience, cloud architecture, and search visibility into clear project scopes with reviewable outcomes.</p><p class="hero-support">From diagnosis and information architecture to implementation, testing, launch, and measurement, the goal is to reduce complexity and help your team make better technical decisions.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start a conversation", "", true)}${button("/en/#services", "Explore services", "button-ghost")}</div><div class="hero-trust"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>Google Developer Profile</a><a href="${site.social.github}" target="_blank" rel="noopener"><span class="trust-dot"></span>GitHub</a><span><span class="trust-dot trust-live"></span>Saudi Arabia & remote</span></div></div><div class="hero-visual reveal"><div class="visual-glow"></div><div class="visual-shell"><div class="visual-top"><span>Digital Engineering</span><span class="visual-status"><i></i> Operational</span></div><div class="visual-core">${logo("hero-logo", "Eslam Elshikh logo")}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div><div class="visual-capabilities"><span>${icon("shield")}Cybersecurity</span><span>${icon("code")}Web & Apps</span><span>${icon("spark")}AI Agents</span><span>${icon("google")}Google</span><span>${icon("chart")}SEO</span><span>${icon("cloud")}Cloud</span></div><div class="visual-metric"><span>Approach</span><strong>360°</strong><p>Security, user experience, discoverability, and measurement in one system.</p></div></div></div></div><div class="container stats-bar reveal">${site.stats.map((stat, index) => `<div><strong>${esc(stat.value)}</strong><span>${["Google Business Profiles supported through verification", "Business profile issues resolved", "Public Google Maps examples", "Verified live web projects"][index]}</span></div>`).join("")}</div></section>
-<section class="section-pad" id="services"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Core capabilities</span><h2>Specialist work that can operate independently or as one delivery plan</h2><p>Each engagement starts with the business outcome, current state, constraints, risks, and a measurable definition of done.</p></div><div class="services-grid">${services.map((service) => { const translation = serviceTranslations[service.slug]; return `<article class="service-card reveal" id="service-${service.slug}"><div class="service-card-top"><span class="service-number">${service.number}</span><span class="service-icon">${icon(service.icon)}</span></div><p class="service-group">${esc(translation.group)}</p><h3>${esc(translation.title)}</h3><p>${esc(translation.short)}</p><a class="text-link" href="/en/#contact" aria-label="Discuss ${esc(translation.title)}">Discuss this service ${icon("arrow")}</a></article>`; }).join("")}</div></div></section>
+<section class="section-pad" id="services"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Core capabilities</span><h2>Specialist work that can operate independently or as one delivery plan</h2><p>Each engagement starts with the business outcome, current state, constraints, risks, and a measurable definition of done.</p></div><div class="services-grid">${englishServices.map(englishServiceCard).join("")}</div><div class="section-action">${button("/en/services/", "Explore all services", "button-ghost")}</div></div></section>
 <section class="section-pad muted-section" id="about"><div class="container promise-grid"><div class="promise-copy reveal"><span class="eyebrow"><span></span>About & approach</span><h2>A strong digital project is more than a polished interface</h2><p>I approach security, software, user experience, discoverability, and measurement as connected parts of one system. The work should remain understandable, maintainable, and reviewable after launch.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome first</h3><p>We define the user decision and business result before selecting tools.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Secure by design</h3><p>Data, permissions, and failure modes are considered from the start.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for devices</h3><p>Mobile-first testing across iOS, Android, Huawei, tablets, and desktops.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Ready to improve</h3><p>Performance, SEO, analytics, and conversion are part of operations.</p></article></div></div></section>
-<section class="section-pad projects-section" id="work"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Selected case studies</span><h2>Real projects with distinct goals, constraints, and delivery decisions</h2><p>Three live examples showing how content, design, engineering, search visibility, and conversion paths are shaped around the business rather than copied from a generic template.</p></div><div class="posts-grid">${workCards}</div></div></section>
-<section class="section-pad" id="google-expertise"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>Google Maps and Business Profile experience</span><h2>Structured diagnosis instead of random profile changes</h2><p>I help eligible businesses understand verification, suspension, ownership, category, consistency, and local visibility issues using official paths and realistic expectations.</p></div><div class="proof-actions">${button(site.googleMapsProfile, "Business profile", "", true)}${button(site.social.googleDeveloper, "Google Developer Profile", "button-ghost", true)}</div></div></section>
-<section class="section-pad muted-section blog-section" id="insights"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Practical insights</span><h2>Clear guidance for technical and growth decisions</h2><p>Short English briefs covering the same disciplines used in delivery: secure engineering, Google Business Profile operations, and local search visibility.</p></div><div class="posts-grid">${insightCards}</div></div></section>
-<section class="section-pad faq-section" id="faq"><div class="container faq-grid"><div class="faq-intro reveal"><span class="eyebrow"><span></span>Frequently asked questions</span><h2>Direct answers before an engagement begins</h2><p>Scope, dependencies, evidence, and expected outcomes are clarified before implementation.</p><a class="button button-ghost" href="/en/#contact">Discuss your project ${icon("arrow", "button-icon")}</a></div>${faqBlock(englishHomeFaq)}</div></section>
+<section class="section-pad projects-section" id="work"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Selected case studies</span><h2>Real projects with distinct goals, constraints, and delivery decisions</h2><p>Three live examples showing how content, design, engineering, search visibility, and conversion paths are shaped around the business rather than copied from a generic template.</p></div><div class="posts-grid">${workCards}</div><div class="section-action">${button("/en/projects/", "Explore all verified work", "button-ghost")}</div></div></section>
+<section class="section-pad" id="google-expertise"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>Google Maps and Business Profile experience</span><h2>Structured diagnosis instead of random profile changes</h2><p>I help eligible businesses understand verification, suspension, ownership, category, consistency, and local visibility issues using official paths and realistic expectations.</p></div><div class="proof-actions">${button("/en/google-expert/", "Explore Google expertise")}${button(site.googleMapsProfile, "Business profile", "button-ghost", true)}</div></div></section>
+<section class="section-pad muted-section blog-section" id="insights"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Practical insights</span><h2>Original English guidance for technical and growth decisions</h2><p>Decision-focused articles covering the same disciplines used in delivery, written for English readers rather than translated sentence by sentence.</p></div><div class="posts-grid">${insightCards}</div><div class="section-action">${button("/en/blog/", "Explore all English guides", "button-ghost")}</div></div></section>
+<section class="section-pad faq-section" id="faq"><div class="container faq-grid"><div class="faq-intro reveal"><span class="eyebrow"><span></span>Frequently asked questions</span><h2>Direct answers before an engagement begins</h2><p>Scope, dependencies, evidence, and expected outcomes are clarified before implementation.</p><a class="button button-ghost" href="/en/contact/">Discuss your project ${icon("arrow", "button-icon")}</a></div>${faqBlock(englishHomeFaq)}</div></section>
 <section class="section-pad final-cta" id="contact"><div class="container"><div class="cta-panel reveal"><div><span class="eyebrow"><span></span>Start with context</span><h2>Turn a complex technical problem into a clear delivery plan.</h2><p>Share your goal, current state, relevant links, constraints, and expected timing. Do not include passwords, verification codes, or API keys.</p></div><div class="cta-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start on WhatsApp", "button-light", true)}<a class="cta-phone" href="mailto:${site.email}">${site.email}</a></div></div></div></section>`;
   return page({ title: `${site.nameEn} | Cybersecurity & Software Engineer`, description: "Eslam Elshikh is a Riyadh-based cybersecurity engineer and software developer specializing in web development, AI agents, Google Maps, and technical SEO.", path: "/en/", active: "home", body, lang: "en", modified: site.lastUpdated, schema: [faqSchema(englishHomeFaq)] });
 }
@@ -1040,11 +1491,10 @@ async function writeRoute(path, html, options = {}) {
 
 function sitemapXml() {
   const urls = generatedRoutes.map((path) => {
-    const articleSlug = path.match(/^\/blog\/([^/]+)\/$/)?.[1];
-    const lastmod = articleSlug ? postBySlug(articleSlug)?.modified || site.lastUpdated : site.lastUpdated;
-    const alternates = path === "/" || path === "/en/"
-      ? `<xhtml:link rel="alternate" hreflang="ar-SA" href="${site.url}/" /><xhtml:link rel="alternate" hreflang="en" href="${site.url}/en/" /><xhtml:link rel="alternate" hreflang="x-default" href="${site.url}/" />`
-      : "";
+    const articleSlug = path.match(/^\/(?:en\/)?blog\/([^/]+)\/$/)?.[1];
+    const lastmod = articleSlug ? postBySlug(articleSlug)?.modified || englishArticleBySlug(articleSlug)?.modified || site.lastUpdated : site.lastUpdated;
+    const pair = routePair(path);
+    const alternates = `<xhtml:link rel="alternate" hreflang="ar-SA" href="${absolute(pair.ar)}" /><xhtml:link rel="alternate" hreflang="en" href="${absolute(pair.en)}" /><xhtml:link rel="alternate" hreflang="x-default" href="${absolute(pair.ar)}" />`;
     return `  <url><loc>${absolute(path)}</loc><lastmod>${lastmod}</lastmod>${alternates}</url>`;
   }).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`;
@@ -1053,6 +1503,11 @@ function sitemapXml() {
 function feedXml() {
   const items = allPosts.map((post) => `<item><title>${esc(post.title)}</title><link>${absolute(`/blog/${post.slug}/`)}</link><guid>${absolute(`/blog/${post.slug}/`)}</guid><pubDate>${new Date(`${post.date}T12:00:00Z`).toUTCString()}</pubDate><description>${esc(post.description)}</description></item>`).join("");
   return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>مدونة ${esc(site.brandName)}</title><link>${site.url}/blog/</link><description>${esc(site.description)}</description><language>ar-SA</language><lastBuildDate>${new Date(`${site.lastUpdated}T12:00:00Z`).toUTCString()}</lastBuildDate>${items}</channel></rss>`;
+}
+
+function englishFeedXml() {
+  const items = englishArticles.map((post) => `<item><title>${esc(post.title)}</title><link>${absolute(`/en/blog/${post.slug}/`)}</link><guid>${absolute(`/en/blog/${post.slug}/`)}</guid><pubDate>${new Date(`${post.date}T12:00:00Z`).toUTCString()}</pubDate><description>${esc(post.description)}</description></item>`).join("");
+  return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Eslam Elshikh Insights</title><link>${site.url}/en/blog/</link><description>Original English guidance on cybersecurity, software, AI, Google products, cloud architecture, SEO, and conversion.</description><language>en</language><lastBuildDate>${new Date(`${site.lastUpdated}T12:00:00Z`).toUTCString()}</lastBuildDate>${items}</channel></rss>`;
 }
 
 async function build() {
@@ -1089,12 +1544,30 @@ async function build() {
   await writeRoute("/contact/", contactPage());
   await writeRoute("/privacy/", privacyPage());
   await writeRoute("/terms/", termsPage());
+  await writeRoute("/en/services/", englishServicesIndexPage());
+  for (const service of englishServices) await writeRoute(`/en/services/${service.slug}/`, englishServiceDetailPage(service));
+  await writeRoute("/en/local-seo/riyadh/", englishLocalSeoPage());
+  await writeRoute("/en/about/", englishAboutPage());
+  await writeRoute("/en/google-expert/", englishGoogleExpertPage());
+  await writeRoute("/en/google-ads/", englishGoogleAdsPage());
+  await writeRoute("/en/projects/", englishProjectsPage());
+  for (const project of projects.filter((item) => item.slug && item.caseStudy)) {
+    await writeRoute(`/en/projects/${project.slug}/`, englishProjectCaseStudyPage(project));
+  }
+  await writeRoute("/en/google-maps-projects/", englishGoogleMapsProjectsPage());
+  await writeRoute("/en/blog/", englishBlogIndexPage());
+  for (const post of englishArticles) await writeRoute(`/en/blog/${post.slug}/`, englishArticlePage(post));
+  for (const slug of Object.keys(englishTopics)) await writeRoute(`/en/blog/topics/${slug}/`, englishTopicPage(slug));
+  await writeRoute("/en/contact/", englishContactPage());
+  await writeRoute("/en/privacy/", englishPrivacyPage());
+  await writeRoute("/en/terms/", englishTermsPage());
   await writeText("404.html", notFoundPage());
 
   await writeText("sitemap.xml", sitemapXml());
   await writeText("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\n`);
   await writeText("manifest.webmanifest", JSON.stringify({ name: site.brandName, short_name: site.nameAr, description: site.description, lang: "ar", dir: "rtl", start_url: "/", scope: "/", display: "standalone", background_color: "#06131f", theme_color: "#06131f", icons: [{ src: "/assets/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }, { src: "/assets/brand/eslam-elshikh-logo-transparent.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }] }, null, 2));
   await writeText("feed.xml", feedXml());
+  await writeText(join("en", "feed.xml"), englishFeedXml());
   await writeText("profile.json", JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Person",

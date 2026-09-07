@@ -45,11 +45,15 @@ async function lastmodFor(file, route) {
 }
 
 function alternateLinksFor(route) {
-  if (route !== "/" && route !== "/en/") return "";
+  const pair = route === "/" || route === "/en/"
+    ? { ar: "/", en: "/en/" }
+    : route.startsWith("/en/")
+      ? { ar: route.slice(3) || "/", en: route }
+      : { ar: route, en: `/en${route}` };
   return [
-    ["ar-SA", `${canonical}/`],
-    ["en", `${canonical}/en/`],
-    ["x-default", `${canonical}/`]
+    ["ar-SA", new URL(pair.ar, `${canonical}/`).href],
+    ["en", new URL(pair.en, `${canonical}/`).href],
+    ["x-default", new URL(pair.ar, `${canonical}/`).href]
   ].map(([hreflang, href]) => `    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${href}" />`).join("\n");
 }
 

@@ -3,6 +3,7 @@
 
   const doc = document;
   const root = doc.documentElement;
+  const isEnglish = root.lang === "en";
   const body = doc.body;
   const header = doc.querySelector("[data-header]");
   const menuButton = doc.querySelector("[data-menu-toggle]");
@@ -158,8 +159,12 @@
 
       const shown = Math.min(matches.length, visibleLimit);
       if (workStatus) workStatus.textContent = matches.length
-        ? `عرض ${shown} من أصل ${matches.length} مشروعًا مطابقًا — ${workCards.length} مشروعًا في السجل`
-        : `لا توجد نتائج مطابقة — ${workCards.length} مشروعًا في السجل`;
+        ? isEnglish
+          ? `Showing ${shown} of ${matches.length} matching projects — ${workCards.length} in the archive`
+          : `عرض ${shown} من أصل ${matches.length} مشروعًا مطابقًا — ${workCards.length} مشروعًا في السجل`
+        : isEnglish
+          ? `No matching results — ${workCards.length} projects in the archive`
+          : `لا توجد نتائج مطابقة — ${workCards.length} مشروعًا في السجل`;
       if (workMore) workMore.hidden = shown >= matches.length;
       if (workEmpty) workEmpty.hidden = matches.length !== 0;
     };
@@ -223,7 +228,9 @@
       const timeline = valueOf("timeline");
 
       if (!name || !service || projectDetails.length < 20) {
-        message.textContent = "يرجى كتابة الاسم، واختيار الخدمة، وإضافة وصف لا يقل عن 20 حرفًا.";
+        message.textContent = isEnglish
+          ? "Enter your name, choose a service, and add a description of at least 20 characters."
+          : "يرجى كتابة الاسم، واختيار الخدمة، وإضافة وصف لا يقل عن 20 حرفًا.";
         const invalid = !name ? form.querySelector('[name="name"]') : !service ? form.querySelector('[name="service"]') : details;
         invalid?.focus();
         return;
@@ -234,13 +241,25 @@
           const parsed = new URL(url);
           if (!["https:", "http:"].includes(parsed.protocol)) throw new Error("Unsupported URL scheme");
         } catch (_) {
-          message.textContent = "يرجى كتابة رابط صحيح يبدأ بـ https:// أو ترك حقل الرابط فارغًا.";
+          message.textContent = isEnglish
+            ? "Enter a valid URL beginning with https://, or leave the URL field empty."
+            : "يرجى كتابة رابط صحيح يبدأ بـ https:// أو ترك حقل الرابط فارغًا.";
           form.querySelector('[name="url"]')?.focus();
           return;
         }
       }
 
-      const lines = [
+      const lines = (isEnglish ? [
+        "Hello Eng. Eslam, I would like to discuss a project.",
+        "",
+        `Name / company: ${name}`,
+        `Service: ${serviceLabel}`,
+        url ? `Public link: ${url}` : "",
+        `Objective and current state: ${projectDetails}`,
+        timeline ? `Expected timing: ${timeline}` : "",
+        "",
+        "Message prepared through eslam-elshikh.com"
+      ] : [
         "مرحبًا م. إسلام، أرغب في مناقشة مشروع.",
         "",
         `الاسم / الشركة: ${name}`,
@@ -250,10 +269,12 @@
         timeline ? `الموعد المتوقع: ${timeline}` : "",
         "",
         "تم تجهيز الرسالة من خلال eslam-elshikh.com"
-      ].filter(Boolean);
+      ]).filter(Boolean);
 
       const whatsappUrl = `https://wa.me/966579395299?text=${encodeURIComponent(lines.join("\n"))}`;
-      message.textContent = "تم تجهيز الرسالة. سيفتح WhatsApp لمراجعتها قبل الإرسال.";
+      message.textContent = isEnglish
+        ? "Your message is ready. WhatsApp will open so you can review it before sending."
+        : "تم تجهيز الرسالة. سيفتح WhatsApp لمراجعتها قبل الإرسال.";
       openingMessage = true;
       submitButton.disabled = true;
       let navigated = false;

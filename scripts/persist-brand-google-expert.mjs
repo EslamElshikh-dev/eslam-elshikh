@@ -77,7 +77,7 @@ for (const path of htmlFiles) {
     html = html.replace("</body>", `${counterScript}\n</body>`);
   }
 
-  if (path.replaceAll("\\", "/").endsWith("/google-expert/index.html")) {
+  if (!isEnglish && path.replaceAll("\\", "/").endsWith("/google-expert/index.html")) {
     html = html.replace(
       /<section class="section-pad"><div class="container google-stats">[\s\S]*?<\/div><\/section>/,
       statsHtml
