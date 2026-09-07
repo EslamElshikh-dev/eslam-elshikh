@@ -6,6 +6,8 @@
   "cleanUrls": true,
   "trailingSlash": true,
   "redirects": [
+    { "source": "/local-seo/", "destination": "/local-seo/riyadh/", "permanent": true },
+    { "source": "/blog/ai-agent-business/", "destination": "/blog/ai-agents-for-business-saudi/", "permanent": true },
     { "source": "/blog/pro-guides/", "destination": "/blog/", "permanent": true },
     { "source": "/blog/pro-guides/web-design-riyadh-guide/", "destination": "/blog/professional-website-design-riyadh/", "permanent": true },
     { "source": "/blog/pro-guides/technical-seo-saudi-business/", "destination": "/blog/technical-seo-saudi-businesses/", "permanent": true },

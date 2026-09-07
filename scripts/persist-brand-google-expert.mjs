@@ -21,7 +21,7 @@ async function walk(dir) {
 
 const statsHtml = `<section class="section-pad"><div class="container google-stats"><div class="google-stat reveal"><strong data-counter="472">472</strong><span>ملفًا تجاريًا على Google تم دعم توثيقه</span></div><div class="google-stat reveal"><strong data-counter="233">233</strong><span>مشكلة ملف تجاري تم حلها ومعالجتها</span></div><div class="google-stat reveal"><strong data-counter="63">63</strong><span>نموذجًا عامًا منشورًا يمكن مراجعته</span></div><div class="google-stat reveal"><strong>Google</strong><span>مساهمات عملية في منتجات Google</span></div></div></section>`;
 
-const professionalBio = `<aside class="disclaimer-card professional-summary-card reveal"><span>عن إسلام الشيخ</span><h2>خبرة منتجات Google مدعومة بمساهمات ونماذج منشورة</h2><p>يجمع إسلام الشيخ بين خبرة منتجات Google وإدارة الملفات التجارية والسيو المحلي وتطوير المواقع، لتقديم معالجة مترابطة تبدأ من صحة الملف وتصل إلى تجربة الموقع والتحويل والقياس.</p><a class="text-link" href="https://me.developers.google.com/u/EslamElshikh" target="_blank" rel="noopener">عرض ملف Google للمطورين <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6m0-6-9 9"/><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/></svg></a></aside>`;
+const professionalBio = `<aside class="disclaimer-card professional-summary-card reveal"><span>عن إسلام الشيخ</span><h2>خبرة عملية مدعومة بمساهمات ونماذج منشورة</h2><p>يجمع إسلام الشيخ بين العمل على منتجات Google وإدارة الملفات التجارية والسيو المحلي وتطوير المواقع، لتقديم معالجة مترابطة تبدأ من صحة الملف وتصل إلى تجربة الموقع والتحويل والقياس.</p><a class="text-link" href="https://me.developers.google.com/u/EslamElshikh" target="_blank" rel="noopener">عرض ملف Google للمطورين <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6m0-6-9 9"/><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/></svg></a></aside>`;
 
 const logoPaths = [
   "/assets/brand/eslam-elshikh-primary.svg",
@@ -111,9 +111,9 @@ const llmsTxt = `# المهندس إسلام الشيخ
 ## صفحات مهمة
 
 - [عن المهندس إسلام الشيخ](${canonical}/about/)
-- [إسلام الشيخ — خبير خرائط جوجل والملفات التجارية](${canonical}/google-expert/)
+- [إسلام الشيخ — متخصص خرائط Google والملفات التجارية](${canonical}/google-expert/)
 - [إسلام الشيخ — خبير إعلانات جوجل وإدارة حملات Google Ads](${canonical}/google-ads/)
-- [السيو المحلي](${canonical}/local-seo/)
+- [السيو المحلي في الرياض](${canonical}/local-seo/riyadh/)
 - [الأعمال والمشروعات](${canonical}/projects/)
 - [المدونة](${canonical}/blog/)
 - [التواصل](${canonical}/contact/)

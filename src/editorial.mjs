@@ -160,7 +160,7 @@ export function guideToPost(guide) {
   const sectionWords = guide.sections.flat().join(" ").split(/\s+/).filter(Boolean).length;
   return enrichPost({
     ...guide,
-    seoTitle: guide.title,
+    seoTitle: guide.seoTitle || guide.title,
     excerpt: guide.description,
     date: guide.published || "2026-07-30",
     modified: guide.modified || "2026-08-30",

@@ -17,9 +17,9 @@ const errors = [];
 const warnings = [];
 
 const requiredRoutes = [
-  "/", "/en/", "/services/", "/local-seo/", "/local-seo/riyadh/", "/about/", "/google-expert/", "/google-ads/", "/projects/", "/blog/", "/contact/", "/privacy/", "/terms/",
+  "/", "/en/", "/services/", "/local-seo/riyadh/", "/about/", "/google-expert/", "/google-ads/", "/projects/", "/blog/", "/contact/", "/privacy/", "/terms/",
   "/services/cybersecurity/", "/services/cloud-solutions/", "/services/ai-agents/", "/services/web-development/", "/services/google-support/", "/services/google-business-profile/", "/services/knowledge-bases/", "/services/seo/", "/services/digital-advertising/",
-  "/blog/ai-agent-business/", "/blog/google-business-profile-suspension/", "/blog/secure-website-development/", "/blog/ecommerce-development-saudi/",
+  "/blog/google-business-profile-suspension/", "/blog/secure-website-development/", "/blog/ecommerce-development-saudi/",
   "/blog/topics/google-business-profile/", "/blog/topics/local-seo-saudi/", "/blog/topics/cybersecurity/", "/blog/topics/ai-agents/", "/blog/topics/web-development/"
 ];
 const expectedArticleRoutes = [...posts, ...guides].map((post) => `/blog/${post.slug}/`);
@@ -128,6 +128,13 @@ for (const redirect of vercelConfig.redirects || []) {
   }
 }
 const redirects = new Map((vercelConfig.redirects || []).map((redirect) => [normalizeRoute(redirect.source), normalizeRoute(redirect.destination)]));
+const requiredConsolidationRedirects = new Map([
+  ["/local-seo/", "/local-seo/riyadh/"],
+  ["/blog/ai-agent-business/", "/blog/ai-agents-for-business-saudi/"]
+]);
+for (const [source, destination] of requiredConsolidationRedirects) {
+  if (redirects.get(source) !== destination) errors.push(`Missing SEO consolidation redirect: ${source} -> ${destination}`);
+}
 for (const [source, destination] of redirects) {
   if (sitemapRoutes.includes(source)) errors.push(`Redirect source must not be in sitemap: ${source}`);
   if (!publicRoutes.includes(destination)) errors.push(`Redirect target is not a public HTML route: ${source} -> ${destination}`);
@@ -158,9 +165,9 @@ for (const route of sitemapRoutes) {
   if (viewportCount !== 1) errors.push(`${route}: expected one viewport meta, found ${viewportCount}`);
   if (h1Count !== 1) errors.push(`${route}: expected exactly one H1, found ${h1Count}`);
   if (!title) errors.push(`${route}: missing title`);
-  if (title.length < 12 || title.length > 110) warnings.push(`${route}: title length ${title.length}`);
+  if (title.length < 12 || title.length > 65) warnings.push(`${route}: title length ${title.length}`);
   if (!description) errors.push(`${route}: missing meta description`);
-  if (description.length < 85 || description.length > 230) warnings.push(`${route}: description length ${description.length}`);
+  if (description.length < 110 || description.length > 170) warnings.push(`${route}: description length ${description.length}`);
   if (!robots || !/\bindex\b/i.test(robots) || !/\bfollow\b/i.test(robots) || /\bnoindex\b/i.test(robots)) errors.push(`${route}: invalid robots directive (${robots || "missing"})`);
   if (canonical !== `${canonicalBase}${route}`) errors.push(`${route}: canonical mismatch (${canonical})`);
   if (!html.includes(`<link rel="sitemap" type="application/xml" href="${canonicalBase}/sitemap.xml">`)) errors.push(`${route}: missing canonical sitemap discovery link`);

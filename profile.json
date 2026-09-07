@@ -27,20 +27,23 @@
   "jobTitle": [
     "مهندس أمن سيبراني",
     "مطور برمجيات",
-    "خبير منتجات Google"
+    "متخصص خرائط Google"
   ],
+  "identifier": {
+    "@type": "PropertyValue",
+    "propertyID": "Wikidata",
+    "value": "Q138800449",
+    "url": "https://www.wikidata.org/wiki/Q138800449"
+  },
   "sameAs": [
     "https://github.com/EslamElshikh-dev",
-    "https://facebook.com/remesoo",
     "https://x.com/remoesoo10",
     "https://www.instagram.com/remoesoo10",
     "https://www.threads.net/@remoesoo10",
     "https://www.youtube.com/@remoesoo10",
     "https://www.tiktok.com/@remoesoo",
     "https://www.wikidata.org/wiki/Q138800449",
-    "https://me.developers.google.com/u/EslamElshikh",
-    "https://blog.eslam-elshikh.com",
-    "https://maps.app.goo.gl/EbiR3AKJEZhkbMn66"
+    "https://me.developers.google.com/u/EslamElshikh"
   ],
   "knowsAbout": [
     "الأمن السيبراني وحماية الأنظمة",

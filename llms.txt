@@ -1,6 +1,6 @@
 # المهندس إسلام الشيخ
 
-> مهندس أمن سيبراني ومطور برمجيات وخبير منتجات Google في الرياض، يقدم تطوير المواقع ووكلاء الذكاء الاصطناعي والسيو والحلول السحابية للشركات في السعودية.
+> مهندس أمن سيبراني ومطور برمجيات ومتخصص خرائط Google في الرياض، يقدم تطوير المواقع ووكلاء الذكاء الاصطناعي والسيو والحلول السحابية للشركات في السعودية.
 
 ## الخدمات الرئيسية
 
@@ -18,9 +18,9 @@
 ## صفحات مهمة
 
 - [عن المهندس إسلام الشيخ](https://www.eslam-elshikh.com/about/)
-- [إسلام الشيخ — خبير خرائط جوجل والملفات التجارية](https://www.eslam-elshikh.com/google-expert/)
+- [إسلام الشيخ — متخصص خرائط Google والملفات التجارية](https://www.eslam-elshikh.com/google-expert/)
 - [إسلام الشيخ — خبير إعلانات جوجل وإدارة حملات Google Ads](https://www.eslam-elshikh.com/google-ads/)
-- [السيو المحلي](https://www.eslam-elshikh.com/local-seo/)
+- [السيو المحلي في الرياض](https://www.eslam-elshikh.com/local-seo/riyadh/)
 - [الأعمال والمشروعات](https://www.eslam-elshikh.com/projects/)
 - [المدونة](https://www.eslam-elshikh.com/blog/)
 - [التواصل](https://www.eslam-elshikh.com/contact/)
