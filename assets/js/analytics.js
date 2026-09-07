@@ -47,7 +47,53 @@
     });
   };
 
-  const removeBanner = () => document.querySelector("[data-analytics-consent]")?.remove();
+  const eventNames = new Set(["call_click", "whatsapp_click", "email_click", "project_form_start", "project_message_ready"]);
+  const serviceNames = new Set(["web-development", "cybersecurity", "cloud-solutions", "ai-agents", "google-support", "google-business-profile", "knowledge-bases", "seo", "digital-advertising", "consultation"]);
+  const placements = new Set(["header", "footer", "floating", "hero", "contact_form", "content"]);
+
+  // Collect intent and placement only, never the message, name, phone or submitted URL.
+  const track = (name, parameters = {}, onComplete) => {
+    if (sessionChoice !== "granted" || !eventNames.has(name)) return false;
+    loadAnalytics();
+    const pathService = window.location.pathname.match(/^\/services\/([^/]+)\//)?.[1];
+    const service = serviceNames.has(parameters.service) ? parameters.service : pathService;
+    const values = {
+      page_path: window.location.pathname,
+      service: serviceNames.has(service) ? service : "general",
+      placement: placements.has(parameters.placement) ? parameters.placement : "content",
+      transport_type: "beacon"
+    };
+    if (typeof onComplete === "function") {
+      values.event_callback = onComplete;
+      values.event_timeout = 600;
+    }
+    gtag("event", name, values);
+    return true;
+  };
+  window.esAnalytics = Object.freeze({ track });
+
+  const trackContact = (event) => {
+    if (event.type === "auxclick" && event.button !== 1) return;
+    const link = event.target.closest?.("a[href]");
+    if (!link) return;
+    const href = link.getAttribute("href") || "";
+    const name = href.startsWith("tel:+966579395299") ? "call_click"
+      : /^https:\/\/wa\.me\/966579395299(?:\?|$)/.test(href) ? "whatsapp_click"
+      : href.startsWith("mailto:info@eslam-elshikh.com") ? "email_click" : null;
+    if (!name) return;
+    const placement = link.closest(".floating-contact") ? "floating"
+      : link.closest(".site-header") ? "header"
+      : link.closest(".site-footer") ? "footer"
+      : link.closest(".hero") ? "hero" : "content";
+    track(name, { placement });
+  };
+  document.addEventListener("click", trackContact);
+  document.addEventListener("auxclick", trackContact);
+
+  const removeBanner = () => {
+    document.querySelector("[data-analytics-consent]")?.remove();
+    document.body.classList.remove("has-consent-dialog");
+  };
 
   const showPreferences = () => {
     removeBanner();
@@ -95,6 +141,7 @@
     actions.append(privacy, reject, accept);
     banner.append(copy, actions);
     document.body.appendChild(banner);
+    document.body.classList.add("has-consent-dialog");
     reject.focus({ preventScroll: true });
   };
 

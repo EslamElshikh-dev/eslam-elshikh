@@ -5,6 +5,8 @@ import { posts, projects } from "../src/content.mjs";
 import { projectAudit, webProjects } from "../src/web-projects.mjs";
 import { guides } from "../src/guides.mjs";
 
+const buildVersion = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8")).version;
+
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
 const dirArg = process.argv.find((arg) => arg.startsWith("--dir="));
@@ -171,7 +173,7 @@ for (const route of sitemapRoutes) {
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
   if (/<style\b|\sstyle=["']/i.test(html)) errors.push(`${route}: contains inline CSS that weakens the CSP`);
-  if (!html.includes('/assets/js/theme.js?v=3.7.1') || !html.includes('/assets/js/analytics.js?v=3.7.1')) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
+  if (!html.includes(`/assets/js/theme.js?v=${buildVersion}`) || !html.includes(`/assets/js/analytics.js?v=${buildVersion}`)) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
   if (!html.includes('/assets/og/eslam-elshikh-social-card.png')) errors.push(`${route}: social metadata does not use the 1200x630 sharing card`);
   if (/https:\/\/(?:i\.ibb\.co|avatars\.githubusercontent\.com)/i.test(html)) errors.push(`${route}: references a legacy third-party image host`);
   for (const image of html.matchAll(/<img\b([^>]*)>/gi)) {
@@ -197,7 +199,7 @@ for (const route of sitemapRoutes) {
   if (isArticle) {
     const coreWords = wordCount(articleCore(html));
     if (coreWords < 450) errors.push(`${route}: core article content is too thin (${coreWords} words; expected at least 450)`);
-    for (const className of ["header-tools", "footer-grid", "mobile-bottom-nav", "article-author-card"]) {
+    for (const className of ["header-tools", "footer-grid", "floating-contact", "article-author-card"]) {
       if (!new RegExp(`class=["'][^"']*\\b${className}\\b`, "i").test(html)) errors.push(`${route}: article is missing the standard ${className} shell`);
     }
     const faqCount = (html.match(/<details\s+class="reveal"/g) || []).length;
@@ -309,6 +311,12 @@ for (const route of expectedCaseStudyRoutes) {
   if (!html.includes("لا تتضمن هذه الدراسة أرقام زيارات أو تحويلات")) errors.push(`${route}: missing the evidence boundary for unverified business outcomes`);
 }
 
+for (const [route, html] of pages) {
+  if (html.includes('class="mobile-bottom-nav"')) errors.push(`${route}: retired mobile bottom navigation is still rendered`);
+  if (/<strong[^>]*data-counter="[1-9][0-9]*"[^>]*>0<\/strong>/.test(html)) errors.push(`${route}: server-rendered experience counters must not show zero`);
+  if (!/title="(?:خريطة نطاق الخدمة في مدينة الرياض|Riyadh service-area map)"/.test(html)) errors.push(`${route}: geographic service-area map is not accurately labeled`);
+}
+if (home.indexOf('class="section-pad projects-section"') > home.indexOf('id="services"')) errors.push("Homepage work examples must precede the detailed services");
 const contactPageHtml = pages.get("/contact/") || "";
 if (/<form\b[^>]*data-project-form/i.test(contactPageHtml)) errors.push("Contact project composer must not use a native form submission fallback");
 if (!/<div\b[^>]*data-project-form[^>]*role="form"/i.test(contactPageHtml) || !/data-project-submit/.test(contactPageHtml)) errors.push("Contact page is missing the safe client-side project message composer");

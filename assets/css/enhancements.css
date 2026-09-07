@@ -48,5 +48,24 @@
 @media(max-width:720px){.google-stats{grid-template-columns:1fr}.google-stats>div{min-height:180px}}
 @media(max-width:900px){.floating-action{width:44px!important;min-width:44px!important;height:44px!important}.floating-action .icon{width:1.18rem!important;height:1.18rem!important}.floating-action>span{display:none!important}.floating-contact{gap:.62rem}.social-row{gap:.46rem!important}.social-row a{width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important}.social-row .social-icon{width:14px!important;height:14px!important;max-width:14px!important;max-height:14px!important}.social-row a[aria-label="YouTube"] .social-icon{width:15px!important;max-width:15px!important}.social-row a[aria-label="LinkedIn"] .social-icon{width:13px!important;height:13px!important;max-width:13px!important;max-height:13px!important}.social-row a[aria-label="X"] .social-icon{width:12px!important;height:12px!important;max-width:12px!important;max-height:12px!important}}
 @media(max-width:700px){.case-study-layout{grid-template-columns:1fr}.case-study-scope{grid-template-columns:1fr}.case-study-decisions li{grid-template-columns:38px minmax(0,1fr)}.stats-note{text-align:start}}
-@media(max-width:620px){.brand-logo,.brand-logo-approved{width:48px!important;height:48px!important;min-width:48px!important;max-width:48px!important;min-height:48px!important;max-height:48px!important;flex-basis:48px!important;padding:1px!important}.site-header .brand{gap:8px}.analytics-consent{inset-inline:12px;bottom:calc(84px + env(safe-area-inset-bottom));width:auto;padding:16px}.analytics-consent>div{justify-content:flex-start}.analytics-consent>div>a{margin-inline-end:0}.analytics-consent .button{min-height:44px;padding:8px 14px}}
+@media(max-width:620px){.brand-logo,.brand-logo-approved{width:48px!important;height:48px!important;min-width:48px!important;max-width:48px!important;min-height:48px!important;max-height:48px!important;flex-basis:48px!important;padding:1px!important}.site-header .brand{gap:8px}.analytics-consent{inset-inline:12px;bottom:calc(12px + env(safe-area-inset-bottom));width:auto;padding:16px}.analytics-consent>div{justify-content:flex-start}.analytics-consent>div>a{margin-inline-end:0}.analytics-consent .button{min-height:44px;padding:8px 14px}}
 @media(prefers-reduced-motion:reduce){.stats-bar>div,.google-stats>div{transition:none!important}.floating-action,.floating-action::before{animation:none!important}.social-row a{transition:none!important}}
+
+/* Clear first-screen hierarchy and customer-led service entry points. */
+.hero:not(.hero-en) .hero-grid{min-height:0}
+.hero:not(.hero-en) .hero-copy h1{font-size:clamp(2.2rem,3.5vw,3.65rem);line-height:1.25;letter-spacing:-.025em}
+.hero:not(.hero-en) .hero-copy h1 span{display:block;font-size:.76em;line-height:1.45;margin-top:.4rem}
+.hero:not(.hero-en) .hero-visual{min-height:0}
+.hero:not(.hero-en) .hero-lead{max-width:52ch}
+.needs-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem}
+.need-card{display:flex;flex-direction:column;gap:.8rem;padding:1.35rem;border:1px solid var(--line-strong);border-radius:1.2rem;background:var(--surface);transition:border-color .2s ease}
+.need-card:hover,.need-card:focus-visible{border-color:var(--primary)}
+.need-card>.icon{width:1.65rem;height:1.65rem;color:var(--primary)}
+.need-card h3{margin:0;font-size:1.05rem;line-height:1.6}
+.need-card p{margin:0;color:var(--muted);font-size:.86rem;line-height:1.85}
+.need-card>span{display:flex;align-items:center;gap:.35rem;margin-top:auto;color:var(--primary);font-size:.78rem;font-weight:800}
+.need-card>span .icon{width:1rem;height:1rem}
+.has-consent-dialog .floating-contact,.has-consent-dialog .back-to-top,.menu-open .floating-contact{visibility:hidden;pointer-events:none;opacity:0}
+.project-form .button:disabled{opacity:.65;cursor:wait}
+@media(max-width:900px){.needs-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero:not(.hero-en) .hero-visual{display:none}.hero:not(.hero-en){padding-bottom:2.25rem}.hero:not(.hero-en) .hero-grid{gap:1rem}.floating-action{width:48px!important;min-width:48px!important;height:48px!important}}
+@media(max-width:430px){.needs-grid{grid-template-columns:1fr}.hero:not(.hero-en) .hero-copy h1{font-size:2.05rem}.hero:not(.hero-en) .hero-actions{display:grid;grid-template-columns:1fr}.need-card{padding:1.15rem}}

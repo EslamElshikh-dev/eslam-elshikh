@@ -68,7 +68,7 @@
     const scrolled = window.scrollY > 16;
     header?.classList.toggle("is-scrolled", scrolled);
     backToTop?.classList.toggle("is-visible", window.scrollY > 600);
-    floatingContact?.classList.toggle("is-visible", window.scrollY > 460 && currentPath !== "/contact/");
+    floatingContact?.classList.add("is-visible");
   };
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });
@@ -186,22 +186,24 @@
     applyWorkView();
   }
 
-  doc.querySelectorAll(".mobile-bottom-nav a").forEach((link) => {
-    const baseOrigin = window.location.origin === "null" ? "https://www.eslam-elshikh.com" : window.location.origin;
-    const linkPath = normalizePath(new URL(link.getAttribute("href") || "/", baseOrigin).pathname);
-    const exact = currentPath === linkPath;
-    const servicesSection = linkPath === "/services/" && (currentPath.startsWith("/services/") || currentPath.startsWith("/local-seo/"));
-    const projectsSection = linkPath === "/projects/" && currentPath.startsWith("/projects/");
-    const contactSection = linkPath === "/contact/" && currentPath.startsWith("/contact/");
-    if (exact || servicesSection || projectsSection || contactSection) link.setAttribute("aria-current", "page");
-  });
-
   const form = doc.querySelector("[data-project-form]");
   if (form) {
     const details = form.querySelector('[name="details"]');
     const counter = form.querySelector("[data-character-count]");
     const message = form.querySelector("[data-form-message]");
     const submitButton = form.querySelector("[data-project-submit]");
+    const serviceField = form.querySelector('[name="service"]');
+    const requestedService = new URLSearchParams(window.location.search).get("service");
+    if (requestedService && [...serviceField.options].some((option) => option.value === requestedService)) {
+      serviceField.value = requestedService;
+    }
+    let formStarted = false;
+    let openingMessage = false;
+    form.addEventListener("input", () => {
+      if (formStarted) return;
+      formStarted = true;
+      window.esAnalytics?.track("project_form_start", { service: serviceField.value, placement: "contact_form" });
+    });
 
     const updateCount = () => {
       if (counter && details) counter.textContent = String(details.value.length);
@@ -210,10 +212,12 @@
     details?.addEventListener("input", updateCount);
 
     const openProjectMessage = () => {
+      if (openingMessage) return;
       message.textContent = "";
       const valueOf = (name) => String(form.querySelector(`[name="${name}"]`)?.value || "").trim();
       const name = valueOf("name");
       const service = valueOf("service");
+      const serviceLabel = serviceField.selectedOptions[0]?.textContent || service;
       const url = valueOf("url");
       const projectDetails = valueOf("details");
       const timeline = valueOf("timeline");
@@ -226,7 +230,10 @@
       }
 
       if (url) {
-        try { new URL(url); } catch (_) {
+        try {
+          const parsed = new URL(url);
+          if (!["https:", "http:"].includes(parsed.protocol)) throw new Error("Unsupported URL scheme");
+        } catch (_) {
           message.textContent = "يرجى كتابة رابط صحيح يبدأ بـ https:// أو ترك حقل الرابط فارغًا.";
           form.querySelector('[name="url"]')?.focus();
           return;
@@ -237,7 +244,7 @@
         "مرحبًا م. إسلام، أرغب في مناقشة مشروع.",
         "",
         `الاسم / الشركة: ${name}`,
-        `الخدمة: ${service}`,
+        `الخدمة: ${serviceLabel}`,
         url ? `الرابط: ${url}` : "",
         `الهدف والوضع الحالي: ${projectDetails}`,
         timeline ? `الموعد المتوقع: ${timeline}` : "",
@@ -247,11 +254,25 @@
 
       const whatsappUrl = `https://wa.me/966579395299?text=${encodeURIComponent(lines.join("\n"))}`;
       message.textContent = "تم تجهيز الرسالة. سيفتح WhatsApp لمراجعتها قبل الإرسال.";
-      const opened = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-      if (!opened) window.location.href = whatsappUrl;
+      openingMessage = true;
+      submitButton.disabled = true;
+      let navigated = false;
+      const openOnce = () => {
+        if (navigated) return;
+        navigated = true;
+        window.location.assign(whatsappUrl);
+      };
+      // A prepared message is intent, not a confirmed lead or a sent WhatsApp message.
+      const tracked = window.esAnalytics?.track("project_message_ready", { service, placement: "contact_form" }, openOnce);
+      if (tracked) setTimeout(openOnce, 650);
+      else openOnce();
     };
 
     submitButton?.addEventListener("click", openProjectMessage);
+    window.addEventListener("pageshow", () => {
+      openingMessage = false;
+      submitButton.disabled = false;
+    });
   }
 
   doc.querySelectorAll(".accordion details").forEach((details) => {
