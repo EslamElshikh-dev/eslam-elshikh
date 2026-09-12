@@ -261,6 +261,15 @@ export default async function handler(request, response) {
     });
 
     if (!googleResponse.ok) {
+      const providerPayload = await googleResponse.json().catch(() => ({}));
+      const providerDetail = Array.isArray(providerPayload?.error?.details)
+        ? providerPayload.error.details.find((detail) => detail?.reason)
+        : null;
+      console.warn("google_place_audit_provider_error", JSON.stringify({
+        httpStatus: googleResponse.status,
+        status: String(providerPayload?.error?.status || "unknown").slice(0, 80),
+        reason: String(providerDetail?.reason || "unknown").slice(0, 120)
+      }));
       return json(response, googleResponse.status === 429 ? 429 : 502, {
         error: googleResponse.status === 429 ? "provider_rate_limited" : "provider_error",
         manualAvailable: true
