@@ -62,22 +62,25 @@ const routes = [...new Set(htmlFiles.map(routeFromFile).filter(Boolean))]
   .filter((route) => !route.startsWith("/.") && !route.startsWith("/assets/") && !route.startsWith("/dist/") && !route.startsWith("/node_modules/"))
   .sort((a, b) => a.localeCompare(b, "en"));
 
-const urls = (await Promise.all(routes.map(async (route) => {
+const urlEntries = await Promise.all(routes.map(async (route) => {
   const file = htmlFiles.find((candidate) => routeFromFile(candidate) === route);
   const loc = route === "/" ? `${canonical}/` : `${canonical}${route}`;
   const html = await readFile(file, "utf8");
   const canonicalHref = html.match(/<link\s+rel=["']canonical["']\s+href=["']([^"']+)/i)?.[1];
   const robots = html.match(/<meta\s+name=["']robots["']\s+content=["']([^"']+)/i)?.[1] || "";
   if (canonicalHref !== loc) throw new Error(`Canonical mismatch for ${route}: ${canonicalHref || "missing"}`);
-  if (!/\bindex\b/i.test(robots) || /\bnoindex\b/i.test(robots)) throw new Error(`Non-indexable page found in public routes: ${route}`);
+  if (/\bnoindex\b/i.test(robots)) return null;
+  if (!/\bindex\b/i.test(robots)) throw new Error(`Page has no explicit index directive: ${route}`);
   const lastmod = await lastmodFor(file, route);
   const alternates = alternateLinksFor(route);
   return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>${alternates ? `\n${alternates}` : ""}\n  </url>`;
-}))).join("\n");
+}));
+const indexableUrls = urlEntries.filter(Boolean);
+const urls = indexableUrls.join("\n");
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`;
 
 await writeFile(join(outDir, "sitemap.xml"), sitemap, "utf8");
 await writeFile(join(outDir, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${canonical}/sitemap.xml\n`, "utf8");
 
-console.log(`Finalized sitemap with ${routes.length} canonical URLs.`);
+console.log(`Finalized sitemap with ${indexableUrls.length} canonical URLs; omitted ${routes.length - indexableUrls.length} noindex tool pages.`);
