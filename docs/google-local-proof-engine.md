@@ -7,31 +7,13 @@
 - `/book/`: structured consultation request for Google, websites, SEO, security, and AI work.
 - `/local-visibility-dashboard/`: `noindex` browser-only CSV dashboard. Imported performance rows never leave the device.
 
-## Google Places configuration
+## Free guided audit mode
 
-The audit works in guided mode without credentials. Direct public-data lookup activates when this production environment variable is present:
+The public audit is intentionally browser-only. A visitor enters a business name or public Google Maps link, reviews eight visible profile signals, and receives a transparent 100-point readiness score with three priorities. The name, link, website, phone, and checklist choices are not sent to the website server or Google.
 
-```text
-GOOGLE_PLACES_API_KEY
-```
+This mode requires no Google Cloud project, Places API key, OAuth access, or billing account. It also avoids scraping Google Maps and does not imply that the score is official Google data.
 
-Create a new server key in the correct Google Cloud project, enable Places API (New), restrict the key to the Places API, apply a conservative quota, and monitor billing. Do not put the key in HTML, browser JavaScript, repository files, or a public URL. A key that has already appeared in a public or shared URL should be rotated rather than reused.
-
-If `GOOGLE_PLACES_API_KEY` is absent, the endpoint can instead use the existing server-only `GOOGLE_CLIENT_EMAIL` and `GOOGLE_PRIVATE_KEY` service-account credentials. It mints a short-lived OAuth token limited to `maps-platform.places.textsearch`; no long-lived Maps key is sent to the browser. Places API (New) and billing must be enabled on the Google Cloud project that owns the service account.
-
-The server function exposes only the public fields needed by the score, applies request-size checks, a short timeout, a best-effort rate limit, no-store responses, and an allowlist for Google Maps URLs. It does not log the submitted business query in application code.
-
-## Direct API behavior
-
-Endpoint: `POST /api/google-place-audit`
-
-Request:
-
-```json
-{ "query": "Business name, Riyadh" }
-```
-
-The response can include up to three public matches so the visitor chooses the correct business. When neither API-key nor service-account authentication is available, or when the provider is unavailable, the client opens the local guided audit instead of failing the page.
+The retired `POST /api/google-place-audit` route returns HTTP `410` with `direct_lookup_disabled` so older clients fail safely without contacting Google. A future direct-data version should only be restored after a separate cost, privacy, quota, and abuse-control review.
 
 ## Measurement model
 

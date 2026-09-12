@@ -10,7 +10,6 @@
   const submit = root.querySelector("[data-audit-submit]");
   const status = root.querySelector("[data-audit-status]");
   const results = root.querySelector("[data-audit-results]");
-  const choices = root.querySelector("[data-audit-choices]");
   const manual = root.querySelector("[data-manual-audit]");
   const manualButton = root.querySelector("[data-manual-calculate]");
   let currentPlace = null;
@@ -71,7 +70,6 @@
     if (Number.isFinite(overrides.score)) audit.score = overrides.score;
     if (Array.isArray(overrides.priorities)) audit.priorities = overrides.priorities;
     results.hidden = false;
-    choices.hidden = true;
     manual.hidden = true;
     text("[data-score]", String(audit.score));
     text("[data-score-label]", audit.score >= 80 ? "جاهزية قوية" : audit.score >= 60 ? "أساس جيد يحتاج تحسينًا" : "فجوات واضحة تقلل الثقة");
@@ -96,37 +94,23 @@
     mapsLink.hidden = !place.googleMapsUrl;
     if (place.googleMapsUrl) mapsLink.href = place.googleMapsUrl;
     const issue = priorities.map(priorityCopy).join(" | ");
-    const message = `مرحبًا م. إسلام، أجريت فحص الملف التجاري.\nالنشاط: ${place.name || query.value.trim()}\nPlace ID: ${place.id || "غير متاح"}\nالدرجة الأولية: ${audit.score}/100\nالأولويات: ${issue}\nأرغب في مراجعة احترافية.`;
+    const message = `مرحبًا م. إسلام، أجريت الفحص الإرشادي المجاني لملف Google التجاري.\nالاسم أو الرابط: ${query.value.trim()}\nالدرجة الأولية: ${audit.score}/100\nالأولويات: ${issue}\nأرغب في مراجعة احترافية.`;
     const whatsapp = root.querySelector("[data-audit-whatsapp]");
     whatsapp.href = `https://wa.me/966579395299?text=${encodeURIComponent(message)}`;
     window.esAnalytics?.track("gbp_audit_complete", { service: "google-business-profile", placement: "audit_tool" });
     results.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function showManual(message) {
-    status.textContent = message;
-    status.className = "audit-status is-notice";
-    manual.hidden = false;
+  function isGoogleMapsUrl(value) {
+    try {
+      const host = new URL(value).hostname.toLowerCase();
+      return host === "maps.app.goo.gl" || host === "goo.gl" || host === "maps.google.com" || host === "www.google.com" || host === "google.com";
+    } catch {
+      return false;
+    }
   }
 
-  function renderChoices(places) {
-    if (places.length === 1) return renderPlace(places[0]);
-    choices.hidden = false;
-    choices.replaceChildren(...places.map((place) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "audit-choice";
-      const strong = document.createElement("strong");
-      strong.textContent = place.name;
-      const span = document.createElement("span");
-      span.textContent = place.address || place.category;
-      button.append(strong, span);
-      button.addEventListener("click", () => renderPlace(place), { once: true });
-      return button;
-    }));
-  }
-
-  async function runAudit() {
+  function runAudit() {
     const value = query.value.trim();
     if (value.length < 3) {
       status.textContent = "اكتب اسم النشاط مع المدينة، أو الصق رابط Google Maps العام.";
@@ -134,46 +118,23 @@
       query.focus();
       return;
     }
-    submit.disabled = true;
     results.hidden = true;
-    choices.hidden = true;
-    status.textContent = "جارٍ البحث في البيانات العامة وتجهيز الفحص…";
-    status.className = "audit-status is-loading";
+    manual.hidden = false;
+    status.textContent = "الفحص جاهز. راجع المؤشرات الظاهرة كما تراها في ملفك العام، ثم احسب النتيجة.";
+    status.className = "audit-status is-success";
     window.esAnalytics?.track("gbp_audit_start", { service: "google-business-profile", placement: "audit_tool" });
-    try {
-      const response = await fetch("/api/google-place-audit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: value })
-      });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        const messages = {
-          place_not_found: "لم نعثر على تطابق واضح. أضف المدينة أو استخدم الفحص الإرشادي.",
-          map_link_needs_business_name: "الرابط المختصر لم يكشف اسم النشاط. اكتب الاسم والمدينة أو استخدم الفحص الإرشادي.",
-          unsupported_url: "نقبل روابط Google Maps العامة فقط.",
-          rate_limited: "وصلت إلى حد الفحوصات المؤقت. جرّب لاحقًا أو استخدم الفحص الإرشادي."
-        };
-        showManual(messages[payload.error] || "التكامل المباشر غير متاح الآن؛ الفحص الإرشادي يعمل بالكامل داخل جهازك.");
-        return;
-      }
-      status.textContent = payload.places.length > 1 ? "اختر النشاط الصحيح لإكمال الفحص." : "اكتمل الفحص الأولي للبيانات العامة.";
-      status.className = "audit-status is-success";
-      renderChoices(payload.places);
-    } catch {
-      showManual("تعذر الاتصال مؤقتًا؛ يمكنك إكمال الفحص الإرشادي الآن دون إرسال بيانات.");
-    } finally {
-      submit.disabled = false;
-    }
+    manual.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
   function runManualAudit() {
     const checked = [...manual.querySelectorAll("input[type=checkbox]")].filter((input) => input.checked);
     const score = checked.reduce((sum, input) => sum + Number(input.value || 0), 0);
     const labels = [...manual.querySelectorAll("input[type=checkbox]")].filter((input) => !input.checked).map((input) => input.dataset.label);
+    const rawQuery = query.value.trim();
+    const mapsUrl = isGoogleMapsUrl(rawQuery) ? rawQuery : "";
     renderPlace({
       id: "",
-      name: query.value.trim() || "فحص إرشادي",
+      name: mapsUrl ? "ملف Google التجاري" : rawQuery || "فحص إرشادي",
       address: checked.some((input) => input.name === "address") ? "العنوان أو نطاق الخدمة مؤكد" : "",
       category: checked.some((input) => input.name === "category") ? "الفئة الأساسية مؤكدة" : "",
       phone: checked.some((input) => input.name === "phone") ? phone.value.trim() || "موجود" : "",
@@ -182,7 +143,7 @@
       rating: checked.some((input) => input.name === "reviews") ? 4 : null,
       reviewCount: checked.some((input) => input.name === "reviews") ? 5 : 0,
       photoCount: checked.some((input) => input.name === "photos") ? 3 : 0,
-      googleMapsUrl: /^https:\/\//.test(query.value.trim()) ? query.value.trim() : ""
+      googleMapsUrl: mapsUrl
     }, { score, priorities: labels.slice(0, 3) });
   }
 
