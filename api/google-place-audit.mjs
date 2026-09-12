@@ -1,6 +1,10 @@
+import { createSign } from "node:crypto";
+
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_REQUESTS = 12;
 const requestBuckets = new Map();
+const PLACES_SCOPE = "https://www.googleapis.com/auth/maps-platform.places.textsearch";
+let cachedGoogleToken = null;
 
 const allowedMapHosts = new Set([
   "maps.app.goo.gl",
@@ -62,6 +66,61 @@ function queryFromMapUrl(value) {
   }
 }
 
+function base64url(value) {
+  return Buffer.from(value).toString("base64url");
+}
+
+function serviceAccountCredentials() {
+  const clientEmail = String(process.env.GOOGLE_CLIENT_EMAIL || "").trim();
+  const privateKey = String(process.env.GOOGLE_PRIVATE_KEY || "").replaceAll("\\n", "\n").trim();
+  return clientEmail && privateKey ? { clientEmail, privateKey } : null;
+}
+
+async function googleServiceAccountToken(credentials, signal) {
+  const now = Math.floor(Date.now() / 1000);
+  if (cachedGoogleToken?.expiresAt > now + 60) return cachedGoogleToken.value;
+
+  const header = { alg: "RS256", typ: "JWT" };
+  const claim = {
+    iss: credentials.clientEmail,
+    scope: PLACES_SCOPE,
+    aud: "https://oauth2.googleapis.com/token",
+    iat: now,
+    exp: now + 3600
+  };
+  const unsigned = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(claim))}`;
+  const signer = createSign("RSA-SHA256");
+  signer.update(unsigned);
+  signer.end();
+  const assertion = `${unsigned}.${signer.sign(credentials.privateKey).toString("base64url")}`;
+  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    signal,
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion
+    })
+  });
+  if (!tokenResponse.ok) throw new Error("google_token_error");
+  const tokenPayload = await tokenResponse.json();
+  if (!tokenPayload.access_token) throw new Error("google_token_missing");
+  cachedGoogleToken = {
+    value: tokenPayload.access_token,
+    expiresAt: now + Math.min(Number(tokenPayload.expires_in) || 3600, 3600)
+  };
+  return cachedGoogleToken.value;
+}
+
+async function placesAuthorization(signal) {
+  const apiKey = String(process.env.GOOGLE_PLACES_API_KEY || "").trim();
+  if (apiKey) return { headers: { "X-Goog-Api-Key": apiKey }, mode: "api_key" };
+  const credentials = serviceAccountCredentials();
+  if (!credentials) return null;
+  const accessToken = await googleServiceAccountToken(credentials, signal);
+  return { headers: { Authorization: `Bearer ${accessToken}` }, mode: "service_account_oauth" };
+}
+
 async function resolveMapQuery(value, signal) {
   let current = value;
   for (let attempt = 0; attempt < 4; attempt += 1) {
@@ -98,7 +157,7 @@ function publicPlace(place = {}) {
   };
 }
 
-export const config = { maxDuration: 10 };
+export const config = { maxDuration: 15 };
 
 export default async function handler(request, response) {
   if (request.method !== "POST") {
@@ -118,14 +177,14 @@ export default async function handler(request, response) {
     return json(response, 422, { error: "invalid_query" });
   }
 
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  if (!apiKey) {
-    return json(response, 503, { error: "configuration_required", manualAvailable: true });
-  }
-
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 7_500);
+  const timeout = setTimeout(() => controller.abort(), 11_000);
   try {
+    const authorization = await placesAuthorization(controller.signal);
+    if (!authorization) {
+      return json(response, 503, { error: "configuration_required", manualAvailable: true });
+    }
+
     let query = rawQuery;
     if (/^https:\/\//i.test(rawQuery)) {
       if (!isAllowedMapUrl(rawQuery)) return json(response, 422, { error: "unsupported_url" });
@@ -138,7 +197,7 @@ export default async function handler(request, response) {
       signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
-        "X-Goog-Api-Key": apiKey,
+        ...authorization.headers,
         "X-Goog-FieldMask": [
           "places.id",
           "places.displayName",
@@ -165,7 +224,11 @@ export default async function handler(request, response) {
     const payload = await googleResponse.json();
     const places = Array.isArray(payload.places) ? payload.places.map(publicPlace) : [];
     if (!places.length) return json(response, 404, { error: "place_not_found", manualAvailable: true });
-    return json(response, 200, { places, source: "google_places_public_data" });
+    return json(response, 200, {
+      places,
+      source: "google_places_public_data",
+      authentication: authorization.mode
+    });
   } catch (error) {
     return json(response, error?.name === "AbortError" ? 504 : 500, { error: "audit_unavailable", manualAvailable: true });
   } finally {

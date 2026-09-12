@@ -19,7 +19,11 @@ async function invoke({ method = "POST", body = {}, headers = {} } = {}) {
 }
 
 const previousKey = process.env.GOOGLE_PLACES_API_KEY;
+const previousClientEmail = process.env.GOOGLE_CLIENT_EMAIL;
+const previousPrivateKey = process.env.GOOGLE_PRIVATE_KEY;
 delete process.env.GOOGLE_PLACES_API_KEY;
+delete process.env.GOOGLE_CLIENT_EMAIL;
+delete process.env.GOOGLE_PRIVATE_KEY;
 
 const method = await invoke({ method: "GET" });
 assert.equal(method.statusCode, 405);
@@ -36,4 +40,6 @@ assert.equal(fallback.payload.manualAvailable, true);
 assert.equal(fallback.headers["cache-control"], "no-store");
 
 if (previousKey) process.env.GOOGLE_PLACES_API_KEY = previousKey;
+if (previousClientEmail) process.env.GOOGLE_CLIENT_EMAIL = previousClientEmail;
+if (previousPrivateKey) process.env.GOOGLE_PRIVATE_KEY = previousPrivateKey;
 console.log("Google growth API fallback and request guards passed.");
