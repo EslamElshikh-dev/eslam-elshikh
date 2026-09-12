@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import handler from "../api/google-place-audit.mjs";
+import handler, { normalizeGooglePrivateKey } from "../api/google-place-audit.mjs";
 
 function responseMock() {
   return {
@@ -24,6 +24,11 @@ const previousPrivateKey = process.env.GOOGLE_PRIVATE_KEY;
 delete process.env.GOOGLE_PLACES_API_KEY;
 delete process.env.GOOGLE_CLIENT_EMAIL;
 delete process.env.GOOGLE_PRIVATE_KEY;
+
+const sampleKey = "-----BEGIN PRIVATE KEY-----\nTEST\n-----END PRIVATE KEY-----";
+assert.equal(normalizeGooglePrivateKey(JSON.stringify(sampleKey)), sampleKey);
+assert.equal(normalizeGooglePrivateKey(sampleKey.replaceAll("\n", "\\n")), sampleKey);
+assert.equal(normalizeGooglePrivateKey(Buffer.from(sampleKey).toString("base64")), sampleKey);
 
 const method = await invoke({ method: "GET" });
 assert.equal(method.statusCode, 405);

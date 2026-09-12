@@ -70,9 +70,32 @@ function base64url(value) {
   return Buffer.from(value).toString("base64url");
 }
 
+function unwrapEnvironmentValue(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  if (raw.startsWith('"') && raw.endsWith('"')) {
+    try { return JSON.parse(raw); } catch {}
+  }
+  if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
+    return raw.slice(1, -1);
+  }
+  return raw;
+}
+
+export function normalizeGooglePrivateKey(value) {
+  let privateKey = unwrapEnvironmentValue(value).replaceAll("\\n", "\n").trim();
+  if (privateKey && !privateKey.includes("BEGIN PRIVATE KEY")) {
+    try {
+      const decoded = Buffer.from(privateKey, "base64").toString("utf8").trim();
+      if (decoded.includes("BEGIN PRIVATE KEY")) privateKey = decoded;
+    } catch {}
+  }
+  return privateKey;
+}
+
 function serviceAccountCredentials() {
-  const clientEmail = String(process.env.GOOGLE_CLIENT_EMAIL || "").trim();
-  const privateKey = String(process.env.GOOGLE_PRIVATE_KEY || "").replaceAll("\\n", "\n").trim();
+  const clientEmail = unwrapEnvironmentValue(process.env.GOOGLE_CLIENT_EMAIL);
+  const privateKey = normalizeGooglePrivateKey(process.env.GOOGLE_PRIVATE_KEY);
   return clientEmail && privateKey ? { clientEmail, privateKey } : null;
 }
 
@@ -89,10 +112,16 @@ async function googleServiceAccountToken(credentials, signal) {
     exp: now + 3600
   };
   const unsigned = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(claim))}`;
-  const signer = createSign("RSA-SHA256");
-  signer.update(unsigned);
-  signer.end();
-  const assertion = `${unsigned}.${signer.sign(credentials.privateKey).toString("base64url")}`;
+  let signature;
+  try {
+    const signer = createSign("RSA-SHA256");
+    signer.update(unsigned);
+    signer.end();
+    signature = signer.sign(credentials.privateKey).toString("base64url");
+  } catch {
+    throw new Error("google_private_key_invalid");
+  }
+  const assertion = `${unsigned}.${signature}`;
   const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     signal,
@@ -102,8 +131,13 @@ async function googleServiceAccountToken(credentials, signal) {
       assertion
     })
   });
-  if (!tokenResponse.ok) throw new Error("google_token_error");
   const tokenPayload = await tokenResponse.json();
+  if (!tokenResponse.ok) {
+    const reason = ["invalid_grant", "invalid_scope", "unauthorized_client"].includes(tokenPayload?.error)
+      ? tokenPayload.error
+      : `http_${tokenResponse.status}`;
+    throw new Error(`google_token_${reason}`);
+  }
   if (!tokenPayload.access_token) throw new Error("google_token_missing");
   cachedGoogleToken = {
     value: tokenPayload.access_token,
@@ -230,7 +264,12 @@ export default async function handler(request, response) {
       authentication: authorization.mode
     });
   } catch (error) {
-    return json(response, error?.name === "AbortError" ? 504 : 500, { error: "audit_unavailable", manualAvailable: true });
+    const diagnostic = String(error?.message || "").startsWith("google_") ? "google_oauth" : undefined;
+    return json(response, error?.name === "AbortError" ? 504 : 500, {
+      error: "audit_unavailable",
+      manualAvailable: true,
+      ...(diagnostic ? { stage: diagnostic } : {})
+    });
   } finally {
     clearTimeout(timeout);
   }
