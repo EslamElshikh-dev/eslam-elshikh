@@ -265,10 +265,15 @@ export default async function handler(request, response) {
       const providerDetail = Array.isArray(providerPayload?.error?.details)
         ? providerPayload.error.details.find((detail) => detail?.reason)
         : null;
+      const providerMessage = String(providerPayload?.error?.message || "unknown")
+        .replace(/AIza[\w-]{20,}/g, "[redacted_api_key]")
+        .replace(/Bearer\s+[\w.-]+/gi, "Bearer [redacted]")
+        .slice(0, 240);
       console.warn("google_place_audit_provider_error", JSON.stringify({
         httpStatus: googleResponse.status,
         status: String(providerPayload?.error?.status || "unknown").slice(0, 80),
-        reason: String(providerDetail?.reason || "unknown").slice(0, 120)
+        reason: String(providerDetail?.reason || "unknown").slice(0, 120),
+        message: providerMessage
       }));
       return json(response, googleResponse.status === 429 ? 429 : 502, {
         error: googleResponse.status === 429 ? "provider_rate_limited" : "provider_error",
