@@ -40,6 +40,15 @@ const textContent = (html) => html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi
 const matchOne = (html, regex) => html.match(regex)?.[1]?.trim() || "";
 const wordCount = (html) => textContent(html).split(/\s+/).filter(Boolean).length;
 const articleCore = (html) => matchOne(html, /<article\s+class=["'][^"']*\barticle-content\b[^"']*["'][^>]*>([\s\S]*?)<\/article>/i);
+const schemaNodes = (html) => [...html.matchAll(/<script\s+type=["']application\/ld\+json["']>([\s\S]*?)<\/script>/gi)]
+  .flatMap((match) => {
+    try {
+      const value = JSON.parse(match[1]);
+      return Array.isArray(value?.["@graph"]) ? value["@graph"] : [value];
+    } catch {
+      return [];
+    }
+  });
 const shingles = (html, size = 5) => {
   const words = textContent(html).split(/\s+/).filter(Boolean);
   const values = new Set();
@@ -168,6 +177,7 @@ for (const route of sitemapRoutes) {
   const h1Count = (html.match(/<h1\b/gi) || []).length;
   const viewportCount = (html.match(/<meta\s+name=["']viewport["']/gi) || []).length;
   const words = wordCount(html);
+  const structuredNodes = schemaNodes(html);
 
   if (!/^<!doctype html>/i.test(html)) errors.push(`${route}: missing HTML5 doctype`);
   if (!/<html\s+lang=["'](?:ar|en)["']\s+dir=["'](?:rtl|ltr)["']/i.test(html)) errors.push(`${route}: missing correct lang/dir attributes`);
@@ -190,6 +200,11 @@ for (const route of sitemapRoutes) {
   if (!html.includes(`<link rel="sitemap" type="application/xml" href="${canonicalBase}/sitemap.xml">`)) errors.push(`${route}: missing canonical sitemap discovery link`);
   if (!/<meta\s+property=["']og:title["']/i.test(html) || !/<meta\s+name=["']twitter:card["']/i.test(html)) errors.push(`${route}: incomplete social metadata`);
   if (!/<script\s+type=["']application\/ld\+json["']>/i.test(html)) errors.push(`${route}: missing JSON-LD`);
+  const personNode = structuredNodes.find((node) => node?.["@type"] === "Person");
+  const professionalServiceNode = structuredNodes.find((node) => node?.["@type"] === "ProfessionalService");
+  const expectedProfessionalName = route.startsWith("/en/") ? "Eslam Elshikh" : "المهندس إسلام الشيخ";
+  if (personNode?.image !== `${canonicalBase}/assets/brand/eslam-elshikh-portrait-20260827.webp`) errors.push(`${route}: Person schema must use the canonical profile portrait`);
+  if (professionalServiceNode?.name !== expectedProfessionalName || professionalServiceNode?.url !== `${canonicalBase}/`) errors.push(`${route}: ProfessionalService identity is inconsistent with the public brand`);
   if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/main\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned main stylesheet`);
   const stylesheetCount = (html.match(/<link\b[^>]*\brel=["']stylesheet["'][^>]*>/gi) || []).length;
   const expectedStylesheets = route === "/about/" ? 2 : 1;
@@ -218,6 +233,21 @@ for (const route of sitemapRoutes) {
     for (const identityName of ["المهندس إسلام الشيخ", "المهندس اسلام الشيخ", "اسلام الشيخ", "Eslam Elshikh", "Islam Elshikh"]) {
       if (!html.includes(identityName)) errors.push(`${route}: missing identity spelling ${identityName}`);
     }
+  }
+  if (route === "/about/" || route === "/en/about/") {
+    const profilePages = structuredNodes.filter((node) => node?.["@type"] === "ProfilePage");
+    const duplicateWebPages = structuredNodes.filter((node) => node?.["@type"] === "WebPage" && node?.url === `${canonicalBase}${route}`);
+    if (profilePages.length !== 1) errors.push(`${route}: expected exactly one ProfilePage node, found ${profilePages.length}`);
+    if (duplicateWebPages.length) errors.push(`${route}: ProfilePage must not be duplicated by a second WebPage node`);
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/.test(profilePages[0]?.dateModified || "")) errors.push(`${route}: ProfilePage dateModified must be a timezone-qualified DateTime`);
+    if (profilePages[0]?.mainEntity?.["@id"] !== `${canonicalBase}/#person`) errors.push(`${route}: ProfilePage mainEntity must reference the canonical Person`);
+    if (!html.includes(`rel="preload" as="image" href="${canonicalBase}/assets/brand/eslam-elshikh-portrait-20260827.webp"`)) errors.push(`${route}: profile portrait is not preloaded`);
+  }
+  const breadcrumbNodes = structuredNodes.filter((node) => node?.["@type"] === "BreadcrumbList");
+  for (const breadcrumbNode of breadcrumbNodes) {
+    if (!breadcrumbNode["@id"]?.endsWith("#breadcrumb")) errors.push(`${route}: BreadcrumbList is missing its stable @id`);
+    const pageNode = structuredNodes.find((node) => ["WebPage", "ProfilePage", "BlogPosting", "CollectionPage"].includes(node?.["@type"]) && node?.url === `${canonicalBase}${route}`);
+    if (pageNode?.breadcrumb?.["@id"] !== breadcrumbNode["@id"]) errors.push(`${route}: page schema does not reference its BreadcrumbList`);
   }
   const isArticle = /^\/(?:en\/)?blog\/[^/]+\/$/.test(route);
   if (isArticle) {

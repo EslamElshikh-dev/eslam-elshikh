@@ -19,7 +19,7 @@ const outFlag = process.argv.find((arg) => arg.startsWith("--out="));
 const outDir = outFlag ? resolve(root, outFlag.slice(6)) : root;
 const isDistBuild = outDir !== root;
 const generatedRoutes = [];
-const version = "3.8.0";
+const version = JSON.parse(await readFile(join(root, "package.json"), "utf8")).version;
 const profilePhoto = "/assets/brand/eslam-elshikh-portrait-20260827.webp";
 
 const esc = (value = "") => String(value)
@@ -83,7 +83,8 @@ const icon = (name, className = "icon") => `<svg class="${className}" viewBox="0
 const logo = (className = "brand-logo", alt = "") => {
   const size = /(?:hero|profile)-logo/.test(className) ? 280 : 128;
   const priority = className === "hero-logo" ? ' loading="eager" fetchpriority="high"' : "";
-  return `<img class="${className}" src="${site.logo}" width="${size}" height="${size}" alt="${esc(alt)}" decoding="async"${priority}>`;
+  const source = /(?:hero|profile)-logo/.test(className) ? profilePhoto : site.logo;
+  return `<img class="${className}" src="${source}" width="${size}" height="${size}" alt="${esc(alt)}" decoding="async"${priority}>`;
 };
 
 const socialLinks = [
@@ -119,7 +120,7 @@ const baseGraph = (language = "ar") => {
     familyName: isEnglish ? "Elshikh" : "الشيخ",
     url: `${site.url}/`,
     mainEntityOfPage: { "@id": `${site.url}${isEnglish ? "/en/about/" : "/about/"}#profile` },
-    image: absolute(site.logo),
+    image: absolute(profilePhoto),
     description: isEnglish
       ? "Eslam Elshikh is a cybersecurity engineer, software developer, and Google Maps specialist in Riyadh, building secure digital products and measurable search experiences."
       : site.description,
@@ -142,6 +143,7 @@ const baseGraph = (language = "ar") => {
       ? [...englishServices.map((service) => service.title), "Google Maps", "Google Business Profile", "Google Search", "Google Search Console", "Local SEO", "Google Ads"]
       : [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "Google Search", "Google Search Console", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"],
     identifier: personIdentifier,
+    knowsLanguage: ["ar", "en"],
     sameAs: personSameAs
   },
   {
@@ -157,9 +159,12 @@ const baseGraph = (language = "ar") => {
   {
     "@type": "ProfessionalService",
     "@id": `${site.url}/#professional-service`,
-    name: isEnglish ? "Eslam Elshikh Digital Engineering Services" : "خدمات المهندس إسلام الشيخ التقنية والاستشارية",
-    alternateName: isEnglish ? "خدمات المهندس إسلام الشيخ التقنية والاستشارية" : "Eslam Elshikh Digital Engineering Services",
-    url: site.url,
+    name: isEnglish ? site.nameEn : site.brandName,
+    alternateName: isEnglish ? site.brandName : site.nameEn,
+    url: `${site.url}/`,
+    description: isEnglish
+      ? "Independent digital engineering services in Riyadh spanning cybersecurity, software development, Google Business Profile, technical SEO, and digital growth."
+      : site.description,
     logo: absolute(site.logo),
     image: absolute(site.shareImage),
     hasMap: site.googleMapsProfile,
@@ -175,14 +180,14 @@ const baseGraph = (language = "ar") => {
       opens: "00:00",
       closes: "23:59"
     }],
-    availableLanguage: ["ar", "en"],
-    priceRange: "$$"
+    availableLanguage: ["ar", "en"]
   }
   ]);
 };
 
 const breadcrumbSchema = (items) => ({
   "@type": "BreadcrumbList",
+  "@id": `${absolute(items.at(-1)?.path || "/")}#breadcrumb`,
   itemListElement: items.map((item, index) => ({ "@type": "ListItem", position: index + 1, name: item.name, item: absolute(item.path) }))
 });
 
@@ -191,7 +196,7 @@ const faqSchema = (faq) => ({
   mainEntity: faq.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } }))
 });
 
-function head({ title, description, path = "/", lang = "ar", schema = [], image = site.shareImage, type = "website", published, modified, keywords = [], articleSection = "", stylesheets = [], robots = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" }) {
+function head({ title, description, path = "/", lang = "ar", schema = [], image = site.shareImage, type = "website", published, modified, keywords = [], articleSection = "", stylesheets = [], preloadImage = "", robots = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" }) {
   const isEnglish = lang === "en";
   const canonical = absolute(path);
   const alternates = path === "/404.html" ? null : routePair(path);
@@ -199,17 +204,18 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
   const titleHasBrand = title.includes(site.nameAr) || title.includes(site.nameEn) || title.includes(site.brandName);
   const brandedTitle = `${title} | ${titleBrand}`;
   const fullTitle = title === titleBrand || titleHasBrand || brandedTitle.length > 65 ? title : brandedTitle;
-  const graph = [
-    ...baseGraph(lang),
-    {
-      "@type": type === "article" ? "BlogPosting" : "WebPage",
-      "@id": `${canonical}#${type === "article" ? "article" : "webpage"}`,
+  const suppliedProfilePage = schema.find((item) => item?.["@type"] === "ProfilePage");
+  const breadcrumb = schema.find((item) => item?.["@type"] === "BreadcrumbList");
+  const pageNode = {
+      "@type": suppliedProfilePage ? "ProfilePage" : type === "article" ? "BlogPosting" : "WebPage",
+      "@id": suppliedProfilePage?.["@id"] || `${canonical}#${type === "article" ? "article" : "webpage"}`,
       url: canonical,
       name: fullTitle,
       description,
       inLanguage: isEnglish ? "en" : "ar-SA",
       isPartOf: { "@id": `${site.url}/#website` },
       about: { "@id": `${site.url}/#person` },
+      ...(breadcrumb ? { breadcrumb: { "@id": breadcrumb["@id"] } } : {}),
       ...(published ? { datePublished: published } : {}),
       dateModified: modified || site.lastUpdated,
       ...(type === "article" ? {
@@ -220,9 +226,13 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
         image: absolute(image),
         ...(articleSection ? { articleSection } : {}),
         ...(keywords.length ? { keywords } : {})
-      } : {})
-    },
-    ...schema
+      } : {}),
+      ...(suppliedProfilePage || {})
+    };
+  const graph = [
+    ...baseGraph(lang),
+    pageNode,
+    ...schema.filter((item) => item !== suppliedProfilePage)
   ];
   return `<!doctype html>
 <html lang="${lang}" dir="${isEnglish ? "ltr" : "rtl"}">
@@ -242,6 +252,7 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   <meta name="geo.placename" content="${esc(isEnglish ? "Riyadh" : site.city)}">
   <link rel="canonical" href="${canonical}">
   <link rel="sitemap" type="application/xml" href="${site.url}/sitemap.xml">
+  ${preloadImage ? `<link rel="preload" as="image" href="${absolute(preloadImage)}" type="image/webp" fetchpriority="high">` : ""}
   ${alternates ? `<link rel="alternate" hreflang="ar" href="${absolute(alternates.ar)}"><link rel="alternate" hreflang="ar-SA" href="${absolute(alternates.ar)}"><link rel="alternate" hreflang="en" href="${absolute(alternates.en)}"><link rel="alternate" hreflang="x-default" href="${absolute(alternates.ar)}">` : ""}
   <link rel="me" href="${site.social.googleDeveloper}">
   <link rel="me" href="${site.social.wikidata}">
@@ -349,8 +360,8 @@ function footer(language = "ar") {
 <script src="/assets/js/main.js?v=${version}" defer></script>`;
 }
 
-function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image, keywords = [], articleSection = "", stylesheets = [], pageScripts = [] }) {
-  return `${head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection, stylesheets })}
+function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image, keywords = [], articleSection = "", stylesheets = [], pageScripts = [], preloadImage = "" }) {
+  return `${head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection, stylesheets, preloadImage })}
 <body>${header(active, lang, path)}<main id="main">${body}${businessMapSection(lang)}</main>${footer(lang)}${pageScripts.map((src) => `<script src="${esc(src)}" defer></script>`).join("")}</body></html>`;
 }
 
@@ -451,7 +462,7 @@ function homePage() {
       <div class="visual-glow" aria-hidden="true"></div>
       <div class="visual-shell">
         <div class="visual-top"><span>Digital Engineering</span><span class="visual-status"><i></i> Operational</span></div>
-        <div class="visual-core">${logo("hero-logo", `شعار ${site.brandName}`)}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div>
+        <div class="visual-core">${logo("hero-logo", `صورة ${site.brandName}`)}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div>
         <div class="visual-capabilities"><span>${icon("shield")}Cybersecurity</span><span>${icon("code")}Web & Apps</span><span>${icon("spark")}AI Agents</span><span>${icon("google")}Google</span><span>${icon("chart")}SEO</span><span>${icon("cloud")}Cloud</span></div>
         <div class="visual-metric"><span>Approach</span><strong>360°</strong><p>أمان وتجربة مستخدم وظهور رقمي داخل قرار واحد.</p></div>
       </div>
@@ -487,7 +498,7 @@ ${mapsWorkTeaser()}
 <section class="section-pad blog-section"><div class="container"><div class="section-heading reveal">${eyebrow("معرفة عملية")}<h2>مقالات تساعدك على اتخاذ قرارات تقنية أكثر وضوحًا</h2></div><div class="posts-grid">${allPosts.slice(0, 3).map((post) => postCard(post)).join("")}</div><div class="section-action">${button("/blog/", "استكشف المدونة", "button-ghost")}</div></div></section>
 <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>إجابات صريحة قبل بدء المشروع</h2><p>لا توجد باقة واحدة تناسب الجميع؛ لذلك أوضح الحدود والمخرجات والاعتماديات من البداية.</p>${button("/contact/", "أرسل تفاصيل مشروعك", "button-ghost")}</div>${faqBlock(faq)}</div></section>
 ${finalCta()}`;
-  return page({ title: "المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع بالرياض", description: site.description, path: "/", active: "home", body, schema: [faqSchema(faq)] });
+  return page({ title: "المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع بالرياض", description: site.description, path: "/", active: "home", body, schema: [faqSchema(faq)], preloadImage: profilePhoto });
 }
 
 function finalCta(title = "لنحوّل فكرتك أو مشكلتك إلى خطة واضحة قابلة للتنفيذ", text = "أرسل الهدف والوضع الحالي والروابط المتاحة والموعد المتوقع. ستحصل على نقطة بداية منظمة تساعدك على اتخاذ القرار الصحيح.") {
@@ -665,6 +676,7 @@ function aboutPage() {
     body,
     stylesheets: [`/assets/css/about.css?v=${version}`],
     pageScripts: [`/assets/js/about.js?v=${version}`],
+    preloadImage: profilePhoto,
     schema: [profileSchema, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "عن إسلام", path: "/about/" }])]
   });
 }
@@ -1106,11 +1118,12 @@ function englishAboutPage() {
   const body = `${innerHero({ eyebrowText: "About Eslam Elshikh", title: "Cybersecurity engineer, software developer, and digital problem-solver in Riyadh", lead: "I combine secure engineering, web and application development, practical AI, Google product experience, and search visibility to turn complex digital work into clear, reviewable outcomes.", path, language: "en", crumbs: [{ name: "About", path }], aside: `<div class="article-author-head"><img class="article-author-photo" src="${profilePhoto}" width="128" height="128" alt="Eslam Elshikh" loading="eager" decoding="async"><div><span>Based in Riyadh</span><strong>${esc(site.nameEn)}</strong><p>Saudi Arabia & remote collaboration</p></div></div>` })}
 <section class="section-pad"><div class="container service-intro-grid"><div class="rich-copy reveal"><h2>I work across the boundaries where digital projects usually break</h2><p>A website can look polished and still be difficult to find, insecure to operate, or unclear to customers. An AI assistant can be impressive in a demo and unreliable inside a real workflow. A Business Profile can contain complete fields and still represent the business incorrectly. My work connects these disciplines so decisions remain coherent from diagnosis through launch.</p><p>I begin with the business outcome, the current system, the people who operate it, and the evidence available. Technology is selected after the problem is framed. The engagement is then divided into reviewable stages with explicit scope, dependencies, risk, acceptance criteria, and handover.</p><p>My public work includes live web projects and Google Maps examples across companies and service businesses. Public links demonstrate the existence and presentation of those projects; they do not imply invented revenue, traffic, or ranking results. Where outcome data is unavailable, I say so.</p></div><aside class="service-quick-card reveal"><span>Professional focus</span><h2>One accountable delivery perspective</h2>${checkList(["Cybersecurity and systems protection", "Websites, applications, and technical products", "AI agents, knowledge systems, and automation", "Google Business Profile and product support", "Technical, content, and local SEO", "Cloud architecture, analytics, and conversion"])}${button("/en/contact/", "Discuss a project")}</aside></div></section>
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Working principles")}<h2>Good engineering makes the important decisions easier to see</h2><p>The work should remain understandable to the business, maintainable by the team, and testable after delivery.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome before tooling</h3><p>Define the decision, user, constraint, and evidence of success before choosing a platform.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Security by design</h3><p>Consider identities, permissions, data, recovery, and failure paths from the beginning.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for real use</h3><p>Design for actual devices, content, operating capacity, accessibility, and edge cases.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Evidence over theatre</h3><p>Measure useful outcomes and state clearly where third-party or business results cannot be guaranteed.</p></article></div></div></section>
+<section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("Education and professional foundation")}<h2>Formal study connected to applied delivery</h2><p>The professional profile combines an academic foundation in information security with advanced cybersecurity study and hands-on work across software, web products, search, and Google business tools.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("shield")}<h3>Bachelor's degree in Information Security</h3><p>Faculty of Computers and Information · October 6 University.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Diploma in Cybersecurity</h3><p>Arab Open University · Riyadh.</p></article><article class="principle reveal"><span>03</span>${icon("code")}<h3>Applied software engineering</h3><p>Live websites, applications, interface systems, technical SEO, and maintainable delivery workflows.</p></article><article class="principle reveal"><span>04</span>${icon("google")}<h3>Google Maps specialist</h3><p>Practical experience with Business Profiles, verification, ownership, policy-aware correction, and local visibility.</p></article></div></div></section>
 <section class="section-pad"><div class="container case-method reveal"><div><span>Identity across languages</span><h2>Eslam Elshikh · إسلام الشيخ</h2></div><p>The professional English name used across the website and public profiles is “Eslam Elshikh”. Arabic references such as “إسلام الشيخ” and “المهندس إسلام الشيخ” refer to the same person and official digital identity.</p><div class="hero-actions">${button(site.social.wikidata, "View Wikidata", "button-ghost", true)}${button(site.social.github, "View GitHub", "button-ghost", true)}</div></div></section>
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Public evidence")}<h2>Work you can open and review</h2><p>Explore selected case studies, the verified live web-project archive, and public Google Maps examples.</p></div><div class="stats-bar reveal"><div><strong>${projectAudit.verifiedLiveProjects}</strong><span>verified live web projects</span></div><div><strong>${mapsProjects.length}</strong><span>public Google Maps examples</span></div><div><strong>${projectAudit.githubRepositories}</strong><span>GitHub repositories reviewed</span></div><div><strong>${projectAudit.vercelProjects}</strong><span>Vercel projects reviewed</span></div></div><div class="section-action">${button("/en/projects/", "Explore the work")}</div></div></section>
 ${englishFinalCta("Have a project that crosses several disciplines?", "Share the business objective and the current technical situation. We can separate the problem into a practical sequence without losing the connections between security, experience, visibility, and operations.")}`;
-  const profileSchema = { "@type": "ProfilePage", "@id": `${absolute(path)}#profile`, url: absolute(path), mainEntity: { "@id": `${site.url}/#person` }, dateModified: site.lastUpdated, relatedLink: projects.filter((item) => item.slug && item.caseStudy).map((item) => absolute(`/en/projects/${item.slug}/`)) };
-  return page({ title: "About Eslam Elshikh | Cybersecurity & Software Engineer", description: "Meet Eslam Elshikh, a Riyadh-based cybersecurity engineer and software developer working across websites, AI agents, Google products, cloud systems, and SEO.", path, active: "about", body, lang: "en", schema: [profileSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "About", path }])] });
+  const profileSchema = { "@type": "ProfilePage", "@id": `${absolute(path)}#profile`, url: absolute(path), name: "Professional profile of Eslam Elshikh", mainEntity: { "@id": `${site.url}/#person` }, inLanguage: "en", dateModified: `${site.lastUpdated}T00:00:00+03:00`, relatedLink: projects.filter((item) => item.slug && item.caseStudy).map((item) => absolute(`/en/projects/${item.slug}/`)) };
+  return page({ title: "About Eslam Elshikh | Cybersecurity & Software Engineer", description: "Meet Eslam Elshikh, a Riyadh-based cybersecurity engineer and software developer working across websites, AI agents, Google products, cloud systems, and SEO.", path, active: "about", body, lang: "en", schema: [profileSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "About", path }])], preloadImage: profilePhoto });
 }
 
 function englishGoogleExpertPage() {
@@ -1471,7 +1484,7 @@ function englishPage() {
 <section class="section-pad muted-section blog-section" id="insights"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Practical insights</span><h2>Original English guidance for technical and growth decisions</h2><p>Decision-focused articles covering the same disciplines used in delivery, written for English readers rather than translated sentence by sentence.</p></div><div class="posts-grid">${insightCards}</div><div class="section-action">${button("/en/blog/", "Explore all English guides", "button-ghost")}</div></div></section>
 <section class="section-pad faq-section" id="faq"><div class="container faq-grid"><div class="faq-intro reveal"><span class="eyebrow"><span></span>Frequently asked questions</span><h2>Direct answers before an engagement begins</h2><p>Scope, dependencies, evidence, and expected outcomes are clarified before implementation.</p><a class="button button-ghost" href="/en/contact/">Discuss your project ${icon("arrow", "button-icon")}</a></div>${faqBlock(englishHomeFaq)}</div></section>
 <section class="section-pad final-cta" id="contact"><div class="container"><div class="cta-panel reveal"><div><span class="eyebrow"><span></span>Start with context</span><h2>Turn a complex technical problem into a clear delivery plan.</h2><p>Share your goal, current state, relevant links, constraints, and expected timing. Do not include passwords, verification codes, or API keys.</p></div><div class="cta-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start on WhatsApp", "button-light", true)}<a class="cta-phone" href="mailto:${site.email}">${site.email}</a></div></div></div></section>`;
-  return page({ title: `${site.nameEn} | Cybersecurity & Software Engineer`, description: "Eslam Elshikh is a Riyadh-based cybersecurity engineer and software developer specializing in web development, AI agents, Google Maps, and technical SEO.", path: "/en/", active: "home", body, lang: "en", modified: site.lastUpdated, schema: [faqSchema(englishHomeFaq)] });
+  return page({ title: `${site.nameEn} | Cybersecurity & Software Engineer`, description: "Eslam Elshikh is a Riyadh-based cybersecurity engineer and software developer specializing in web development, AI agents, Google Maps, and technical SEO.", path: "/en/", active: "home", body, lang: "en", modified: site.lastUpdated, schema: [faqSchema(englishHomeFaq)], preloadImage: profilePhoto });
 }
 
 function notFoundPage() {

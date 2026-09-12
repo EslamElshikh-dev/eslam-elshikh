@@ -28,7 +28,7 @@ function collectModifiedDates(value, dates = []) {
     return dates;
   }
   if (!value || typeof value !== "object") return dates;
-  if (typeof value.dateModified === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value.dateModified)) dates.push(value.dateModified);
+  if (typeof value.dateModified === "string" && /^\d{4}-\d{2}-\d{2}(?:T|$)/.test(value.dateModified)) dates.push(value.dateModified.slice(0, 10));
   for (const child of Object.values(value)) collectModifiedDates(child, dates);
   return dates;
 }
