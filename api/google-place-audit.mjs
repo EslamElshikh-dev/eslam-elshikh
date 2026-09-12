@@ -275,22 +275,9 @@ export default async function handler(request, response) {
       authentication: authorization.mode
     });
   } catch (error) {
-    const safeDiagnostics = new Set([
-      "google_private_key_invalid",
-      "google_token_invalid_grant",
-      "google_token_invalid_scope",
-      "google_token_unauthorized_client",
-      "google_token_missing"
-    ]);
-    const errorMessage = String(error?.message || "");
-    const diagnostic = safeDiagnostics.has(errorMessage)
-      ? errorMessage
-      : errorMessage.startsWith("google_token_http_") ? "google_token_http_error"
-        : errorMessage.startsWith("google_") ? "google_oauth" : undefined;
     return json(response, error?.name === "AbortError" ? 504 : 500, {
       error: "audit_unavailable",
-      manualAvailable: true,
-      ...(diagnostic ? { stage: diagnostic } : {})
+      manualAvailable: true
     });
   } finally {
     clearTimeout(timeout);
