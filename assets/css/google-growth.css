@@ -38,6 +38,7 @@
 .audit-checks .is-pass { color: var(--accent); }
 .audit-checks .is-gap { color: #ffb0b7; }
 .audit-result-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+.audit-result-actions [hidden] { display: none; }
 .manual-audit { margin-top: 1rem; padding: 1rem; border: 1px dashed var(--line-strong); border-radius: 1rem; }
 .manual-audit h2 { margin: 0 0 .3rem; font-size: 1rem; }
 .manual-audit > p { margin: 0 0 .8rem; color: var(--muted); font-size: .72rem; }
