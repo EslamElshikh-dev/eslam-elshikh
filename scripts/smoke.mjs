@@ -13,10 +13,12 @@ const cssPath = join(output, "assets/css/main.css");
 const jsPath = join(output, "assets/js/main.js");
 const themePath = join(output, "assets/js/theme.js");
 const analyticsPath = join(output, "assets/js/analytics.js");
+const growthCssPath = join(output, "assets/css/google-growth.css");
 if (!(await exists(cssPath))) failures.push("Missing compiled CSS asset");
 if (!(await exists(jsPath))) failures.push("Missing compiled JavaScript asset");
 if (!(await exists(themePath))) failures.push("Missing external theme bootstrap");
 if (!(await exists(analyticsPath))) failures.push("Missing consent-based analytics loader");
+if (!(await exists(growthCssPath))) failures.push("Missing Google growth tools stylesheet");
 
 const css = await readFile(cssPath, "utf8").catch(() => "");
 const js = await readFile(jsPath, "utf8").catch(() => "");
@@ -25,6 +27,11 @@ const aboutCss = await readFile(join(output, "assets/css/about.css"), "utf8").ca
 const home = await readFile(join(output, "index.html"), "utf8").catch(() => "");
 const about = await readFile(join(output, "about/index.html"), "utf8").catch(() => "");
 const contact = await readFile(join(output, "contact/index.html"), "utf8").catch(() => "");
+const audit = await readFile(join(output, "google-business-profile-audit/index.html"), "utf8").catch(() => "");
+const proof = await readFile(join(output, "google-maps-projects/index.html"), "utf8").catch(() => "");
+const booking = await readFile(join(output, "book/index.html"), "utf8").catch(() => "");
+const dashboard = await readFile(join(output, "local-visibility-dashboard/index.html"), "utf8").catch(() => "");
+const sitemap = await readFile(join(output, "sitemap.xml"), "utf8").catch(() => "");
 
 const cssRequirements = [
   ["min-width: 320px", "320px minimum viewport guard"],
@@ -55,6 +62,14 @@ if (!/data-project-form/.test(contact)) failures.push("Contact page lacks projec
 if (!/لا ترسل كلمات مرور/.test(contact)) failures.push("Contact page lacks sensitive-data warning");
 if (/<form\b[^>]*data-project-form/i.test(contact)) failures.push("Contact composer still has a native form submission path");
 if (!/data-project-submit/.test(contact)) failures.push("Contact composer lacks its explicit client-side action");
+if (!/data-gbp-audit/.test(audit) || !/data-manual-audit/.test(audit) || !/google-audit\.js/.test(audit)) failures.push("Google Business Profile audit page is incomplete");
+if (/<form\b/i.test(audit)) failures.push("Google audit page must not expose a native submission path");
+if (!/data-proof-engine/.test(proof) || (proof.match(/data-proof-card/g) || []).length !== 63 || !/CreativeWork/.test(proof)) failures.push("Google Local Proof Engine is missing cards or entity-safe schema");
+if (/\"@type\":\"LocalBusiness\"/.test(proof)) failures.push("Proof Engine incorrectly declares customer businesses as LocalBusiness entities");
+if (!/data-booking-builder/.test(booking) || !/data-booking-submit/.test(booking)) failures.push("Booking request builder is incomplete");
+if (!/data-local-dashboard/.test(dashboard) || !/content="noindex, nofollow"/.test(dashboard)) failures.push("Private local dashboard is missing or indexable");
+if (sitemap.includes("/local-visibility-dashboard/")) failures.push("Noindex local dashboard leaked into the sitemap");
+if (!/gbp_audit_complete/.test(analytics) || !/booking_message_ready/.test(analytics) || !/proof_map_interaction/.test(analytics)) failures.push("Privacy-safe growth event allowlist is incomplete");
 if (!/storageKey = "es-analytics-consent"/.test(analytics) || !/choice !== "denied"/.test(analytics)) failures.push("Analytics loader does not enforce an explicit consent choice");
 if (/createElement\("aside"\)/.test(analytics) || !/createElement\("div"\)/.test(analytics)) failures.push("Analytics preferences use an incompatible dialog host element");
 if (!/aria-label="اقرأ الدليل كاملًا: [^"]+"/.test(home)) failures.push("Homepage article links lack unique accessible names");

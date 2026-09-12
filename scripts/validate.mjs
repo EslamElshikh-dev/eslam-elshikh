@@ -18,7 +18,7 @@ const errors = [];
 const warnings = [];
 
 const requiredRoutes = [
-  "/", "/en/", "/services/", "/local-seo/riyadh/", "/about/", "/google-expert/", "/google-ads/", "/projects/", "/blog/", "/contact/", "/privacy/", "/terms/",
+  "/", "/en/", "/services/", "/local-seo/riyadh/", "/about/", "/google-expert/", "/google-ads/", "/projects/", "/google-maps-projects/", "/google-business-profile-audit/", "/book/", "/blog/", "/contact/", "/privacy/", "/terms/",
   "/services/cybersecurity/", "/services/cloud-solutions/", "/services/ai-agents/", "/services/web-development/", "/services/google-support/", "/services/google-business-profile/", "/services/knowledge-bases/", "/services/seo/", "/services/digital-advertising/",
   "/blog/google-business-profile-suspension/", "/blog/secure-website-development/", "/blog/ecommerce-development-saudi/",
   "/blog/topics/google-business-profile/", "/blog/topics/local-seo-saudi/", "/blog/topics/cybersecurity/", "/blog/topics/ai-agents/", "/blog/topics/web-development/"
@@ -129,7 +129,13 @@ for (const route of requiredRoutes) if (!sitemapRoutes.includes(route)) errors.p
 
 const htmlFiles = (await walk(output)).filter((file) => file.endsWith("index.html"));
 const publicRoutes = [...new Set(htmlFiles.map(routeFromFile).filter(Boolean))].sort();
-for (const route of publicRoutes) if (!sitemapRoutes.includes(route)) errors.push(`Public HTML route is absent from sitemap: ${route}`);
+for (const route of publicRoutes) {
+  if (sitemapRoutes.includes(route)) continue;
+  const html = await readFile(routeFile(route), "utf8").catch(() => "");
+  if (!/<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i.test(html)) {
+    errors.push(`Indexable public HTML route is absent from sitemap: ${route}`);
+  }
+}
 for (const route of sitemapRoutes) if (!publicRoutes.includes(route)) errors.push(`Sitemap lists a missing HTML route: ${route}`);
 
 const vercelConfig = JSON.parse(await readFile(join(root, "vercel.json"), "utf8"));
@@ -207,7 +213,8 @@ for (const route of sitemapRoutes) {
   if (professionalServiceNode?.name !== expectedProfessionalName || professionalServiceNode?.url !== `${canonicalBase}/`) errors.push(`${route}: ProfessionalService identity is inconsistent with the public brand`);
   if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/main\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned main stylesheet`);
   const stylesheetCount = (html.match(/<link\b[^>]*\brel=["']stylesheet["'][^>]*>/gi) || []).length;
-  const expectedStylesheets = route === "/about/" ? 2 : 1;
+  const growthStyleRoutes = new Set(["/book/", "/google-business-profile-audit/", "/google-maps-projects/", "/en/book/", "/en/google-business-profile-audit/", "/en/google-maps-projects/"]);
+  const expectedStylesheets = route === "/about/" || growthStyleRoutes.has(route) ? 2 : 1;
   if (stylesheetCount !== expectedStylesheets) errors.push(`${route}: expected ${expectedStylesheets} stylesheet link(s), found ${stylesheetCount}`);
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
@@ -363,7 +370,7 @@ if (uniqueLiveUrls.size !== webProjects.length) errors.push(`Verified work data 
 for (const [route, html] of pages) {
   const mapSectionCount = (html.match(/id="google-business-map"/g) || []).length;
   if (mapSectionCount !== 1) errors.push(`${route}: expected one sitewide Google Maps section, found ${mapSectionCount}`);
-  if (!html.includes("www.google.com/maps?q=Riyadh%2C%20Saudi%20Arabia&amp;z=11&amp;output=embed")) errors.push(`${route}: Google Maps embed must use the focused Riyadh service-area view at zoom 11`);
+  if (!html.includes("www.google.com/maps?q=6619%20%D8%A3%D8%A8%D9%8A%20%D8%B2%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A8%D9%84%D8%AE%D9%8A%D8%8C%20%D8%AD%D9%8A%20%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C%20%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6%2012465&amp;z=16&amp;output=embed")) errors.push(`${route}: Google Maps embed must use the verified Al Masif office address at zoom 16`);
   if (!html.includes('referrerpolicy="strict-origin-when-cross-origin"')) errors.push(`${route}: Google Maps embed is missing its referrer policy`);
   if (!html.includes("https://maps.app.goo.gl/EbiR3AKJEZhkbMn66")) errors.push(`${route}: missing direct Google Business Profile link`);
   if (!html.includes('width="600" height="450"')) errors.push(`${route}: map embed does not preserve the supplied iframe dimensions`);
@@ -383,7 +390,7 @@ for (const route of expectedEnglishCaseStudyRoutes) {
 for (const [route, html] of pages) {
   if (html.includes('class="mobile-bottom-nav"')) errors.push(`${route}: retired mobile bottom navigation is still rendered`);
   if (/<strong[^>]*data-counter="[1-9][0-9]*"[^>]*>0<\/strong>/.test(html)) errors.push(`${route}: server-rendered experience counters must not show zero`);
-  if (!/title="(?:خريطة نطاق الخدمة في مدينة الرياض|Riyadh service-area map)"/.test(html)) errors.push(`${route}: geographic service-area map is not accurately labeled`);
+  if (!/title="(?:خريطة موقع العمل في حي المصيف بالرياض|Office map in Al Masif, Riyadh)"/.test(html)) errors.push(`${route}: office map is not accurately labeled`);
 }
 if (home.indexOf('class="section-pad projects-section"') > home.indexOf('id="services"')) errors.push("Homepage work examples must precede the detailed services");
 const contactPageHtml = pages.get("/contact/") || "";

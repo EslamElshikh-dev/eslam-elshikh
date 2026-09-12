@@ -47,9 +47,9 @@
     });
   };
 
-  const eventNames = new Set(["call_click", "whatsapp_click", "email_click", "project_form_start", "project_message_ready"]);
+  const eventNames = new Set(["call_click", "whatsapp_click", "email_click", "project_form_start", "project_message_ready", "gbp_audit_start", "gbp_audit_complete", "gbp_audit_whatsapp", "booking_message_ready", "proof_map_interaction"]);
   const serviceNames = new Set(["web-development", "cybersecurity", "cloud-solutions", "ai-agents", "google-support", "google-business-profile", "knowledge-bases", "seo", "digital-advertising", "consultation"]);
-  const placements = new Set(["header", "footer", "floating", "hero", "contact_form", "content"]);
+  const placements = new Set(["header", "footer", "floating", "hero", "contact_form", "audit_tool", "audit_result", "booking_form", "proof_map", "content"]);
 
   // Collect intent and placement only, never the message, name, phone or submitted URL.
   const track = (name, parameters = {}, onComplete) => {
