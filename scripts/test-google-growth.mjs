@@ -29,6 +29,8 @@ const sampleKey = "-----BEGIN PRIVATE KEY-----\nTEST\n-----END PRIVATE KEY-----"
 assert.equal(normalizeGooglePrivateKey(JSON.stringify(sampleKey)), sampleKey);
 assert.equal(normalizeGooglePrivateKey(sampleKey.replaceAll("\n", "\\n")), sampleKey);
 assert.equal(normalizeGooglePrivateKey(Buffer.from(sampleKey).toString("base64")), sampleKey);
+assert.equal(normalizeGooglePrivateKey(JSON.stringify({ private_key: sampleKey })), sampleKey);
+assert.equal(normalizeGooglePrivateKey(Buffer.from(JSON.stringify({ private_key: sampleKey })).toString("base64")), sampleKey);
 
 const method = await invoke({ method: "GET" });
 assert.equal(method.statusCode, 405);

@@ -83,13 +83,24 @@ function unwrapEnvironmentValue(value) {
 }
 
 export function normalizeGooglePrivateKey(value) {
-  let privateKey = unwrapEnvironmentValue(value).replaceAll("\\n", "\n").trim();
-  if (privateKey && !privateKey.includes("BEGIN PRIVATE KEY")) {
+  const raw = unwrapEnvironmentValue(value);
+  let privateKey = raw;
+  if (raw.startsWith("{")) {
+    try { privateKey = JSON.parse(raw).private_key || raw; } catch {}
+  }
+  privateKey = String(privateKey).replaceAll("\\n", "\n").trim();
+  if (privateKey && !privateKey.includes("BEGIN ")) {
     try {
       const decoded = Buffer.from(privateKey, "base64").toString("utf8").trim();
-      if (decoded.includes("BEGIN PRIVATE KEY")) privateKey = decoded;
+      if (decoded.startsWith("{")) {
+        const parsed = JSON.parse(decoded);
+        if (parsed.private_key) privateKey = parsed.private_key;
+      } else if (decoded.includes("BEGIN ")) {
+        privateKey = decoded;
+      }
     } catch {}
   }
+  privateKey = String(privateKey).replaceAll("\\n", "\n").trim();
   return privateKey;
 }
 
