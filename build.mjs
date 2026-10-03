@@ -347,6 +347,15 @@ function footer(language = "ar") {
     ? `<a href="/en/about/">About</a><a href="/en/projects/">Selected work</a><a href="/en/google-maps-projects/">Google Maps work</a><a href="/en/google-business-profile-audit/">Free GBP audit</a><a href="/en/book/">Book a consultation</a><a href="/en/local-seo/riyadh/">Local SEO in Riyadh</a><a href="/en/google-expert/">Google expertise</a><a href="/en/blog/">Insights</a><a href="/en/contact/">Contact</a>`
     : `<a href="/about/">عن إسلام</a><a href="/projects/">أعمال المواقع</a><a href="/google-maps-projects/">أعمال خرائط Google</a><a href="/google-business-profile-audit/">فحص ملف Google مجانًا</a><a href="/book/">احجز استشارة</a><a href="/local-seo/riyadh/">السيو المحلي في الرياض</a><a href="/google-expert/">متخصص خرائط Google</a><a href="/blog/">المدونة</a><a href="/contact/">تواصل</a>`;
   const serviceLinks = services.slice(0, 6).map((service) => `<a href="${isEnglish ? `/en/services/${service.slug}/` : `/services/${service.slug}/`}">${esc(isEnglish ? englishServiceBySlug(service.slug)?.title || serviceTranslations[service.slug]?.title || service.title : service.title)}</a>`).join("");
+  const mobileServiceLabels = {
+    cybersecurity: ["الأمن السيبراني", "Cybersecurity"],
+    "cloud-solutions": ["الحلول السحابية", "Cloud solutions"],
+    "ai-agents": ["وكلاء الذكاء الاصطناعي", "AI agents"],
+    "web-development": ["تطوير المواقع والتطبيقات", "Websites & apps"],
+    "google-support": ["استشارات ودعم Google", "Google consulting & support"],
+    "google-business-profile": ["حلول ملفات Google التجارية", "Google Business Profile solutions"]
+  };
+  const mobileServiceLinks = services.slice(0, 6).map((service) => `<a href="${isEnglish ? `/en/services/${service.slug}/` : `/services/${service.slug}/`}">${esc(mobileServiceLabels[service.slug][isEnglish ? 1 : 0])}</a>`).join("");
   return `<footer class="site-footer">
   <div class="container footer-grid">
     <div class="footer-column footer-contact"><h2>${isEnglish ? "Contact" : "بيانات التواصل"}</h2><a class="footer-phone" href="tel:${site.phone}"><span class="footer-phone-label">${icon("phone")}${isEnglish ? "Let's discuss your project" : "نتكلم عن مشروعك؟"}</span><span class="footer-phone-number" dir="ltr">${site.phoneDisplay}</span></a><a href="${site.whatsapp}" target="_blank" rel="noopener">${icon("whatsapp")}<span>WhatsApp</span></a><a class="footer-email" href="mailto:${site.email}">${icon("mail")}<span dir="ltr">${site.email}</span></a><a href="${site.googleMapsProfile}" target="_blank" rel="noopener">${icon("pin")}<span>${isEnglish ? "Google Maps business profile" : "الملف التجاري على خرائط Google"}</span></a><span>${icon("globe")}<span>${isEnglish ? "Riyadh service area" : `نطاق الخدمة: ${site.city}`}</span></span></div>
@@ -356,6 +365,34 @@ function footer(language = "ar") {
       <a class="brand" href="${isEnglish ? "/en/" : "/"}">${logo("brand-logo")}<span class="brand-copy"><strong>${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}</strong><small>${isEnglish ? "Cybersecurity & Digital Engineering" : site.nameEn}</small></span></a>
       <p>${isEnglish ? "Secure digital products, practical AI systems, Google Maps and Business Profile experience, and search visibility for ambitious businesses." : site.positioning}</p>
       <div class="social-row" aria-label="${isEnglish ? "Social profiles" : "الحسابات الاجتماعية"}">${social}</div>
+    </div>
+  </div>
+  <div class="container mobile-footer">
+    <div class="mobile-footer-identity">
+      <a class="mobile-footer-brand" href="${isEnglish ? "/en/" : "/"}">${logo("brand-logo")}<span><strong>${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}</strong><small>${isEnglish ? "Cybersecurity & software" : site.nameEn}</small></span></a>
+      <p>${isEnglish ? "Security, software, and digital visibility from Riyadh." : "أمان وبرمجة وحضور رقمي من الرياض."}</p>
+      <div class="social-row" aria-label="${isEnglish ? "Social profiles" : "الحسابات الاجتماعية"}">${social}</div>
+    </div>
+    <div class="mobile-footer-contact">
+      <h2>${isEnglish ? "Let's discuss your project" : "نتكلم عن مشروعك؟"}</h2>
+      <div class="mobile-footer-actions">
+        <a class="mobile-footer-call" href="tel:${site.phone}"><span class="mobile-footer-call-label">${icon("phone")}<span>${isEnglish ? "Call directly" : "اتصال مباشر"}</span></span><span class="mobile-footer-number" dir="ltr">${site.phoneDisplay}</span></a>
+        <a class="mobile-footer-whatsapp" href="${site.whatsapp}" target="_blank" rel="noopener">${icon("whatsapp")}<span>${isEnglish ? "WhatsApp" : "واتساب"}</span></a>
+      </div>
+      <a class="mobile-footer-email" href="mailto:${site.email}">${icon("mail")}<span dir="ltr">${site.email}</span></a>
+      <a class="mobile-footer-map" href="${site.googleMapsProfile}" target="_blank" rel="noopener">${icon("pin")}<span>${isEnglish ? "Find me on Google Maps" : "موقعي على خرائط Google"}</span></a>
+    </div>
+    <details class="mobile-footer-disclosure">
+      <summary><span>${isEnglish ? "Explore the website" : "استكشف الموقع"}</span>${icon("chevron")}</summary>
+      <nav class="mobile-footer-links" aria-label="${isEnglish ? "Footer navigation" : "روابط الموقع في الفوتر"}">${exploreLinks}</nav>
+    </details>
+    <details class="mobile-footer-disclosure">
+      <summary><span>${isEnglish ? "Services" : "الخدمات"}</span>${icon("chevron")}</summary>
+      <nav class="mobile-footer-links" aria-label="${isEnglish ? "Footer services" : "الخدمات في الفوتر"}">${mobileServiceLinks}<a class="mobile-footer-more" href="${isEnglish ? "/en/services/" : "/services/"}">${isEnglish ? "View all services" : "عرض جميع الخدمات"}</a></nav>
+    </details>
+    <div class="mobile-footer-legal">
+      <p><span>© ${new Date().getFullYear()} ${isEnglish ? site.nameEn : site.nameAr}</span><span>${isEnglish ? "All rights reserved." : "جميع الحقوق محفوظة."}</span></p>
+      <nav aria-label="${isEnglish ? "Legal information" : "المعلومات القانونية"}"><a href="${isEnglish ? "/en/privacy/" : "/privacy/"}">${isEnglish ? "Privacy" : "الخصوصية"}</a><a href="${isEnglish ? "/en/terms/" : "/terms/"}">${isEnglish ? "Terms" : "الشروط"}</a><a href="/.well-known/security.txt">${isEnglish ? "Security" : "الإبلاغ الأمني"}</a></nav>
     </div>
   </div>
   <div class="container footer-bottom"><p>© ${new Date().getFullYear()} ${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}. ${isEnglish ? "All rights reserved." : "جميع الحقوق محفوظة."}</p><div><a href="${isEnglish ? "/en/privacy/" : "/privacy/"}">${isEnglish ? "Privacy" : "الخصوصية"}</a><a href="${isEnglish ? "/en/terms/" : "/terms/"}">${isEnglish ? "Terms" : "الشروط"}</a><a href="/.well-known/security.txt">${isEnglish ? "Security" : "الإبلاغ الأمني"}</a></div></div>
