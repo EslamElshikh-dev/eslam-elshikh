@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { posts, projects } from "../src/content.mjs";
 import { projectAudit, webProjects } from "../src/web-projects.mjs";
 import { guides } from "../src/guides.mjs";
+import { articleVisuals } from "../src/article-visuals.mjs";
 import { englishArticles, englishServices, englishTopics } from "../src/english.mjs";
 
 const buildVersion = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8")).version;
@@ -221,7 +222,20 @@ for (const route of sitemapRoutes) {
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
   if (/<style\b|\sstyle=["']/i.test(html)) errors.push(`${route}: contains inline CSS that weakens the CSP`);
   if (!html.includes(`/assets/js/theme.js?v=${buildVersion}`) || !html.includes(`/assets/js/analytics.js?v=${buildVersion}`)) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
-  if (!html.includes('/assets/og/eslam-elshikh-social-card.png')) errors.push(`${route}: social metadata does not use the 1200x630 sharing card`);
+  const articleVisual = articleVisuals[route.match(/^\/(?:en\/)?blog\/([^/]+)\/$/)?.[1]];
+  const expectedShareImage = `${canonicalBase}${articleVisual?.src || "/assets/og/eslam-elshikh-social-card.png"}`;
+  const socialImage = matchOne(html, /<meta\s+property=["']og:image["']\s+content=["']([^"']*)/i);
+  const twitterImage = matchOne(html, /<meta\s+name=["']twitter:image["']\s+content=["']([^"']*)/i);
+  if (socialImage !== expectedShareImage || twitterImage !== expectedShareImage) errors.push(`${route}: social metadata does not use its expected sharing image`);
+  if (articleVisual) {
+    const articleNode = structuredNodes.find((node) => node?.["@type"] === "BlogPosting");
+    if (articleNode?.image !== expectedShareImage) errors.push(`${route}: article schema image does not match its custom cover`);
+    for (const asset of [articleVisual.src, articleVisual.small]) {
+      const bytes = await readFile(join(output, asset.slice(1))).catch(() => null);
+      if (!bytes || bytes.length < 20 || bytes.toString("ascii", 0, 4) !== "RIFF" || bytes.toString("ascii", 8, 12) !== "WEBP") errors.push(`${route}: missing or invalid WebP article illustration ${asset}`);
+    }
+    if (!html.includes('class="container article-cover"')) errors.push(`${route}: custom cover is missing from the visible article`);
+  }
   if (/https:\/\/(?:i\.ibb\.co|avatars\.githubusercontent\.com)/i.test(html)) errors.push(`${route}: references a legacy third-party image host`);
   for (const image of html.matchAll(/<img\b([^>]*)>/gi)) {
     if (!/\bwidth=["']\d+["']/i.test(image[1]) || !/\bheight=["']\d+["']/i.test(image[1])) errors.push(`${route}: image is missing explicit width and height`);

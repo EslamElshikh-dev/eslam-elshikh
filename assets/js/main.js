@@ -14,6 +14,28 @@
   const readingProgress = doc.querySelector("[data-reading-progress]");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Run the small portrait effects only while the card and tab are visible.
+  const portraitCards = [...doc.querySelectorAll(".studio-canvas")];
+  if (!reduceMotion && portraitCards.length) {
+    if ("IntersectionObserver" in window) {
+      const visibleCards = new Set();
+      const syncPortraitMotion = () => portraitCards.forEach((card) => {
+        card.classList.toggle("is-animated", visibleCards.has(card) && !doc.hidden);
+      });
+      const portraitObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) visibleCards.add(entry.target);
+          else visibleCards.delete(entry.target);
+        });
+        syncPortraitMotion();
+      }, { threshold: .15 });
+      portraitCards.forEach((card) => portraitObserver.observe(card));
+      doc.addEventListener("visibilitychange", syncPortraitMotion);
+    } else {
+      portraitCards.forEach((card) => card.classList.add("is-animated"));
+    }
+  }
+
   const normalizePath = (pathname) => {
     const clean = pathname.replace(/index\.html$/, "");
     return clean.endsWith("/") ? clean : `${clean}/`;

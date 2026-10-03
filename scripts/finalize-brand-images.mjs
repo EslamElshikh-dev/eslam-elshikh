@@ -1,5 +1,6 @@
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { articleVisuals } from "../src/article-visuals.mjs";
 
 const outDir = process.argv[2] || "dist";
 const canonical = "https://www.eslam-elshikh.com";
@@ -57,23 +58,26 @@ const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
 for (const path of htmlFiles) {
   let html = await readFile(path, "utf8");
   const isEnglish = /<html\s+lang="en"\s+dir="ltr"/i.test(html);
-  const socialAlt = isEnglish ? "Eslam Elshikh" : brandName;
+  const articleSlug = path.replaceAll("\\", "/").match(/(?:^|\/)(?:en\/)?blog\/([^/]+)\/index\.html$/)?.[1];
+  const articleVisual = articleVisuals[articleSlug];
+  const socialImage = articleVisual ? `${canonical}${articleVisual.src}` : shareImage;
+  const socialAlt = articleVisual ? isEnglish ? articleVisual.altEn : articleVisual.altAr : isEnglish ? "Eslam Elshikh" : brandName;
 
   html = html.replace(/\s*<link\b[^>]*\brel=["'](?:icon|shortcut icon|apple-touch-icon)["'][^>]*>\s*/gi, "\n");
   html = html.replace("</head>", `  ${iconTags}\n</head>`);
 
-  html = upsertMeta(html, "property", "og:image", shareImage);
-  html = upsertMeta(html, "property", "og:image:secure_url", shareImage);
-  html = upsertMeta(html, "property", "og:image:type", "image/png");
+  html = upsertMeta(html, "property", "og:image", socialImage);
+  html = upsertMeta(html, "property", "og:image:secure_url", socialImage);
+  html = upsertMeta(html, "property", "og:image:type", articleVisual ? "image/webp" : "image/png");
   html = upsertMeta(html, "property", "og:image:alt", socialAlt);
-  html = upsertMeta(html, "property", "og:image:width", "1200");
-  html = upsertMeta(html, "property", "og:image:height", "630");
+  html = upsertMeta(html, "property", "og:image:width", String(articleVisual?.width || 1200));
+  html = upsertMeta(html, "property", "og:image:height", String(articleVisual?.height || 630));
 
   html = upsertMeta(html, "name", "twitter:card", "summary_large_image");
-  html = upsertMeta(html, "name", "twitter:image", shareImage);
+  html = upsertMeta(html, "name", "twitter:image", socialImage);
   html = upsertMeta(html, "name", "twitter:image:alt", socialAlt);
-  html = upsertMeta(html, "name", "image", shareImage);
-  html = upsertMeta(html, "itemprop", "image", shareImage);
+  html = upsertMeta(html, "name", "image", socialImage);
+  html = upsertMeta(html, "itemprop", "image", socialImage);
 
   html = html.replace(/(<script type=["']application\/ld\+json["']>)([\s\S]*?)(<\/script>)/gi, (match, open, payload, close) => {
     try {

@@ -7,6 +7,7 @@ import { guides } from "./src/guides.mjs";
 import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
 import { renderAbout } from "./src/about.mjs";
 import { serviceEvidence, searchRevision } from "./src/service-evidence.mjs";
+import { articleVisuals } from "./src/article-visuals.mjs";
 import {
   englishArticles,
   englishProjectStudies,
@@ -205,6 +206,7 @@ const faqSchema = (faq) => ({
 
 function head({ title, description, path = "/", lang = "ar", schema = [], image = site.shareImage, type = "website", published, modified, keywords = [], articleSection = "", stylesheets = [], preloadImage = "", robots = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" }) {
   const isEnglish = lang === "en";
+  const articleVisual = Object.values(articleVisuals).find((visual) => visual.src === image);
   const canonical = absolute(path);
   const alternates = path === "/404.html" ? null : routePair(path);
   const titleBrand = isEnglish ? site.nameEn : site.brandName;
@@ -279,9 +281,9 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   <meta property="og:url" content="${canonical}">
   <meta property="og:image" content="${absolute(image)}">
   <meta property="og:image:secure_url" content="${absolute(image)}">
-  <meta property="og:image:type" content="image/png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="${articleVisual ? "image/webp" : "image/png"}">
+  <meta property="og:image:width" content="${articleVisual?.width || 1200}">
+  <meta property="og:image:height" content="${articleVisual?.height || 630}">
   <meta property="og:image:alt" content="${esc(fullTitle)}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@remoesoo10">
@@ -474,12 +476,20 @@ function verifiedWorkArchive() {
   return `<section class="section-pad work-ledger-section" data-work-archive><div class="container"><div class="section-heading reveal">${eyebrow("السجل الكامل الموثق")}<h2>${projectAudit.verifiedLiveProjects} مشروع ويب حيًا وفريدًا</h2><p>راجعت ${projectAudit.githubRepositories} مستودعًا على GitHub و${projectAudit.vercelProjects} مشروعًا على Vercel، ثم استبعدت المستودعات الفارغة والنسخ المكررة والتجارب والروابط غير العامة. النتيجة أدناه هي الأعمال الحية التي أمكن فتحها والتحقق منها بتاريخ 2 سبتمبر 2026.</p></div><div class="work-audit-summary reveal" aria-label="ملخص تدقيق أعمال الويب"><div><strong>${projectAudit.githubRepositories}</strong><span>مستودع GitHub تمت مراجعته</span></div><div><strong>${projectAudit.vercelProjects}</strong><span>مشروع Vercel تمت مراجعته</span></div><div><strong>${projectAudit.verifiedLiveProjects}</strong><span>مشروعًا حيًا وفريدًا</span></div></div><div class="work-ledger-controls reveal"><label class="work-search"><span>ابحث في الأعمال</span><span class="work-search-field">${icon("search")}<input type="search" inputmode="search" autocomplete="off" placeholder="اسم المشروع أو القطاع أو النطاق" data-work-search></span></label><div class="work-sector-filters" aria-label="تصفية الأعمال حسب القطاع">${[`الكل`, ...sectors].map((sector, index) => `<button type="button" data-work-filter="${index === 0 ? "all" : esc(sector)}" aria-pressed="${index === 0 ? "true" : "false"}">${esc(sector)}</button>`).join("")}</div><p class="work-results-status" data-work-status aria-live="polite">عرض ${webProjects.length} من أصل ${webProjects.length} مشروعًا</p></div><div class="work-ledger-grid">${cards}</div><div class="work-ledger-more"><button class="button button-ghost" type="button" data-work-more hidden>عرض المزيد ${icon("arrow", "button-icon")}</button></div><p class="work-empty" data-work-empty hidden>لا توجد أعمال مطابقة لعبارة البحث أو القطاع المحدد.</p><div class="independent-note reveal">${icon("shield")}<p><strong>حدود الدليل:</strong> الروابط تثبت وجود المشروع العام وقت المراجعة، ولا تعني ادعاء أرقام زيارات أو تحويلات أو ملكية تجارية للجهات المعروضة. الروابط الخارجية قد تتغير بعد النشر.</p></div></div></section>`;
 }
 
+function articleImage(post, { language = "ar", card = false, featured = false } = {}) {
+  const visual = articleVisuals[post.slug];
+  if (!visual) throw new Error(`Missing article illustration: ${post.slug}`);
+  const sizes = card
+    ? featured ? "(max-width: 900px) calc(100vw - 36px), (max-width: 1280px) 45vw, 550px" : "(max-width: 620px) calc(100vw - 36px), (max-width: 900px) calc(50vw - 30px), 390px"
+    : "(max-width: 620px) calc(100vw - 36px), (max-width: 1280px) calc(100vw - 40px), 1220px";
+  return `<img class="article-illustration" src="${visual.src}" srcset="${visual.small} 640w, ${visual.src} 1280w" sizes="${sizes}" width="${visual.width}" height="${visual.height}" alt="${esc(language === "en" ? visual.altEn : visual.altAr)}" loading="${card ? "lazy" : "eager"}" decoding="async">`;
+}
+
 function postCard(post, { featured = false } = {}) {
   const keywords = (post.keywords || []).slice(0, featured ? 4 : 3);
-  const relatedService = serviceBySlug(post.relatedService);
   const formattedDate = new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium" }).format(new Date(`${post.date}T12:00:00Z`));
   return `<article class="post-card${featured ? " post-card-featured" : ""} reveal">
-    <a class="post-art post-art-${post.relatedService}" href="/blog/${post.slug}/" aria-label="اقرأ: ${esc(post.title)}"><span>${esc(post.category)}</span><strong class="post-art-title">${esc(relatedService?.title || post.category)}</strong><span class="post-art-mark">${icon(relatedService?.icon || "book", "post-icon")}</span></a>
+    <a class="post-art post-cover" href="/blog/${post.slug}/" aria-label="اقرأ: ${esc(post.title)}">${articleImage(post, { card: true, featured })}<span class="post-cover-category">${esc(post.category)}</span></a>
     <div class="post-card-content">
       <div class="post-meta"><time datetime="${post.date}">${formattedDate}</time><span>${esc(post.readTime)}</span></div>
       <h3><a href="/blog/${post.slug}/">${esc(post.title)}</a></h3>
@@ -500,6 +510,7 @@ function studioVisual(language = "ar") {
   ];
   return `<div class="hero-visual studio-visual reveal" aria-label="${english ? "Eslam Elshikh — digital engineering" : "إسلام الشيخ — هندسة رقمية"}">
     <div class="studio-canvas">
+      <span class="studio-sheen" aria-hidden="true"></span>
       <div class="studio-canvas-top"><span dir="ltr">ES / DIGITAL ENGINEERING</span><span>${icon("pin")}${english ? "Riyadh, Saudi Arabia" : "الرياض، السعودية"}</span></div>
       <div class="studio-portrait-stage"><span class="studio-orbit studio-orbit-one" aria-hidden="true"></span><span class="studio-orbit studio-orbit-two" aria-hidden="true"></span><span class="studio-spark" aria-hidden="true">${icon("spark")}</span><div class="studio-portrait">${logo("hero-logo", english ? "Portrait of Eslam Elshikh" : "صورة المهندس إسلام الشيخ")}</div><span class="studio-portrait-label" dir="ltr">SECURE · BUILD · GROW</span></div>
       <div class="studio-name"><strong dir="ltr">${site.nameEn}</strong><span>${english ? "Cybersecurity & software engineer" : "مهندس أمن سيبراني ومطوّر برمجيات"}</span></div>
@@ -1138,6 +1149,7 @@ function articlePage(post) {
     .map(({ item }) => item);
   const body = `${innerHero({ eyebrowText: post.category, title: esc(post.title), lead: post.excerpt, path, crumbs: [{ name: "المدونة", path: "/blog/" }, { name: topic.title, path: topicPath }, { name: post.title, path }], aside: `<div class="article-meta-card"><span>دليل مهني محدث</span><strong>${esc(post.readTime)}</strong><p>نُشر في ${publishedDate}</p><p>آخر مراجعة: ${modifiedDate}</p></div>`, className: "article-hero" })}
 <div class="container article-hero-keywords" aria-label="الكلمات والموضوعات الرئيسية">${keywords.map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div>
+<figure class="container article-cover">${articleImage(post)}</figure>
 <section class="section-pad article-section"><div class="container article-layout"><article class="article-content reveal"><p class="article-intro">${esc(post.description)}</p>
 ${post.sections.map(([heading, ...paragraphs], index) => `<section id="section-${index + 1}"><span class="article-number">${String(index + 1).padStart(2, "0")}</span><h2>${esc(heading)}</h2>${paragraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}</section>`).join("")}
 <section id="implementation-roadmap" class="article-roadmap-section"><span class="article-number">${String(post.sections.length + 1).padStart(2, "0")}</span><h2>خطة تطبيق الدليل على مشروع حقيقي</h2><p>يتحول موضوع «${esc(post.title)}» إلى عمل قابل للمراجعة عندما يُنفذ على مراحل قصيرة، ولكل مرحلة مالك ودليل نجاح وحد واضح للتوقف أو التصعيد.</p><ol class="article-roadmap">${roadmap.map((step, index) => `<li><span>${String(index + 1).padStart(2, "0")}</span><div><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p></div></li>`).join("")}</ol></section>
@@ -1151,7 +1163,7 @@ ${articleSourcesSection(post, "ar")}
 <section class="section-pad muted-section article-faq-section" id="article-faq"><div class="container article-faq-grid"><div class="article-faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>إجابات مرتبطة مباشرة بموضوع الدليل</h2><p>أسئلة مختارة من أكثر ما يسبق القرار في هذا الموضوع، بإجابات محددة دون تكرار أسئلة عامة بين المقالات.</p><div class="faq-count" aria-label="عدد الأسئلة"><strong>${faq.length}</strong><span>أسئلة وإجابات متخصصة</span></div></div>${faqBlock(faq)}</div></section>
 <section class="section-pad related-articles-section"><div class="container"><div class="section-heading reveal">${eyebrow("أدلة مرتبطة")}<h2>واصل بناء الصورة الكاملة</h2><p>موضوعات منتقاة تكمل هذا الدليل من زاوية الخدمة أو الأمان أو الظهور والقياس.</p></div><div class="posts-grid">${relatedPosts.map((item) => postCard(item)).join("")}</div></div></section>
 ${finalCta("هل تريد تطبيق هذا الإطار على مشروعك؟", "أرسل الحالة الحالية والهدف والبيانات المتاحة، وسنحدد خطوة أولى صغيرة وواضحة وقابلة للقياس.")}`;
-  return page({ title: post.seoTitle, description: post.description, path, active: "blog", body, type: "article", published: post.date, modified: post.modified, keywords, articleSection: post.category, schema: [faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "المدونة", path: "/blog/" }, { name: topic.title, path: topicPath }, { name: post.title, path }])] });
+  return page({ title: post.seoTitle, description: post.description, path, active: "blog", body, image: articleVisuals[post.slug].src, type: "article", published: post.date, modified: post.modified, keywords, articleSection: post.category, schema: [faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "المدونة", path: "/blog/" }, { name: topic.title, path: topicPath }, { name: post.title, path }])] });
 }
 
 const topicDefinitions = {
@@ -1633,9 +1645,8 @@ ${englishFinalCta("Does your Business Profile need verification, ownership recov
 
 function englishPostCard(post, { featured = false } = {}) {
   const keywords = (post.keywords || []).slice(0, featured ? 4 : 3);
-  const relatedService = englishServiceBySlug(post.relatedService);
   const formattedDate = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${post.date}T12:00:00Z`));
-  return `<article class="post-card${featured ? " post-card-featured" : ""} reveal"><a class="post-art post-art-${post.relatedService}" href="/en/blog/${post.slug}/" aria-label="Read ${esc(post.title)}"><span>${esc(post.category)}</span><strong class="post-art-title">${esc(relatedService?.title || post.category)}</strong><span class="post-art-mark">${icon(relatedService?.icon || "book", "post-icon")}</span></a><div class="post-card-content"><div class="post-meta"><time datetime="${post.date}">${formattedDate}</time><span>${esc(post.readTime)}</span></div><h3><a href="/en/blog/${post.slug}/">${esc(post.title)}</a></h3><p>${esc(post.excerpt)}</p>${keywords.length ? `<div class="keyword-row" aria-label="Key topics">${keywords.map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div>` : ""}<a class="text-link post-card-link" href="/en/blog/${post.slug}/" aria-label="Read the complete guide: ${esc(post.title)}">Read the complete guide ${icon("arrow")}</a></div></article>`;
+  return `<article class="post-card${featured ? " post-card-featured" : ""} reveal"><a class="post-art post-cover" href="/en/blog/${post.slug}/" aria-label="Read ${esc(post.title)}">${articleImage(post, { language: "en", card: true, featured })}<span class="post-cover-category">${esc(post.category)}</span></a><div class="post-card-content"><div class="post-meta"><time datetime="${post.date}">${formattedDate}</time><span>${esc(post.readTime)}</span></div><h3><a href="/en/blog/${post.slug}/">${esc(post.title)}</a></h3><p>${esc(post.excerpt)}</p>${keywords.length ? `<div class="keyword-row" aria-label="Key topics">${keywords.map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div>` : ""}<a class="text-link post-card-link" href="/en/blog/${post.slug}/" aria-label="Read the complete guide: ${esc(post.title)}">Read the complete guide ${icon("arrow")}</a></div></article>`;
 }
 
 function englishBlogIndexPage() {
@@ -1678,6 +1689,7 @@ function englishArticlePage(post) {
   const relatedPosts = englishArticles.filter((item) => item.slug !== post.slug).map((item) => ({ item, score: Number(item.relatedService === post.relatedService) * 3 + Number(item.topic === post.topic) * 2 })).sort((left, right) => right.score - left.score).slice(0, 3).map(({ item }) => item);
   const body = `${innerHero({ eyebrowText: post.category, title: esc(post.title), lead: post.excerpt, path, language: "en", crumbs: [{ name: "Insights", path: "/en/blog/" }, { name: topic.title, path: topicPath }, { name: post.title, path }], aside: `<div class="article-meta-card"><span>Professional guide</span><strong>${esc(post.readTime)}</strong><p>Published ${publishedDate}</p><p>Reviewed ${modifiedDate}</p></div>`, className: "article-hero" })}
 <div class="container article-hero-keywords" aria-label="Key topics">${keywords.map((keyword) => `<span>${esc(keyword)}</span>`).join("")}</div>
+<figure class="container article-cover">${articleImage(post, { language: "en" })}</figure>
 <section class="section-pad article-section"><div class="container article-layout"><article class="article-content reveal"><p class="article-intro">${esc(post.description)}</p>
 ${post.sections.map(([heading, ...paragraphs], index) => `<section id="section-${index + 1}"><span class="article-number">${String(index + 1).padStart(2, "0")}</span><h2>${esc(heading)}</h2>${paragraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}</section>`).join("")}
 <section id="implementation-roadmap" class="article-roadmap-section"><span class="article-number">${String(post.sections.length + 1).padStart(2, "0")}</span><h2>Apply the guide through a controlled implementation roadmap</h2><p>A useful framework becomes operational when it is divided into short stages. Each stage needs an accountable owner, a reviewable output, an acceptance check, and a clear point for rollback, escalation, or the next release.</p><ol class="article-roadmap">${roadmap.map((step, index) => `<li><span>${String(index + 1).padStart(2, "0")}</span><div><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p></div></li>`).join("")}</ol></section>
@@ -1691,7 +1703,7 @@ ${articleSourcesSection(post, "en")}
 <section class="section-pad muted-section article-faq-section" id="article-faq"><div class="container article-faq-grid"><div class="article-faq-intro reveal">${eyebrow("Frequently asked questions")}<h2>Answers tied directly to this guide</h2><p>Four practical questions that commonly arise before implementation, answered without generic promises.</p><div class="faq-count" aria-label="Question count"><strong>${post.faq.length}</strong><span>topic-specific answers</span></div></div>${faqBlock(post.faq)}</div></section>
 <section class="section-pad related-articles-section"><div class="container"><div class="section-heading reveal">${eyebrow("Related guides")}<h2>Continue building the full decision picture</h2><p>Selected topics that connect this guide to security, delivery, visibility, or measurement.</p></div><div class="posts-grid">${relatedPosts.map((item) => englishPostCard(item)).join("")}</div></div></section>
 ${englishFinalCta("Want to apply this framework to your project?", "Share the current situation, desired outcome, and available evidence. We can identify one small, clear, measurable first step.")}`;
-  return page({ title: post.seoTitle, description: post.description, path, active: "blog", body, lang: "en", type: "article", published: post.date, modified: post.modified, keywords, articleSection: post.category, schema: [faqSchema(post.faq), breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Insights", path: "/en/blog/" }, { name: topic.title, path: topicPath }, { name: post.title, path }])] });
+  return page({ title: post.seoTitle, description: post.description, path, active: "blog", body, image: articleVisuals[post.slug].src, lang: "en", type: "article", published: post.date, modified: post.modified, keywords, articleSection: post.category, schema: [faqSchema(post.faq), breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Insights", path: "/en/blog/" }, { name: topic.title, path: topicPath }, { name: post.title, path }])] });
 }
 
 function englishTopicPage(slug) {
