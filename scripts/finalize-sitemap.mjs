@@ -88,6 +88,9 @@ const coreEntries = coreRoutes.map((route) => {
   return entry;
 });
 await writeFile(join(outDir, "sitemap-core.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${coreEntries.join("\n")}\n</urlset>\n`, "utf8");
-await writeFile(join(outDir, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${canonical}/sitemap.xml\nSitemap: ${canonical}/sitemap-core.xml\n`, "utf8");
+// An alternative Google-supported format for the same reporting cohort.
+// It changes neither canonical choices nor the full indexable inventory.
+await writeFile(join(outDir, "sitemap-core.txt"), `${coreRoutes.map((route) => `${canonical}${route}`).join("\n")}\n`, "utf8");
+await writeFile(join(outDir, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${canonical}/sitemap.xml\nSitemap: ${canonical}/sitemap-core.xml\nSitemap: ${canonical}/sitemap-core.txt\n`, "utf8");
 
 console.log(`Finalized sitemap with ${indexableUrls.length} canonical URLs and ${coreEntries.length} core URLs; omitted ${routes.length - indexableUrls.length} noindex tool pages.`);
