@@ -251,7 +251,7 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
 ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))}">\n` : ""}  <meta name="robots" content="${esc(robots)}">
   <meta name="author" content="${esc(isEnglish ? site.nameEn : site.nameAr)}">
   <meta name="application-name" content="${esc(isEnglish ? site.nameEn : site.brandName)}">
-  <meta name="theme-color" content="#06131f" data-theme-color>
+  <meta name="theme-color" content="#101c19" data-theme-color>
   <meta name="color-scheme" content="dark light">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="format-detection" content="telephone=yes">
@@ -349,14 +349,14 @@ function footer(language = "ar") {
   const serviceLinks = services.slice(0, 6).map((service) => `<a href="${isEnglish ? `/en/services/${service.slug}/` : `/services/${service.slug}/`}">${esc(isEnglish ? englishServiceBySlug(service.slug)?.title || serviceTranslations[service.slug]?.title || service.title : service.title)}</a>`).join("");
   return `<footer class="site-footer">
   <div class="container footer-grid">
+    <div class="footer-column footer-contact"><h2>${isEnglish ? "Contact" : "بيانات التواصل"}</h2><a class="footer-phone" href="tel:${site.phone}"><span class="footer-phone-label">${icon("phone")}${isEnglish ? "Let's discuss your project" : "نتكلم عن مشروعك؟"}</span><span class="footer-phone-number" dir="ltr">${site.phoneDisplay}</span></a><a href="${site.whatsapp}" target="_blank" rel="noopener">${icon("whatsapp")}<span>WhatsApp</span></a><a class="footer-email" href="mailto:${site.email}">${icon("mail")}<span dir="ltr">${site.email}</span></a><a href="${site.googleMapsProfile}" target="_blank" rel="noopener">${icon("pin")}<span>${isEnglish ? "Google Maps business profile" : "الملف التجاري على خرائط Google"}</span></a><span>${icon("globe")}<span>${isEnglish ? "Riyadh service area" : `نطاق الخدمة: ${site.city}`}</span></span></div>
+    <div class="footer-column footer-explore"><h2>${isEnglish ? "Explore" : "روابط سريعة"}</h2>${exploreLinks}</div>
+    <div class="footer-column footer-services"><h2>${isEnglish ? "Core services" : "الخدمات الرئيسية"}</h2>${serviceLinks}<a class="footer-more" href="${isEnglish ? "/en/services/" : "/services/"}">${isEnglish ? "View all services" : "عرض جميع الخدمات"}</a></div>
     <div class="footer-intro">
       <a class="brand" href="${isEnglish ? "/en/" : "/"}">${logo("brand-logo")}<span class="brand-copy"><strong>${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}</strong><small>${isEnglish ? "Cybersecurity & Digital Engineering" : site.nameEn}</small></span></a>
       <p>${isEnglish ? "Secure digital products, practical AI systems, Google Maps and Business Profile experience, and search visibility for ambitious businesses." : site.positioning}</p>
       <div class="social-row" aria-label="${isEnglish ? "Social profiles" : "الحسابات الاجتماعية"}">${social}</div>
     </div>
-    <div class="footer-column"><h2>${isEnglish ? "Explore" : "روابط سريعة"}</h2>${exploreLinks}</div>
-    <div class="footer-column footer-services"><h2>${isEnglish ? "Core services" : "الخدمات الرئيسية"}</h2>${serviceLinks}<a class="footer-more" href="${isEnglish ? "/en/services/" : "/services/"}">${isEnglish ? "View all services" : "عرض جميع الخدمات"}</a></div>
-    <div class="footer-column footer-contact"><h2>${isEnglish ? "Contact" : "بيانات التواصل"}</h2><a dir="ltr" href="tel:${site.phone}">${icon("phone")}<span>${site.phoneDisplay}</span></a><a href="${site.whatsapp}" target="_blank" rel="noopener">${icon("whatsapp")}<span>WhatsApp</span></a><a href="mailto:${site.email}">${icon("mail")}<span>${site.email}</span></a><a href="${site.googleMapsProfile}" target="_blank" rel="noopener">${icon("pin")}<span>${isEnglish ? "Google Maps business profile" : "الملف التجاري على خرائط Google"}</span></a><span>${icon("globe")}<span>${isEnglish ? "Riyadh service area" : `نطاق الخدمة: ${site.city}`}</span></span></div>
   </div>
   <div class="container footer-bottom"><p>© ${new Date().getFullYear()} ${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}. ${isEnglish ? "All rights reserved." : "جميع الحقوق محفوظة."}</p><div><a href="${isEnglish ? "/en/privacy/" : "/privacy/"}">${isEnglish ? "Privacy" : "الخصوصية"}</a><a href="${isEnglish ? "/en/terms/" : "/terms/"}">${isEnglish ? "Terms" : "الشروط"}</a><a href="/.well-known/security.txt">${isEnglish ? "Security" : "الإبلاغ الأمني"}</a></div></div>
 </footer>
@@ -365,6 +365,7 @@ function footer(language = "ar") {
   <a class="floating-action floating-whatsapp" href="${site.whatsapp}?text=${encodeURIComponent(isEnglish ? "Hello Eng. Eslam, I would like to discuss a project." : "مرحبًا م. إسلام، أرغب في مناقشة مشروع.")}" target="_blank" rel="noopener" aria-label="${isEnglish ? "WhatsApp Eng. Eslam" : "تواصل عبر واتساب"}">${icon("whatsapp")}<span>WhatsApp</span></a>
 </div>
 <button class="back-to-top" type="button" aria-label="${isEnglish ? "Back to top" : "العودة إلى أعلى الصفحة"}" data-back-to-top>${icon("chevron")}</button>
+<div class="reading-progress" aria-hidden="true" data-reading-progress></div>
 <script src="/assets/js/main.js?v=${version}" defer></script>`;
 }
 

@@ -11,6 +11,7 @@
   const themeButton = doc.querySelector("[data-theme-toggle]");
   const backToTop = doc.querySelector("[data-back-to-top]");
   const floatingContact = doc.querySelector(".floating-contact");
+  const readingProgress = doc.querySelector("[data-reading-progress]");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const normalizePath = (pathname) => {
@@ -27,7 +28,7 @@
     const isLight = theme === "light";
     themeButton?.setAttribute("aria-pressed", String(isLight));
     themeButton?.setAttribute("aria-label", isLight ? "تفعيل الوضع الداكن / Switch to dark mode" : "تفعيل الوضع الفاتح / Switch to light mode");
-    doc.querySelector("meta[data-theme-color]")?.setAttribute("content", isLight ? "#f7f5ed" : "#101c19");
+    doc.querySelector("meta[data-theme-color]")?.setAttribute("content", isLight ? "#f0f2f5" : "#101c19");
   };
 
   if (themeButton) {
@@ -70,15 +71,36 @@
     header?.classList.toggle("is-scrolled", scrolled);
     backToTop?.classList.toggle("is-visible", window.scrollY > 600);
     floatingContact?.classList.add("is-visible");
+    if (readingProgress && !reduceMotion) {
+      const distance = root.scrollHeight - window.innerHeight;
+      const progress = distance > 0 ? Math.max(0, Math.min(1, window.scrollY / distance)) : 0;
+      readingProgress.style.transform = `scaleX(${progress})`;
+    }
   };
   onScroll();
-  window.addEventListener("scroll", onScroll, { passive: true });
+  let scrollFrame = 0;
+  const queueScrollUpdate = () => {
+    if (scrollFrame) return;
+    scrollFrame = window.requestAnimationFrame(() => {
+      scrollFrame = 0;
+      onScroll();
+    });
+  };
+  window.addEventListener("scroll", queueScrollUpdate, { passive: true });
+  window.addEventListener("resize", queueScrollUpdate, { passive: true });
+  window.addEventListener("load", queueScrollUpdate, { once: true });
 
   backToTop?.addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
   });
 
   const revealElements = [...doc.querySelectorAll(".reveal")];
+  const revealGroups = new Map();
+  revealElements.forEach((element) => {
+    const index = revealGroups.get(element.parentElement) || 0;
+    element.style.setProperty("--reveal-delay", `${Math.min(index, 3) * 60}ms`);
+    revealGroups.set(element.parentElement, index + 1);
+  });
   if (reduceMotion || !("IntersectionObserver" in window)) {
     revealElements.forEach((element) => element.classList.add("is-visible"));
   } else {
@@ -92,6 +114,21 @@
     revealElements.forEach((element) => observer.observe(element));
   }
 
+  // Animate only newly displayed cards; filtering remains synchronous and accessible.
+  const animateCards = (cards) => {
+    if (reduceMotion) return;
+    cards.filter((card) => !card.hidden).forEach((card, index) => {
+      if (typeof card.animate !== "function") return;
+      card.getAnimations?.().forEach((animation) => {
+        if (animation.id === "studio-filter") animation.cancel();
+      });
+      card.animate([
+        { opacity: .45, transform: "translateY(10px)" },
+        { opacity: 1, transform: "translateY(0)" }
+      ], { id: "studio-filter", duration: 300, delay: Math.min(index, 4) * 45, easing: "cubic-bezier(.2,.7,.2,1)", fill: "backwards" });
+    });
+  };
+
   const filterButtons = [...doc.querySelectorAll("[data-service-filter]")];
   const serviceCards = [...doc.querySelectorAll("[data-service-group]")];
   if (filterButtons.length && serviceCards.length) {
@@ -103,6 +140,7 @@
         card.hidden = !visible;
         if (visible) card.classList.add("is-visible");
       });
+      animateCards(serviceCards);
     };
 
     filterButtons.forEach((button, index) => {
@@ -175,6 +213,7 @@
         visibleLimit = pageSize;
         workFilters.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
         applyWorkView();
+        animateCards(workCards);
       });
     });
 
@@ -184,8 +223,10 @@
     });
 
     workMore?.addEventListener("click", () => {
+      const previousLimit = visibleLimit;
       visibleLimit += pageSize;
       applyWorkView();
+      animateCards(workCards.filter((card) => !card.hidden).slice(previousLimit));
     });
 
     applyWorkView();
