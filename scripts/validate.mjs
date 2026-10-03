@@ -214,7 +214,8 @@ for (const route of sitemapRoutes) {
   if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/main\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned main stylesheet`);
   const stylesheetCount = (html.match(/<link\b[^>]*\brel=["']stylesheet["'][^>]*>/gi) || []).length;
   const growthStyleRoutes = new Set(["/book/", "/google-business-profile-audit/", "/google-maps-projects/", "/en/book/", "/en/google-business-profile-audit/", "/en/google-maps-projects/"]);
-  const expectedStylesheets = route === "/about/" || growthStyleRoutes.has(route) ? 2 : 1;
+  if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/studio\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned studio stylesheet`);
+  const expectedStylesheets = route === "/about/" || growthStyleRoutes.has(route) ? 3 : 2;
   if (stylesheetCount !== expectedStylesheets) errors.push(`${route}: expected ${expectedStylesheets} stylesheet link(s), found ${stylesheetCount}`);
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);

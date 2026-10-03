@@ -292,7 +292,8 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   <meta name="twitter:image:alt" content="${esc(fullTitle)}">
   <script src="/assets/js/theme.js?v=${version}"></script>
   <link rel="stylesheet" href="/assets/css/main.css?v=${version}">
-${stylesheets.length ? `${stylesheets.map((href) => `  <link rel="stylesheet" href="${esc(href)}">`).join("\n")}\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
+${stylesheets.length ? `${stylesheets.map((href) => `  <link rel="stylesheet" href="${esc(href)}">`).join("\n")}\n` : ""}  <link rel="stylesheet" href="/assets/css/studio.css?v=${version}">
+  <script src="/assets/js/analytics.js?v=${version}" defer></script>
   <script type="application/ld+json">${safeJson({ "@context": "https://schema.org", "@graph": graph })}</script>
 </head>`;
 }
@@ -451,6 +452,26 @@ function postCard(post, { featured = false } = {}) {
   </article>`;
 }
 
+function studioVisual(language = "ar") {
+  const english = language === "en";
+  const prefix = english ? "/en" : "";
+  const specialties = [
+    ["code", "web-development", english ? "Build" : "أطوّر"],
+    ["shield", "cybersecurity", english ? "Secure" : "أحمي"],
+    ["chart", "seo", english ? "Grow" : "أُنمّي"]
+  ];
+  return `<div class="hero-visual studio-visual reveal" aria-label="${english ? "Eslam Elshikh — digital engineering" : "إسلام الشيخ — هندسة رقمية"}">
+    <div class="studio-canvas">
+      <div class="studio-canvas-top"><span dir="ltr">ES / DIGITAL ENGINEERING</span><span>${icon("pin")}${english ? "Riyadh, Saudi Arabia" : "الرياض، السعودية"}</span></div>
+      <div class="studio-portrait-stage"><span class="studio-orbit studio-orbit-one" aria-hidden="true"></span><span class="studio-orbit studio-orbit-two" aria-hidden="true"></span><span class="studio-spark" aria-hidden="true">${icon("spark")}</span><div class="studio-portrait">${logo("hero-logo", english ? "Portrait of Eslam Elshikh" : "صورة المهندس إسلام الشيخ")}</div><span class="studio-portrait-label" dir="ltr">SECURE · BUILD · GROW</span></div>
+      <div class="studio-name"><strong dir="ltr">${site.nameEn}</strong><span>${english ? "Cybersecurity & software engineer" : "مهندس أمن سيبراني ومطوّر برمجيات"}</span></div>
+      <div class="studio-specialties">${specialties.map(([mark, slug, label]) => `<a href="${prefix}/services/${slug}/">${icon(mark)}<span>${label}</span>${icon("arrow")}</a>`).join("")}</div>
+      <div class="studio-canvas-bottom"><strong dir="ltr">360°</strong><p>${english ? "Security, user experience, discoverability, and measurement in one system." : "أمان وتجربة مستخدم وظهور رقمي داخل قرار واحد."}</p><a href="${prefix}/projects/" aria-label="${english ? "Explore Eslam's projects" : "استكشف أعمال إسلام الشيخ"}">${icon("external")}</a></div>
+    </div>
+    <div class="studio-canvas-caption"><span aria-hidden="true"></span><p>${english ? "Thoughtful engineering. A distinct identity." : "هندسة بفكرة واضحة. وهوية لها بصمة."}</p><span dir="ltr" aria-hidden="true">ES — 01</span></div>
+  </div>`;
+}
+
 function homePage() {
   const faq = homeFaq;
   const body = `
@@ -465,16 +486,7 @@ function homePage() {
       <div class="hero-actions">${button("/contact/", "اطلب عرضًا لمشروعك")}${button("/projects/", "شاهد أعمالي", "button-ghost")}</div>
       <div class="hero-trust"><a href="${site.googleMapsProfile}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>الملف التجاري على خرائط Google</a><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot"></span>ملف Google للمطورين</a><a href="${site.social.wikidata}" target="_blank" rel="noopener"><span class="trust-dot"></span>Wikidata Q138800449</a><span><span class="trust-dot trust-live"></span>متاح للمشروعات في السعودية</span></div>
     </div>
-    <div class="hero-visual reveal" aria-label="منظومة خدمات المهندس إسلام الشيخ">
-      <div class="visual-glow" aria-hidden="true"></div>
-      <div class="visual-shell">
-        <div class="visual-top"><span>Digital Engineering</span><span class="visual-status"><i></i> Operational</span></div>
-        <div class="visual-core">${logo("hero-logo", `صورة ${site.brandName}`)}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div>
-        <div class="visual-capabilities"><span>${icon("shield")}Cybersecurity</span><span>${icon("code")}Web & Apps</span><span>${icon("spark")}AI Agents</span><span>${icon("google")}Google</span><span>${icon("chart")}SEO</span><span>${icon("cloud")}Cloud</span></div>
-        <div class="visual-metric"><span>Approach</span><strong>360°</strong><p>أمان وتجربة مستخدم وظهور رقمي داخل قرار واحد.</p></div>
-      </div>
-      <div class="visual-orbit orbit-a" aria-hidden="true"></div><div class="visual-orbit orbit-b" aria-hidden="true"></div>
-    </div>
+    ${studioVisual()}
   </div>
   <div class="container stats-bar reveal">${site.stats.map((stat) => `<div><strong>${esc(stat.value)}</strong><span>${esc(stat.label)}</span></div>`).join("")}</div>
   <p class="container stats-note">أرقام خبرة محدثة حتى سبتمبر 2026؛ ويمكن مراجعة النماذج العامة المنشورة في قسمي الأعمال وخرائط Google.</p>
@@ -1696,7 +1708,7 @@ const englishHomeFaq = [
 function englishPage() {
   const workCards = projects.slice(0, 3).map((project, index) => englishShowcaseProject(project, index)).join("");
   const insightCards = ["secure-website-development", "google-business-profile-suspension", "local-seo-riyadh-service-business"].map(englishArticleBySlug).filter(Boolean).map((post) => englishPostCard(post)).join("");
-  const body = `<section class="hero section-pad hero-en"><div class="container hero-grid"><div class="hero-copy reveal"><span class="eyebrow"><span></span>Cybersecurity Engineer · Software Developer · Google Maps Specialist</span><h1>I build digital systems that are <span>secure, useful, and ready to grow.</span></h1><p class="hero-lead">I am Eslam Elshikh, based in Riyadh. I combine cybersecurity, web and software engineering, practical AI agents, Google Maps and Business Profile experience, cloud architecture, and search visibility into clear project scopes with reviewable outcomes.</p><p class="hero-support">From diagnosis and information architecture to implementation, testing, launch, and measurement, the goal is to reduce complexity and help your team make better technical decisions.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start a conversation", "", true)}${button("/en/#services", "Explore services", "button-ghost")}</div><div class="hero-trust"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>Google Developer Profile</a><a href="${site.social.github}" target="_blank" rel="noopener"><span class="trust-dot"></span>GitHub</a><span><span class="trust-dot trust-live"></span>Saudi Arabia & remote</span></div></div><div class="hero-visual reveal"><div class="visual-glow"></div><div class="visual-shell"><div class="visual-top"><span>Digital Engineering</span><span class="visual-status"><i></i> Operational</span></div><div class="visual-core">${logo("hero-logo", "Eslam Elshikh logo")}<div><strong>${site.nameEn}</strong><span>SECURE · BUILD · GROW</span></div></div><div class="visual-capabilities"><span>${icon("shield")}Cybersecurity</span><span>${icon("code")}Web & Apps</span><span>${icon("spark")}AI Agents</span><span>${icon("google")}Google</span><span>${icon("chart")}SEO</span><span>${icon("cloud")}Cloud</span></div><div class="visual-metric"><span>Approach</span><strong>360°</strong><p>Security, user experience, discoverability, and measurement in one system.</p></div></div></div></div><div class="container stats-bar reveal">${site.stats.map((stat, index) => `<div><strong>${esc(stat.value)}</strong><span>${["Google Business Profiles supported through verification", "Business profile issues resolved", "Public Google Maps examples", "Verified live web projects"][index]}</span></div>`).join("")}</div></section>
+  const body = `<section class="hero section-pad hero-en"><div class="container hero-grid"><div class="hero-copy reveal"><span class="eyebrow"><span></span>Cybersecurity Engineer · Software Developer · Google Maps Specialist</span><h1>I build digital systems that are <span>secure, useful, and ready to grow.</span></h1><p class="hero-lead">I am Eslam Elshikh, based in Riyadh. I combine cybersecurity, web and software engineering, practical AI agents, Google Maps and Business Profile experience, cloud architecture, and search visibility into clear project scopes with reviewable outcomes.</p><p class="hero-support">From diagnosis and information architecture to implementation, testing, launch, and measurement, the goal is to reduce complexity and help your team make better technical decisions.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start a conversation", "", true)}${button("/en/#services", "Explore services", "button-ghost")}</div><div class="hero-trust"><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>Google Developer Profile</a><a href="${site.social.github}" target="_blank" rel="noopener"><span class="trust-dot"></span>GitHub</a><span><span class="trust-dot trust-live"></span>Saudi Arabia & remote</span></div></div>${studioVisual("en")}</div><div class="container stats-bar reveal">${site.stats.map((stat, index) => `<div><strong>${esc(stat.value)}</strong><span>${["Google Business Profiles supported through verification", "Business profile issues resolved", "Public Google Maps examples", "Verified live web projects"][index]}</span></div>`).join("")}</div></section>
 <section class="section-pad" id="services"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Core capabilities</span><h2>Specialist work that can operate independently or as one delivery plan</h2><p>Each engagement starts with the business outcome, current state, constraints, risks, and a measurable definition of done.</p></div><div class="services-grid">${englishServices.map(englishServiceCard).join("")}</div><div class="section-action">${button("/en/services/", "Explore all services", "button-ghost")}</div></div></section>
 <section class="section-pad muted-section" id="about"><div class="container promise-grid"><div class="promise-copy reveal"><span class="eyebrow"><span></span>About & approach</span><h2>A strong digital project is more than a polished interface</h2><p>I approach security, software, user experience, discoverability, and measurement as connected parts of one system. The work should remain understandable, maintainable, and reviewable after launch.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome first</h3><p>We define the user decision and business result before selecting tools.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Secure by design</h3><p>Data, permissions, and failure modes are considered from the start.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for devices</h3><p>Mobile-first testing across iOS, Android, Huawei, tablets, and desktops.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Ready to improve</h3><p>Performance, SEO, analytics, and conversion are part of operations.</p></article></div></div></section>
 <section class="section-pad projects-section" id="work"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Selected case studies</span><h2>Real projects with distinct goals, constraints, and delivery decisions</h2><p>Three live examples showing how content, design, engineering, search visibility, and conversion paths are shaped around the business rather than copied from a generic template.</p></div><div class="posts-grid">${workCards}</div><div class="section-action">${button("/en/projects/", "Explore all verified work", "button-ghost")}</div></div></section>

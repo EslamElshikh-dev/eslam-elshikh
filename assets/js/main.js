@@ -27,7 +27,7 @@
     const isLight = theme === "light";
     themeButton?.setAttribute("aria-pressed", String(isLight));
     themeButton?.setAttribute("aria-label", isLight ? "تفعيل الوضع الداكن / Switch to dark mode" : "تفعيل الوضع الفاتح / Switch to light mode");
-    doc.querySelector("meta[data-theme-color]")?.setAttribute("content", isLight ? "#f5f8fb" : "#06131f");
+    doc.querySelector("meta[data-theme-color]")?.setAttribute("content", isLight ? "#f7f5ed" : "#101c19");
   };
 
   if (themeButton) {

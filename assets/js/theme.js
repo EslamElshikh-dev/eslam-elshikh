@@ -8,7 +8,7 @@
     const stored = localStorage.getItem("es-theme");
     const theme = stored || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
     root.dataset.theme = theme;
-    document.querySelector("meta[data-theme-color]")?.setAttribute("content", theme === "light" ? "#f5f8fb" : "#06131f");
+    document.querySelector("meta[data-theme-color]")?.setAttribute("content", theme === "light" ? "#f7f5ed" : "#101c19");
   } catch (_) {
     root.dataset.theme = "dark";
   }
