@@ -122,6 +122,7 @@ body::before, :root[data-theme="light"] body::before { display: none; }
 .hero-trust { margin-top: 1.3rem; font-size: .875rem; line-height: 1.75; gap: .5rem 1rem; }
 .trust-dot { background: var(--secondary); }
 .studio-visual, .hero:not(.hero-en) .studio-visual { display: block; min-height: 0; position: relative; width: 100%; }
+.js .hero .reveal, .js .about-hero .inner-hero-copy.reveal, .js .about-hero .inner-hero-aside.reveal { opacity: 1; transform: none; transition: none; }
 .studio-canvas {
   position: relative;
   padding: 1.5rem;
