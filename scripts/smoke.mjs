@@ -1,4 +1,4 @@
-import { access, readFile, stat } from "node:fs/promises";
+import { access, readFile, readdir, stat } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -32,6 +32,29 @@ const proof = await readFile(join(output, "google-maps-projects/index.html"), "u
 const booking = await readFile(join(output, "book/index.html"), "utf8").catch(() => "");
 const dashboard = await readFile(join(output, "local-visibility-dashboard/index.html"), "utf8").catch(() => "");
 const sitemap = await readFile(join(output, "sitemap.xml"), "utf8").catch(() => "");
+
+// Inspect the final files after every HTML transformation, not only the generator output.
+const finalHtmlFiles = (await readdir(output, { recursive: true })).filter((file) => file.endsWith(".html"));
+for (const file of finalHtmlFiles) {
+  const html = await readFile(join(output, file), "utf8");
+  const count = (pattern) => [...html.matchAll(pattern)].length;
+  if (count(/<header\b/g) !== 1 || count(/<\/header>/g) !== 1) failures.push(`${file}: header landmark is missing or unbalanced`);
+  if (count(/<main\b/g) !== 1 || count(/<\/main>/g) !== 1 || !/<main\s+id="main">/.test(html)) failures.push(`${file}: main landmark is missing or unbalanced`);
+  if (count(/<h1\b/g) !== 1) failures.push(`${file}: expected one page heading`);
+  const headerEnd = html.indexOf("</header>");
+  const mainStart = html.indexOf('<main id="main">');
+  const mainEnd = html.indexOf("</main>");
+  const footerStart = html.indexOf('<footer class="site-footer">');
+  if (!(headerEnd >= 0 && headerEnd < mainStart && mainStart < mainEnd && mainEnd < footerStart)) failures.push(`${file}: header, main, and footer must remain separate and ordered`);
+  const header = html.match(/<header\b[^>]*>([\s\S]*?)<\/header>/)?.[1] || "";
+  if (/<h1\b|<article\b|<section\b/.test(header) || !/data-theme-toggle/.test(header) || !/data-menu-toggle/.test(header)) failures.push(`${file}: navigation controls or header boundary were corrupted`);
+  if (/^(?:en\/)?blog\/[^/]+\/index\.html$/.test(file.replaceAll("\\", "/"))) {
+    const prefix = file.startsWith("en/") ? "/en" : "";
+    const crumbs = html.match(/<nav class="breadcrumbs"[^>]*>([\s\S]*?)<\/nav>/)?.[1] || "";
+    if (!crumbs.includes(`href="${prefix}/blog/"`) || /href="[^\"]*\/blog\/topics\//.test(crumbs)) failures.push(`${file}: article breadcrumbs lost their blog link or retain a noindex topic link`);
+    if (!html.includes(`href="${prefix}/about/"`) || !html.includes('class="related-service-card reveal"')) failures.push(`${file}: article author or related service navigation is missing`);
+  }
+}
 
 const cssRequirements = [
   ["min-width: 320px", "320px minimum viewport guard"],

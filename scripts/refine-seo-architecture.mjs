@@ -3,8 +3,9 @@ import { join, relative, resolve } from "node:path";
 
 const root = resolve(process.argv[2] || ".");
 const REVISION_DATE = "2026-09-17";
-const AR_REVISION_LABEL = "١٧‏/٠٩‏/٢٠٢٦";
-const EN_REVISION_LABEL = "17 Sep 2026";
+const ARTICLE_REVISION_DATE = "2026-10-03";
+const AR_REVISION_LABEL = "٠٣‏/١٠‏/٢٠٢٦";
+const EN_REVISION_LABEL = "3 Oct 2026";
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -31,14 +32,14 @@ function removeTopicGridSection(html, topicPrefix) {
 
 function removeTopicCrumb(html, topicPrefix) {
   const escapedPrefix = topicPrefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const pattern = new RegExp(`<svg class="icon"[^>]*>[\\s\\S]*?<\\/svg><a href="${escapedPrefix}[^\"]+\/"[^>]*>[\\s\\S]*?<\\/a>`);
-  return html.replace(pattern, "");
+  // Stay inside the breadcrumbs and never consume a preceding SVG or navigation link.
+  const pattern = new RegExp(`<svg class="icon"[^>]*>(?:(?!<\\/svg>)[\\s\\S])*<\\/svg>\\s*<a href="${escapedPrefix}[^\"]+\/"[^>]*>[^<]*<\\/a>`);
+  return html.replace(/<nav class="breadcrumbs"[^>]*>[\s\S]*?<\/nav>/g, (crumbs) => crumbs.replace(pattern, ""));
 }
 
 function removeTopicSidebarCard(html, topicPrefix) {
-  const escapedPrefix = topicPrefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const pattern = new RegExp(`<div class="related-service-card reveal">[\\s\\S]*?<a class="button button-ghost" href="${escapedPrefix}[^\"]+\/"[\\s\\S]*?<\\/a><\\/div>\\n?`);
-  return html.replace(pattern, "");
+  const pattern = /<div class="related-service-card reveal">(?:(?!<div class="related-service-card reveal">)[\s\S])*?<\/a><\/div>\n?/g;
+  return html.replace(pattern, (card) => card.includes(`href="${topicPrefix}`) ? "" : card);
 }
 
 function removeGenericArticleSections(html) {
@@ -53,10 +54,10 @@ function removeGenericArticleSections(html) {
 function updateVisibleArticleDate(html, language) {
   if (language === "ar") {
     html = html.replace(/(<p>آخر مراجعة:\s*)[^<]+(<\/p>)/, `$1${AR_REVISION_LABEL}$2`);
-    html = html.replace(/(<dt>آخر تحديث<\/dt><dd><time datetime=")[^"]+("[^>]*>)[^<]+(<\/time><\/dd>)/, `$1${REVISION_DATE}$2${AR_REVISION_LABEL}$3`);
+    html = html.replace(/(<dt>آخر تحديث<\/dt><dd><time datetime=")[^"]+("[^>]*>)[^<]+(<\/time><\/dd>)/, `$1${ARTICLE_REVISION_DATE}$2${AR_REVISION_LABEL}$3`);
   } else {
     html = html.replace(/(<p>Reviewed\s*)[^<]+(<\/p>)/, `$1${EN_REVISION_LABEL}$2`);
-    html = html.replace(/(<dt>Last updated<\/dt><dd><time datetime=")[^"]+("[^>]*>)[^<]+(<\/time><\/dd>)/, `$1${REVISION_DATE}$2${EN_REVISION_LABEL}$3`);
+    html = html.replace(/(<dt>Last updated<\/dt><dd><time datetime=")[^"]+("[^>]*>)[^<]+(<\/time><\/dd>)/, `$1${ARTICLE_REVISION_DATE}$2${EN_REVISION_LABEL}$3`);
   }
   return html;
 }
@@ -76,8 +77,8 @@ function patchJsonLd(html, { article = false, seoService = false } = {}) {
             })
             .map((item, index) => ({ ...item, position: index + 1 }));
         }
-        if (article && (type === "BlogPosting" || type === "Article")) {
-          node.dateModified = REVISION_DATE;
+        if (article && ["BlogPosting", "Article", "WebPage"].includes(type)) {
+          node.dateModified = ARTICLE_REVISION_DATE;
         }
         if (seoService && type === "WebPage" && String(node.url || node["@id"] || "").includes("/services/seo/")) {
           node.dateModified = REVISION_DATE;
