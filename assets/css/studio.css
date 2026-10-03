@@ -392,7 +392,7 @@ body::before, :root[data-theme="light"] body::before { display: none; }
   .footer-bottom { gap: .75rem; }
 }
 @media (max-width: 350px) {
-  .brand-copy strong { font-size: .78rem; }
+  .brand-copy strong { font-size: .78rem; max-width: 105px; white-space: normal; line-height: 1.35; }
   .site-header .header-inner { padding-inline: .45rem; }
   .theme-toggle, .language-switch, .menu-toggle { width: 34px; height: 38px; }
   .hero:not(.hero-en) .hero-copy h1, .hero.hero-en .hero-copy h1 { font-size: 2.2rem; }
@@ -402,6 +402,9 @@ body::before, :root[data-theme="light"] body::before { display: none; }
   .studio-canvas-bottom strong { font-size: 1.7rem; }
   .studio-canvas-bottom { gap: .5rem; }
   .studio-canvas-bottom > a { display: none; }
+}
+@media (min-width: 351px) and (max-width: 430px) {
+  .site-header .brand-copy strong { max-width: 125px; white-space: normal; line-height: 1.35; }
 }
 @media (prefers-reduced-motion: reduce) {
   .studio-orbit-one { animation: none; }
