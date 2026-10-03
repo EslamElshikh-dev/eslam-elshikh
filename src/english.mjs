@@ -356,54 +356,82 @@ export const englishServices = [
     keywords: ["enterprise knowledge base", "semantic search business", "RAG solutions Saudi Arabia"]
   }),
   service({
-    slug: "seo",
-    number: "08",
-    icon: "chart",
-    group: "Visibility & Growth",
-    title: "Technical, Content & Local SEO",
-    seoTitle: "SEO Consultant in Riyadh | Technical & Local",
-    h1: "SEO built around discoverability, useful pages, and qualified demand",
-    short: "A measurable search strategy covering crawlability, indexing, information architecture, useful content, internal linking, local intent, and qualified conversions.",
-    meta: "Technical, content, and local SEO services in Riyadh covering indexing, site architecture, performance, service content, Google Business Profile, and conversions.",
-    intro: [
-      "Search visibility rarely improves because one keyword was added to a page. It improves when a search engine can crawl, understand, trust, and select a useful answer—and when that answer helps the visitor complete a meaningful action. I review the technical foundation and the content decision journey together.",
-      "The work begins with a baseline: indexed pages, search queries, rankings, traffic quality, local actions, and conversions. Issues are then prioritized by impact and dependency, separating foundational fixes from longer-term growth opportunities. No fixed ranking can be guaranteed, but the work and its evidence can be measured."
+    "slug": "seo",
+    "number": "08",
+    "icon": "chart",
+    "group": "Visibility & Growth",
+    "title": "Technical & Content SEO",
+    "seoTitle": "SEO Consultant for Saudi Businesses | Technical & Content",
+    "h1": "SEO built around discoverability, useful pages, and qualified demand",
+    "short": "Crawl and indexing diagnosis, final-HTML checks, service-page architecture, contextual links, published implementation examples, and a Search Console baseline.",
+    "meta": "Technical and content SEO for Saudi businesses: indexing diagnosis, HTML and canonical audits, service pages, internal links, and Search Console measurement.",
+    "intro": [
+      "An undiscovered page, a crawled page outside the index, and an indexed page attracting irrelevant demand need different work. I start with the final URL, the HTML actually published, canonical signals, and internal links, recording the reported reason and evidence before recommending more articles.",
+      "Each service page needs a clear purpose, useful deliverables, and examples a customer can review. The work includes a page map, URL change log, implementation priorities, and live-output verification. Crawling, indexing, impressions, clicks, and enquiry quality are measured separately; Maps and local search follow a dedicated service path."
     ],
-    value: "A search program with clearer priorities, stronger pages, and measurement tied to qualified enquiries rather than vanity traffic.",
-    scope: [
-      "Crawl, indexing, canonical, sitemap, schema, and redirect reviews",
-      "Information architecture, internal links, and keyword intent mapping",
-      "Service, location, guide, and comparison content strategy",
-      "Mobile experience, performance, accessibility, and rendering",
-      "Google Business Profile, consistency, reputation, and local relevance",
-      "Search Console, analytics, lead actions, and query-level measurement"
+    "value": "A search program with clearer priorities, stronger pages, and measurement tied to qualified enquiries rather than vanity traffic.",
+    "scope": [
+      "Fetch, indexing permission, canonical, response-code, and redirect diagnosis",
+      "Final HTML, content, and mobile navigation checks after all build steps",
+      "Search-intent mapping and overlap review across service pages and guides",
+      "Contextual links connecting services, guides, case studies, and public work",
+      "Indexable sitemap inventory, honest modification dates, and matching schema",
+      "Search Console baseline, search performance, and qualified-enquiry measurement"
     ],
-    deliverables: [
-      "Prioritized audit with evidence, impact, dependency, and owner",
-      "Search-intent and page map that reduces duplication and cannibalization",
-      "Technical, metadata, content, internal-link, and schema improvements",
-      "Local visibility plan connecting the website and business profile",
-      "Measurement framework for visibility, actions, and enquiry quality"
+    "deliverables": [
+      "A priority URL inventory separating discovery, crawling, and indexing",
+      "A repair log with the URL, impact, owner, and verification evidence",
+      "A service and content map linked to documented implementation examples",
+      "A published release checked after final processing, including links and sitemaps",
+      "Separate monitoring of crawl dates, indexing, impressions, clicks, and enquiries"
     ],
-    forWho: [
+    "forWho": [
       "Websites that are not being indexed or understood consistently",
       "Businesses attracting traffic that does not become qualified demand",
       "Local companies competing for service searches in Riyadh",
       "Teams preparing a migration, redesign, or content expansion"
     ],
-    steps: [
-      { title: "Establish the baseline", text: "Collect crawl, index, query, performance, local, and conversion evidence." },
-      { title: "Map intent to pages", text: "Decide what each page should answer and where topics need consolidation or expansion." },
-      { title: "Fix in dependency order", text: "Resolve access and architecture problems before scaling content production." },
-      { title: "Measure qualified outcomes", text: "Track visibility and actions, then improve pages from evidence rather than assumptions." }
+    "steps": [
+      {
+        "title": "Establish the baseline",
+        "text": "Collect crawl, index, query, performance, local, and conversion evidence."
+      },
+      {
+        "title": "Map intent to pages",
+        "text": "Decide what each page should answer and where topics need consolidation or expansion."
+      },
+      {
+        "title": "Fix in dependency order",
+        "text": "Resolve access and architecture problems before scaling content production."
+      },
+      {
+        "title": "Measure qualified outcomes",
+        "text": "Track visibility and actions, then improve pages from evidence rather than assumptions."
+      }
     ],
-    faq: [
-      ["How long does SEO take?", "Timing depends on the site's condition, competition, implementation speed, content quality, and search-engine processing. Early technical changes may be visible quickly, while competitive growth usually requires sustained work."],
-      ["Can you guarantee first position?", "No. Rankings are controlled by search systems and change by query, location, device, competition, and context. A responsible engagement guarantees scope and evidence—not a fixed position."],
-      ["Do you write content as part of SEO?", "Content strategy, briefs, editing, and page copy can be included. The priority is useful, differentiated content supported by expertise and a clear role in the site architecture."],
-      ["Can you work with an existing developer?", "Yes. I can provide implementation-ready priorities, review completed changes, and work with the team on releases, migrations, structured data, and measurement."]
+    "faq": [
+      [
+        "How long does SEO take?",
+        "Timing depends on the site's condition, competition, implementation speed, content quality, and search-engine processing. Early technical changes may be visible quickly, while competitive growth usually requires sustained work."
+      ],
+      [
+        "Can you guarantee first position?",
+        "No. Rankings are controlled by search systems and change by query, location, device, competition, and context. A responsible engagement guarantees scope and evidence—not a fixed position."
+      ],
+      [
+        "Do you write content as part of SEO?",
+        "Content strategy, briefs, editing, and page copy can be included. The priority is useful, differentiated content supported by expertise and a clear role in the site architecture."
+      ],
+      [
+        "Can you work with an existing developer?",
+        "Yes. I can provide implementation-ready priorities, review completed changes, and work with the team on releases, migrations, structured data, and measurement."
+      ]
     ],
-    keywords: ["SEO consultant Riyadh", "technical SEO Saudi Arabia", "local SEO Riyadh"]
+    "keywords": [
+      "technical SEO Saudi Arabia",
+      "SEO audit",
+      "service-page architecture"
+    ]
   }),
   service({
     slug: "digital-advertising",
@@ -578,29 +606,95 @@ export const englishArticles = [
     ]
   }),
   article({
-    slug: "technical-seo-saudi-businesses",
-    title: "Technical SEO for Saudi Businesses: An Implementation Roadmap",
-    seoTitle: "Technical SEO for Saudi Businesses | Practical Roadmap",
-    description: "A technical SEO roadmap for Saudi companies covering crawlability, indexing, rendering, architecture, performance, structured data, and migrations.",
-    excerpt: "Technical SEO is the discipline of removing ambiguity and access problems so valuable pages can be discovered, understood, consolidated, and measured correctly.",
-    category: "Technical SEO",
-    topic: "local-seo-saudi",
-    relatedService: "seo",
-    date: "2026-07-30",
-    keywords: ["technical SEO Saudi Arabia", "SEO audit", "indexing issues", "site architecture"],
-    sections: [
-      ["Define the indexable inventory", "List every route the site intends to expose, then separate canonical pages from redirects, parameters, search results, drafts, and duplicates. A sitemap should reflect this deliberate inventory rather than every URL the platform can generate. Compare the list with actual search-engine indexing and server responses to identify valuable pages that are missing and low-value variations that are competing for attention."],
-      ["Make crawling and rendering dependable", "Navigation and internal links should be present in the delivered HTML or rendered reliably without requiring fragile interactions. Check robots directives, response codes, canonical tags, language alternates, JavaScript rendering, and blocked resources. A page that looks correct to a logged-in editor may still be inaccessible, duplicated, or ambiguous to a crawler using a different path."],
-      ["Build an architecture that reflects intent", "Group services and guidance into a hierarchy that both visitors and search systems can follow. Each important query family needs a clearly responsible page. Consolidate near-duplicates, link related pages with meaningful anchor text, and prevent service, location, and article pages from competing for the same purpose. The architecture should make expansion safer rather than multiplying thin pages."],
-      ["Improve performance where it affects experience", "Measure representative pages on mobile and review server response, images, fonts, scripts, layout stability, and interaction delay. Core Web Vitals are useful signals, but the real objective is a page that becomes readable and usable quickly. Optimize the largest bottlenecks first and confirm that performance work does not break analytics, accessibility, or important content."],
-      ["Use metadata and structured data precisely", "Titles and descriptions should distinguish the page and communicate its actual value. Structured data must describe visible, truthful content and use stable identifiers for the website, person, organization, service, article, and breadcrumb entities. Schema does not manufacture authority, but consistent entity relationships can remove confusion and support eligible search features."],
-      ["Measure releases and protect migrations", "Connect technical changes to Search Console, analytics, conversions, and crawl evidence. During a redesign or domain change, map old URLs, preserve valuable content, implement direct permanent redirects, update canonicals and internal links, and monitor coverage after launch. Record the release date so changes in crawling, visibility, and enquiries can be interpreted rather than guessed."]
+    "modified": "2026-10-03",
+    "readTime": "7 min read",
+    "slug": "technical-seo-saudi-businesses",
+    "title": "Technical SEO for Saudi Businesses: Diagnose Delayed Indexing",
+    "seoTitle": "Technical SEO for Saudi Businesses | Indexing Diagnosis",
+    "description": "A practical indexing diagnosis for Saudi business websites, covering URL inspection, final HTML, canonicals, crawlable links, useful service pages, and verification.",
+    "excerpt": "Separate access problems from indexing decisions, inspect the final published HTML, and record evidence for each repair before measuring a new crawl.",
+    "category": "Technical SEO",
+    "topic": "local-seo-saudi",
+    "relatedService": "seo",
+    "date": "2026-07-30",
+    "keywords": [
+      "technical SEO Saudi Arabia",
+      "SEO audit",
+      "indexing issues",
+      "site architecture"
     ],
-    faq: [
-      ["What is the first technical SEO check?", "Confirm that the important pages return the right status, allow indexing, declare the intended canonical URL, and are linked from crawlable navigation or internal pages."],
-      ["Should every page appear in the sitemap?", "No. Include canonical, indexable pages you want search engines to discover. Redirects, duplicates, internal search pages, and noindex content should normally be excluded."],
-      ["Does structured data improve ranking?", "It helps search systems interpret eligible content but does not guarantee ranking. It must match visible content and comply with the relevant feature guidelines."],
-      ["How often should a technical audit be repeated?", "Review continuously for critical signals and conduct deeper audits before and after major releases, migrations, platform changes, or unexplained visibility losses."]
+    "sections": [
+      [
+        "Start with the exact canonical URL",
+        "Inspect the final URL you want in search and record its indexing status, last crawl, fetch result, indexing permission, and Google-selected canonical. The aggregate report can lag behind individual URL inspection and may include subdomains or old routes. A total alone cannot diagnose a particular service page.",
+        "Keep a baseline with the URL, reported reason, crawl date, and repair date. An accepted indexing request confirms queue submission; it does not confirm inclusion in the index."
+      ],
+      [
+        "Separate access failure from an indexing decision",
+        "If fetching fails, review response codes, robots directives, authentication, and firewall rules. Public service content should be available without an account. Test a nonexistent route too: it should return a genuine 404 rather than a successful-looking homepage.",
+        "If the fetch succeeds and indexing is allowed, investigate the canonical, content, and links. A successful live test demonstrates current accessibility. It does not establish that Google will retain the page or show it for a particular query."
+      ],
+      [
+        "Validate HTML after the final build transformation",
+        "During a static-site audit, an article returned 200 and had a valid title and canonical. A breadcrumb transformation nevertheless removed the closing header and opening main landmark. The article heading appeared inside the theme button and the browser looked almost empty. Metadata checks had missed the broken structure.",
+        "The repair constrained the transformation to the breadcrumb and prevented it from crossing the end of an SVG. Final-output checks then verified a separate main landmark, one heading, intact navigation controls, and ordered header, content, and footer boundaries. Inspect readability with and without JavaScript; essential article text should remain available."
+      ],
+      [
+        "Resolve canonical versions before changing URLs",
+        "Compare HTTP and HTTPS, www and the bare domain, and the final destination after redirects. Secondary versions should lead directly to the chosen URL, which should agree with canonicals, sitemaps, and internal links. Requesting an old redirect is different from requesting its destination.",
+        "When Google selects another canonical, inspect that page and the signals pointing to it. A separate English translation should retain its language relationship rather than redirect to Arabic. A genuine migration needs a documented old-to-new URL map."
+      ],
+      [
+        "Give discovered pages a crawlable route",
+        "For a discovered page that has not been crawled, review crawl statistics and host health before assigning a cause. Check for ordinary HTML links from known pages and connect the service, guide, and case study where they answer the same customer need. A JavaScript-only interaction is not a substitute for a crawlable link.",
+        "Include final, indexable canonical URLs in the sitemap and update lastmod after a real change. A smaller sitemap can define a commercial reporting group in Search Console. Splitting a sitemap does not force crawl priority or indexing."
+      ],
+      [
+        "Make crawled pages useful and reviewable",
+        "The crawled-but-not-indexed label does not disclose Google’s internal assessment. Check whether the page serves a distinct purpose and provides scope, deliverables, real examples, and information that helps a customer choose. Do not infer a penalty or a particular quality judgement from the label alone.",
+        "Connect service pages to case studies that describe goals, delivery decisions, scope, and a public implementation. Avoid unsupported outcome metrics and interchangeable district pages. There is no magic word count: a specific example can be more useful than a long generic explanation."
+      ],
+      [
+        "Verify the release before measuring search outcomes",
+        "Repair access, canonical ambiguity, broken links, and damaged content before expanding the publishing schedule. Check the live output and sitemap after deployment. Use live inspection for materially changed pages; repeated requests for the same URL do not accelerate crawling.",
+        "Track three separate outcomes: a crawl after the repair, an indexing-status change, and relevant search impressions or clicks. They may change at different times. A passing build and an accepted request are implementation evidence, not substitutes for actual indexing."
+      ]
+    ],
+    "faq": [
+      [
+        "What is the first technical SEO check?",
+        "Confirm that the important pages return the right status, allow indexing, declare the intended canonical URL, and are linked from crawlable navigation or internal pages."
+      ],
+      [
+        "Should every page appear in the sitemap?",
+        "No. Include canonical, indexable pages you want search engines to discover. Redirects, duplicates, internal search pages, and noindex content should normally be excluded."
+      ],
+      [
+        "Does structured data improve ranking?",
+        "It helps search systems interpret eligible content but does not guarantee ranking. It must match visible content and comply with the relevant feature guidelines."
+      ],
+      [
+        "How often should a technical audit be repeated?",
+        "Review continuously for critical signals and conduct deeper audits before and after major releases, migrations, platform changes, or unexplained visibility losses."
+      ]
+    ],
+    "sources": [
+      {
+        "title": "Page Indexing report — Google Search Console",
+        "url": "https://support.google.com/webmasters/answer/7440203"
+      },
+      {
+        "title": "Ask Google to recrawl — Google Search Central",
+        "url": "https://developers.google.com/search/docs/crawling-indexing/ask-google-to-recrawl"
+      },
+      {
+        "title": "Helpful, reliable content — Google Search Central",
+        "url": "https://developers.google.com/search/docs/fundamentals/creating-helpful-content"
+      },
+      {
+        "title": "Crawlable links — Google Search Central",
+        "url": "https://developers.google.com/search/docs/crawling-indexing/links-crawlable"
+      }
     ]
   }),
   article({

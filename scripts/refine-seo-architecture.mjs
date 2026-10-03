@@ -2,7 +2,7 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
 
 const root = resolve(process.argv[2] || ".");
-const REVISION_DATE = "2026-09-17";
+const REVISION_DATE = "2026-10-03";
 const ARTICLE_REVISION_DATE = "2026-10-03";
 const AR_REVISION_LABEL = "٠٣‏/١٠‏/٢٠٢٦";
 const EN_REVISION_LABEL = "3 Oct 2026";

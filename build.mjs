@@ -6,6 +6,7 @@ import { projectAudit, webProjects } from "./src/web-projects.mjs";
 import { guides } from "./src/guides.mjs";
 import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
 import { renderAbout } from "./src/about.mjs";
+import { serviceEvidence, searchRevision } from "./src/service-evidence.mjs";
 import {
   englishArticles,
   englishProjectStudies,
@@ -505,7 +506,7 @@ ${googleGrowthTeaser()}
 <section class="section-pad blog-section"><div class="container"><div class="section-heading reveal">${eyebrow("معرفة عملية")}<h2>مقالات تساعدك على اتخاذ قرارات تقنية أكثر وضوحًا</h2></div><div class="posts-grid">${allPosts.slice(0, 3).map((post) => postCard(post)).join("")}</div><div class="section-action">${button("/blog/", "استكشف المدونة", "button-ghost")}</div></div></section>
 <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>إجابات صريحة قبل بدء المشروع</h2><p>لا توجد باقة واحدة تناسب الجميع؛ لذلك أوضح الحدود والمخرجات والاعتماديات من البداية.</p>${button("/contact/", "أرسل تفاصيل مشروعك", "button-ghost")}</div>${faqBlock(faq)}</div></section>
 ${finalCta()}`;
-  return page({ title: "المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع بالرياض", description: site.description, path: "/", active: "home", body, schema: [faqSchema(faq)], preloadImage: profilePhoto });
+  return page({ title: "المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع بالرياض", description: site.description, path: "/", active: "home", body, modified: searchRevision, schema: [faqSchema(faq)], preloadImage: profilePhoto });
 }
 
 function finalCta(title = "لنحوّل فكرتك أو مشكلتك إلى خطة واضحة قابلة للتنفيذ", text = "أرسل الهدف والوضع الحالي والروابط المتاحة والموعد المتوقع. ستحصل على نقطة بداية منظمة تساعدك على اتخاذ القرار الصحيح.") {
@@ -529,7 +530,7 @@ function servicesIndexPage() {
 <section class="section-pad"><div class="container"><div class="service-filters" role="group" aria-label="تصفية الخدمات"><button type="button" aria-pressed="true" data-service-filter="all">كل الخدمات</button>${groups.map((group) => `<button type="button" aria-pressed="false" data-service-filter="${esc(group)}">${esc(group)}</button>`).join("")}</div><div class="services-grid services-grid-index" data-services-grid>${services.map(serviceCard).join("")}</div></div></section>
 <section class="section-pad muted-section"><div class="container decision-grid"><div class="decision-copy reveal">${eyebrow("كيف تختار نقطة البداية؟")}<h2>ابدأ بالمشكلة والنتيجة، لا باسم الأداة</h2><p>قد يكون بطء الموقع سببه التصميم أو الاستضافة أو الصور أو JavaScript، وقد يكون ضعف الظهور سببه الفهرسة أو المحتوى أو الملف التجاري أو القياس. التشخيص الصحيح يمنع الإنفاق على حل لا يعالج السبب.</p></div><div class="decision-steps"><article class="reveal"><span>01</span><h3>صف الوضع الحالي</h3><p>الرابط، المشكلة، أثرها، وما الذي جُرّب سابقًا.</p></article><article class="reveal"><span>02</span><h3>حدد النتيجة المطلوبة</h3><p>تحسين أمان، إطلاق منتج، ظهور محلي، أو أتمتة عملية.</p></article><article class="reveal"><span>03</span><h3>رتب القيود</h3><p>الموعد والميزانية والفريق والأنظمة والاعتماديات.</p></article><article class="reveal"><span>04</span><h3>اختر النطاق</h3><p>تدقيق، تنفيذ كامل، تحسين مرحلي، أو متابعة مستمرة.</p></article></div></div></section>
 ${finalCta("لست متأكدًا أي خدمة تناسب حالتك؟", "أرسل المشكلة والهدف والروابط المتاحة، وسنحدد نقطة البداية والنطاق الأكثر منطقية دون إضافة خدمات لا تحتاجها.")}`;
-  return page({ title: "الخدمات التقنية والاستشارية", description: "خدمات المهندس إسلام الشيخ في الأمن السيبراني وتطوير المواقع ووكلاء الذكاء الاصطناعي وخدمات Google والسيو والحلول السحابية والإعلانات في السعودية.", path: "/services/", active: "services", body, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الخدمات", path: "/services/" }])] });
+  return page({ title: "الخدمات التقنية والاستشارية", description: "خدمات المهندس إسلام الشيخ في الأمن السيبراني وتطوير المواقع ووكلاء الذكاء الاصطناعي وخدمات Google والسيو والحلول السحابية والإعلانات في السعودية.", path: "/services/", active: "services", body, modified: searchRevision, schema: [breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الخدمات", path: "/services/" }])] });
 }
 
 const serviceSectionCopy = {
@@ -598,7 +599,7 @@ const serviceSectionCopy = {
   },
   seo: {
     quick: "الصفحات والاستعلامات والفهرسة قبل كتابة محتوى جديد",
-    scope: "محاور السيو التقني والمحتوى والبحث المحلي",
+    scope: "محاور السيو التقني وبنية المحتوى والقياس",
     deliverables: "أولويات إصلاح وقياس بدل قائمة توصيات عامة",
     audience: "مواقع تحتاج استعادة الوضوح أو بناء نمو عضوي",
     process: "من خط الأساس إلى الإصلاح والقياس",
@@ -615,6 +616,50 @@ const serviceSectionCopy = {
     related: "خدمات تحسن الصفحة والظهور والقياس"
   }
 };
+
+function serviceEvidenceSection(slug, language = "ar") {
+  const items = serviceEvidence[slug];
+  if (!items?.length) return "";
+  const english = language === "en";
+  const prefix = english ? "/en" : "";
+  const title = slug === "google-business-profile"
+    ? (english ? "Public business profiles from the Maps portfolio" : "ملفات منشورة من سجل أعمال خرائط Google")
+    : (english ? "Published implementations related to this service" : "تطبيقات منشورة مرتبطة بهذه الخدمة");
+  const cards = items.map((item) => {
+    const project = item.project ? projects.find((value) => value.slug === item.project && value.caseStudy) : null;
+    const map = item.mapTitle ? mapsProjects.find((value) => value.title === item.mapTitle) : null;
+    if (!project && !map) throw new Error(`Missing service evidence for ${slug}: ${item.project || item.mapTitle}`);
+    const name = project ? (english ? englishProjectStudies[project.slug].title : project.title) : (english ? item.enTitle : map.title);
+    const href = project ? `${prefix}/projects/${project.slug}/` : map.url;
+    const link = project ? `<a href="${href}">${esc(name)}</a>` : `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(name)}</a>`;
+    return `<article class="scope-card reveal">${icon(project ? "code" : "pin")}<h3>${link}</h3><p>${esc(english ? item.en : item.ar)}</p>${button(href, project ? (english ? "Read the case study" : "اقرأ دراسة الحالة") : (english ? "Open the public profile" : "افتح الملف المنشور"), "button-ghost", !project)}</article>`;
+  }).join("");
+  const guideLink = slug === "seo"
+    ? `<div class="section-action">${button(`${prefix}/blog/technical-seo-saudi-businesses/`, english ? "Read the indexing diagnosis guide" : "دليل عملي لتشخيص تأخر الفهرسة", "button-ghost")}</div>`
+    : slug === "google-business-profile"
+      ? `<div class="section-action">${button(`${prefix}/google-maps-projects/`, english ? "Browse the Maps portfolio" : "استعرض سجل أعمال الخرائط", "button-ghost")}</div>`
+      : "";
+  return `<section class="section-pad muted-section" id="service-evidence"><div class="container"><div class="section-heading reveal">${eyebrow(english ? "Review the work" : "راجع التنفيذ")}<h2>${title}</h2><p>${english ? "Open each example to review its context, scope, and published implementation." : "افتح المثال لمراجعة سياق المشروع ونطاق العمل والتنفيذ المنشور."}</p></div><div class="scope-grid">${cards}</div>${guideLink}</div></section>`;
+}
+
+function projectServicesSection(slug, language = "ar") {
+  const english = language === "en";
+  const prefix = english ? "/en" : "";
+  const links = Object.entries(serviceEvidence).filter(([, items]) => items.some((item) => item.project === slug)).map(([serviceSlug]) => {
+    const local = serviceSlug === "local-seo";
+    const service = local ? null : (english ? englishServiceBySlug(serviceSlug) : serviceBySlug(serviceSlug));
+    const name = local ? (english ? "Local SEO in Riyadh" : "السيو المحلي في الرياض") : service.title;
+    return button(local ? `${prefix}/local-seo/riyadh/` : `${prefix}/services/${serviceSlug}/`, name, "button-ghost");
+  });
+  if (!links.length) return "";
+  return `<section class="section-pad"><div class="container case-method reveal"><div><span>${english ? "Related services" : "الخدمات المرتبطة بالمشروع"}</span><h2>${english ? "Explore the scope that fits your project" : "تعرف على نطاق الخدمة المناسبة لمشروعك"}</h2></div><p>${english ? "These service pages explain the scope, deliverables, and information needed to begin a similar engagement." : "صفحات الخدمات توضح النطاق والمخرجات والمعلومات المطلوبة لبدء عمل مشابه."}</p><div class="hero-actions">${links.join("")}</div></div></section>`;
+}
+
+function articleSourcesSection(post, language = "ar") {
+  if (!post.sources?.length) return "";
+  const english = language === "en";
+  return `<section class="section-pad" id="article-sources"><div class="container rich-copy"><h2>${english ? "Official references" : "المراجع الرسمية"}</h2><ul>${post.sources.map((source) => `<li><a href="${esc(source.url)}" target="_blank" rel="noopener">${esc(source.title)}</a></li>`).join("")}</ul></div></section>`;
+}
 
 function serviceDetailPage(service) {
   const path = `/services/${service.slug}/`;
@@ -640,6 +685,7 @@ function serviceDetailPage(service) {
   const body = `${innerHero({ eyebrowText: service.group, title: esc(service.h1), lead: service.short, path, crumbs: [{ name: "الخدمات", path: "/services/" }, { name: service.title, path }], aside: `<span class="service-hero-number">${service.number}</span><span class="service-hero-icon">${icon(service.icon)}</span><strong>${esc(service.value)}</strong>` })}
 <section class="section-pad service-intro-section"><div class="container service-intro-grid"><div class="rich-copy reveal">${service.intro.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}</div><aside class="service-quick-card reveal"><span>نقطة البداية</span><h2>${esc(sectionCopy.quick)}</h2>${checkList(["الهدف أو المشكلة الحالية", "الأنظمة أو الروابط المتأثرة", "الأثر على العملاء أو التشغيل", "الموعد المتوقع والقيود الرئيسية"])}${button(`${site.whatsapp}?text=${encodeURIComponent(`مرحبًا م. إسلام، أرغب في مناقشة خدمة ${service.title}.`)}`, "ناقش الخدمة عبر واتساب", "", true)}</aside></div></section>
 ${specializedPageLink}
+${serviceEvidenceSection(service.slug)}
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("نطاق الخدمة")}<h2>${esc(sectionCopy.scope)}</h2><p>${esc(service.value)}</p></div><div class="scope-grid">${service.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon(service.icon)}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
 <section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("المخرجات")}<h2>${esc(sectionCopy.deliverables)}</h2></div><div class="deliverables-panel reveal">${checkList(service.deliverables, "deliverables-list")}</div></div></section>
 <section class="section-pad audience-section"><div class="container"><div class="section-heading reveal">${eyebrow("لمن تناسب الخدمة؟")}<h2>${esc(sectionCopy.audience)}</h2></div><div class="audience-grid">${service.forWho.map((item, index) => `<article class="audience-card reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></article>`).join("")}</div></div></section>
@@ -647,7 +693,7 @@ ${specializedPageLink}
 <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة الخدمة")}<h2>${esc(sectionCopy.faq)}</h2>${button(`/contact/?service=${service.slug}#project-brief`, "اطلب عرضًا لهذه الخدمة", "button-ghost")}</div>${faqBlock(service.faq)}</div></section>
 <section class="section-pad related-section"><div class="container"><div class="section-heading reveal">${eyebrow("خدمات مترابطة")}<h2>${esc(sectionCopy.related)}</h2></div><div class="services-grid related-services">${related.map(serviceCard).join("")}</div></div></section>
 ${finalCta(`هل تحتاج ${service.title} ضمن مشروع واضح؟`, `أرسل الوضع الحالي والنتيجة المطلوبة، وسنحدد نطاقًا واقعيًا ومخرجات واضحة وخطوات قابلة للمتابعة.`)}`;
-  return page({ title: service.seoTitle || service.title, description: service.meta, path, active: "services", body, schema: [serviceSchema, faqSchema(service.faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الخدمات", path: "/services/" }, { name: service.title, path }])] });
+  return page({ title: service.seoTitle || service.title, description: service.meta, path, active: "services", body, modified: serviceEvidence[service.slug] || related.some((item) => item.slug === "seo") ? searchRevision : site.lastUpdated, schema: [serviceSchema, faqSchema(service.faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الخدمات", path: "/services/" }, { name: service.title, path }])] });
 }
 
 function aboutPage() {
@@ -931,6 +977,7 @@ ${finalCta("هل تريد تحويل نشاطك إلى تجربة رقمية ا�
 
 function projectCaseStudyPage(project) {
   const path = `/projects/${project.slug}/`;
+  const relatedServices = projectServicesSection(project.slug, "ar");
   const study = project.caseStudy;
   const domain = new URL(project.liveUrl).hostname.replace(/^www\./, "");
   const requestMessage = `مرحبًا م. إسلام، قرأت دراسة حالة «${project.title}» وأرغب في مناقشة مشروع مشابه.`;
@@ -944,15 +991,16 @@ function projectCaseStudyPage(project) {
     sameAs: project.liveUrl,
     creator: { "@id": `${site.url}/#person` },
     keywords: project.tags,
-    dateModified: site.lastUpdated
+    dateModified: relatedServices ? searchRevision : site.lastUpdated
   };
   const body = `${innerHero({ eyebrowText: "دراسة حالة مشروع", title: esc(project.title), lead: project.description, path, crumbs: [{ name: "الأعمال", path: "/projects/" }, { name: project.title, path }], aside: `<div class="case-study-preview"><span>${esc(project.category)}</span>${projectImage(project, { eager: true })}<small dir="ltr">${esc(domain)}</small></div>` })}
 <section class="section-pad case-study-overview"><div class="container case-study-layout"><article class="rich-copy reveal"><span class="case-study-label">الهدف</span><h2>ما الذي كان مطلوبًا من التجربة؟</h2><p>${esc(study.objective)}</p><div class="tag-row" aria-label="محاور المشروع">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div></article><aside class="case-study-facts reveal"><span>بطاقة المشروع</span><dl><div><dt>نوع العمل</dt><dd>${esc(project.category)}</dd></div><div><dt>النطاق المعروض</dt><dd>تصميم وتنفيذ وتجربة رقمية</dd></div><div><dt>حالة النسخة</dt><dd>رابط عام قابل للمراجعة</dd></div></dl>${button(project.liveUrl, "فتح المشروع الحي", "button-ghost", true)}</aside></div></section>
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("نطاق التنفيذ")}<h2>الأجزاء التي شملها العمل</h2><p>العناصر التالية تصف نطاق النسخة العامة المنشورة ولا تفترض نتائج تجارية لم يتم قياسها أو توثيقها.</p></div><div class="case-study-scope">${study.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon("layers")}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
 <section class="section-pad"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("قرارات التصميم")}<h2>لماذا اتُّخذت هذه القرارات؟</h2><p>القرار الجيد يربط طريقة العرض بهدف المستخدم وطبيعة النشاط، لا بالشكل البصري وحده.</p></div><ol class="case-study-decisions">${study.decisions.map((item, index) => `<li class="reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></li>`).join("")}</ol></div></section>
 <section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("المخرجات")}<h2>ما الذي يمكن مراجعته اليوم؟</h2><p>هذه المخرجات مرتبطة بما يظهر في النسخة المنشورة، ولذلك يمكن التحقق منها مباشرة عبر رابط المشروع.</p></div><div class="deliverables-panel reveal">${checkList(study.delivered, "deliverables-list")}<p class="case-study-disclaimer">لا تتضمن هذه الدراسة أرقام زيارات أو تحويلات أو عائد استثمار؛ لم تُنشر بيانات موثقة تسمح بإسناد تلك النتائج للمشروع.</p></div></div></section>
+${relatedServices}
 <section class="section-pad"><div class="container case-method reveal"><div><span>الخطوة التالية</span><h2>هل تحتاج مشروعًا يناسب سياق نشاطك؟</h2></div><p>يمكن الاستفادة من المنهج، لكن بنية الصفحات والمحتوى والتقنية تُحدد بعد فهم نشاطك ومستخدميك والنتيجة المطلوبة.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent(requestMessage)}`, "ناقش مشروعًا مشابهًا", "", true)}${button("/projects/", "العودة إلى جميع الأعمال", "button-ghost")}</div></div></section>`;
-  return page({ title: `دراسة حالة ${project.title}`, description: `دراسة حالة مشروع ${project.title}: الهدف، نطاق التنفيذ، قرارات التصميم، والمخرجات القابلة للمراجعة مع رابط النسخة المنشورة.`, path, active: "projects", body, schema: [creativeWorkSchema, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }, { name: project.title, path }])] });
+  return page({ title: `دراسة حالة ${project.title}`, description: `دراسة حالة مشروع ${project.title}: الهدف، نطاق التنفيذ، قرارات التصميم، والمخرجات القابلة للمراجعة مع رابط النسخة المنشورة.`, path, active: "projects", body, modified: relatedServices ? searchRevision : site.lastUpdated, schema: [creativeWorkSchema, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }, { name: project.title, path }])] });
 }
 
 function localSeoPage() {
@@ -969,9 +1017,10 @@ function localSeoPage() {
 ${citySpecific ? `<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("خدمة مدينة الرياض")}<h2>تغطية محلية دون حشو أسماء الأحياء</h2><p>يمكن ذكر أحياء ومناطق الرياض عندما تضيف معنى حقيقيًا للتغطية أو الخدمة، مع تجنب إنشاء صفحات متطابقة. من المناطق الشائعة التي قد تدخل ضمن تحليل الطلب: شمال الرياض، وسط الرياض، شرق الرياض، غرب الرياض، جنوب الرياض، وأحياء مثل الملقا والياسمين والنرجس وحطين والعقيق والصحافة وقرطبة والروابي، حسب نطاق النشاط الحقيقي.</p></div><div class="neighborhood-cloud" aria-label="مناطق وأحياء الرياض"><span>شمال الرياض</span><span>الملقا</span><span>الياسمين</span><span>النرجس</span><span>حطين</span><span>العقيق</span><span>الصحافة</span><span>قرطبة</span><span>شرق الرياض</span><span>وسط الرياض</span><span>غرب الرياض</span><span>جنوب الرياض</span></div></div></section>` : ""}
 <section class="section-pad"><div class="container local-paths"><article class="reveal"><span>للأنشطة ذات الموقع</span><h3>متجر أو مكتب يستقبل العملاء</h3><p>نراجع أهلية العنوان والواجهة والساعات والفئات والصفحات المحلية والاتساق والاتجاهات.</p></article><article class="reveal"><span>لأنشطة نطاق الخدمة</span><h3>خدمة تصل إلى العميل</h3><p>نضبط إخفاء العنوان ونطاق الخدمة والمحتوى الذي يوضح التغطية دون إنشاء مواقع وهمية.</p></article><article class="reveal"><span>للشركات متعددة الفروع</span><h3>فروع حقيقية وتجارب محلية</h3><p>نبني صفحات وملفات وصلاحيات ومحتوى متمايزًا لكل فرع حقيقي، مع تقليل التكرار وتوضيح علاقة كل موقع بالخدمات التي يقدمها.</p></article></div></section>
 <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("أسئلة السيو المحلي")}<h2>قرارات تمنع التكرار والوعود غير الواقعية</h2><p>الظهور المحلي نتيجة تراكمية تعتمد على السوق وحالة الموقع والملف وسرعة التنفيذ.</p>${button("/services/seo/", "استعرض خدمة تحسين محركات البحث", "button-ghost")}</div>${faqBlock(faq)}</div></section>
+${serviceEvidenceSection("local-seo", "ar")}
 ${finalCta(citySpecific ? "هل تريد تحسين ظهور نشاطك داخل الرياض؟" : "هل تريد بناء حضور محلي أقوى في السعودية؟", "أرسل رابط الموقع وملف Google والمدينة والخدمات المستهدفة، وسنحدد أين تضيع الفرص وما الأولويات الأكثر تأثيرًا.")}`;
   const schema = [{ "@type": "Service", name: title, serviceType: "Local SEO", provider: { "@id": `${site.url}/#professional-service` }, areaServed: citySpecific ? { "@type": "City", name: "الرياض" } : { "@type": "Country", name: site.country }, description: lead }, faqSchema(faq), breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: citySpecific ? "السيو المحلي في الرياض" : "السيو المحلي", path }])];
-  return page({ title: seoTitle, description: lead, path, active: "services", body, schema });
+  return page({ title: seoTitle, description: lead, path, active: "services", body, modified: searchRevision, schema });
 }
 
 function blogIndexPage() {
@@ -1048,6 +1097,7 @@ ${post.sections.map(([heading, ...paragraphs], index) => `<section id="section-$
 <div class="toc-card reveal"><span>محتويات الدليل</span><nav aria-label="محتويات المقال">${contents.map((item, index) => `<a href="#${item.id}"><span>${String(index + 1).padStart(2, "0")}</span>${esc(item.title)}</a>`).join("")}</nav></div>
 <div class="related-service-card reveal"><span>المسار المعرفي</span><div>${icon(topic.icon)}<h2>${esc(topic.title)}</h2></div><p>${esc(topic.description)}</p>${button(topicPath, "استكشف المسار كاملًا", "button-ghost")}</div>
 <div class="related-service-card reveal"><span>الخدمة المرتبطة</span><div>${icon(service?.icon || "briefcase")}<h2>${esc(service?.title || "الخدمات التقنية")}</h2></div><p>${esc(service?.short || site.positioning)}</p>${button(service ? `/services/${service.slug}/` : "/services/", "استكشف نطاق الخدمة", "button-ghost")}</div></aside></div></section>
+${articleSourcesSection(post, "ar")}
 <section class="section-pad muted-section article-faq-section" id="article-faq"><div class="container article-faq-grid"><div class="article-faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>إجابات مرتبطة مباشرة بموضوع الدليل</h2><p>أسئلة مختارة من أكثر ما يسبق القرار في هذا الموضوع، بإجابات محددة دون تكرار أسئلة عامة بين المقالات.</p><div class="faq-count" aria-label="عدد الأسئلة"><strong>${faq.length}</strong><span>أسئلة وإجابات متخصصة</span></div></div>${faqBlock(faq)}</div></section>
 <section class="section-pad related-articles-section"><div class="container"><div class="section-heading reveal">${eyebrow("أدلة مرتبطة")}<h2>واصل بناء الصورة الكاملة</h2><p>موضوعات منتقاة تكمل هذا الدليل من زاوية الخدمة أو الأمان أو الظهور والقياس.</p></div><div class="posts-grid">${relatedPosts.map((item) => postCard(item)).join("")}</div></div></section>
 ${finalCta("هل تريد تطبيق هذا الإطار على مشروعك؟", "أرسل الحالة الحالية والهدف والبيانات المتاحة، وسنحدد خطوة أولى صغيرة وواضحة وقابلة للقياس.")}`;
@@ -1212,7 +1262,7 @@ function englishServicesIndexPage() {
 <section class="section-pad"><div class="container"><div class="service-filters" role="group" aria-label="Filter services"><button type="button" aria-pressed="true" data-service-filter="all">All services</button>${groups.map((group) => `<button type="button" aria-pressed="false" data-service-filter="${esc(group)}">${esc(group)}</button>`).join("")}</div><div class="services-grid services-grid-index" data-services-grid>${englishServices.map(englishServiceCard).join("")}</div></div></section>
 <section class="section-pad muted-section"><div class="container decision-grid"><div class="decision-copy reveal">${eyebrow("Choose the right starting point")}<h2>Begin with the problem and the outcome—not the tool name</h2><p>A slow website can be caused by architecture, hosting, images, or JavaScript. Weak search visibility may begin with indexing, content, the business profile, or measurement. A short diagnosis prevents investment in a solution that never reaches the root cause.</p></div><div class="decision-steps"><article class="reveal"><span>01</span><h3>Describe the current state</h3><p>Share the public link, the observed problem, its impact, and what has already been tried.</p></article><article class="reveal"><span>02</span><h3>Define the outcome</h3><p>Clarify whether success means safer operations, a launch, local discovery, or a faster workflow.</p></article><article class="reveal"><span>03</span><h3>Surface the constraints</h3><p>List timing, budget, team capacity, existing systems, approvals, and non-negotiable boundaries.</p></article><article class="reveal"><span>04</span><h3>Shape the engagement</h3><p>Choose an audit, complete delivery, staged improvement, or ongoing support based on evidence.</p></article></div></div></section>
 ${englishFinalCta("Not sure which service fits your situation?", "Send the problem, desired outcome, and available links. I will help identify the most logical starting point without adding work the project does not need.")}`;
-  return page({ title: "Digital Engineering Services", description: "Explore Eslam Elshikh's services in cybersecurity, web development, AI agents, Google Business Profile, cloud architecture, SEO, and digital advertising.", path, active: "services", body, lang: "en", schema: [breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Services", path }])] });
+  return page({ title: "Digital Engineering Services", description: "Explore Eslam Elshikh's services in cybersecurity, web development, AI agents, Google Business Profile, cloud architecture, SEO, and digital advertising.", path, active: "services", body, lang: "en", modified: searchRevision, schema: [breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Services", path }])] });
 }
 
 function englishServiceDetailPage(service) {
@@ -1238,6 +1288,7 @@ function englishServiceDetailPage(service) {
   const body = `${innerHero({ eyebrowText: service.group, title: esc(service.h1), lead: service.short, path, language: "en", crumbs: [{ name: "Services", path: "/en/services/" }, { name: service.title, path }], aside: `<span class="service-hero-number">${service.number}</span><span class="service-hero-icon">${icon(service.icon)}</span><strong>${esc(service.value)}</strong>` })}
 <section class="section-pad service-intro-section"><div class="container service-intro-grid"><div class="rich-copy reveal">${service.intro.map((paragraph) => `<p>${esc(paragraph)}</p>`).join("")}</div><aside class="service-quick-card reveal"><span>Useful first brief</span><h2>Give the diagnosis enough context</h2>${checkList(["The business outcome or current problem", "Affected systems, accounts, or public links", "Operational or customer impact", "Expected timing and major constraints"])}${button(`${site.whatsapp}?text=${encodeURIComponent(`Hello Eng. Eslam, I would like to discuss ${service.title}.`)}`, "Discuss on WhatsApp", "", true)}</aside></div></section>
 ${specializedLink}
+${serviceEvidenceSection(service.slug, "en")}
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Service scope")}<h2>What the engagement can cover</h2><p>${esc(service.value)}</p></div><div class="scope-grid">${service.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon(service.icon)}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
 <section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("Reviewable deliverables")}<h2>Evidence your team can use after handover</h2><p>The exact format follows the project, but each output has an owner, purpose, and acceptance check.</p></div><div class="deliverables-panel reveal">${checkList(service.deliverables, "deliverables-list")}</div></div></section>
 <section class="section-pad audience-section"><div class="container"><div class="section-heading reveal">${eyebrow("Who it is for")}<h2>Situations where this service creates the most value</h2></div><div class="audience-grid">${service.forWho.map((item, index) => `<article class="audience-card reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></article>`).join("")}</div></div></section>
@@ -1245,7 +1296,7 @@ ${specializedLink}
 <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("Service questions")}<h2>Scope, risk, ownership, and expectations</h2>${button(`/en/contact/?service=${service.slug}#project-brief`, "Request a scoped discussion", "button-ghost")}</div>${faqBlock(service.faq)}</div></section>
 <section class="section-pad related-section"><div class="container"><div class="section-heading reveal">${eyebrow("Connected capabilities")}<h2>Services that can strengthen the same outcome</h2></div><div class="services-grid related-services">${related.map(englishServiceCard).join("")}</div></div></section>
 ${englishFinalCta(`Need ${service.title} within a clearly bounded project?`, "Share the current state and desired outcome. We can define realistic scope, reviewable deliverables, dependencies, and a practical first release.")}`;
-  return page({ title: service.seoTitle, description: service.meta, path, active: "services", body, lang: "en", keywords: service.keywords, schema: [serviceSchema, faqSchema(service.faq), breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Services", path: "/en/services/" }, { name: service.title, path }])] });
+  return page({ title: service.seoTitle, description: service.meta, path, active: "services", body, modified: serviceEvidence[service.slug] || related.some((item) => item.slug === "seo") ? searchRevision : site.lastUpdated, lang: "en", keywords: service.keywords, schema: [serviceSchema, faqSchema(service.faq), breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Services", path: "/en/services/" }, { name: service.title, path }])] });
 }
 
 function englishLocalSeoPage() {
@@ -1271,9 +1322,10 @@ function englishLocalSeoPage() {
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Riyadh market coverage")}<h2>Use neighborhood context only when it helps the customer</h2><p>North, central, east, west, and south Riyadh—and districts such as Al Malqa, Al Yasmin, An Narjis, Hittin, Al Aqiq, As Sahafah, Qurtubah, and Ar Rawabi—may matter when they reflect real coverage, travel, branches, or customer needs. They should not become interchangeable doorway pages.</p></div><div class="neighborhood-cloud" aria-label="Riyadh areas"><span>North Riyadh</span><span>Al Malqa</span><span>Al Yasmin</span><span>An Narjis</span><span>Hittin</span><span>Al Aqiq</span><span>As Sahafah</span><span>Qurtubah</span><span>East Riyadh</span><span>Central Riyadh</span><span>West Riyadh</span><span>South Riyadh</span></div></div></section>
 <section class="section-pad"><div class="container local-paths"><article class="reveal"><span>Customer-facing locations</span><h3>Stores and offices that receive visitors</h3><p>Review address eligibility, frontage, hours, categories, local pages, consistency, and direction requests.</p></article><article class="reveal"><span>Service-area businesses</span><h3>Teams that travel to the customer</h3><p>Configure hidden addresses and realistic service areas while describing coverage without false locations.</p></article><article class="reveal"><span>Multi-location companies</span><h3>Real branches with distinct local journeys</h3><p>Give each eligible branch accurate ownership, content, and pages while managing duplication centrally.</p></article></div></section>
 <section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("Local SEO questions")}<h2>Realistic decisions before implementation</h2><p>Local visibility is cumulative and depends on the market, current website and profile, eligibility, competition, and execution speed.</p>${button("/en/services/seo/", "Explore the full SEO service", "button-ghost")}</div>${faqBlock(faq)}</div></section>
+${serviceEvidenceSection("local-seo", "en")}
 ${englishFinalCta("Want to improve qualified local discovery in Riyadh?", "Share the website, Business Profile, target services, and genuine service coverage. I will identify where visibility or conversion is being lost and what to address first.")}`;
   const schema = [{ "@type": "Service", name: "Local SEO in Riyadh", serviceType: "Local SEO", provider: { "@id": `${site.url}/#professional-service` }, areaServed: { "@type": "City", name: "Riyadh" }, description: lead }, faqSchema(faq), breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Local SEO in Riyadh", path }])];
-  return page({ title: "Local SEO Services in Riyadh", description: lead, path, active: "services", body, lang: "en", keywords: ["local SEO Riyadh", "Google Maps visibility", "service business SEO Saudi Arabia"], schema });
+  return page({ title: "Local SEO Services in Riyadh", description: lead, path, active: "services", body, modified: searchRevision, lang: "en", keywords: ["local SEO Riyadh", "Google Maps visibility", "service business SEO Saudi Arabia"], schema });
 }
 
 function englishAboutPage() {
@@ -1442,16 +1494,18 @@ ${englishFinalCta("Want to turn your business into a stronger digital experience
 function englishProjectCaseStudyPage(project) {
   const study = englishProjectStudies[project.slug];
   const path = `/en/projects/${project.slug}/`;
+  const relatedServices = projectServicesSection(project.slug, "en");
   const domain = new URL(project.liveUrl).hostname.replace(/^www\./, "");
   const requestMessage = `Hello Eng. Eslam, I read the ${study.title} case study and would like to discuss a project with a similar approach.`;
-  const creativeWorkSchema = { "@type": "CreativeWork", "@id": `${absolute(path)}#project`, name: study.title, description: study.description, url: absolute(path), image: absolute(project.image), sameAs: project.liveUrl, creator: { "@id": `${site.url}/#person` }, keywords: project.tags, dateModified: site.lastUpdated };
+  const creativeWorkSchema = { "@type": "CreativeWork", "@id": `${absolute(path)}#project`, name: study.title, description: study.description, url: absolute(path), image: absolute(project.image), sameAs: project.liveUrl, creator: { "@id": `${site.url}/#person` }, keywords: project.tags, dateModified: relatedServices ? searchRevision : site.lastUpdated };
   const body = `${innerHero({ eyebrowText: "Project case study", title: esc(study.title), lead: study.description, path, language: "en", crumbs: [{ name: "Work", path: "/en/projects/" }, { name: study.title, path }], aside: `<div class="case-study-preview"><span>${esc(study.category)}</span>${englishProjectImage(project, { eager: true })}<small dir="ltr">${esc(domain)}</small></div>` })}
 <section class="section-pad case-study-overview"><div class="container case-study-layout"><article class="rich-copy reveal"><span class="case-study-label">Objective</span><h2>What the public experience needed to accomplish</h2><p>${esc(study.objective)}</p><div class="tag-row" aria-label="Project disciplines">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div></article><aside class="case-study-facts reveal"><span>Project card</span><dl><div><dt>Type</dt><dd>${esc(study.category)}</dd></div><div><dt>Visible scope</dt><dd>Design, implementation, and digital experience</dd></div><div><dt>Evidence</dt><dd>Public link available for review</dd></div></dl>${button(project.liveUrl, "Open the live project", "button-ghost", true)}</aside></div></section>
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Delivery scope")}<h2>What the work included</h2><p>These items describe the public version and do not assume commercial outcomes that have not been measured or independently documented.</p></div><div class="case-study-scope">${study.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon("layers")}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
 <section class="section-pad"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("Design decisions")}<h2>Why the experience took this direction</h2><p>Each decision connects presentation to user intent and the operating model, not visual preference alone.</p></div><ol class="case-study-decisions">${study.decisions.map((item, index) => `<li class="reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></li>`).join("")}</ol></div></section>
 <section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("Reviewable output")}<h2>What can be inspected today</h2><p>The listed output is tied to the published experience and can be reviewed directly through the live-project link.</p></div><div class="deliverables-panel reveal">${checkList(study.delivered, "deliverables-list")}<p class="case-study-disclaimer">This case study does not claim traffic, conversion, or return-on-investment figures because verified data supporting those outcomes has not been published.</p></div></div></section>
+${relatedServices}
 <section class="section-pad"><div class="container case-method reveal"><div><span>Next step</span><h2>Need a project designed for your own context?</h2></div><p>The method can be reused, but the pages, content, and technology should follow your business, customers, evidence, and desired outcome.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent(requestMessage)}`, "Discuss a similar project", "", true)}${button("/en/projects/", "Back to all work", "button-ghost")}</div></div></section>`;
-  return page({ title: `${study.title} Case Study`, description: `${study.title} case study covering the objective, delivery scope, design decisions, and reviewable public output, with a direct link to the live project.`, path, active: "projects", body, lang: "en", schema: [creativeWorkSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Work", path: "/en/projects/" }, { name: study.title, path }])] });
+  return page({ title: `${study.title} Case Study`, description: `${study.title} case study covering the objective, delivery scope, design decisions, and reviewable public output, with a direct link to the live project.`, path, active: "projects", body, modified: relatedServices ? searchRevision : site.lastUpdated, lang: "en", schema: [creativeWorkSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Work", path: "/en/projects/" }, { name: study.title, path }])] });
 }
 
 const englishMapCategory = (value) => ({
@@ -1583,6 +1637,7 @@ ${post.sections.map(([heading, ...paragraphs], index) => `<section id="section-$
 <div class="toc-card reveal"><span>Inside this guide</span><nav aria-label="Article contents">${contents.map((item, index) => `<a href="#${item.id}"><span>${String(index + 1).padStart(2, "0")}</span>${esc(item.title)}</a>`).join("")}</nav></div>
 <div class="related-service-card reveal"><span>Knowledge track</span><div>${icon(topic.icon)}<h2>${esc(topic.title)}</h2></div><p>${esc(topic.description)}</p>${button(topicPath, "Explore the topic", "button-ghost")}</div>
 <div class="related-service-card reveal"><span>Related service</span><div>${icon(service?.icon || "briefcase")}<h2>${esc(service?.title || "Digital engineering")}</h2></div><p>${esc(service?.short || "A scoped technical engagement with reviewable outcomes.")}</p>${button(service ? `/en/services/${service.slug}/` : "/en/services/", "Explore the service", "button-ghost")}</div></aside></div></section>
+${articleSourcesSection(post, "en")}
 <section class="section-pad muted-section article-faq-section" id="article-faq"><div class="container article-faq-grid"><div class="article-faq-intro reveal">${eyebrow("Frequently asked questions")}<h2>Answers tied directly to this guide</h2><p>Four practical questions that commonly arise before implementation, answered without generic promises.</p><div class="faq-count" aria-label="Question count"><strong>${post.faq.length}</strong><span>topic-specific answers</span></div></div>${faqBlock(post.faq)}</div></section>
 <section class="section-pad related-articles-section"><div class="container"><div class="section-heading reveal">${eyebrow("Related guides")}<h2>Continue building the full decision picture</h2><p>Selected topics that connect this guide to security, delivery, visibility, or measurement.</p></div><div class="posts-grid">${relatedPosts.map((item) => englishPostCard(item)).join("")}</div></div></section>
 ${englishFinalCta("Want to apply this framework to your project?", "Share the current situation, desired outcome, and available evidence. We can identify one small, clear, measurable first step.")}`;
@@ -1649,7 +1704,7 @@ function englishPage() {
 <section class="section-pad muted-section blog-section" id="insights"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Practical insights</span><h2>Original English guidance for technical and growth decisions</h2><p>Decision-focused articles covering the same disciplines used in delivery, written for English readers rather than translated sentence by sentence.</p></div><div class="posts-grid">${insightCards}</div><div class="section-action">${button("/en/blog/", "Explore all English guides", "button-ghost")}</div></div></section>
 <section class="section-pad faq-section" id="faq"><div class="container faq-grid"><div class="faq-intro reveal"><span class="eyebrow"><span></span>Frequently asked questions</span><h2>Direct answers before an engagement begins</h2><p>Scope, dependencies, evidence, and expected outcomes are clarified before implementation.</p><a class="button button-ghost" href="/en/contact/">Discuss your project ${icon("arrow", "button-icon")}</a></div>${faqBlock(englishHomeFaq)}</div></section>
 <section class="section-pad final-cta" id="contact"><div class="container"><div class="cta-panel reveal"><div><span class="eyebrow"><span></span>Start with context</span><h2>Turn a complex technical problem into a clear delivery plan.</h2><p>Share your goal, current state, relevant links, constraints, and expected timing. Do not include passwords, verification codes, or API keys.</p></div><div class="cta-actions">${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like to discuss a digital project.")}`, "Start on WhatsApp", "button-light", true)}<a class="cta-phone" href="mailto:${site.email}">${site.email}</a></div></div></div></section>`;
-  return page({ title: `${site.nameEn} | Cybersecurity & Software Engineer`, description: "Eslam Elshikh is a Riyadh-based cybersecurity engineer and software developer specializing in web development, AI agents, Google Maps, and technical SEO.", path: "/en/", active: "home", body, lang: "en", modified: site.lastUpdated, schema: [faqSchema(englishHomeFaq)], preloadImage: profilePhoto });
+  return page({ title: `${site.nameEn} | Cybersecurity & Software Engineer`, description: "Eslam Elshikh is a Riyadh-based cybersecurity engineer and software developer specializing in web development, AI agents, Google Maps, and technical SEO.", path: "/en/", active: "home", body, lang: "en", modified: searchRevision, schema: [faqSchema(englishHomeFaq)], preloadImage: profilePhoto });
 }
 
 function notFoundPage() {

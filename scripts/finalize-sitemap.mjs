@@ -1,5 +1,6 @@
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
+import { coreRoutes } from "../src/service-evidence.mjs";
 
 const outDir = process.argv[2] || "dist";
 const canonical = "https://www.eslam-elshikh.com";
@@ -81,6 +82,12 @@ const urls = indexableUrls.join("\n");
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`;
 
 await writeFile(join(outDir, "sitemap.xml"), sitemap, "utf8");
-await writeFile(join(outDir, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${canonical}/sitemap.xml\n`, "utf8");
+const coreEntries = coreRoutes.map((route) => {
+  const entry = indexableUrls.find((value) => value.includes(`<loc>${canonical}${route}</loc>`));
+  if (!entry) throw new Error(`Core sitemap route is missing or not indexable: ${route}`);
+  return entry;
+});
+await writeFile(join(outDir, "sitemap-core.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${coreEntries.join("\n")}\n</urlset>\n`, "utf8");
+await writeFile(join(outDir, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${canonical}/sitemap.xml\nSitemap: ${canonical}/sitemap-core.xml\n`, "utf8");
 
-console.log(`Finalized sitemap with ${indexableUrls.length} canonical URLs; omitted ${routes.length - indexableUrls.length} noindex tool pages.`);
+console.log(`Finalized sitemap with ${indexableUrls.length} canonical URLs and ${coreEntries.length} core URLs; omitted ${routes.length - indexableUrls.length} noindex tool pages.`);
