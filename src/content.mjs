@@ -53,7 +53,7 @@ export const site = {
     { value: "472", label: "ملفًا تجاريًا على Google تم دعم توثيقه" },
     { value: "233", label: "مشكلة ملف تجاري تم حلها ومعالجتها" },
     { value: "63", label: "نموذجًا منشورًا يمكن مراجعته على الخرائط" },
-    { value: String(projectAudit.verifiedLiveProjects), label: "مشروع ويب حيًا موثقًا" }
+    { value: String(projectAudit.listedProjects), label: "مشروع ويب في سجل الأعمال" }
   ]
 };
 

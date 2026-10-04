@@ -1,18 +1,39 @@
 const github = (repo) => `https://github.com/EslamElshikh-dev/${repo}`;
 
 export const projectAudit = {
-  githubRepositories: 89,
-  vercelProjects: 40,
-  verifiedLiveProjects: 73,
-  auditedAt: "2026-09-02"
+  githubRepositories: 100,
+  vercelProjects: 64,
+  listedProjects: 94,
+  auditedAt: "2026-10-04"
 };
 
 export const webProjects = [
   { title: "شركة تعاود للمقاولات العامة", sector: "المقاولات والتشطيبات", liveUrl: "https://tawodco.com/", sourceUrl: github("tawod") },
+  { title: "تعاود للصيانة والتشغيل", sector: "الصيانة والتشغيل", liveUrl: "https://tawodco.com/maintenance/", sourceUrl: github("tawod") },
   { title: "دليل العسيرات المحلي", sector: "المنصات والحلول الرقمية", liveUrl: "https://usayrat.online/", sourceUrl: github("al-osairat-directory") },
+  { title: "دليل نقادة", sector: "المنصات والحلول الرقمية", liveUrl: "https://naqada-directory.vercel.app/", sourceUrl: github("naqada-directory") },
+  { title: "دليل الوقف", sector: "المنصات والحلول الرقمية", liveUrl: "https://alwaqf-directory.vercel.app/", sourceUrl: github("alwaqf-directory") },
   { title: "BOWDY LABS", sector: "المنصات والحلول الرقمية", liveUrl: "https://bowdylabs.com/", sourceUrl: github("bowdy-labs") },
   { title: "مركز سما سكان للأشعة", sector: "الصحة والخدمات المهنية", liveUrl: "https://samascan.vercel.app/", sourceUrl: github("sama-scan-center-") },
-  { title: "تصور منصة CRM لشركة الأرجان", sector: "المنصات والحلول الرقمية", liveUrl: "https://alargan-crm-proposal.vercel.app/" },
+  { title: "تصور منصة CRM لشركة الأرجان", sector: "المنصات والحلول الرقمية", liveUrl: "https://alargan-crm-proposal.vercel.app/", access: "restricted" },
+  { title: "مركز دار البديع للحجامة — خميس مشيط", sector: "الصحة والخدمات المهنية", liveUrl: "https://dar-albadie-khamis.vercel.app/" },
+  { title: "مؤسسة كيان الازدهار للألمنيوم والزجاج", sector: "النجارة والديكور", liveUrl: "https://kiyan-aluminium-glass.vercel.app/" },
+  { title: "زايد للديكورات والدهانات", sector: "المقاولات والتشطيبات", liveUrl: "https://zayed-decor-riyadh.vercel.app/", sourceUrl: github("zayed-decor-riyadh") },
+  { title: "عبدالحكيم للكهرباء والإنارة الحديثة", sector: "السباكة والكهرباء", liveUrl: "https://abdulhakim-lighting-riyadh.vercel.app/" },
+  { title: "ملوك الخزائن", sector: "النجارة والديكور", liveUrl: "https://muluk-al-khazain.vercel.app/" },
+  { title: "تفصيل دواليب وغرف ملابس بالرياض", sector: "النجارة والديكور", liveUrl: "https://wardrobes-riyadh.vercel.app/" },
+  { title: "أبو محمد للسباكة والكهرباء", sector: "السباكة والكهرباء", liveUrl: "https://abu-mohamed-plumbing.vercel.app/", sourceUrl: github("Abumohamed-plumbing") },
+  { title: "المحترف لخدمات السباكة والكهرباء", sector: "السباكة والكهرباء", liveUrl: "https://almohtreef-riyadh.vercel.app/" },
+  { title: "أبو ليث للكهرباء والسباكة", sector: "السباكة والكهرباء", liveUrl: "https://abu-laith-electrician-plumber.vercel.app/" },
+  { title: "عمر شهزاد فني سباكة وكهرباء", sector: "السباكة والكهرباء", liveUrl: "https://omar-shahzad-plumbing-electric.vercel.app/" },
+  { title: "عبدالله للسباكة والكهرباء", sector: "السباكة والكهرباء", liveUrl: "https://abdullah-plumbing-electric.vercel.app/" },
+  { title: "أبو غيث للحدادة والأبواب والنوافذ", sector: "المقاولات والتشطيبات", liveUrl: "https://abu-ghaith-haddad-riyadh.vercel.app/", sourceUrl: github("abu-ghaith-haddad-riyadh") },
+  { title: "مؤسسة فيصل الحربي للألمنيوم والزجاج", sector: "النجارة والديكور", liveUrl: "https://faisal-alharbi-aluminum-glass.vercel.app/", sourceUrl: github("faisal-alharbi-aluminum-glass") },
+  { title: "المتميز للمقاولات والكهرباء", sector: "المقاولات والتشطيبات", liveUrl: "https://almutamayiz-contracting-electricity.vercel.app/", sourceUrl: github("almutamayiz-contracting-electricity") },
+  { title: "صروح الاختصاص للمقاولات", sector: "المقاولات والتشطيبات", liveUrl: "https://sroh-alekhtesas.vercel.app/" },
+  { title: "النصر للنجارة وتفصيل الخزائن", sector: "النجارة والديكور", liveUrl: "https://alnasr-carpentry-riyadh.vercel.app/" },
+  { title: "نجار تفصيل خزائن بالرياض", sector: "النجارة والديكور", liveUrl: "https://najjar-tafseel-khazain-riyadh.vercel.app/" },
+  { title: "مؤسسة آفاق الاحترافية للدواجن", sector: "التجارة والخدمات الغذائية", liveUrl: "https://afaq-poultry-riyadh.vercel.app/", sourceUrl: github("afaq-poultry-riyadh") },
   { title: "مؤسسة العنود للديكور الخشبي", sector: "النجارة والديكور", liveUrl: "https://alanoudfaraj.com/", sourceUrl: github("alanood-wood-decor") },
   { title: "مؤسسة حزمة شقافي للديكور", sector: "النجارة والديكور", liveUrl: "https://www.hezmashoqafi-decoration.com/" },
   { title: "المبلط عادل", sector: "المقاولات والتشطيبات", liveUrl: "https://almoablat-adel.vercel.app/", sourceUrl: github("almoablat-adel") },
@@ -78,11 +99,11 @@ export const webProjects = [
   { title: "مؤسسة مشعل سعود العنزي للنجارة", sector: "النجارة والديكور", liveUrl: "https://eslamelshikh-dev.github.io/Mesheal-souad-enzi/", sourceUrl: github("Mesheal-souad-enzi") },
   { title: "وهاب لخدمات السباكة والكهرباء", sector: "السباكة والكهرباء", liveUrl: "https://eslamelshikh-dev.github.io/Wahab-electricity/", sourceUrl: github("Wahab-electricity") },
   { title: "الدمياطي للموبيليا", sector: "النجارة والديكور", liveUrl: "https://eslamelshikh-dev.github.io/Aldomyati_llmobilya/", sourceUrl: github("Aldomyati_llmobilya") },
-  { title: "تركيب بلاط وسيراميك ورخام بالرياض", sector: "المقاولات والتشطيبات", liveUrl: "https://eslamelshikh-dev.github.io/index.html/", sourceUrl: github("index.html") },
+  { title: "مبلط حمامات بالرياض — سيراميك وبورسلان ورخام", sector: "المقاولات والتشطيبات", liveUrl: "https://eslamelshikh-dev.github.io/MOBLETHamamt/", sourceUrl: github("MOBLETHamamt") },
   { title: "أبو هيبة لتنسيق الحدائق", sector: "الحدائق والمناسبات", liveUrl: "https://eslamelshikh-dev.github.io/abu-hiba-garden-design/", sourceUrl: github("abu-hiba-garden-design") },
   { title: "أبو يوسف للنجارة", sector: "النجارة والديكور", liveUrl: "https://cotractorsa.com/", sourceUrl: github("najar-abu-yousef") }
 ];
 
-if (webProjects.length !== projectAudit.verifiedLiveProjects) {
-  throw new Error(`Web project audit mismatch: expected ${projectAudit.verifiedLiveProjects}, received ${webProjects.length}`);
+if (webProjects.length !== projectAudit.listedProjects) {
+  throw new Error(`Web project audit mismatch: expected ${projectAudit.listedProjects}, received ${webProjects.length}`);
 }

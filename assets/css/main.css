@@ -339,7 +339,7 @@ input, textarea, select { min-width: 0; }
 .portfolio-page-heading span { color: var(--primary); font-size: .76rem; font-weight: 850; }
 .portfolio-page-heading p { max-width: 64ch; margin: 0; color: var(--muted); font-size: .8rem; }
 .work-ledger-section { position: relative; border-block: 1px solid var(--line); background: linear-gradient(180deg, rgba(88,224,189,.025), transparent 28%), var(--bg-elevated); overflow: clip; }
-.work-ledger-section::before { content: "73 / VERIFIED WORK"; position: absolute; top: 1.5rem; inset-inline-end: max(1rem, 4vw); color: var(--line); font: 900 clamp(2.5rem, 7vw, 6.7rem)/1 "Segoe UI", sans-serif; letter-spacing: -.06em; direction: ltr; pointer-events: none; }
+.work-ledger-section::before { content: attr(data-work-count) " / WEB PROJECTS"; position: absolute; top: 1.5rem; inset-inline-end: max(1rem, 4vw); color: var(--line); font: 900 clamp(2.5rem, 7vw, 6.7rem)/1 "Segoe UI", sans-serif; letter-spacing: -.06em; direction: ltr; pointer-events: none; }
 .work-audit-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 1.25rem; border: 1px solid var(--line); border-radius: 1.3rem; background: var(--surface-glass); box-shadow: var(--shadow-sm); overflow: hidden; }
 .work-audit-summary > div { min-height: 132px; display: flex; flex-direction: column; justify-content: center; padding: 1.25rem 1.4rem; }
 .work-audit-summary > div + div { border-inline-start: 1px solid var(--line); }

@@ -353,7 +353,7 @@ const home = pages.get("/") || "";
 if ((home.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("Homepage does not render all 9 services");
 if ((home.match(/aria-label=["']تفاصيل خدمة /g) || []).length !== 9) errors.push("Homepage service detail links need unique accessible labels");
 if (/<script\b[^>]*\bsrc=["']https:\/\/www\.googletagmanager\.com/i.test(home)) errors.push("Homepage loads Google Analytics before consent");
-if (!home.includes('<strong>472</strong>') || !home.includes('<strong>233</strong>') || !home.includes('<strong>63</strong>') || !home.includes(`<strong>${projectAudit.verifiedLiveProjects}</strong>`)) errors.push(`Homepage trust metrics are missing the verified 472/233/63/${projectAudit.verifiedLiveProjects} figures`);
+if (!home.includes('<strong>472</strong>') || !home.includes('<strong>233</strong>') || !home.includes('<strong>63</strong>') || !home.includes(`<strong>${projectAudit.listedProjects}</strong>`)) errors.push(`Homepage trust metrics are missing the verified 472/233/63/${projectAudit.listedProjects} figures`);
 if (!/href=["']\/local-seo\/riyadh\/["']/.test(home)) errors.push("Homepage needs a direct internal link to /local-seo/riyadh/");
 if (wordCount(home) < 900) warnings.push(`Homepage content is shorter than 900 words (${wordCount(home)})`);
 for (const [route, html] of pages) {
@@ -377,7 +377,7 @@ if (!englishProjectsPageHtml.includes('"@type":"CollectionPage"') || !englishPro
 const englishWorkCardCount = (englishProjectsPageHtml.match(/\bdata-work-card(?:\s|>)/g) || []).length;
 if (englishWorkCardCount !== webProjects.length) errors.push(`English projects page renders ${englishWorkCardCount} verified work cards; expected ${webProjects.length}`);
 if (!englishProjectsPageHtml.includes(`"numberOfItems":${webProjects.length}`)) errors.push(`English projects ItemList does not declare ${webProjects.length} items`);
-for (const marker of ["data-work-search", "data-work-filter=\"all\"", "data-work-more", `${projectAudit.verifiedLiveProjects} unique live web projects`]) {
+for (const marker of ["data-work-search", "data-work-filter=\"all\"", "data-work-more", `${projectAudit.listedProjects} web projects in the portfolio`]) {
   if (!englishProjectsPageHtml.includes(marker)) errors.push(`English projects page is missing verified archive marker: ${marker}`);
 }
 const uniqueLiveUrls = new Set(webProjects.map((project) => project.liveUrl));

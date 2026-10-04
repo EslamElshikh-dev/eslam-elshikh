@@ -1050,7 +1050,9 @@ export const englishSectorNames = {
   "النجارة والديكور": "Carpentry & Interior Fit-out",
   "السباكة والكهرباء": "Plumbing & Electrical Services",
   "التبريد والتكييف": "Cooling & Air Conditioning",
-  "الحدائق والمناسبات": "Landscaping & Events"
+  "الحدائق والمناسبات": "Landscaping & Events",
+  "الصيانة والتشغيل": "Maintenance & Facility Operations",
+  "التجارة والخدمات الغذائية": "Retail & Food Services"
 };
 
 export const englishMapCategoryNames = {
