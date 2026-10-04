@@ -647,11 +647,11 @@ p { text-wrap: pretty; }
 }
 
 /* Topic-specific illustrations retain their full landscape composition. */
-.post-art.post-cover, :root[data-theme="light"] .post-art.post-cover { display: block; aspect-ratio: 16 / 9; min-height: 0; padding: 0; background: #101c2a; }
+.post-art.post-cover, :root[data-theme="light"] .post-art.post-cover { display: block; width: 100%; min-width: 0; max-width: 100%; aspect-ratio: 16 / 9; min-height: 0; padding: 0; background: #101c2a; }
 .post-cover::before, .post-cover::after { display: none; }
 .post-cover .article-illustration { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .55s cubic-bezier(.2, .7, .2, 1); }
 .post-cover .post-cover-category { position: absolute; inset-inline-start: .9rem; bottom: .9rem; z-index: 1; max-width: calc(100% - 1.8rem); padding: .35rem .65rem; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; color: #fff; background: rgba(12,24,41,.82); font-size: .72rem; font-weight: 600; line-height: 1.65; }
-.post-card-featured .post-cover { align-self: stretch; aspect-ratio: auto; min-height: 0; }
+.post-card-featured .post-cover, :root[data-theme="light"] .post-card-featured .post-cover { align-self: stretch; aspect-ratio: auto; min-height: 0; }
 .post-card-featured .post-cover .article-illustration { object-fit: contain; }
 .article-cover { margin-block: 1.75rem 0; padding: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 1.25rem; background: #101c2a; }
 .article-cover .article-illustration { display: block; width: 100%; height: auto; }
@@ -672,7 +672,7 @@ p { text-wrap: pretty; }
   .post-cover:hover .article-illustration, .post-cover:focus-visible .article-illustration { transform: scale(1.035); }
 }
 @media (max-width: 900px) {
-  .post-card-featured .post-cover { aspect-ratio: 16 / 9; }
+  .post-card-featured .post-cover, :root[data-theme="light"] .post-card-featured .post-cover { aspect-ratio: 16 / 9; }
   .post-cover .post-cover-category { bottom: .75rem; inset-inline-start: .75rem; font-size: .68rem; }
 }
 @media (max-width: 620px) {
