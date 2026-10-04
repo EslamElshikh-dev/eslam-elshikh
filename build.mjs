@@ -260,7 +260,7 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
 ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))}">\n` : ""}  <meta name="robots" content="${esc(robots)}">
   <meta name="author" content="${esc(isEnglish ? site.nameEn : site.nameAr)}">
   <meta name="application-name" content="${esc(isEnglish ? site.nameEn : site.brandName)}">
-  <meta name="theme-color" content="#101c19" data-theme-color>
+  <meta name="theme-color" content="#070b14" data-theme-color>
   <meta name="color-scheme" content="dark light">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="format-detection" content="telephone=yes">
@@ -302,7 +302,7 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   <script src="/assets/js/theme.js?v=${version}"></script>
   <link rel="stylesheet" href="/assets/css/main.css?v=${version}">
 ${stylesheets.length ? `${stylesheets.map((href) => `  <link rel="stylesheet" href="${esc(href)}">`).join("\n")}\n` : ""}  <link rel="stylesheet" href="/assets/css/studio.css?v=${version}">
-${["/projects/", "/en/projects/", "/google-maps-projects/", "/en/google-maps-projects/", "/google-expert/", "/en/google-expert/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/maps-exhibition.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-stories.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
+${["/", "/projects/", "/en/projects/", "/google-maps-projects/", "/en/google-maps-projects/", "/google-expert/", "/en/google-expert/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/maps-exhibition.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-stories.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
   <script type="application/ld+json">${safeJson({ "@context": "https://schema.org", "@graph": graph })}</script>
 </head>`;
 }

@@ -223,7 +223,7 @@ for (const route of sitemapRoutes) {
   if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/studio\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned studio stylesheet`);
   const hasProjectGallery = route === "/" || route === "/en/" || /^(\/en)?\/projects\//.test(route);
   const hasProjectStories = /^(\/en)?\/(projects|products)\//.test(route);
-  const hasMapsExhibition = ["/projects/", "/en/projects/", "/google-maps-projects/", "/en/google-maps-projects/", "/google-expert/", "/en/google-expert/"].includes(route);
+  const hasMapsExhibition = /class="[^"]*\bmaps-(?:exhibit-hero|portfolio-teaser|sample-card)\b/.test(html);
   const expectedStylesheets = 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
   if (hasProjectGallery && !html.includes(`/assets/css/project-gallery.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned project gallery stylesheet`);
   if (hasProjectStories && !html.includes(`/assets/css/project-stories.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned case and product stylesheet`);
