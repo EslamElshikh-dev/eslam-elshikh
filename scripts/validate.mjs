@@ -1,7 +1,7 @@
 import { access, readFile, readdir } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { posts, projects } from "../src/content.mjs";
+import { posts, projects, mapsProjects } from "../src/content.mjs";
 import { projectAudit, webProjects } from "../src/web-projects.mjs";
 import { projectPreviews } from "../src/project-previews.mjs";
 import { caseStudies } from "../src/case-studies.mjs";
@@ -223,9 +223,11 @@ for (const route of sitemapRoutes) {
   if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/studio\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned studio stylesheet`);
   const hasProjectGallery = route === "/" || route === "/en/" || /^(\/en)?\/projects\//.test(route);
   const hasProjectStories = /^(\/en)?\/(projects|products)\//.test(route);
-  const expectedStylesheets = 2 + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
+  const hasMapsExhibition = ["/projects/", "/en/projects/", "/google-maps-projects/", "/en/google-maps-projects/", "/google-expert/", "/en/google-expert/"].includes(route);
+  const expectedStylesheets = 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
   if (hasProjectGallery && !html.includes(`/assets/css/project-gallery.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned project gallery stylesheet`);
   if (hasProjectStories && !html.includes(`/assets/css/project-stories.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned case and product stylesheet`);
+  if (hasMapsExhibition && !html.includes(`/assets/css/maps-exhibition.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned Google Maps exhibition stylesheet`);
   if (stylesheetCount !== expectedStylesheets) errors.push(`${route}: expected ${expectedStylesheets} stylesheet link(s), found ${stylesheetCount}`);
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
@@ -366,7 +368,7 @@ const home = pages.get("/") || "";
 if ((home.match(/class=["']service-card reveal["']/g) || []).length !== 9) errors.push("Homepage does not render all 9 services");
 if ((home.match(/aria-label=["']تفاصيل خدمة /g) || []).length !== 9) errors.push("Homepage service detail links need unique accessible labels");
 if (/<script\b[^>]*\bsrc=["']https:\/\/www\.googletagmanager\.com/i.test(home)) errors.push("Homepage loads Google Analytics before consent");
-if (!home.includes('<strong>472</strong>') || !home.includes('<strong>233</strong>') || !home.includes('<strong>63</strong>') || !home.includes(`<strong>${projectAudit.listedProjects}</strong>`)) errors.push(`Homepage trust metrics are missing the verified 472/233/63/${projectAudit.listedProjects} figures`);
+if (!home.includes('<strong>472</strong>') || !home.includes('<strong>233</strong>') || !home.includes(`<strong>${mapsProjects.length}</strong>`) || !home.includes(`<strong>${projectAudit.listedProjects}</strong>`)) errors.push(`Homepage trust metrics are missing the 472/233/${mapsProjects.length}/${projectAudit.listedProjects} figures`);
 if (!/href=["']\/local-seo\/riyadh\/["']/.test(home)) errors.push("Homepage needs a direct internal link to /local-seo/riyadh/");
 if (wordCount(home) < 900) warnings.push(`Homepage content is shorter than 900 words (${wordCount(home)})`);
 for (const [route, html] of pages) {

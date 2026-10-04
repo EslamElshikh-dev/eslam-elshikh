@@ -5,6 +5,8 @@ import { site, services, projects, mapsProjects, posts, homeFaq, localSeoFaq } f
 import { projectAudit, webProjects } from "./src/web-projects.mjs";
 import { renderWorkHero, renderWorkStories, renderWorkGallery, renderWorkClosing } from "./src/project-experience.mjs";
 import { caseStudies, caseByUrl, caseHref } from "./src/case-studies.mjs";
+import { renderMapsHero, renderMapsStories, renderMapsCollection, renderMapsTeaser, renderMapSample } from "./src/maps-exhibition.mjs";
+import { mapsWorkAudit } from "./src/google-maps-work.mjs";
 import { products, productText } from "./src/products.mjs";
 import { renderCaseStudy, renderProductCollection, renderProductsIndex, renderProductPage } from "./src/project-stories.mjs";
 import { guides } from "./src/guides.mjs";
@@ -300,7 +302,7 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   <script src="/assets/js/theme.js?v=${version}"></script>
   <link rel="stylesheet" href="/assets/css/main.css?v=${version}">
 ${stylesheets.length ? `${stylesheets.map((href) => `  <link rel="stylesheet" href="${esc(href)}">`).join("\n")}\n` : ""}  <link rel="stylesheet" href="/assets/css/studio.css?v=${version}">
-${path === "/" || path === "/en/" || /^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-stories.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
+${["/projects/", "/en/projects/", "/google-maps-projects/", "/en/google-maps-projects/", "/google-expert/", "/en/google-expert/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/maps-exhibition.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-stories.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
   <script type="application/ld+json">${safeJson({ "@context": "https://schema.org", "@graph": graph })}</script>
 </head>`;
 }
@@ -898,106 +900,53 @@ ${finalCta("هل تريد إطلاق إعلان ممول على جوجل بصو�
   });
 }
 
-const mapWorkTracks = [
-  { number: "01", title: "دعم التوثيق والتحقق", text: "تجهيز متطلبات التحقق ومراجعة أهلية النشاط والبيانات والأدلة قبل اختيار مسار الإثبات المناسب." },
-  { number: "02", title: "إثبات الملكية واستعادة الوصول", text: "تشخيص تعارضات الملكية وطلبات الوصول وتجميع المعلومات اللازمة للوصول إلى القناة الصحيحة دون مشاركة كلمات المرور." },
-  { number: "03", title: "معالجة القيود والتعليق", text: "فهم سبب القيد، إصلاح المشكلات القابلة للمعالجة، ثم تجهيز طلب مراجعة واضح ومدعوم بالمستندات المتاحة." },
-  { number: "04", title: "تحسين الظهور المحلي والسيو", text: "تحسين الفئات والخدمات والمحتوى واتساق البيانات وربط الملف بالموقع والصفحات المحلية وقياس التفاعل." }
-];
-
-function mapRequestHref(item) {
-  const message = `مرحبًا م. إسلام، شاهدت ملف «${item.title}» ضمن أعمال خرائط Google، ولدي حالة مشابهة وأرغب في تشخيصها.`;
-  return `${site.whatsapp}?text=${encodeURIComponent(message)}`;
-}
-
 function featuredMapCard(item, index) {
-  return `<article class="map-case-card reveal"><div class="map-case-top"><span class="map-case-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span><span class="map-case-pin">${icon("pin")}</span></div><p class="map-case-category">${esc(item.category)}</p><h3>${esc(item.title)}</h3><p class="map-case-location">${icon("pin")}<span>${esc(item.location)}</span></p><div class="map-case-actions"><a class="button button-small" href="${item.url}" target="_blank" rel="noopener" aria-label="عرض ملف ${esc(item.title)} على خرائط Google">عرض الملف ${icon("external", "button-icon")}</a><a class="button button-small button-ghost" href="${mapRequestHref(item)}" target="_blank" rel="noopener" aria-label="مناقشة حالة خرائط مشابهة لملف ${esc(item.title)}">ناقش حالة مشابهة ${icon("whatsapp", "button-icon")}</a></div></article>`;
-}
-
-function mapLedgerCard(item, index) {
-  return `<article class="map-ledger-card reveal"><span class="map-ledger-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span><div><p>${esc(item.category)}</p><h3>${esc(item.title)}</h3><span>${icon("pin")} ${esc(item.location)}</span></div><a href="${item.url}" target="_blank" rel="noopener" aria-label="عرض ملف ${esc(item.title)} على خرائط Google">${icon("external")}</a></article>`;
+  return renderMapSample(item, index, { esc, icon });
 }
 
 function mapsWorkTeaser() {
-  const samples = mapsProjects.filter((item) => item.featured).slice(0, 5);
-  return `<section class="section-pad maps-work-teaser"><div class="container"><div class="maps-teaser-panel reveal"><div class="maps-teaser-copy">${eyebrow("أعمال خرائط Google")}<h2>سجل أعمال حقيقي عبر قطاعات ومدن مختلفة</h2><p>${mapsProjects.length} ملفًا تجاريًا فريدًا يمكن فتحها مباشرة، ضمن خبرة تشمل دعم التوثيق وإثبات الملكية ومعالجة القيود وتحسين الظهور المحلي.</p><div class="maps-teaser-actions">${button("/google-maps-projects/", "استعرض أعمال الخرائط")} ${button(`${site.whatsapp}?text=${encodeURIComponent("مرحبًا م. إسلام، لدي ملف تجاري على Google وأرغب في تشخيصه.")}`, "ناقش حالة ملفك", "button-ghost", true)}</div></div><div class="maps-teaser-stack" aria-label="نماذج من أعمال خرائط Google">${samples.map((item, index) => `<a href="${item.url}" target="_blank" rel="noopener"><span dir="ltr">${String(index + 1).padStart(2, "0")}</span><strong>${esc(item.title)}</strong>${icon("external")}</a>`).join("")}</div></div></div></section>`;
+  return renderMapsTeaser({ esc, icon });
 }
 
-const proofRegion = (item) => item.location.includes("الرياض") ? "riyadh"
-  : item.location.includes("خميس") ? "khamis"
-  : item.location.includes("نجران") ? "najran"
-  : "service";
-
-const normalizeProjectName = (value) => String(value || "").replace(/[^\p{L}\p{N}]+/gu, "").toLowerCase();
-
-function linkedWebProject(item) {
-  const target = normalizeProjectName(item.title);
-  return webProjects.find((project) => {
-    const candidate = normalizeProjectName(project.title);
-    return target === candidate || (Math.min(target.length, candidate.length) > 8 && (target.includes(candidate) || candidate.includes(target)));
-  });
-}
-
-function linkedCaseStudy(item) {
-  const target = normalizeProjectName(item.title);
-  return projects.find((project) => project.caseStudy && project.slug && normalizeProjectName(project.title) === target);
-}
-
-function proofCard(item, index, language = "ar") {
-  const isEnglish = language === "en";
-  const webProject = linkedWebProject(item);
-  const caseStudy = linkedCaseStudy(item);
-  const region = proofRegion(item);
-  const category = isEnglish ? englishMapCategory(item.category) : item.category;
-  const location = isEnglish ? englishMapLocation(item.location) : item.location;
-  const searchText = `${item.title} ${category} ${location}`.toLocaleLowerCase("ar");
-  const workType = webProject
-    ? (isEnglish ? "Website delivery and alignment with the public profile" : "تطوير موقع ومواءمة الحضور الرقمي مع الملف العام")
-    : (isEnglish ? "Public example within the Business Profile support record" : "نموذج عام ضمن سجل دعم الملفات التجارية");
-  const request = isEnglish
-    ? `Hello Eng. Eslam, I reviewed the public example for ${item.title} and would like a similar Google and website assessment.`
-    : `مرحبًا م. إسلام، شاهدت نموذج «${item.title}» وأرغب في مشروع مشابه يجمع ملف Google والموقع.`;
-  return `<article class="proof-card" id="proof-${index + 1}" data-proof-card data-region="${region}" data-search="${esc(searchText)}"><span class="proof-card-index" dir="ltr">${String(index + 1).padStart(2, "0")}</span><div><p>${esc(category)} · ${esc(location)}</p><h3${isEnglish ? ' lang="ar" dir="rtl"' : ""}>${esc(item.title)}</h3><small>${esc(workType)}</small><small>${isEnglish ? "Verified evidence: public profile link available" : "الدليل الموثق: رابط الملف العام متاح للمراجعة"}</small></div><div class="proof-card-actions"><a href="${item.url}" target="_blank" rel="noopener" title="${isEnglish ? "Open public profile" : "فتح الملف العام"}" aria-label="${isEnglish ? "Open public Google Maps profile" : `فتح ملف ${esc(item.title)} على خرائط Google`}">${icon("pin")}</a>${webProject ? `<a href="${esc(webProject.liveUrl)}" target="_blank" rel="noopener" title="${isEnglish ? "Open website" : "فتح الموقع"}" aria-label="${isEnglish ? "Open the related live website" : `فتح الموقع المرتبط بنموذج ${esc(item.title)}`}">${icon("globe")}</a>` : ""}${caseStudy ? `<a href="${isEnglish ? `/en/projects/${caseStudy.slug}/` : `/projects/${caseStudy.slug}/`}" title="${isEnglish ? "Case study" : "دراسة الحالة"}">${icon("book")}</a>` : ""}<a href="${site.whatsapp}?text=${encodeURIComponent(request)}" target="_blank" rel="noopener" title="${isEnglish ? "Request similar work" : "أريد مشروعًا مشابهًا"}" aria-label="${isEnglish ? "Request similar work" : `أريد مشروعًا مشابهًا لنموذج ${esc(item.title)}`}">${icon("whatsapp")}</a></div></article>`;
-}
-
-function proofEngine(language = "ar") {
-  const isEnglish = language === "en";
-  const regionCounts = mapsProjects.reduce((counts, item) => ({ ...counts, [proofRegion(item)]: (counts[proofRegion(item)] || 0) + 1 }), {});
-  const nodes = isEnglish ? [
-    ["service", "Service-area", regionCounts.service || 0], ["riyadh", "Riyadh", regionCounts.riyadh || 0], ["khamis", "Khamis Mushait", regionCounts.khamis || 0], ["najran", "Najran", regionCounts.najran || 0]
-  ] : [
-    ["service", "نطاق خدمة", regionCounts.service || 0], ["riyadh", "الرياض", regionCounts.riyadh || 0], ["khamis", "خميس مشيط", regionCounts.khamis || 0], ["najran", "نجران", regionCounts.najran || 0]
-  ];
-  return `<section class="section-pad proof-engine" data-proof-engine><div class="container"><div class="section-heading reveal">${eyebrow(isEnglish ? "Google Local Proof Engine" : "Google Local Proof Engine")}<h2>${isEnglish ? "A map of public work—not a map of branches" : "خريطة أعمال المهندس إسلام الشيخ على Google"}</h2><p>${isEnglish ? "Each point is an evidence cluster for independent work. It does not represent a branch, owned business, or shared local entity." : "كل نقطة تجمع نماذج أعمال مستقلة حسب النطاق الجغرافي. لا تمثل فرعًا تابعًا لإسلام، ولا ملكية للنشاط، ولا كيان Local SEO مشتركًا."}</p></div><div class="proof-map-layout"><aside class="proof-map-canvas reveal" aria-label="${isEnglish ? "Geographic distribution filters" : "مرشحات توزيع الأعمال جغرافيًا"}"><div class="proof-map-head"><span class="eyebrow"><span></span>${isEnglish ? "Evidence distribution" : "توزيع الدليل"}</span><h2>${isEnglish ? "Saudi public examples" : "نماذج عامة داخل السعودية"}</h2><p>${isEnglish ? "Approximate clusters for browsing; not exact customer pins." : "تجميع تقريبي للتصفح، وليس تحديدًا دقيقًا لمواقع العملاء."}</p></div><div class="proof-map-nodes">${nodes.map(([key, label, count]) => `<button class="proof-node proof-node-${key}" type="button" data-proof-region="${key}" aria-pressed="false"><strong>${count}</strong><span>${esc(label)}</span></button>`).join("")}</div></aside><div class="proof-browser reveal"><div class="proof-controls"><label class="proof-search"><span>${isEnglish ? "Search by activity, sector, or area" : "ابحث باسم النشاط أو القطاع أو المنطقة"}</span><input type="search" autocomplete="off" data-proof-search placeholder="${isEnglish ? "Search public examples" : "مثال: مقاولات، المصيف، مطعم"}"></label><button class="button button-ghost proof-all" type="button" data-proof-region="all" aria-pressed="true">${isEnglish ? "All examples" : "كل الأعمال"}</button></div><p class="proof-results" data-proof-status aria-live="polite"></p><div class="proof-cards">${mapsProjects.map((item, index) => proofCard(item, index, language)).join("")}</div><p class="proof-empty" data-proof-empty hidden>${isEnglish ? "No examples match the current filter." : "لا توجد نماذج مطابقة للتصفية الحالية."}</p></div></div><div class="independent-note reveal">${icon("shield")}<p><strong>${isEnglish ? "Entity separation:" : "فصل الكيانات:"}</strong> ${isEnglish ? "The structured data describes this page as a creative portfolio and list of evidence. Customer businesses are not marked as LocalBusiness entities owned by Eslam Elshikh." : "البيانات المنظمة تصف الصفحة كبورتفوليو إبداعي وقائمة أدلة. لا تُعرّف أنشطة العملاء ككيانات LocalBusiness مملوكة أو تابعة للمهندس إسلام الشيخ."}</p></div></div></section>`;
-}
-
-function googleMapsProjectsPage() {
-  const categories = [...new Set(mapsProjects.map((item) => item.category))];
+function googleMapsProjectsPage(english = false) {
+  const path = `${english ? "/en" : ""}/google-maps-projects/`;
   const mapListSchema = {
-    "@type": "ItemList",
-    "@id": `${site.url}/google-maps-projects/#proof-list`,
-    name: "نماذج أعمال خرائط Google والملفات التجارية",
+    "@type": "ItemList", "@id": `${absolute(path)}#proof-list`,
+    name: english ? "Google Maps and Business Profile work" : "أعمال خرائط Google والملفات التجارية",
     numberOfItems: mapsProjects.length,
     itemListElement: mapsProjects.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
+      "@type": "ListItem", position: index + 1,
       item: {
-        "@type": "CreativeWork",
-        "@id": `${site.url}/google-maps-projects/#proof-${index + 1}`,
-        name: `نموذج عمل عام: ${item.title}`,
-        creator: { "@id": `${site.url}/#person` },
-        about: item.category,
+        "@type": "CreativeWork", "@id": `${absolute(path)}#proof-${index + 1}`,
+        name: item.title, creator: { "@id": `${site.url}/#person` },
+        about: item.category, sameAs: item.url, image: absolute(item.image),
         contentLocation: { "@type": "Place", name: item.location },
-        sameAs: item.url
+        dateModified: mapsWorkAudit.reviewedAt
       }
     }))
   };
-  const body = `${innerHero({ eyebrowText: "أعمال خرائط Google", title: `${mapsProjects.length} دليل عمل عامًا داخل محرك إثبات محلي`, lead: "خريطة تفاعلية تربط القطاع والموقع ونوع العمل بالدليل العام المتاح، مع فصل واضح بين بورتفوليو إسلام والكيانات التجارية المستقلة.", path: "/google-maps-projects/", crumbs: [{ name: "الأعمال", path: "/projects/" }, { name: "أعمال خرائط Google", path: "/google-maps-projects/" }], aside: `<span class="aside-kicker">Google Local Proof Engine</span><strong>كل رابط يقود إلى ملف عام فعلي على خرائط Google</strong><p>الأنشطة المعروضة ليست فروعًا لإسلام. لا نختلق نتائج أو نَعِد بترتيب ثابت.</p>` })}
-<section class="section-pad maps-method-section"><div class="container"><div class="maps-work-stats reveal"><div><strong>${mapsProjects.length}</strong><span>ملفًا فريدًا</span></div><div><strong>${categories.length}</strong><span>قطاعًا مختلفًا</span></div><div><strong>${mapWorkTracks.length}</strong><span>مسارات دعم رئيسية</span></div><div><strong>Google</strong><span>روابط عامة قابلة للمعاينة</span></div></div><div class="section-heading reveal">${eyebrow("نطاق الخبرة")}<h2>من إثبات الأهلية إلى حضور محلي أوضح</h2><p>الخدمة لا تعتمد على تعديل واحد؛ بل تبدأ بتشخيص حالة الملف والنشاط، ثم اختيار المسار المتوافق مع سياسات Google والهدف التجاري.</p></div><div class="map-track-grid">${mapWorkTracks.map((track) => `<article class="map-track-card reveal"><span dir="ltr">${track.number}</span><h3>${esc(track.title)}</h3><p>${esc(track.text)}</p></article>`).join("")}</div></div></section>
-${proofEngine()}
-<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("الخطوة التالية")}<h2>حوّل مشاهدة الدليل إلى فحص لحالتك</h2><p>ابدأ بفحص مجاني للبيانات العامة، أو اطلب استشارة إذا كانت الحالة تتضمن تحققًا أو تعليقًا أو تعارض ملكية.</p></div><div class="section-action">${button("/google-business-profile-audit/", "افحص ملفك خلال 60 ثانية")}${button("/book/", "احجز استشارة", "button-ghost")}</div></div></section>
-${finalCta("هل لديك ملف يحتاج توثيقًا أو استعادة ملكية أو رفع قيود؟", "أرسل رابط الملف ووضعه الحالي وما يظهر في لوحة الإدارة، وسأبدأ بتشخيص المسار الصحيح قبل أي تعديل أو طلب مراجعة.")}`;
-  return page({ title: "خريطة أعمال Google ودراسات الإثبات | إسلام الشيخ", description: `استعرض ${mapsProjects.length} نموذجًا عامًا داخل خريطة أعمال تفاعلية تفصل بوضوح بين بورتفوليو إسلام الشيخ والكيانات التجارية المستقلة.`, path: "/google-maps-projects/", active: "maps", body, stylesheets: [`/assets/css/google-growth.css?v=${version}`], pageScripts: [`/assets/js/google-proof.js?v=${version}`], keywords: ["أعمال خرائط جوجل", "توثيق خرائط جوجل", "دراسات حالة سيو محلي", "تحسين ظهور خرائط جوجل", "خبير خرائط جوجل"], schema: [mapListSchema, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }, { name: "أعمال خرائط Google", path: "/google-maps-projects/" }])] });
+  const body = `${renderMapsHero({ english, esc, icon })}
+${renderMapsStories({ english, esc, icon })}
+${renderMapsCollection({ english, esc, icon })}
+${english
+    ? englishFinalCta("Give your business a clearer local presence.", "Send your public profile link and the issue you want to solve. We will define the right next step for your business.")
+    : finalCta("نشاطك يستحق حضورًا أوضح.", "أرسل رابط ملفك والمشكلة التي تريد حلها. نراجع وضع النشاط، ثم نحدد الخطوة المناسبة لحضورك على Google.")}`;
+  return page({
+    title: english ? "Google Maps Work & Business Profile Stories | Eslam Elshikh" : "أعمال خرائط Google وحكايات الملفات | إسلام الشيخ",
+    description: english
+      ? `Explore ${mapsProjects.length} public Google Business Profile projects by Eslam Elshikh, with genuine images, work stories, sector and area filters, and related website case studies.`
+      : `استعرض ${mapsProjects.length} ملفًا تجاريًا عامًا من أعمال إسلام الشيخ على خرائط Google، بصور حقيقية وحكايات عمل وتصفية حسب القطاع والمنطقة ودراسات للمواقع المرتبطة.`,
+    path, active: "maps", body, lang: english ? "en" : "ar", modified: mapsWorkAudit.reviewedAt,
+    image: mapsProjects[0].image, preloadImage: mapsProjects[0].image,
+    stylesheets: [`/assets/css/google-growth.css?v=${version}`],
+    pageScripts: [`/assets/js/google-proof.js?v=${version}`],
+    keywords: english ? ["Google Maps portfolio", "Business Profile work", "local SEO Saudi Arabia"] : ["أعمال خرائط جوجل", "توثيق ملف تجاري", "استعادة ملف جوجل", "السيو المحلي"],
+    schema: [mapListSchema, breadcrumbSchema([
+      { name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" },
+      { name: english ? "Work" : "الأعمال", path: english ? "/en/projects/" : "/projects/" },
+      { name: english ? "Google Maps work" : "أعمال خرائط Google", path }
+    ])]
+  });
 }
 
 function projectsPage() {
@@ -1551,8 +1500,7 @@ function englishVerifiedWorkArchive() {
 }
 
 function englishMapsWorkTeaser() {
-  const samples = mapsProjects.filter((item) => item.featured).slice(0, 5);
-  return `<section class="section-pad maps-work-teaser"><div class="container"><div class="maps-teaser-panel reveal"><div class="maps-teaser-copy">${eyebrow("Google Maps work")}<h2>A public record across industries and Saudi cities</h2><p>${mapsProjects.length} unique Business Profile links demonstrate experience across verification support, ownership, restrictions, and local visibility. Official business names remain in their published language.</p><div class="maps-teaser-actions">${button("/en/google-maps-projects/", "Explore the Maps archive")} ${button(`${site.whatsapp}?text=${encodeURIComponent("Hello Eng. Eslam, I would like help diagnosing a Google Business Profile.")}`, "Discuss your profile", "button-ghost", true)}</div></div><div class="maps-teaser-stack" aria-label="Selected Google Maps work">${samples.map((item, index) => `<a href="${item.url}" target="_blank" rel="noopener"><span dir="ltr">${String(index + 1).padStart(2, "0")}</span><strong lang="ar" dir="rtl">${esc(item.title)}</strong>${icon("external")}</a>`).join("")}</div></div></div></section>`;
+  return renderMapsTeaser({ english: true, esc, icon });
 }
 
 function englishProjectsPage() {
@@ -1617,34 +1565,12 @@ const englishMapLocation = (value) => ({
   "ظهرة لبن، الرياض": "Dhahrat Laban, Riyadh"
 }[value] || "Saudi Arabia");
 
-function englishMapRequestHref(item) {
-  return `${site.whatsapp}?text=${encodeURIComponent(`Hello Eng. Eslam, I reviewed the public Google Maps example for ${item.title} and would like help with a similar Business Profile case.`)}`;
-}
-
 function englishFeaturedMapCard(item, index) {
-  return `<article class="map-case-card reveal"><div class="map-case-top"><span class="map-case-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span><span class="map-case-pin">${icon("pin")}</span></div><p class="map-case-category">${esc(englishMapCategory(item.category))}</p><h3 lang="ar" dir="rtl">${esc(item.title)}</h3><p class="map-case-location">${icon("pin")}<span>${esc(englishMapLocation(item.location))}</span></p><div class="map-case-actions"><a class="button button-small" href="${item.url}" target="_blank" rel="noopener" aria-label="Open the Google Maps profile for ${esc(item.title)}">Open profile ${icon("external", "button-icon")}</a><a class="button button-small button-ghost" href="${englishMapRequestHref(item)}" target="_blank" rel="noopener" aria-label="Discuss a similar Google Maps case">Discuss a similar case ${icon("whatsapp", "button-icon")}</a></div></article>`;
-}
-
-function englishMapLedgerCard(item, index) {
-  return `<article class="map-ledger-card reveal"><span class="map-ledger-number" dir="ltr">${String(index + 1).padStart(2, "0")}</span><div><p>${esc(englishMapCategory(item.category))}</p><h3 lang="ar" dir="rtl">${esc(item.title)}</h3><span>${icon("pin")} ${esc(englishMapLocation(item.location))}</span></div><a href="${item.url}" target="_blank" rel="noopener" aria-label="Open the Google Maps profile for ${esc(item.title)}">${icon("external")}</a></article>`;
+  return renderMapSample(item, index, { english: true, esc, icon });
 }
 
 function englishGoogleMapsProjectsPage() {
-  const path = "/en/google-maps-projects/";
-  const categories = [...new Set(mapsProjects.map((item) => item.category))];
-  const tracks = [
-    { number: "01", title: "Verification readiness", text: "Review eligibility, business information, and evidence before selecting the available verification route." },
-    { number: "02", title: "Ownership and access", text: "Diagnose ownership conflicts and access requests without exchanging passwords or one-time verification codes." },
-    { number: "03", title: "Restrictions and suspension", text: "Identify the material issue, correct it, and prepare a focused official review supported by relevant evidence." },
-    { number: "04", title: "Local visibility and SEO", text: "Improve services, categories, content, consistency, website alignment, reputation, and measurable customer actions." }
-  ];
-  const mapListSchema = { "@type": "ItemList", "@id": `${absolute(path)}#proof-list`, name: "Public Google Maps and Business Profile work", numberOfItems: mapsProjects.length, itemListElement: mapsProjects.map((item, index) => ({ "@type": "ListItem", position: index + 1, item: { "@type": "CreativeWork", "@id": `${absolute(path)}#proof-${index + 1}`, name: `Public work example: ${item.title}`, creator: { "@id": `${site.url}/#person` }, about: englishMapCategory(item.category), contentLocation: { "@type": "Place", name: englishMapLocation(item.location) }, sameAs: item.url } })) };
-  const body = `${innerHero({ eyebrowText: "Google Maps work", title: `${mapsProjects.length} public evidence records in a local proof engine`, lead: "An interactive view connecting sector, geography, work type, and available public evidence while keeping every customer entity independent.", path, language: "en", crumbs: [{ name: "Work", path: "/en/projects/" }, { name: "Google Maps work", path }], aside: `<span class="aside-kicker">Google Local Proof Engine</span><strong>Every external link opens a real public profile</strong><p>The businesses shown are not Eslam's branches. No case implies a guaranteed decision, fixed ranking, or invented result.</p>` })}
-<section class="section-pad maps-method-section"><div class="container"><div class="maps-work-stats reveal"><div><strong>${mapsProjects.length}</strong><span>unique public profiles</span></div><div><strong>${categories.length}</strong><span>business categories</span></div><div><strong>${tracks.length}</strong><span>core support tracks</span></div><div><strong>Google</strong><span>open links for direct review</span></div></div><div class="section-heading reveal">${eyebrow("Experience scope")}<h2>From eligibility and evidence to clearer local discovery</h2><p>There is rarely one decisive profile edit. The right sequence starts with the real business and current state, then uses the path that fits policy, risk, and the commercial objective.</p></div><div class="map-track-grid">${tracks.map((track) => `<article class="map-track-card reveal"><span dir="ltr">${track.number}</span><h3>${esc(track.title)}</h3><p>${esc(track.text)}</p></article>`).join("")}</div></div></section>
-${proofEngine("en")}
-<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Next step")}<h2>Turn the evidence into an audit of your situation</h2><p>Start with the free guided self-check or request a consultation for verification, suspension, or ownership conflicts.</p></div><div class="section-action">${button("/en/google-business-profile-audit/", "Run the free audit")}${button("/en/book/", "Book a consultation", "button-ghost")}</div></div></section>
-${englishFinalCta("Does your Business Profile need verification, ownership recovery, or a restriction review?", "Send the public profile link, current status, and what appears in the management interface. I will begin by identifying the correct path before another change or request.")}`;
-  return page({ title: "Google Maps Proof Engine & Public Work | Eslam Elshikh", description: `Explore ${mapsProjects.length} public work examples in an interactive proof map that keeps each customer business independent from Eslam Elshikh's entity.`, path, active: "maps", body, lang: "en", stylesheets: [`/assets/css/google-growth.css?v=${version}`], pageScripts: [`/assets/js/google-proof.js?v=${version}`], keywords: ["Google Maps portfolio", "Business Profile verification", "Google Maps proof engine", "local visibility Saudi Arabia"], schema: [mapListSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Work", path: "/en/projects/" }, { name: "Google Maps work", path }])] });
+  return googleMapsProjectsPage(true);
 }
 
 function englishPostCard(post, { featured = false } = {}) {
@@ -1896,7 +1822,7 @@ async function build() {
     sameAs: personSameAs,
     knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "Google Search", "Google Search Console", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"]
   }, null, 2));
-  await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Verified public work\n- ${projectAudit.listedProjects} web projects in the portfolio, audited from ${projectAudit.githubRepositories} GitHub repositories and ${projectAudit.vercelProjects} Vercel projects on ${projectAudit.auditedAt}: ${absolute("/projects/")}\n- ${mapsProjects.length} public Google Maps examples: ${absolute("/google-maps-projects/")}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- About: ${absolute("/about/")}\n- Google Maps specialist services: ${absolute("/google-expert/")}\n- Free Google Business Profile audit: ${absolute("/google-business-profile-audit/")}\n- Google Local Proof Engine: ${absolute("/google-maps-projects/")}\n- Book a consultation: ${absolute("/book/")}\n- Google Ads management: ${absolute("/google-ads/")}\n- Local SEO in Riyadh: ${absolute("/local-seo/riyadh/")}\n- Contact: ${absolute("/contact/")}\n`);
+  await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Verified public work\n- ${projectAudit.listedProjects} web projects in the portfolio, audited from ${projectAudit.githubRepositories} GitHub repositories and ${projectAudit.vercelProjects} Vercel projects on ${projectAudit.auditedAt}: ${absolute("/projects/")}\n- ${mapsProjects.length} public Google Maps examples: ${absolute("/google-maps-projects/")}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- About: ${absolute("/about/")}\n- Google Maps specialist services: ${absolute("/google-expert/")}\n- Free Google Business Profile audit: ${absolute("/google-business-profile-audit/")}\n- Google Maps work: ${absolute("/google-maps-projects/")}\n- Book a consultation: ${absolute("/book/")}\n- Google Ads management: ${absolute("/google-ads/")}\n- Local SEO in Riyadh: ${absolute("/local-seo/riyadh/")}\n- Contact: ${absolute("/contact/")}\n`);
   if (isDistBuild) await cp(join(root, "llms-full.txt"), join(outDir, "llms-full.txt"));
   await writeText("humans.txt", `Site: ${site.brandName}\nCanonical identity: ${site.nameAr} | ${site.nameEn}\nEnglish alternate: Islam Elshikh\nOfficial website: ${site.url}/\nLocation: ${site.city}, ${site.country}\nDesign and development: ${site.nameEn}\nUpdated: ${site.lastUpdated}\n`);
   await writeText("CNAME", "www.eslam-elshikh.com\n");

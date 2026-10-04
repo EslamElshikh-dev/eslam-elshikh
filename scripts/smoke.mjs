@@ -1,6 +1,7 @@
 import { access, readFile, readdir, stat } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { mapsProjects } from "../src/google-maps-work.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
@@ -87,7 +88,7 @@ if (/<form\b[^>]*data-project-form/i.test(contact)) failures.push("Contact compo
 if (!/data-project-submit/.test(contact)) failures.push("Contact composer lacks its explicit client-side action");
 if (!/data-gbp-audit/.test(audit) || !/data-manual-audit/.test(audit) || !/google-audit\.js/.test(audit)) failures.push("Google Business Profile audit page is incomplete");
 if (/<form\b/i.test(audit)) failures.push("Google audit page must not expose a native submission path");
-if (!/data-proof-engine/.test(proof) || (proof.match(/data-proof-card/g) || []).length !== 63 || !/CreativeWork/.test(proof)) failures.push("Google Local Proof Engine is missing cards or entity-safe schema");
+if (!/data-proof-engine/.test(proof) || (proof.match(/data-proof-card/g) || []).length !== mapsProjects.length || !/CreativeWork/.test(proof)) failures.push("Google Local Proof Engine is missing cards or entity-safe schema");
 if (/\"@type\":\"LocalBusiness\"/.test(proof)) failures.push("Proof Engine incorrectly declares customer businesses as LocalBusiness entities");
 if (!/data-booking-builder/.test(booking) || !/data-booking-submit/.test(booking)) failures.push("Booking request builder is incomplete");
 if (!/data-local-dashboard/.test(dashboard) || !/content="noindex, nofollow"/.test(dashboard)) failures.push("Private local dashboard is missing or indexable");
