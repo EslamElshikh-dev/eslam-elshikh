@@ -3,7 +3,7 @@ const github = (repo) => `https://github.com/EslamElshikh-dev/${repo}`;
 export const projectAudit = {
   githubRepositories: 100,
   vercelProjects: 64,
-  listedProjects: 94,
+  listedProjects: 96,
   auditedAt: "2026-10-04"
 };
 
@@ -15,10 +15,12 @@ export const webProjects = [
   { title: "دليل الوقف", sector: "المنصات والحلول الرقمية", liveUrl: "https://alwaqf-directory.vercel.app/", sourceUrl: github("alwaqf-directory") },
   { title: "BOWDY LABS", sector: "المنصات والحلول الرقمية", liveUrl: "https://bowdylabs.com/", sourceUrl: github("bowdy-labs") },
   { title: "مركز سما سكان للأشعة", sector: "الصحة والخدمات المهنية", liveUrl: "https://samascan.vercel.app/", sourceUrl: github("sama-scan-center-") },
+  { title: "لوحة قيادة سما سكان ونظام CRM", sector: "المنصات والحلول الرقمية", liveUrl: "https://samascan.vercel.app/dashboard/", sourceUrl: github("sama-scan-center-"), access: "restricted" },
   { title: "تصور منصة CRM لشركة الأرجان", sector: "المنصات والحلول الرقمية", liveUrl: "https://alargan-crm-proposal.vercel.app/", access: "restricted" },
   { title: "مركز دار البديع للحجامة — خميس مشيط", sector: "الصحة والخدمات المهنية", liveUrl: "https://dar-albadie-khamis.vercel.app/" },
   { title: "مؤسسة كيان الازدهار للألمنيوم والزجاج", sector: "النجارة والديكور", liveUrl: "https://kiyan-aluminium-glass.vercel.app/" },
   { title: "زايد للديكورات والدهانات", sector: "المقاولات والتشطيبات", liveUrl: "https://zayed-decor-riyadh.vercel.app/", sourceUrl: github("zayed-decor-riyadh") },
+  { title: "دهانات عليا — الرياض", sector: "المقاولات والتشطيبات", liveUrl: "https://dahanat-alya-riyadh.vercel.app/", sourceUrl: github("dahanat-alya-riyadh") },
   { title: "عبدالحكيم للكهرباء والإنارة الحديثة", sector: "السباكة والكهرباء", liveUrl: "https://abdulhakim-lighting-riyadh.vercel.app/" },
   { title: "ملوك الخزائن", sector: "النجارة والديكور", liveUrl: "https://muluk-al-khazain.vercel.app/" },
   { title: "تفصيل دواليب وغرف ملابس بالرياض", sector: "النجارة والديكور", liveUrl: "https://wardrobes-riyadh.vercel.app/" },
@@ -56,7 +58,7 @@ export const webProjects = [
   { title: "أبو صالح للدهانات وورق الجدران", sector: "المقاولات والتشطيبات", liveUrl: "https://abu-saleh-paints-riyadh.vercel.app/" },
   { title: "حمزة لخدمات التبريد والتكييف", sector: "التبريد والتكييف", liveUrl: "https://hamza-ac-repair-riyadh.vercel.app/" },
   { title: "مؤسسة ريم كوم للخزائن الحديثة", sector: "النجارة والديكور", liveUrl: "https://reem-com-modern-wardrobes-riyadh.vercel.app/" },
-  { title: "ثقة للصيانة المنزلية", sector: "الصحة والخدمات المهنية", liveUrl: "https://thiqah-maintenance-sa-preview.vercel.app/" },
+  { title: "ثقة للتشغيل والصيانة", sector: "الصيانة والتشغيل", liveUrl: "https://thiqah-maintenance-sa.vercel.app/" },
   { title: "النجار الماهر لتفصيل الخزائن والدواليب", sector: "النجارة والديكور", liveUrl: "https://eslamelshikh-dev.github.io/Tafsel_alkazain_alhadessa/", sourceUrl: github("Tafsel_alkazain_alhadessa") },
   { title: "محمد لخدمات السباكة والكهرباء", sector: "السباكة والكهرباء", liveUrl: "https://eslamelshikh-dev.github.io/mohamed-services/", sourceUrl: github("mohamed-services") },
   { title: "هارون لخدمات السباكة والكهرباء", sector: "السباكة والكهرباء", liveUrl: "https://eslamelshikh-dev.github.io/haroun-electric-plumbing/", sourceUrl: github("haroun-electric-plumbing") },
