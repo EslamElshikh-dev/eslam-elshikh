@@ -1795,6 +1795,7 @@ async function build() {
     await rm(outDir, { recursive: true, force: true });
     await mkdir(outDir, { recursive: true });
     await cp(join(root, "assets"), join(outDir, "assets"), { recursive: true });
+    await cp(join(root, "favicon.ico"), join(outDir, "favicon.ico"));
     const mainCssPath = join(outDir, "assets", "css", "main.css");
     const enhancementsCssPath = join(outDir, "assets", "css", "enhancements.css");
     const [mainCss, enhancementsCss] = await Promise.all([
