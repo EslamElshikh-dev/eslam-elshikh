@@ -1,0 +1,94 @@
+/* The work archive: real interfaces, generous images, and clear next steps. */
+.work-ledger-section { background: var(--bg-elevated); }
+.work-ledger-section::before { opacity: .5; }
+.work-ledger-section .section-heading { max-width: 850px; margin-bottom: 2rem; }
+.work-ledger-section .section-heading h2 { font-size: clamp(2rem, 3.7vw, 3.4rem); line-height: 1.45; }
+.work-audit-summary { box-shadow: none; margin-bottom: 1.5rem; }
+.work-audit-summary > div { min-height: 108px; }
+.work-audit-summary span { font-size: .875rem; }
+.work-ledger-controls { grid-template-columns: 1fr; gap: 1.1rem; padding: 1.5rem; margin-bottom: 2rem; border-radius: 1.3rem; }
+.work-search { max-width: 540px; }
+.work-search-field { min-height: 56px; border-radius: .85rem; }
+.work-sector-filters { gap: .55rem; }
+.work-sector-filters button { min-height: 44px; padding: .6rem 1rem; font-size: .86rem; }
+.work-results-status { color: var(--muted); }
+.work-ledger-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; align-items: stretch; }
+.work-ledger-section .work-ledger-card { min-height: 0; padding: 0; border: 1px solid var(--line-strong); border-radius: 1.25rem; overflow: hidden; background: var(--surface); box-shadow: 0 6px 22px rgba(10, 22, 32, .04); }
+.work-card-preview { display: block; position: relative; background: var(--surface-2); color: var(--muted); }
+.work-browser-bar { height: 39px; padding: 0 .8rem; display: flex; align-items: center; gap: .65rem; border-bottom: 1px solid var(--line); direction: ltr; }
+.work-browser-dots { display: flex; gap: 4px; flex: 0 0 auto; }
+.work-browser-dots i { height: 6px; width: 6px; border-radius: 50%; background: var(--muted-2); opacity: .4; }
+.work-browser-domain { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; font: 500 .66rem/1.5 "Segoe UI", sans-serif; }
+.work-card-index { font: 700 .7rem/1 "Segoe UI", sans-serif; letter-spacing: .06em; color: var(--primary); }
+.work-preview-image { position: relative; display: block; aspect-ratio: 8 / 5; overflow: hidden; background: #e9edf2; }
+.work-preview-image img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: top; transition: transform .5s cubic-bezier(.2,.7,.3,1); }
+.work-preview-zoom { position: absolute; inset-inline-end: .75rem; bottom: .75rem; min-height: 36px; display: inline-flex; align-items: center; gap: .4rem; padding: .3rem .7rem; border: 1px solid rgba(255,255,255,.24); border-radius: 999px; background: rgba(15,26,39,.88); color: #fff; font-size: .76rem; backdrop-filter: blur(8px); transition: opacity .2s ease, transform .2s ease; }
+.work-preview-zoom .icon { width: 1rem; height: 1rem; }
+.work-card-body { display: flex; flex-direction: column; flex: 1; padding: 1.25rem; }
+.work-card-sector { align-self: flex-start; display: inline-flex; align-items: center; padding: .3rem .65rem; border: 1px solid var(--line); border-radius: 999px; color: var(--primary); background: var(--surface-2); font-size: .76rem; font-weight: 700; line-height: 1.6; }
+.work-ledger-section .work-ledger-card h3 { margin: .85rem 0 1.2rem; font-size: 1.12rem; font-weight: 850; line-height: 1.65; letter-spacing: 0; }
+.work-card-access { display: flex; align-items: center; gap: .4rem; margin: -.6rem 0 .8rem; font-size: .78rem; color: var(--muted); }
+.work-card-access .icon { width: 1rem; height: 1rem; }
+.work-ledger-section .work-ledger-actions { display: grid; grid-template-columns: 1fr; gap: .65rem; padding: 0; margin-top: auto; }
+.work-card-secondary { display: flex; gap: .65rem; }
+.work-ledger-actions a, .work-card-live, .work-card-request, .work-card-source { min-height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .65rem .85rem; border: 1px solid var(--line-strong); border-radius: .75rem; font-size: .87rem; font-weight: 750; line-height: 1.4; text-decoration: none; transition: background .2s ease, border-color .2s ease, transform .2s ease; }
+.work-ledger-actions a.work-card-live, a.work-card-live { justify-content: space-between; color: var(--bg); background: var(--primary); border-color: var(--primary); }
+:root[data-theme="light"] .work-ledger-actions a.work-card-live, :root[data-theme="light"] a.work-card-live { color: #fff; }
+.work-ledger-actions a.work-card-request { color: var(--text-soft); background: var(--surface); flex: 1; }
+.work-ledger-actions a.work-card-source { color: var(--muted); width: 46px; flex: 0 0 46px; padding: .6rem; background: var(--surface-2); }
+.work-ledger-actions .icon, .work-card-live .icon { width: 1.05rem; height: 1.05rem; flex: 0 0 auto; }
+.work-card-request .icon { color: var(--primary); }
+.work-ledger-more { margin-top: 2rem; }
+.work-ledger-more .button { min-width: 220px; min-height: 52px; }
+.work-card-preview:focus-visible, .work-ledger-actions a:focus-visible, .work-preview-dialog button:focus-visible, .work-preview-dialog a:focus-visible { outline: 3px solid var(--secondary); outline-offset: 4px; }
+.portfolio-actions { gap: .65rem; }
+.portfolio-actions .button, .portfolio-request-link { min-height: 46px; border-radius: .75rem; font-size: .875rem; }
+.portfolio-request-link { display: inline-flex; justify-content: center; align-items: center; gap: .5rem; padding: .65rem .9rem; border: 1px solid var(--line-strong); color: var(--text-soft); background: var(--surface-2); text-decoration: none; font-weight: 750; }
+.portfolio-request-link .icon { width: 1.05rem; height: 1.05rem; color: var(--primary); }
+.work-preview-dialog { width: min(1120px, calc(100vw - 48px)); max-width: none; max-height: calc(100dvh - 48px); padding: 0; border: 1px solid var(--line-strong); border-radius: 1.4rem; color: var(--text); background: var(--surface); box-shadow: 0 32px 100px rgba(0,0,0,.3); overflow: auto; }
+.work-preview-dialog::backdrop { background: rgba(8,17,25,.78); backdrop-filter: blur(7px); }
+body.work-preview-open { overflow: hidden; }
+.work-dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.1rem 1.4rem; border-bottom: 1px solid var(--line); }
+.work-dialog-header > div { min-width: 0; }
+.work-dialog-header span { color: var(--muted); font-size: .68rem; letter-spacing: .06em; }
+.work-dialog-header h2 { font-size: clamp(1rem, 2vw, 1.4rem); margin: .2rem 0 0; line-height: 1.5; }
+.work-preview-dialog button { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; flex: 0 0 46px; border: 1px solid var(--line-strong); border-radius: .75rem; background: var(--surface-2); color: var(--text); cursor: pointer; }
+.work-preview-dialog button .icon { width: 1.2rem; height: 1.2rem; }
+.work-dialog-stage { display: grid; place-items: center; min-height: 180px; background: #e9edf2; }
+.work-dialog-stage img { width: 100%; height: auto; max-height: 65dvh; object-fit: contain; display: block; }
+.work-dialog-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .8rem 1.2rem; padding: 1.1rem 1.4rem; }
+.work-dialog-footer > p { margin: 0; color: var(--muted); font-size: .82rem; }
+.work-dialog-footer .work-card-live { gap: 1rem; }
+.work-dialog-navigation { display: flex; align-items: center; gap: .6rem; }
+.work-dialog-navigation > span { min-width: 65px; text-align: center; color: var(--muted); font: 600 .8rem/1.5 "Segoe UI", sans-serif; }
+[dir="rtl"] [data-preview-next] .icon, [dir="ltr"] [data-preview-prev] .icon { transform: rotate(180deg); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .work-ledger-section .work-ledger-card:hover { transform: translateY(-5px); box-shadow: 0 18px 36px rgba(10,22,32,.1); }
+  .work-card-preview:hover .work-preview-image img { transform: scale(1.035); }
+  .work-preview-zoom { opacity: 0; transform: translateY(6px); }
+  .work-card-preview:hover .work-preview-zoom, .work-card-preview:focus-visible .work-preview-zoom { opacity: 1; transform: none; }
+  .work-ledger-actions a:hover, .portfolio-request-link:hover { border-color: var(--primary); transform: translateY(-1px); }
+}
+@media (max-width: 1100px) { .work-ledger-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) {
+  .work-ledger-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+  .work-ledger-controls { padding: 1rem; margin-bottom: 1.5rem; }
+  .work-sector-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: .45rem; scrollbar-width: thin; }
+  .work-sector-filters button { flex: 0 0 auto; white-space: nowrap; font-size: .82rem; }
+  .work-card-body { padding: 1.15rem; }
+  .work-ledger-section .work-ledger-card h3 { font-size: 1.18rem; }
+  .work-browser-domain { font-size: .7rem; }
+  .work-ledger-actions a { min-height: 48px; font-size: .92rem; }
+  .work-audit-summary > div { min-height: 105px; padding: 1rem .65rem; }
+  .work-audit-summary span { font-size: .74rem; }
+  .portfolio-actions { align-items: stretch; }
+  .portfolio-actions .button, .portfolio-request-link { flex: 1 1 140px; text-align: center; }
+  .work-preview-dialog { width: calc(100vw - 24px); max-height: calc(100dvh - 24px); border-radius: 1rem; }
+  .work-dialog-header, .work-dialog-footer { padding: .9rem; }
+  .work-dialog-footer > p { order: 3; flex-basis: 100%; }
+  .work-dialog-footer .work-card-live { font-size: .8rem; gap: .6rem; }
+  .work-dialog-navigation { gap: .3rem; }
+  .work-dialog-navigation > span { min-width: 49px; }
+  .work-preview-dialog button { width: 44px; height: 44px; flex-basis: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { .work-preview-image img, .work-preview-zoom, .work-ledger-actions a { transition: none; } }

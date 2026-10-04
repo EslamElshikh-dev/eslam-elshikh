@@ -192,6 +192,7 @@
     const pageSize = 18;
     let activeSector = "all";
     let visibleLimit = pageSize;
+    let matchingCards = workCards;
 
     const normalizeWorkText = (value) => String(value || "")
       .normalize("NFKD")
@@ -211,6 +212,7 @@
         return sectorMatches && queryMatches;
       });
       const visible = new Set(matches.slice(0, visibleLimit));
+      matchingCards = matches;
 
       workCards.forEach((card) => {
         card.hidden = !visible.has(card);
@@ -250,6 +252,67 @@
       applyWorkView();
       animateCards(workCards.filter((card) => !card.hidden).slice(previousLimit));
     });
+
+    const previewDialog = workArchive.querySelector("[data-work-dialog]");
+    if (previewDialog && typeof previewDialog.showModal === "function") {
+      const previewImage = previewDialog.querySelector("[data-preview-image]");
+      const previewTitle = previewDialog.querySelector("[data-preview-title]");
+      const previewCaption = previewDialog.querySelector("[data-preview-caption]");
+      const previewLink = previewDialog.querySelector("[data-preview-link]");
+      const previewPosition = previewDialog.querySelector("[data-preview-position]");
+      const previewPrevious = previewDialog.querySelector("[data-preview-prev]");
+      const previewNext = previewDialog.querySelector("[data-preview-next]");
+      let galleryCards = [];
+      let galleryIndex = 0;
+      let previewTrigger = null;
+
+      const showPreview = (index) => {
+        galleryIndex = (index + galleryCards.length) % galleryCards.length;
+        const card = galleryCards[galleryIndex];
+        const link = card.querySelector("[data-work-preview]");
+        const title = card.dataset.workTitle;
+        previewImage.src = link.href;
+        previewImage.alt = `${isEnglish ? "Interface preview of" : "لقطة من واجهة"} ${title}`;
+        previewTitle.textContent = title;
+        previewTitle.dir = "auto";
+        previewCaption.textContent = link.dataset.previewCaption;
+        previewLink.href = link.dataset.previewLive;
+        previewLink.querySelector("[data-preview-link-label]").textContent = link.dataset.previewLabel;
+        previewLink.setAttribute("aria-label", `${link.dataset.previewLabel} — ${title}`);
+        previewPosition.textContent = `${galleryIndex + 1} / ${galleryCards.length}`;
+        previewPrevious.disabled = previewNext.disabled = galleryCards.length < 2;
+      };
+
+      workArchive.addEventListener("click", (event) => {
+        const trigger = event.target.closest("[data-work-preview]");
+        if (!trigger || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        previewTrigger = trigger;
+        galleryCards = matchingCards;
+        showPreview(galleryCards.indexOf(trigger.closest("[data-work-card]")));
+        previewDialog.showModal();
+        body.classList.add("work-preview-open");
+      });
+      previewPrevious.addEventListener("click", () => showPreview(galleryIndex - 1));
+      previewNext.addEventListener("click", () => showPreview(galleryIndex + 1));
+      previewDialog.querySelector("[data-preview-close]").addEventListener("click", () => previewDialog.close());
+      previewDialog.addEventListener("click", (event) => {
+        if (event.target !== previewDialog) return;
+        const bounds = previewDialog.getBoundingClientRect();
+        if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) previewDialog.close();
+      });
+      previewDialog.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        const nextKey = isEnglish ? "ArrowRight" : "ArrowLeft";
+        showPreview(galleryIndex + (event.key === nextKey ? 1 : -1));
+      });
+      previewDialog.addEventListener("close", () => {
+        body.classList.remove("work-preview-open");
+        previewImage.removeAttribute("src");
+        previewTrigger?.focus({ preventScroll: true });
+      });
+    }
 
     applyWorkView();
   }

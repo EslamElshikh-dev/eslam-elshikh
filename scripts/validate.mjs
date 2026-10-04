@@ -3,6 +3,7 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { posts, projects } from "../src/content.mjs";
 import { projectAudit, webProjects } from "../src/web-projects.mjs";
+import { projectPreviews } from "../src/project-previews.mjs";
 import { guides } from "../src/guides.mjs";
 import { articleVisuals } from "../src/article-visuals.mjs";
 import { englishArticles, englishServices, englishTopics } from "../src/english.mjs";
@@ -216,7 +217,9 @@ for (const route of sitemapRoutes) {
   const stylesheetCount = (html.match(/<link\b[^>]*\brel=["']stylesheet["'][^>]*>/gi) || []).length;
   const growthStyleRoutes = new Set(["/book/", "/google-business-profile-audit/", "/google-maps-projects/", "/en/book/", "/en/google-business-profile-audit/", "/en/google-maps-projects/"]);
   if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/studio\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned studio stylesheet`);
-  const expectedStylesheets = route === "/about/" || growthStyleRoutes.has(route) ? 3 : 2;
+  const hasProjectGallery = route === "/" || route === "/en/" || /^(\/en)?\/projects\//.test(route);
+  const expectedStylesheets = 2 + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery);
+  if (hasProjectGallery && !html.includes(`/assets/css/project-gallery.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned project gallery stylesheet`);
   if (stylesheetCount !== expectedStylesheets) errors.push(`${route}: expected ${expectedStylesheets} stylesheet link(s), found ${stylesheetCount}`);
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
@@ -382,6 +385,19 @@ for (const marker of ["data-work-search", "data-work-filter=\"all\"", "data-work
 }
 const uniqueLiveUrls = new Set(webProjects.map((project) => project.liveUrl));
 if (uniqueLiveUrls.size !== webProjects.length) errors.push(`Verified work data contains ${webProjects.length - uniqueLiveUrls.size} duplicate live URL(s)`);
+for (const project of webProjects) {
+  const preview = projectPreviews[project.liveUrl];
+  if (!preview?.src?.startsWith("/assets/projects/") || !preview.src.endsWith(".webp")) {
+    errors.push(`Project is missing a self-hosted preview: ${project.title}`);
+    continue;
+  }
+  try { await access(join(output, preview.src)); } catch { errors.push(`Project preview file is missing: ${preview.src}`); }
+}
+for (const [route, html] of [["/projects/", projectsPageHtml], ["/en/projects/", englishProjectsPageHtml]]) {
+  const previewCount = (html.match(/\bdata-work-preview(?:\s|>)/g) || []).length;
+  if (previewCount !== webProjects.length) errors.push(`${route}: expected ${webProjects.length} image previews, found ${previewCount}`);
+  if (!html.includes('data-work-dialog aria-labelledby="work-preview-title"')) errors.push(`${route}: project preview dialog is missing its accessible title`);
+}
 for (const [route, html] of pages) {
   const mapSectionCount = (html.match(/id="google-business-map"/g) || []).length;
   if (mapSectionCount !== 1) errors.push(`${route}: expected one sitewide Google Maps section, found ${mapSectionCount}`);
