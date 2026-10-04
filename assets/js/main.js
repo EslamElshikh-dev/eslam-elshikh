@@ -213,6 +213,7 @@
       });
       const visible = new Set(matches.slice(0, visibleLimit));
       matchingCards = matches;
+      matches.forEach((card, index) => { card.dataset.workPosition = String(index % 5); });
 
       workCards.forEach((card) => {
         card.hidden = !visible.has(card);
@@ -253,6 +254,12 @@
       animateCards(workCards.filter((card) => !card.hidden).slice(previousLimit));
     });
 
+    const workLayouts = [...workArchive.querySelectorAll("[data-work-layout]")];
+    workLayouts.forEach(button => button.addEventListener("click", () => {
+      workArchive.dataset.workView = button.dataset.workLayout;
+      workLayouts.forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+    }));
+
     const previewDialog = workArchive.querySelector("[data-work-dialog]");
     if (previewDialog && typeof previewDialog.showModal === "function") {
       const previewImage = previewDialog.querySelector("[data-preview-image]");
@@ -277,6 +284,7 @@
         previewTitle.dir = "auto";
         previewCaption.textContent = link.dataset.previewCaption;
         previewLink.href = link.dataset.previewLive;
+        previewLink.hidden = link.dataset.previewArchived === "true";
         previewLink.querySelector("[data-preview-link-label]").textContent = link.dataset.previewLabel;
         previewLink.setAttribute("aria-label", `${link.dataset.previewLabel} — ${title}`);
         previewPosition.textContent = `${galleryIndex + 1} / ${galleryCards.length}`;
@@ -284,7 +292,7 @@
       };
 
       workArchive.addEventListener("click", (event) => {
-        const trigger = event.target.closest("[data-work-preview]");
+        const trigger = event.target.closest("[data-work-preview], [data-work-open-preview]");
         if (!trigger || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
         previewTrigger = trigger;
@@ -315,6 +323,39 @@
     }
 
     applyWorkView();
+  }
+
+  const workStories = doc.querySelector("[data-work-stories]");
+  if (workStories) {
+    const tabs = [...workStories.querySelectorAll("[data-work-story-tab]")];
+    const panels = [...workStories.querySelectorAll("[data-work-story-panel]")];
+    const tabList = workStories.querySelector(".work-story-tabs");
+    tabList.setAttribute("role", "tablist");
+    tabs.forEach(tab => tab.setAttribute("role", "tab"));
+    panels.forEach(panel => panel.setAttribute("role", "tabpanel"));
+    const selectStory = (slug, focus = false) => {
+      tabs.forEach(tab => {
+        const selected = tab.dataset.workStoryTab === slug;
+        tab.setAttribute("aria-selected", String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        if (selected && focus) tab.focus({ preventScroll: true });
+      });
+      panels.forEach(panel => { panel.hidden = panel.dataset.workStoryPanel !== slug; });
+    };
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => selectStory(tab.dataset.workStoryTab));
+      tab.addEventListener("keydown", event => {
+        let next = index;
+        if (event.key === "Home") next = 0;
+        else if (event.key === "End") next = tabs.length - 1;
+        else if (event.key === "ArrowRight" || event.key === "ArrowLeft") next = (index + (event.key === (isEnglish ? "ArrowRight" : "ArrowLeft") ? 1 : -1) + tabs.length) % tabs.length;
+        else return;
+        event.preventDefault();
+        selectStory(tabs[next].dataset.workStoryTab, true);
+      });
+    });
+    doc.querySelectorAll("[data-work-jump]").forEach(link => link.addEventListener("click", () => selectStory(link.dataset.workJump)));
+    selectStory(tabs[0].dataset.workStoryTab);
   }
 
   const form = doc.querySelector("[data-project-form]");

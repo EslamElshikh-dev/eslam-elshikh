@@ -3,7 +3,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { site, services, projects, mapsProjects, posts, homeFaq, localSeoFaq } from "./src/content.mjs";
 import { projectAudit, webProjects } from "./src/web-projects.mjs";
-import { renderProjectCard, renderProjectPreviewDialog } from "./src/project-gallery.mjs";
+import { renderWorkHero, renderWorkStories, renderWorkGallery, renderWorkClosing } from "./src/project-experience.mjs";
 import { guides } from "./src/guides.mjs";
 import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
 import { renderAbout } from "./src/about.mjs";
@@ -466,12 +466,7 @@ function projectsShowcase({ home = false } = {}) {
 }
 
 function verifiedWorkArchive() {
-  const sectors = [...new Set(webProjects.map((project) => project.sector))];
-  const cards = webProjects.map((project, index) => renderProjectCard(project, index, {
-    sector: project.sector, title: esc(project.title), whatsapp: site.whatsapp, esc, icon
-  })).join("");
-
-  return `<section class="section-pad work-ledger-section" data-work-archive data-work-count="${projectAudit.listedProjects}"><div class="container"><div class="section-heading reveal">${eyebrow("السجل الكامل الموثق")}<h2>${projectAudit.listedProjects} مشروع ويب في سجل الأعمال</h2><p>حدّثت السجل بعد مراجعة ${projectAudit.githubRepositories} مستودعًا على GitHub و${projectAudit.vercelProjects} مشروعًا على Vercel. أضفت المشروعات العامة الجديدة، ودمجت النسخ المتكررة، وأبقيت الأعمال السابقة مع روابطها. آخر مراجعة: ${projectAuditDate("ar")}.</p></div><div class="work-audit-summary reveal" aria-label="ملخص تدقيق أعمال الويب"><div><strong>${projectAudit.githubRepositories}</strong><span>مستودع GitHub تمت مراجعته</span></div><div><strong>${projectAudit.vercelProjects}</strong><span>مشروع Vercel تمت مراجعته</span></div><div><strong>${projectAudit.listedProjects}</strong><span>مشروعًا في سجل الأعمال</span></div></div><div class="work-ledger-controls reveal"><label class="work-search"><span>ابحث في الأعمال</span><span class="work-search-field">${icon("search")}<input type="search" inputmode="search" autocomplete="off" placeholder="اسم المشروع أو القطاع أو النطاق" data-work-search></span></label><div class="work-sector-filters" aria-label="تصفية الأعمال حسب القطاع">${[`الكل`, ...sectors].map((sector, index) => `<button type="button" data-work-filter="${index === 0 ? "all" : esc(sector)}" aria-pressed="${index === 0 ? "true" : "false"}">${esc(sector)}</button>`).join("")}</div><p class="work-results-status" data-work-status aria-live="polite">عرض ${webProjects.length} من أصل ${webProjects.length} مشروعًا</p></div><div class="work-ledger-grid">${cards}</div>${renderProjectPreviewDialog(false, icon)}<div class="work-ledger-more"><button class="button button-ghost" type="button" data-work-more hidden>عرض المزيد ${icon("arrow", "button-icon")}</button></div><p class="work-empty" data-work-empty hidden>لا توجد أعمال مطابقة لعبارة البحث أو القطاع المحدد.</p><div class="independent-note reveal">${icon("shield")}<p><strong>حدود الدليل:</strong> الروابط تثبت وجود المشروع العام وقت المراجعة، ولا تعني ادعاء أرقام زيارات أو تحويلات أو ملكية تجارية للجهات المعروضة. الروابط الخارجية قد تتغير بعد النشر.</p></div></div></section>`;
+  return renderWorkGallery({ esc, icon, name: project => esc(project.title), auditDate: projectAuditDate("ar") });
 }
 
 function articleImage(post, { language = "ar", card = false, featured = false } = {}) {
@@ -1024,13 +1019,13 @@ function projectsPage() {
     mainEntity: { "@id": projectList["@id"] },
     dateModified: projectAudit.auditedAt
   };
-  const body = `${innerHero({ eyebrowText: "الأعمال والمشروعات", title: `${projectAudit.listedProjects} مشروع ويب، ومختارات تشرح طريقة التنفيذ`, lead: "سجل أعمال بروابط مباشرة، مع مشروعات مختارة توضح كيف يتحول الهدف التجاري إلى بنية محتوى وتجربة متجاوبة ومسارات تواصل وقياس على الجوال وسطح المكتب.", path: "/projects/", crumbs: [{ name: "الأعمال", path: "/projects/" }], aside: `<span class="aside-kicker">WEB PROJECTS / ${projectAudit.listedProjects}</span><strong>تصميم وتطوير وسيو في منظومة واحدة</strong><p>تدقيق GitHub وVercel يفصل الأعمال الحية عن النسخ التجريبية والمكررة، مع روابط مباشرة قابلة للمراجعة.</p>` })}
-<section class="section-pad portfolio-page-section"><div class="container"><div class="portfolio-page-heading reveal"><span>${projects.length} مشروعًا مختارًا</span><p>مجموعة منتقاة مرتبة بصريًا لتوضّح تنوع القطاعات وطبيعة الحل، ثم يأتي بعدها السجل الكامل للأعمال والمشروعات.</p></div>${projectsShowcase()}</div></section>
+  const body = `${renderWorkHero({ esc, icon })}
+${renderWorkStories({ esc, icon, name: project => esc(project.title), description: project => project.description, category: project => project.category })}
 ${verifiedWorkArchive()}
 ${mapsWorkTeaser()}
 ${googleGrowthTeaser()}
 <section class="section-pad"><div class="container case-method reveal"><div><span>منهج المشروع</span><h2>لا توجد نسخة واحدة تُكرر على كل نشاط</h2></div><p>تختلف بنية الموقع والمحتوى والدعوات والبيانات المنظمة حسب نموذج النشاط ورحلة العميل والمنافسة والقدرة التشغيلية. الهدف هو حل يناسب العمل الحقيقي، لا قالبًا يغير الألوان والشعار فقط.</p>${button("/contact/", "ناقش مشروعًا مشابهًا")}</div></section>
-${finalCta("هل تريد تحويل نشاطك إلى تجربة رقمية احترافية؟", "أرسل رابط الموقع أو الملف التجاري والخدمات المستهدفة والمدينة والهدف، وسنحدد ما يحتاج إعادة بناء وما يمكن تحسينه تدريجيًا.")}`;
+${renderWorkClosing({ english: false, icon })}`;
   return page({ title: `${projectAudit.listedProjects} مشروع ويب موثق | أعمال المهندس إسلام الشيخ`, description: `استعرض ${projectAudit.listedProjects} مشروع ويب من أعمال المهندس إسلام الشيخ في تطوير المواقع والمنصات وتجربة المستخدم والسيو التقني والمحلي.`, path: "/projects/", active: "projects", body, modified: projectAudit.auditedAt, schema: [collectionSchema, projectList, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }])] });
 }
 
@@ -1521,13 +1516,7 @@ function englishProjectsShowcase({ home = false } = {}) {
 }
 
 function englishVerifiedWorkArchive() {
-  const sectors = [...new Set(webProjects.map((project) => project.sector))];
-  const cards = webProjects.map((project, index) => renderProjectCard(project, index, {
-    english: true, sector: englishSectorNames[project.sector] || "Digital project",
-    title: officialProjectName(project), whatsapp: site.whatsapp, esc, icon
-  })).join("");
-  const englishSectors = sectors.map((sector) => englishSectorNames[sector] || "Digital project");
-  return `<section class="section-pad work-ledger-section" data-work-archive data-work-count="${projectAudit.listedProjects}"><div class="container"><div class="section-heading reveal">${eyebrow("Verified public archive")}<h2>${projectAudit.listedProjects} web projects in the portfolio</h2><p>I refreshed the archive after reviewing ${projectAudit.githubRepositories} GitHub repositories and ${projectAudit.vercelProjects} Vercel projects. New public projects have been added, duplicate versions consolidated, and previous work retained with its links. Last review: ${projectAuditDate("en")}.</p></div><div class="work-audit-summary reveal" aria-label="Web work audit summary"><div><strong>${projectAudit.githubRepositories}</strong><span>GitHub repositories reviewed</span></div><div><strong>${projectAudit.vercelProjects}</strong><span>Vercel projects reviewed</span></div><div><strong>${projectAudit.listedProjects}</strong><span>projects in the portfolio</span></div></div><div class="work-ledger-controls reveal"><label class="work-search"><span>Search the archive</span><span class="work-search-field">${icon("search")}<input type="search" inputmode="search" autocomplete="off" placeholder="Project, sector, or domain" data-work-search></span></label><div class="work-sector-filters" aria-label="Filter projects by sector">${["All", ...englishSectors].map((sector, index) => `<button type="button" data-work-filter="${index === 0 ? "all" : esc(sector)}" aria-pressed="${index === 0 ? "true" : "false"}">${esc(sector)}</button>`).join("")}</div><p class="work-results-status" data-work-status aria-live="polite">Showing ${webProjects.length} of ${webProjects.length} projects</p></div><div class="work-ledger-grid">${cards}</div>${renderProjectPreviewDialog(true, icon)}<div class="work-ledger-more"><button class="button button-ghost" type="button" data-work-more hidden>Show more ${icon("arrow", "button-icon")}</button></div><p class="work-empty" data-work-empty hidden>No projects match the current search and sector.</p><div class="independent-note reveal">${icon("shield")}<p><strong>Evidence boundary:</strong> these links verify that a public project existed at the review date. They do not claim traffic, conversion, revenue, or commercial ownership of the businesses shown. External links may change later.</p></div></div></section>`;
+  return renderWorkGallery({ english: true, esc, icon, name: officialProjectName, sectors: englishSectorNames, auditDate: projectAuditDate("en") });
 }
 
 function englishMapsWorkTeaser() {
@@ -1539,13 +1528,13 @@ function englishProjectsPage() {
   const path = "/en/projects/";
   const projectList = { "@type": "ItemList", "@id": `${absolute(path)}#project-list`, name: "Verified live web projects by Eslam Elshikh", numberOfItems: webProjects.length, itemListElement: webProjects.map((project, index) => ({ "@type": "ListItem", position: index + 1, name: project.title, url: project.liveUrl })) };
   const collectionSchema = { "@type": "CollectionPage", "@id": `${absolute(path)}#collection`, url: absolute(path), name: "Web projects and case studies by Eslam Elshikh", description: `${projectAudit.listedProjects} web projects in the portfolio, supported by selected case studies explaining delivery decisions and public evidence.`, creator: { "@id": `${site.url}/#person` }, mainEntity: { "@id": projectList["@id"] }, dateModified: projectAudit.auditedAt };
-  const body = `${innerHero({ eyebrowText: "Work & case studies", title: `${projectAudit.listedProjects} web projects—and selected stories behind the work`, lead: "A project archive with direct links, supported by case studies showing how a business objective becomes content architecture, responsive UX, technical implementation, and measurable contact paths.", path, language: "en", crumbs: [{ name: "Work", path }], aside: `<span class="aside-kicker">WEB PROJECTS / ${projectAudit.listedProjects}</span><strong>Design, engineering, and search as one system</strong><p>The audit separates live public work from empty repositories, duplicates, experiments, and inaccessible links.</p>` })}
-<section class="section-pad portfolio-page-section"><div class="container"><div class="portfolio-page-heading reveal"><span>${projects.length} selected projects</span><p>A curated visual collection demonstrates different sectors and delivery choices before the complete verified archive.</p></div>${englishProjectsShowcase()}</div></section>
+  const body = `${renderWorkHero({ english: true, esc, icon })}
+${renderWorkStories({ english: true, esc, icon, name: officialProjectName, description: englishProjectDescription, category: project => englishProjectStudies[project.slug]?.category || englishProjectCategory(project.category) })}
 ${englishVerifiedWorkArchive()}
 ${englishMapsWorkTeaser()}
 ${googleGrowthTeaser("en")}
 <section class="section-pad"><div class="container case-method reveal"><div><span>Project method</span><h2>No single template is repeated across every business</h2></div><p>Page structure, content, proof, calls to action, data, and technology follow the operating model, customer journey, market, and constraints. The objective is a system that fits the real business—not the same layout with a different logo.</p>${button("/en/contact/", "Discuss a similar project")}</div></section>
-${englishFinalCta("Want to turn your business into a stronger digital experience?", "Share the current website or Business Profile, target services, market, and objective. We can decide what needs rebuilding and what can be improved in stages.")}`;
+${renderWorkClosing({ english: true, icon })}`;
   return page({ title: `${projectAudit.listedProjects} Verified Web Projects | Eslam Elshikh`, description: `Explore ${projectAudit.listedProjects} web projects in the portfolio by Eslam Elshikh across corporate websites, local services, platforms, responsive UX, and SEO.`, path, active: "projects", body, modified: projectAudit.auditedAt, lang: "en", schema: [collectionSchema, projectList, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Work", path }])] });
 }
 
