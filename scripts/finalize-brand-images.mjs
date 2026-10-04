@@ -1,6 +1,8 @@
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { articleVisuals } from "../src/article-visuals.mjs";
+import { caseStudies } from "../src/case-studies.mjs";
+import { products } from "../src/products.mjs";
 
 const outDir = process.argv[2] || "dist";
 const canonical = "https://www.eslam-elshikh.com";
@@ -60,18 +62,24 @@ for (const path of htmlFiles) {
   const isEnglish = /<html\s+lang="en"\s+dir="ltr"/i.test(html);
   const articleSlug = path.replaceAll("\\", "/").match(/(?:^|\/)(?:en\/)?blog\/([^/]+)\/index\.html$/)?.[1];
   const articleVisual = articleVisuals[articleSlug];
-  const socialImage = articleVisual ? `${canonical}${articleVisual.src}` : shareImage;
-  const socialAlt = articleVisual ? isEnglish ? articleVisual.altEn : articleVisual.altAr : isEnglish ? "Eslam Elshikh" : brandName;
+  const storySlug = path.replaceAll("\\", "/").match(/(?:^|\/)(?:en\/)?(projects|products)\/([^/]+)\/index\.html$/);
+  const study = storySlug?.[1] === "projects" ? caseStudies.find(item => item.slug === storySlug[2]) : null;
+  const product = storySlug?.[1] === "products" ? products.find(item => item.slug === storySlug[2]) : null;
+  const storyVisual = study ? { src: study.image, width: 1200, height: 750, altAr: study.title, altEn: study.englishName }
+    : product ? { src: product.image, width: 1200, height: 750, altAr: product.name.ar, altEn: product.name.en } : null;
+  const customVisual = articleVisual || storyVisual;
+  const socialImage = customVisual ? `${canonical}${customVisual.src}` : shareImage;
+  const socialAlt = customVisual ? isEnglish ? customVisual.altEn : customVisual.altAr : isEnglish ? "Eslam Elshikh" : brandName;
 
   html = html.replace(/\s*<link\b[^>]*\brel=["'](?:icon|shortcut icon|apple-touch-icon)["'][^>]*>\s*/gi, "\n");
   html = html.replace("</head>", `  ${iconTags}\n</head>`);
 
   html = upsertMeta(html, "property", "og:image", socialImage);
   html = upsertMeta(html, "property", "og:image:secure_url", socialImage);
-  html = upsertMeta(html, "property", "og:image:type", articleVisual ? "image/webp" : "image/png");
+  html = upsertMeta(html, "property", "og:image:type", customVisual ? "image/webp" : "image/png");
   html = upsertMeta(html, "property", "og:image:alt", socialAlt);
-  html = upsertMeta(html, "property", "og:image:width", String(articleVisual?.width || 1200));
-  html = upsertMeta(html, "property", "og:image:height", String(articleVisual?.height || 630));
+  html = upsertMeta(html, "property", "og:image:width", String(customVisual?.width || 1200));
+  html = upsertMeta(html, "property", "og:image:height", String(customVisual?.height || 630));
 
   html = upsertMeta(html, "name", "twitter:card", "summary_large_image");
   html = upsertMeta(html, "name", "twitter:image", socialImage);

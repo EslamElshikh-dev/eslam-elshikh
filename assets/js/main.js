@@ -14,6 +14,41 @@
   const readingProgress = doc.querySelector("[data-reading-progress]");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Product tours remain fully readable without JavaScript.
+  doc.querySelectorAll("[data-product-tour]").forEach((tour) => {
+    const tabs = [...tour.querySelectorAll("[data-product-tab]")];
+    const panels = [...tour.querySelectorAll("[data-product-panel]")];
+    if (!tabs.length || tabs.length !== panels.length) return;
+    const tabList = tour.querySelector(".product-tour-tabs");
+    tabList.setAttribute("role", "tablist");
+    tabs.forEach(tab => tab.setAttribute("role", "tab"));
+    panels.forEach(panel => { panel.setAttribute("role", "tabpanel"); panel.tabIndex = 0; });
+    const select = (index, focus = false) => {
+      tabs.forEach((tab, position) => {
+        const active = position === index;
+        tab.setAttribute("aria-selected", String(active));
+        tab.tabIndex = active ? 0 : -1;
+        panels[position].hidden = !active;
+      });
+      if (focus) tabs[index].focus();
+    };
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => select(index));
+      tab.addEventListener("keydown", (event) => {
+        let next = index;
+        if (event.key === "Home") next = 0;
+        else if (event.key === "End") next = tabs.length - 1;
+        else if (event.key === "ArrowRight") next = (index + (root.dir === "rtl" ? -1 : 1) + tabs.length) % tabs.length;
+        else if (event.key === "ArrowLeft") next = (index + (root.dir === "rtl" ? 1 : -1) + tabs.length) % tabs.length;
+        else return;
+        event.preventDefault();
+        select(next, true);
+      });
+    });
+    tour.classList.add("is-enhanced");
+    select(0);
+  });
+
   // Run the small portrait effects only while the card and tab are visible.
   const portraitCards = [...doc.querySelectorAll(".studio-canvas")];
   if (!reduceMotion && portraitCards.length) {

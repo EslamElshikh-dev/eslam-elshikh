@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import { posts, projects } from "../src/content.mjs";
 import { projectAudit, webProjects } from "../src/web-projects.mjs";
 import { projectPreviews } from "../src/project-previews.mjs";
+import { caseStudies } from "../src/case-studies.mjs";
+import { products } from "../src/products.mjs";
 import { guides } from "../src/guides.mjs";
 import { articleVisuals } from "../src/article-visuals.mjs";
 import { englishArticles, englishServices, englishTopics } from "../src/english.mjs";
@@ -27,8 +29,10 @@ const requiredRoutes = [
 ];
 const expectedArticleRoutes = [...posts, ...guides].map((post) => `/blog/${post.slug}/`);
 for (const route of expectedArticleRoutes) if (!requiredRoutes.includes(route)) requiredRoutes.push(route);
-const expectedCaseStudyRoutes = projects.filter((project) => project.slug && project.caseStudy).map((project) => `/projects/${project.slug}/`);
+const expectedCaseStudyRoutes = caseStudies.map((project) => `/projects/${project.slug}/`);
 for (const route of expectedCaseStudyRoutes) if (!requiredRoutes.includes(route)) requiredRoutes.push(route);
+const expectedProductRoutes = ["/products/", ...products.map(product => `/products/${product.slug}/`)];
+for (const route of expectedProductRoutes) requiredRoutes.push(route);
 const arabicRoutes = [...requiredRoutes].filter((route) => route !== "/en/");
 const englishMirrorRoute = (route) => route === "/" ? "/en/" : `/en${route}`;
 const arabicMirrorRoute = (route) => route === "/en/" ? "/" : route.replace(/^\/en/, "") || "/";
@@ -218,18 +222,24 @@ for (const route of sitemapRoutes) {
   const growthStyleRoutes = new Set(["/book/", "/google-business-profile-audit/", "/google-maps-projects/", "/en/book/", "/en/google-business-profile-audit/", "/en/google-maps-projects/"]);
   if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/studio\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned studio stylesheet`);
   const hasProjectGallery = route === "/" || route === "/en/" || /^(\/en)?\/projects\//.test(route);
-  const expectedStylesheets = 2 + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery);
+  const hasProjectStories = /^(\/en)?\/(projects|products)\//.test(route);
+  const expectedStylesheets = 2 + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
   if (hasProjectGallery && !html.includes(`/assets/css/project-gallery.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned project gallery stylesheet`);
+  if (hasProjectStories && !html.includes(`/assets/css/project-stories.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned case and product stylesheet`);
   if (stylesheetCount !== expectedStylesheets) errors.push(`${route}: expected ${expectedStylesheets} stylesheet link(s), found ${stylesheetCount}`);
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
   if (/<style\b|\sstyle=["']/i.test(html)) errors.push(`${route}: contains inline CSS that weakens the CSP`);
   if (!html.includes(`/assets/js/theme.js?v=${buildVersion}`) || !html.includes(`/assets/js/analytics.js?v=${buildVersion}`)) errors.push(`${route}: missing versioned theme or consent-based analytics script`);
   const articleVisual = articleVisuals[route.match(/^\/(?:en\/)?blog\/([^/]+)\/$/)?.[1]];
-  const expectedShareImage = `${canonicalBase}${articleVisual?.src || "/assets/og/eslam-elshikh-social-card.png"}`;
+  const storyRoute = route.match(/^\/(?:en\/)?(projects|products)\/([^/]+)\/$/);
+  const story = storyRoute?.[1] === "projects" ? caseStudies.find(item => item.slug === storyRoute[2])
+    : storyRoute?.[1] === "products" ? products.find(item => item.slug === storyRoute[2]) : null;
+  const expectedShareImage = `${canonicalBase}${articleVisual?.src || story?.image || "/assets/og/eslam-elshikh-social-card.png"}`;
   const socialImage = matchOne(html, /<meta\s+property=["']og:image["']\s+content=["']([^"']*)/i);
   const twitterImage = matchOne(html, /<meta\s+name=["']twitter:image["']\s+content=["']([^"']*)/i);
   if (socialImage !== expectedShareImage || twitterImage !== expectedShareImage) errors.push(`${route}: social metadata does not use its expected sharing image`);
+  if (story && (!html.includes('property="og:image:type" content="image/webp"') || !html.includes('property="og:image:height" content="750"'))) errors.push(`${route}: incorrect project sharing-image format or dimensions`);
   if (articleVisual) {
     const articleNode = structuredNodes.find((node) => node?.["@type"] === "BlogPosting");
     if (articleNode?.image !== expectedShareImage) errors.push(`${route}: article schema image does not match its custom cover`);
@@ -411,6 +421,28 @@ for (const route of expectedCaseStudyRoutes) {
   const html = pages.get(route) || "";
   if (!html.includes('"@type":"CreativeWork"')) errors.push(`${route}: missing CreativeWork structured data`);
   if (!html.includes("لا تتضمن هذه الدراسة أرقام زيارات أو تحويلات")) errors.push(`${route}: missing the evidence boundary for unverified business outcomes`);
+  for (const section of ["brief", "solution", "experience", "decisions", "output"]) if (!html.includes(`id="${section}"`)) errors.push(`${route}: missing case study section ${section}`);
+}
+
+for (const english of [false, true]) {
+  const prefix = english ? "/en" : "";
+  const archive = pages.get(`${prefix}/projects/`) || "";
+  if ((archive.match(/class="work-card-case"/g) || []).length !== 96) errors.push(`${prefix}/projects/: every project needs a case-study action`);
+  for (const study of caseStudies) {
+    const html = pages.get(`${prefix}/projects/${study.slug}/`) || "";
+    if (!html.includes(`data-case-study="${study.slug}"`)) errors.push(`${study.slug}: missing dedicated case content`);
+    if (!html.includes(study.image)) errors.push(`${study.slug}: missing project interface`);
+    if (!archive.includes(`href="${prefix}/projects/${study.slug}/"`)) errors.push(`${study.slug}: missing archive link`);
+  }
+  for (const product of products) {
+    const route = `${prefix}/products/${product.slug}/`;
+    const html = pages.get(route) || "";
+    if (!html.includes(`data-product="${product.slug}"`)) errors.push(`${route}: missing dedicated product story`);
+    if ((html.match(/data-product-panel=/g) || []).length !== product.tour.length) errors.push(`${route}: missing public tour views`);
+    if (/data-product-panel=[^>]*\bhidden\b/.test(html)) errors.push(`${route}: tour must be readable without JavaScript`);
+    if (product.stage === "concept" && !html.includes(english ? "Interactive product concept" : "تصور منتج تفاعلي")) errors.push(`${route}: concept delivery stage must be explicit`);
+    for (const view of product.tour) if (!await exists(join(output, view.image.slice(1)))) errors.push(`${route}: missing product tour image ${view.image}`);
+  }
 }
 for (const route of expectedEnglishCaseStudyRoutes) {
   const html = pages.get(route) || "";

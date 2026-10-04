@@ -4,6 +4,9 @@ import { fileURLToPath } from "node:url";
 import { site, services, projects, mapsProjects, posts, homeFaq, localSeoFaq } from "./src/content.mjs";
 import { projectAudit, webProjects } from "./src/web-projects.mjs";
 import { renderWorkHero, renderWorkStories, renderWorkGallery, renderWorkClosing } from "./src/project-experience.mjs";
+import { caseStudies, caseByUrl, caseHref } from "./src/case-studies.mjs";
+import { products, productText } from "./src/products.mjs";
+import { renderCaseStudy, renderProductCollection, renderProductsIndex, renderProductPage } from "./src/project-stories.mjs";
 import { guides } from "./src/guides.mjs";
 import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
 import { renderAbout } from "./src/about.mjs";
@@ -297,7 +300,7 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   <script src="/assets/js/theme.js?v=${version}"></script>
   <link rel="stylesheet" href="/assets/css/main.css?v=${version}">
 ${stylesheets.length ? `${stylesheets.map((href) => `  <link rel="stylesheet" href="${esc(href)}">`).join("\n")}\n` : ""}  <link rel="stylesheet" href="/assets/css/studio.css?v=${version}">
-${path === "/" || path === "/en/" || /^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
+${path === "/" || path === "/en/" || /^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-stories.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
   <script type="application/ld+json">${safeJson({ "@context": "https://schema.org", "@graph": graph })}</script>
 </head>`;
 }
@@ -432,14 +435,15 @@ function serviceCard(service) {
 
 function projectActions(project, className = "") {
   const requestMessage = `مرحبًا م. إسلام، شاهدت مشروع «${project.title}» وأرغب في تنفيذ مشروع مشابه يناسب نشاطي.`;
-  const caseStudyLink = project.caseStudy && project.slug
-    ? `<a class="button button-small" href="/projects/${project.slug}/" aria-label="قراءة دراسة حالة ${esc(project.title)}">دراسة الحالة ${icon("arrow", "button-icon")}</a>`
+  const study = caseByUrl.get(project.liveUrl);
+  const caseStudyLink = study
+    ? `<a class="button button-small" href="${caseHref(study)}" aria-label="قراءة دراسة حالة ${esc(project.title)}">دراسة الحالة ${icon("arrow", "button-icon")}</a>`
     : "";
   return `<div class="portfolio-actions${className ? ` ${className}` : ""}">${caseStudyLink}<a class="button button-small button-ghost" href="${project.liveUrl}" target="_blank" rel="noopener" aria-label="معاينة موقع ${esc(project.title)} المنشور">الموقع الحي ${icon("external", "button-icon")}</a><a class="portfolio-request-link" href="${site.whatsapp}?text=${encodeURIComponent(requestMessage)}" target="_blank" rel="noopener" aria-label="طلب مشروع مشابه لمشروع ${esc(project.title)}">ابدأ مشروعًا مشابهًا ${icon("whatsapp")}</a></div>`;
 }
 
-const projectHeading = (project) => project.caseStudy && project.slug
-  ? `<a href="/projects/${project.slug}/">${esc(project.title)}</a>`
+const projectHeading = (project) => caseByUrl.has(project.liveUrl)
+  ? `<a href="${caseHref(caseByUrl.get(project.liveUrl))}">${esc(project.title)}</a>`
   : esc(project.title);
 
 function projectImage(project, { eager = false } = {}) {
@@ -1006,7 +1010,7 @@ function projectsPage() {
       "@type": "ListItem",
       position: index + 1,
       name: project.title,
-      url: project.liveUrl
+      url: absolute(caseHref(caseStudies[index]))
     }))
   };
   const collectionSchema = {
@@ -1014,13 +1018,14 @@ function projectsPage() {
     "@id": `${site.url}/projects/#collection`,
     url: `${site.url}/projects/`,
     name: "أعمال ومشروعات المهندس إسلام الشيخ",
-    description: `${projectAudit.listedProjects} مشروع ويب من أعمال إسلام الشيخ، إلى جانب مجموعة مختارة بدراسات حالة وتفاصيل تنفيذ.`,
+    description: `${projectAudit.listedProjects} مشروع ويب من أعمال إسلام الشيخ، مع دراسة حالة مستقلة لكل مشروع وجولات للمنتجات الرقمية.`,
     creator: { "@id": `${site.url}/#person` },
     mainEntity: { "@id": projectList["@id"] },
     dateModified: projectAudit.auditedAt
   };
   const body = `${renderWorkHero({ esc, icon })}
 ${renderWorkStories({ esc, icon, name: project => esc(project.title), description: project => project.description, category: project => project.category })}
+${renderProductCollection({ esc, icon })}
 ${verifiedWorkArchive()}
 ${mapsWorkTeaser()}
 ${googleGrowthTeaser()}
@@ -1029,32 +1034,58 @@ ${renderWorkClosing({ english: false, icon })}`;
   return page({ title: `${projectAudit.listedProjects} مشروع ويب موثق | أعمال المهندس إسلام الشيخ`, description: `استعرض ${projectAudit.listedProjects} مشروع ويب من أعمال المهندس إسلام الشيخ في تطوير المواقع والمنصات وتجربة المستخدم والسيو التقني والمحلي.`, path: "/projects/", active: "projects", body, modified: projectAudit.auditedAt, schema: [collectionSchema, projectList, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }])] });
 }
 
-function projectCaseStudyPage(project) {
-  const path = `/projects/${project.slug}/`;
-  const relatedServices = projectServicesSection(project.slug, "ar");
-  const study = project.caseStudy;
-  const domain = new URL(project.liveUrl).hostname.replace(/^www\./, "");
-  const requestMessage = `مرحبًا م. إسلام، قرأت دراسة حالة «${project.title}» وأرغب في مناقشة مشروع مشابه.`;
-  const creativeWorkSchema = {
-    "@type": "CreativeWork",
-    "@id": `${absolute(path)}#project`,
-    name: project.title,
-    description: project.description,
-    url: absolute(path),
-    image: absolute(project.image),
-    sameAs: project.liveUrl,
-    creator: { "@id": `${site.url}/#person` },
-    keywords: project.tags,
-    dateModified: relatedServices ? searchRevision : site.lastUpdated
+function projectCaseStudyPage(study, english = false) {
+  const path = caseHref(study, english);
+  const name = english ? study.englishName : study.title;
+  const rawDescription = english
+    ? `${name}: design decisions, user journey, and reviewable output. Explore the interface and project structure.`
+    : `دراسة حالة ${name}: ${study.focus} اكتشف التحدي والحل وقرارات التصميم ورحلة المستخدم، مع صور الواجهة والمخرجات.`;
+  const description = rawDescription.length > 168 ? `${rawDescription.slice(0, 165).replace(/\s+\S*$/, "")}…` : rawDescription;
+  const metaName = english ? name.replaceAll(" & ", " and ") : !english && study.number === 85 ? "عبدالله صالح — واجهات الألمنيوم والزجاج" : !english && study.number === 89 ? "عبدالله صالح — النوافذ والكلادينج" : name;
+  const schema = {
+    "@type": "CreativeWork", "@id": `${absolute(path)}#project`, name,
+    description: english ? study.englishNarrative : study.solution, url: absolute(path), image: absolute(study.image),
+    ...(study.liveAvailable && study.status === "published" ? { sameAs: study.liveUrl } : {}),
+    creator: { "@id": `${site.url}/#person` }, keywords: study.tags, dateModified: projectAudit.auditedAt
   };
-  const body = `${innerHero({ eyebrowText: "دراسة حالة مشروع", title: esc(project.title), lead: project.description, path, crumbs: [{ name: "الأعمال", path: "/projects/" }, { name: project.title, path }], aside: `<div class="case-study-preview"><span>${esc(project.category)}</span>${projectImage(project, { eager: true })}<small dir="ltr">${esc(domain)}</small></div>` })}
-<section class="section-pad case-study-overview"><div class="container case-study-layout"><article class="rich-copy reveal"><span class="case-study-label">الهدف</span><h2>ما الذي كان مطلوبًا من التجربة؟</h2><p>${esc(study.objective)}</p><div class="tag-row" aria-label="محاور المشروع">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div></article><aside class="case-study-facts reveal"><span>بطاقة المشروع</span><dl><div><dt>نوع العمل</dt><dd>${esc(project.category)}</dd></div><div><dt>النطاق المعروض</dt><dd>تصميم وتنفيذ وتجربة رقمية</dd></div><div><dt>حالة النسخة</dt><dd>رابط عام قابل للمراجعة</dd></div></dl>${button(project.liveUrl, "فتح المشروع الحي", "button-ghost", true)}</aside></div></section>
-<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("نطاق التنفيذ")}<h2>الأجزاء التي شملها العمل</h2><p>العناصر التالية تصف نطاق النسخة العامة المنشورة ولا تفترض نتائج تجارية لم يتم قياسها أو توثيقها.</p></div><div class="case-study-scope">${study.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon("layers")}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
-<section class="section-pad"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("قرارات التصميم")}<h2>لماذا اتُّخذت هذه القرارات؟</h2><p>القرار الجيد يربط طريقة العرض بهدف المستخدم وطبيعة النشاط، لا بالشكل البصري وحده.</p></div><ol class="case-study-decisions">${study.decisions.map((item, index) => `<li class="reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></li>`).join("")}</ol></div></section>
-<section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("المخرجات")}<h2>ما الذي يمكن مراجعته اليوم؟</h2><p>هذه المخرجات مرتبطة بما يظهر في النسخة المنشورة، ولذلك يمكن التحقق منها مباشرة عبر رابط المشروع.</p></div><div class="deliverables-panel reveal">${checkList(study.delivered, "deliverables-list")}<p class="case-study-disclaimer">لا تتضمن هذه الدراسة أرقام زيارات أو تحويلات أو عائد استثمار؛ لم تُنشر بيانات موثقة تسمح بإسناد تلك النتائج للمشروع.</p></div></div></section>
-${relatedServices}
-<section class="section-pad"><div class="container case-method reveal"><div><span>الخطوة التالية</span><h2>هل تحتاج مشروعًا يناسب سياق نشاطك؟</h2></div><p>يمكن الاستفادة من المنهج، لكن بنية الصفحات والمحتوى والتقنية تُحدد بعد فهم نشاطك ومستخدميك والنتيجة المطلوبة.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent(requestMessage)}`, "ناقش مشروعًا مشابهًا", "", true)}${button("/projects/", "العودة إلى جميع الأعمال", "button-ghost")}</div></div></section>`;
-  return page({ title: `دراسة حالة ${project.title}`, description: `دراسة حالة مشروع ${project.title}: الهدف، نطاق التنفيذ، قرارات التصميم، والمخرجات القابلة للمراجعة مع رابط النسخة المنشورة.`, path, active: "projects", body, modified: relatedServices ? searchRevision : site.lastUpdated, schema: [creativeWorkSchema, breadcrumbSchema([{ name: "الرئيسية", path: "/" }, { name: "الأعمال", path: "/projects/" }, { name: project.title, path }])] });
+  const body = `${renderCaseStudy(study, { english, esc, icon })}${projectServicesSection(study.slug, english ? "en" : "ar")}`;
+  return page({ title: english ? metaName.length > 54 ? `${metaName} | Case` : `${metaName} Case Study` : `دراسة حالة ${metaName}`, description, path,
+    active: "projects", body, image: study.image, modified: projectAudit.auditedAt, lang: english ? "en" : "ar",
+    schema: [schema, breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" },
+      { name: english ? "Work" : "الأعمال", path: english ? "/en/projects/" : "/projects/" }, { name, path }])]
+  });
+}
+
+function productsIndexPage(english = false) {
+  const path = `${english ? "/en" : ""}/products/`;
+  const name = english ? "Digital Products by Eslam Elshikh" : "منتجات رقمية من تصميم وتطوير إسلام الشيخ";
+  const list = { "@type": "ItemList", "@id": `${absolute(path)}#products`, numberOfItems: products.length,
+    itemListElement: products.map((product, index) => ({ "@type": "ListItem", position: index + 1,
+      name: productText(product.name, english), url: absolute(`${path}${product.slug}/`) })) };
+  return page({ title: name, description: english
+    ? "Explore Sama Scan, ALARGAN CRM, and Tawod as independent digital products, with public interface tours, workflow details, and clear delivery stages."
+    : "استعرض مركز عمليات سما سكان، وتصوّر الأرجان CRM، ومركز قيادة تعاود كمنتجات مستقلة، مع جولات بالواجهة وشرح الوظائف ومرحلة تنفيذ كل منتج.",
+    path, active: "projects", lang: english ? "en" : "ar", modified: projectAudit.auditedAt,
+    body: renderProductsIndex({ english, esc, icon }), schema: [list,
+      { "@type": "CollectionPage", "@id": `${absolute(path)}#collection`, name, url: absolute(path), mainEntity: { "@id": list["@id"] } },
+      breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" }, { name: english ? "Products" : "المنتجات", path }])]
+  });
+}
+
+function productPage(product, english = false) {
+  const path = `${english ? "/en" : ""}/products/${product.slug}/`;
+  const name = productText(product.name, english);
+  const description = english
+    ? `${name}: ${productText(product.category, true)}. Explore the workflow, interface tour, core modules, and the product’s delivery stage.`
+    : `${name}: ${productText(product.category)}. استعرض جولة الواجهة، ورحلة العمل، والوظائف الأساسية، ومرحلة المنتج وطريقة مناقشة تنفيذ مشابه.`;
+  const work = { "@type": "CreativeWork", "@id": `${absolute(path)}#product`, name, description,
+    url: absolute(path), image: absolute(product.image), creator: { "@id": `${site.url}/#person` }, dateModified: projectAudit.auditedAt,
+    creativeWorkStatus: product.stage === "concept" ? "Interactive product concept" : "Implemented custom product" };
+  return page({ title: `${name} | ${english ? "Product Tour" : "جولة المنتج"}`, description, path, active: "projects",
+    body: renderProductPage(product, { english, esc, icon }), image: product.image, modified: projectAudit.auditedAt, lang: english ? "en" : "ar",
+    schema: [work, breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" },
+      { name: english ? "Products" : "المنتجات", path: english ? "/en/products/" : "/products/" }, { name, path }])]
+  });
 }
 
 function localSeoPage() {
@@ -1526,10 +1557,11 @@ function englishMapsWorkTeaser() {
 
 function englishProjectsPage() {
   const path = "/en/projects/";
-  const projectList = { "@type": "ItemList", "@id": `${absolute(path)}#project-list`, name: "Verified live web projects by Eslam Elshikh", numberOfItems: webProjects.length, itemListElement: webProjects.map((project, index) => ({ "@type": "ListItem", position: index + 1, name: project.title, url: project.liveUrl })) };
-  const collectionSchema = { "@type": "CollectionPage", "@id": `${absolute(path)}#collection`, url: absolute(path), name: "Web projects and case studies by Eslam Elshikh", description: `${projectAudit.listedProjects} web projects in the portfolio, supported by selected case studies explaining delivery decisions and public evidence.`, creator: { "@id": `${site.url}/#person` }, mainEntity: { "@id": projectList["@id"] }, dateModified: projectAudit.auditedAt };
+  const projectList = { "@type": "ItemList", "@id": `${absolute(path)}#project-list`, name: "Verified live web projects by Eslam Elshikh", numberOfItems: webProjects.length, itemListElement: webProjects.map((project, index) => ({ "@type": "ListItem", position: index + 1, name: caseStudies[index].englishName, url: absolute(caseHref(caseStudies[index], true)) })) };
+  const collectionSchema = { "@type": "CollectionPage", "@id": `${absolute(path)}#collection`, url: absolute(path), name: "Web projects and case studies by Eslam Elshikh", description: `${projectAudit.listedProjects} web projects in the portfolio, with a dedicated case study for each project and public tours of independent products.`, creator: { "@id": `${site.url}/#person` }, mainEntity: { "@id": projectList["@id"] }, dateModified: projectAudit.auditedAt };
   const body = `${renderWorkHero({ english: true, esc, icon })}
 ${renderWorkStories({ english: true, esc, icon, name: officialProjectName, description: englishProjectDescription, category: project => englishProjectStudies[project.slug]?.category || englishProjectCategory(project.category) })}
+${renderProductCollection({ english: true, esc, icon })}
 ${englishVerifiedWorkArchive()}
 ${englishMapsWorkTeaser()}
 ${googleGrowthTeaser("en")}
@@ -1538,21 +1570,8 @@ ${renderWorkClosing({ english: true, icon })}`;
   return page({ title: `${projectAudit.listedProjects} Verified Web Projects | Eslam Elshikh`, description: `Explore ${projectAudit.listedProjects} web projects in the portfolio by Eslam Elshikh across corporate websites, local services, platforms, responsive UX, and SEO.`, path, active: "projects", body, modified: projectAudit.auditedAt, lang: "en", schema: [collectionSchema, projectList, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Work", path }])] });
 }
 
-function englishProjectCaseStudyPage(project) {
-  const study = englishProjectStudies[project.slug];
-  const path = `/en/projects/${project.slug}/`;
-  const relatedServices = projectServicesSection(project.slug, "en");
-  const domain = new URL(project.liveUrl).hostname.replace(/^www\./, "");
-  const requestMessage = `Hello Eng. Eslam, I read the ${study.title} case study and would like to discuss a project with a similar approach.`;
-  const creativeWorkSchema = { "@type": "CreativeWork", "@id": `${absolute(path)}#project`, name: study.title, description: study.description, url: absolute(path), image: absolute(project.image), sameAs: project.liveUrl, creator: { "@id": `${site.url}/#person` }, keywords: project.tags, dateModified: relatedServices ? searchRevision : site.lastUpdated };
-  const body = `${innerHero({ eyebrowText: "Project case study", title: esc(study.title), lead: study.description, path, language: "en", crumbs: [{ name: "Work", path: "/en/projects/" }, { name: study.title, path }], aside: `<div class="case-study-preview"><span>${esc(study.category)}</span>${englishProjectImage(project, { eager: true })}<small dir="ltr">${esc(domain)}</small></div>` })}
-<section class="section-pad case-study-overview"><div class="container case-study-layout"><article class="rich-copy reveal"><span class="case-study-label">Objective</span><h2>What the public experience needed to accomplish</h2><p>${esc(study.objective)}</p><div class="tag-row" aria-label="Project disciplines">${project.tags.map((tag) => `<span>${esc(tag)}</span>`).join("")}</div></article><aside class="case-study-facts reveal"><span>Project card</span><dl><div><dt>Type</dt><dd>${esc(study.category)}</dd></div><div><dt>Visible scope</dt><dd>Design, implementation, and digital experience</dd></div><div><dt>Evidence</dt><dd>Public link available for review</dd></div></dl>${button(project.liveUrl, "Open the live project", "button-ghost", true)}</aside></div></section>
-<section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Delivery scope")}<h2>What the work included</h2><p>These items describe the public version and do not assume commercial outcomes that have not been measured or independently documented.</p></div><div class="case-study-scope">${study.scope.map((item, index) => `<article class="scope-card reveal"><span>${String(index + 1).padStart(2, "0")}</span>${icon("layers")}<p>${esc(item)}</p></article>`).join("")}</div></div></section>
-<section class="section-pad"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("Design decisions")}<h2>Why the experience took this direction</h2><p>Each decision connects presentation to user intent and the operating model, not visual preference alone.</p></div><ol class="case-study-decisions">${study.decisions.map((item, index) => `<li class="reveal"><span>${String(index + 1).padStart(2, "0")}</span><p>${esc(item)}</p></li>`).join("")}</ol></div></section>
-<section class="section-pad deliverables-section"><div class="container split-heading"><div class="section-heading reveal">${eyebrow("Reviewable output")}<h2>What can be inspected today</h2><p>The listed output is tied to the published experience and can be reviewed directly through the live-project link.</p></div><div class="deliverables-panel reveal">${checkList(study.delivered, "deliverables-list")}<p class="case-study-disclaimer">This case study does not claim traffic, conversion, or return-on-investment figures because verified data supporting those outcomes has not been published.</p></div></div></section>
-${relatedServices}
-<section class="section-pad"><div class="container case-method reveal"><div><span>Next step</span><h2>Need a project designed for your own context?</h2></div><p>The method can be reused, but the pages, content, and technology should follow your business, customers, evidence, and desired outcome.</p><div class="hero-actions">${button(`${site.whatsapp}?text=${encodeURIComponent(requestMessage)}`, "Discuss a similar project", "", true)}${button("/en/projects/", "Back to all work", "button-ghost")}</div></div></section>`;
-  return page({ title: `${study.title} Case Study`, description: `${study.title} case study covering the objective, delivery scope, design decisions, and reviewable public output, with a direct link to the live project.`, path, active: "projects", body, modified: relatedServices ? searchRevision : site.lastUpdated, lang: "en", schema: [creativeWorkSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "Work", path: "/en/projects/" }, { name: study.title, path }])] });
+function englishProjectCaseStudyPage(study) {
+  return projectCaseStudyPage(study, true);
 }
 
 const englishMapCategory = (value) => ({
@@ -1815,9 +1834,11 @@ async function build() {
   await writeRoute("/google-expert/", googleExpertPage());
   await writeRoute("/google-ads/", googleAdsPage());
   await writeRoute("/projects/", projectsPage());
-  for (const project of projects.filter((item) => item.slug && item.caseStudy)) {
+  for (const project of caseStudies) {
     await writeRoute(`/projects/${project.slug}/`, projectCaseStudyPage(project));
   }
+  await writeRoute("/products/", productsIndexPage());
+  for (const product of products) await writeRoute(`/products/${product.slug}/`, productPage(product));
   await writeRoute("/google-maps-projects/", googleMapsProjectsPage());
   await writeRoute("/google-business-profile-audit/", googleBusinessAuditPage());
   await writeRoute("/book/", bookingPage());
@@ -1835,9 +1856,11 @@ async function build() {
   await writeRoute("/en/google-expert/", englishGoogleExpertPage());
   await writeRoute("/en/google-ads/", englishGoogleAdsPage());
   await writeRoute("/en/projects/", englishProjectsPage());
-  for (const project of projects.filter((item) => item.slug && item.caseStudy)) {
+  for (const project of caseStudies) {
     await writeRoute(`/en/projects/${project.slug}/`, englishProjectCaseStudyPage(project));
   }
+  await writeRoute("/en/products/", productsIndexPage(true));
+  for (const product of products) await writeRoute(`/en/products/${product.slug}/`, productPage(product, true));
   await writeRoute("/en/google-maps-projects/", englishGoogleMapsProjectsPage());
   await writeRoute("/en/google-business-profile-audit/", englishGoogleBusinessAuditPage());
   await writeRoute("/en/book/", englishBookingPage());
