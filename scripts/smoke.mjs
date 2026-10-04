@@ -93,7 +93,7 @@ if (!/data-booking-builder/.test(booking) || !/data-booking-submit/.test(booking
 if (!/data-local-dashboard/.test(dashboard) || !/content="noindex, nofollow"/.test(dashboard)) failures.push("Private local dashboard is missing or indexable");
 if (sitemap.includes("/local-visibility-dashboard/")) failures.push("Noindex local dashboard leaked into the sitemap");
 if (!/gbp_audit_complete/.test(analytics) || !/booking_message_ready/.test(analytics) || !/proof_map_interaction/.test(analytics)) failures.push("Privacy-safe growth event allowlist is incomplete");
-if (!/storageKey = "es-analytics-consent"/.test(analytics) || !/choice !== "denied"/.test(analytics)) failures.push("Analytics loader does not enforce an explicit consent choice");
+if (!/storageKey = "es-analytics-consent-v2"/.test(analytics) || !/choice !== "denied"/.test(analytics)) failures.push("Analytics loader does not enforce an explicit consent choice");
 if (/createElement\("aside"\)/.test(analytics) || !/createElement\("div"\)/.test(analytics)) failures.push("Analytics preferences use an incompatible dialog host element");
 if (!/aria-label="اقرأ الدليل كاملًا: [^"]+"/.test(home)) failures.push("Homepage article links lack unique accessible names");
 if (/<style\b|\sstyle=["']/.test(home) || /<script\b(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)/i.test(home)) failures.push("Homepage contains inline code incompatible with the strict CSP");

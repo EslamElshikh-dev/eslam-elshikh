@@ -2,12 +2,22 @@
   "use strict";
 
   const measurementId = "G-MDJ2HGF9E1";
-  const storageKey = "es-analytics-consent";
+  const adsId = "AW-18360481022";
+  const conversionLabels = Object.freeze({
+    call_click: "QFnfCIXsiJAdEP7p-rJE",
+    whatsapp_click: "zh4bCILsiJAdEP7p-rJE"
+  });
+  // Ask again before extending an earlier Analytics-only consent to Ads measurement.
+  const storageKey = "es-analytics-consent-v2";
   const isEnglish = document.documentElement.lang.startsWith("en");
   let sessionChoice = null;
+  let analyticsActive = false;
 
   const readChoice = () => {
-    try { return localStorage.getItem(storageKey); } catch (_) { return null; }
+    try {
+      return localStorage.getItem(storageKey)
+        || (localStorage.getItem("es-analytics-consent") === "denied" ? "denied" : null);
+    } catch (_) { return null; }
   };
 
   sessionChoice = readChoice();
@@ -23,12 +33,25 @@
   };
 
   const loadAnalytics = () => {
-    if (window.__esAnalyticsLoaded || sessionChoice !== "granted") return;
-    window.__esAnalyticsLoaded = true;
+    if (analyticsActive || sessionChoice !== "granted") return;
+    analyticsActive = true;
     window[`ga-disable-${measurementId}`] = false;
-    gtag("consent", "default", { analytics_storage: "granted" });
+    const consent = {
+      analytics_storage: "granted",
+      ad_storage: "granted",
+      ad_user_data: "granted",
+      ad_personalization: "denied"
+    };
+    if (window.__esAnalyticsLoaded) {
+      gtag("consent", "update", consent);
+      return;
+    }
+    window.__esAnalyticsLoaded = true;
+    gtag("consent", "default", consent);
+    gtag("consent", "update", consent);
     gtag("js", new Date());
     gtag("config", measurementId, { anonymize_ip: true });
+    gtag("config", adsId, { allow_ad_personalization_signals: false });
     const script = document.createElement("script");
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
@@ -36,11 +59,17 @@
   };
 
   const disableAnalytics = () => {
+    analyticsActive = false;
     window[`ga-disable-${measurementId}`] = true;
-    if (window.dataLayer) gtag("consent", "update", { analytics_storage: "denied" });
+    if (window.dataLayer) gtag("consent", "update", {
+      analytics_storage: "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied"
+    });
     document.cookie.split(";").forEach((entry) => {
       const name = entry.split("=")[0]?.trim();
-      if (name === "_ga" || name?.startsWith("_ga_")) {
+      if (name === "_ga" || name?.startsWith("_ga_") || name?.startsWith("_gcl_")) {
         document.cookie = `${name}=; Max-Age=0; path=/; SameSite=Lax`;
         document.cookie = `${name}=; Max-Age=0; path=/; domain=.eslam-elshikh.com; SameSite=Lax`;
       }
@@ -58,6 +87,7 @@
     const pathService = window.location.pathname.match(/^\/(?:en\/)?services\/([^/]+)\//)?.[1];
     const service = serviceNames.has(parameters.service) ? parameters.service : pathService;
     const values = {
+      send_to: measurementId,
       page_path: window.location.pathname,
       service: serviceNames.has(service) ? service : "general",
       placement: placements.has(parameters.placement) ? parameters.placement : "content",
@@ -68,6 +98,14 @@
       values.event_timeout = 600;
     }
     gtag("event", name, values);
+    // These are button clicks, not confirmed calls, sent messages, or qualified leads.
+    const label = conversionLabels[name];
+    if (label) gtag("event", "conversion", {
+      send_to: `${adsId}/${label}`,
+      value: 0,
+      currency: "SAR",
+      transport_type: "beacon"
+    });
     return true;
   };
   window.esAnalytics = Object.freeze({ track });
@@ -107,11 +145,11 @@
     const copy = document.createElement("p");
     const title = document.createElement("strong");
     title.id = "analytics-consent-title";
-    title.textContent = isEnglish ? "Optional analytics" : "تحليلات اختيارية";
+    title.textContent = isEnglish ? "Optional analytics and ad measurement" : "تحليلات وقياس إعلانات اختيارية";
     const description = document.createElement("span");
     description.textContent = isEnglish
-      ? "Allow Google Analytics to help improve the site. Core features work without it."
-      : "اسمح باستخدام Google Analytics لتحسين الموقع. تعمل الوظائف الأساسية من دونها.";
+      ? "Allow Google Analytics and Google Ads to measure site use and phone or WhatsApp button clicks. Core features work without them."
+      : "اسمح باستخدام Google Analytics وGoogle Ads لقياس استخدام الموقع ونقرات أزرار الاتصال والواتساب. تعمل الوظائف الأساسية من دونها.";
     copy.append(title, description);
 
     const actions = document.createElement("div");
