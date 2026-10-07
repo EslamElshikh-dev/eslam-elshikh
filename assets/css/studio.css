@@ -752,17 +752,17 @@ p { text-wrap: pretty; }
 .hero.home-opening .hero-grid{grid-template-columns:minmax(0,1.12fr) minmax(370px,.88fr);gap:clamp(2rem,3.8vw,3.6rem)}
 .hero.home-opening .hero-copy h1 span.home-hero-name{font-size:.4em;font-weight:600;color:var(--text-soft)}
 .hero.home-opening .home-signature{display:block;position:relative;min-height:0;width:100%;max-width:490px;margin-inline:auto;padding:0;background:none;border:0;box-shadow:none}
-.signature-card{position:relative;isolation:isolate;overflow:hidden;padding:1.25rem;border:1px solid var(--line-strong);border-radius:1.35rem 1.35rem 3.2rem 1.35rem;background:linear-gradient(145deg,var(--surface-3),var(--surface) 42%,var(--surface-2));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--secondary) 18%,transparent),0 28px 65px rgb(3 8 18 / .2)}
+.signature-card{position:relative;isolation:isolate;overflow:hidden;padding:1.1rem;border:1px solid var(--line-strong);border-radius:1.35rem 1.35rem 3.2rem 1.35rem;background:linear-gradient(145deg,var(--surface-3),var(--surface) 42%,var(--surface-2));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--secondary) 18%,transparent),0 28px 65px rgb(3 8 18 / .2)}
 .signature-card::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(color-mix(in srgb,var(--secondary) 5%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--secondary) 5%,transparent) 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(#000,transparent 55%)}
 .signature-topline{display:flex;align-items:center;justify-content:space-between;gap:.75rem;color:var(--muted);font-size:.54rem;line-height:1.6;letter-spacing:.055em}
 .signature-topline>span:last-child{display:flex;align-items:center;gap:.25rem;letter-spacing:0}
 .signature-topline .icon{width:.85rem;height:.85rem}
-.signature-owner{position:relative;display:flex;align-items:center;gap:.9rem;margin:1.15rem 0 1.25rem;min-width:0}
+.signature-owner{position:relative;display:flex;align-items:center;gap:.9rem;margin:.85rem 0 .9rem;min-width:0}
 .signature-portrait{position:relative;display:block;flex-shrink:0;width:78px;height:78px;padding:4px;border:1px solid var(--line-strong);border-radius:50%;background:var(--surface-2);box-shadow:0 8px 22px rgb(0 0 0 / .1)}
 .signature-portrait::after{content:"";position:absolute;inset:-5px;border:1px solid var(--line);border-inline-start-color:var(--secondary);border-radius:50%;pointer-events:none}
 .signature-portrait img{display:block;object-fit:cover;border-radius:50%;width:100%;height:100%}
 .signature-owner>div{min-width:0}
-.signature-owner strong{display:block;font-size:1.3rem;line-height:1.6;font-weight:700;color:var(--text);text-wrap:balance}
+.signature-owner strong{display:block;font-size:1.2rem;line-height:1.4;font-weight:700;color:var(--text);text-wrap:balance}
 .signature-owner p{margin:.1rem 0 .15rem;font-size:.66rem;line-height:1.8;color:var(--muted)}
 .signature-owner>div>a{display:inline-flex;align-items:center;gap:.35rem;min-height:28px;font-size:.61rem;line-height:1.7;color:var(--secondary)}
 .signature-owner>div>a .icon{width:.75rem;height:.75rem}
@@ -770,7 +770,7 @@ p { text-wrap: pretty; }
 .signature-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.7rem}
 .signature-heading h2{margin:0;color:var(--text-soft);font-size:.85rem;line-height:1.9;font-weight:650}
 .signature-heading>span{font:500 .56rem/1.5 "Segoe UI",sans-serif;color:var(--muted-2);white-space:nowrap}
-.signature-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.35rem;margin:0 0 .9rem;padding:.3rem;border:1px solid var(--line);border-radius:.85rem;background:var(--surface-2)}
+.signature-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.35rem;margin:0 0 .6rem;padding:.3rem;border:1px solid var(--line);border-radius:.85rem;background:var(--surface-2)}
 .signature-tabs[hidden],.signature-view[hidden]{display:none}
 .signature-tabs>button{display:flex;align-items:center;justify-content:center;gap:.3rem;min-width:0;min-height:44px;padding:.55rem .35rem;border:1px solid transparent;border-radius:.6rem;background:transparent;color:var(--muted);font-family:inherit;font-size:.68rem;font-weight:600;line-height:1.7;cursor:pointer;transition:color .18s,background .18s,border-color .18s}
 .signature-tabs>button .icon{width:1rem;height:1rem;flex-shrink:0}
@@ -786,10 +786,10 @@ p { text-wrap: pretty; }
 .signature-browser i{display:block;width:4px;height:4px;border:1px solid var(--muted-2);border-radius:50%}
 .signature-browser>.icon{width:.7rem;height:.7rem}
 .signature-preview>a{display:block;overflow:hidden;background:#edf0f4}
-.signature-preview img{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;object-position:top}
-.signature-preview figcaption{display:flex;align-items:center;gap:.4rem;min-height:32px;padding:.4rem .7rem;background:var(--surface);color:var(--muted);font-size:.55rem;line-height:1.7;border-top:1px solid var(--line)}
+.signature-preview img{display:block;width:100%;height:clamp(170px,17vw,210px);object-fit:cover;object-position:top}
+.signature-preview figcaption{display:flex;align-items:center;gap:.4rem;min-height:32px;padding:.4rem .7rem;background:var(--surface);color:var(--muted);font-size:.62rem;line-height:1.7;border-top:1px solid var(--line)}
 .signature-preview figcaption>.icon{width:.85rem;height:.85rem;flex-shrink:0;color:var(--secondary)}
-.signature-project-copy{padding:.9rem .1rem .75rem}
+.signature-project-copy{padding:.65rem .1rem .55rem}
 .signature-project-title{display:flex;align-items:center;justify-content:space-between;gap:.6rem}
 .signature-project-title h3{margin:0;font-size:.97rem;line-height:1.8;color:var(--text);font-weight:700}
 .signature-project-title>a{display:inline-flex;align-items:center;gap:.3rem;min-height:32px;white-space:nowrap;color:var(--secondary);font-size:.62rem;line-height:1.6}
@@ -797,12 +797,12 @@ p { text-wrap: pretty; }
 .signature-project-copy>p{margin:.35rem 0;font-size:.72rem;color:var(--text-soft);line-height:1.9}
 .signature-project-copy>small{display:block;color:var(--muted);font-size:.56rem;line-height:1.9}
 .signature-question{border-top:1px solid var(--line)}
-.signature-question summary{display:flex;align-items:center;justify-content:space-between;gap:.65rem;cursor:pointer;list-style:none;padding:.65rem .1rem;min-height:44px;font-size:.65rem;line-height:1.8;color:var(--text-soft)}
+.signature-question summary{display:flex;align-items:center;justify-content:space-between;gap:.65rem;cursor:pointer;list-style:none;padding:.5rem .1rem;min-height:44px;font-size:.7rem;line-height:1.8;color:var(--text-soft)}
 .signature-question summary::-webkit-details-marker{display:none}
 .signature-question-toggle{display:grid;place-items:center;width:1rem;height:1rem;flex-shrink:0;color:var(--secondary);font:400 1.1rem/1 "Segoe UI",sans-serif;transition:transform .2s}
 .signature-question[open] .signature-question-toggle{transform:rotate(45deg)}
 .signature-question>p{margin:0;padding:.15rem .1rem .85rem;font-size:.67rem;line-height:1.95;color:var(--muted);max-width:none}
-.signature-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.35rem .9rem;margin-top:.25rem;padding-top:.7rem;padding-inline-end:.6rem;border-top:1px solid var(--line);font-size:.51rem;line-height:1.9;color:var(--muted)}
+.signature-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.35rem .9rem;margin-top:.25rem;padding-top:.5rem;padding-inline-end:.6rem;border-top:1px solid var(--line);font-size:.6rem;line-height:1.9;color:var(--muted)}
 .signature-footer>a{display:inline-flex;align-items:center;gap:.3rem;min-height:30px;color:var(--secondary);font-size:.58rem}
 .signature-footer .icon{width:.8rem;height:.8rem}
 .signature-caption{display:flex;align-items:center;gap:.7rem;justify-content:center;margin:.8rem 0 0;color:var(--muted);font-size:.65rem;line-height:1.8}
