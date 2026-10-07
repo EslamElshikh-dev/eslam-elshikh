@@ -89,22 +89,28 @@
     if(!['image/png','image/jpeg','image/webp'].includes(file.type)||!file.size||file.size>2*1024*1024){
      logoStatus.textContent=en?'Choose a PNG, JPG or WebP image up to 2 MB.':'اختر صورة PNG أو JPG أو WebP بحجم لا يتجاوز 2 ميجابايت.';return;
     }
-    const candidate=URL.createObjectURL(file);const probe=new Image();
+    // Use the existing image policy's data: allowance; keep the CSP unchanged.
+    const reader=new FileReader();
     logoStatus.textContent=en?'Preparing the logo preview…':'جارٍ تجهيز معاينة الشعار…';
-    probe.onload=()=>{
-     if(revision!==logoRevision){URL.revokeObjectURL(candidate);return;}
-     const previous=logoUrl;logoUrl=candidate;removeLogo.hidden=false;update();
-     if(previous)URL.revokeObjectURL(previous);
-     logoStatus.textContent=en?'Logo added to the preview. It is not attached to the request.':'أُضيف الشعار إلى المعاينة. لا يُرفق الشعار بالطلب.';
-    };
-    probe.onerror=()=>{
-     URL.revokeObjectURL(candidate);if(revision!==logoRevision)return;
+    const imageError=()=>{
+     if(revision!==logoRevision)return;
      logoStatus.textContent=en?'This image could not be displayed. Choose another image.':'تعذّر عرض هذه الصورة. اختر صورة أخرى.';
     };
-    probe.src=candidate;
+    reader.onerror=imageError;
+    reader.onload=()=>{
+     if(revision!==logoRevision)return;
+     const candidate=reader.result;const probe=new Image();
+     probe.onload=()=>{
+      if(revision!==logoRevision)return;
+      logoUrl=candidate;removeLogo.hidden=false;update();
+      logoStatus.textContent=en?'Logo added to the preview. It is not attached to the request.':'أُضيف الشعار إلى المعاينة. لا يُرفق الشعار بالطلب.';
+     };
+     probe.onerror=imageError;probe.src=candidate;
+    };
+    reader.readAsDataURL(file);
    });
    removeLogo.addEventListener('click',()=>{
-    ++logoRevision;const previous=logoUrl;logoUrl='';update();if(previous)URL.revokeObjectURL(previous);
+    ++logoRevision;logoUrl='';update();
     removeLogo.hidden=true;logoStatus.textContent=en?'Logo removed from the preview.':'أُزيل الشعار من المعاينة.';logoInput.focus({preventScroll:true});
    });
   }
