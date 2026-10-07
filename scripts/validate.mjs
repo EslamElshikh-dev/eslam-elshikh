@@ -224,10 +224,12 @@ for (const route of sitemapRoutes) {
   const hasProjectGallery = route === "/" || route === "/en/" || /^(\/en)?\/projects\//.test(route);
   const hasProjectStories = /^(\/en)?\/(projects|products)\//.test(route);
   const hasMapsExhibition = /class="[^"]*\bmaps-(?:exhibit-hero|portfolio-teaser|sample-card)\b/.test(html);
-  const expectedStylesheets = 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
+  const hasWorkEvidence = route === "/" || route === "/en/" || /^(\/en)?\/(projects|products|google-maps-projects|work-evidence)\//.test(route);
+  const expectedStylesheets = Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
   if (hasProjectGallery && !html.includes(`/assets/css/project-gallery.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned project gallery stylesheet`);
   if (hasProjectStories && !html.includes(`/assets/css/project-stories.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned case and product stylesheet`);
   if (hasMapsExhibition && !html.includes(`/assets/css/maps-exhibition.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned Google Maps exhibition stylesheet`);
+  if (hasWorkEvidence && !html.includes(`/assets/css/work-evidence.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned work evidence stylesheet`);
   if (stylesheetCount !== expectedStylesheets) errors.push(`${route}: expected ${expectedStylesheets} stylesheet link(s), found ${stylesheetCount}`);
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
@@ -429,7 +431,7 @@ for (const route of expectedCaseStudyRoutes) {
 for (const english of [false, true]) {
   const prefix = english ? "/en" : "";
   const archive = pages.get(`${prefix}/projects/`) || "";
-  if ((archive.match(/class="work-card-case"/g) || []).length !== 96) errors.push(`${prefix}/projects/: every project needs a case-study action`);
+  if ((archive.match(/class="work-card-case"/g) || []).length !== caseStudies.length) errors.push(`${prefix}/projects/: every project needs a case-study action`);
   for (const study of caseStudies) {
     const html = pages.get(`${prefix}/projects/${study.slug}/`) || "";
     if (!html.includes(`data-case-study="${study.slug}"`)) errors.push(`${study.slug}: missing dedicated case content`);

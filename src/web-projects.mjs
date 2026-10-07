@@ -3,8 +3,9 @@ const github = (repo) => `https://github.com/EslamElshikh-dev/${repo}`;
 export const projectAudit = {
   githubRepositories: 100,
   vercelProjects: 64,
-  listedProjects: 96,
-  auditedAt: "2026-10-04"
+  listedProjects: 97,
+  sourceAuditedAt: "2026-10-04",
+  auditedAt: "2026-10-07"
 };
 
 export const webProjects = [
@@ -103,7 +104,8 @@ export const webProjects = [
   { title: "الدمياطي للموبيليا", sector: "النجارة والديكور", liveUrl: "https://eslamelshikh-dev.github.io/Aldomyati_llmobilya/", sourceUrl: github("Aldomyati_llmobilya") },
   { title: "مبلط حمامات بالرياض — سيراميك وبورسلان ورخام", sector: "المقاولات والتشطيبات", liveUrl: "https://eslamelshikh-dev.github.io/MOBLETHamamt/", sourceUrl: github("MOBLETHamamt") },
   { title: "أبو هيبة لتنسيق الحدائق", sector: "الحدائق والمناسبات", liveUrl: "https://eslamelshikh-dev.github.io/abu-hiba-garden-design/", sourceUrl: github("abu-hiba-garden-design") },
-  { title: "أبو يوسف للنجارة", sector: "النجارة والديكور", liveUrl: "https://cotractorsa.com/", sourceUrl: github("najar-abu-yousef") }
+  { title: "أبو يوسف للنجارة", sector: "النجارة والديكور", liveUrl: "https://cotractorsa.com/", sourceUrl: github("najar-abu-yousef") },
+  { title: "كرمز كافيه", sector: "التجارة والخدمات الغذائية", liveUrl: "https://kermez-cafe.vercel.app/", sourceUrl: github("kermez-cafe") }
 ];
 
 if (webProjects.length !== projectAudit.listedProjects) {

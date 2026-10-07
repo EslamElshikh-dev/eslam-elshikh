@@ -7,6 +7,8 @@ import { renderWorkHero, renderWorkStories, renderWorkGallery, renderWorkClosing
 import { caseStudies, caseByUrl, caseHref } from "./src/case-studies.mjs";
 import { renderMapsHero, renderMapsStories, renderMapsCollection, renderMapsTeaser, renderMapSample } from "./src/maps-exhibition.mjs";
 import { mapsWorkAudit } from "./src/google-maps-work.mjs";
+import { renderRecentWork, renderAccountReview, renderWorkEvidence } from "./src/work-evidence.mjs";
+import { latestWorkReviewedAt } from "./src/latest-work.mjs";
 import { products, productText } from "./src/products.mjs";
 import { renderCaseStudy, renderProductCollection, renderProductsIndex, renderProductPage } from "./src/project-stories.mjs";
 import { guides } from "./src/guides.mjs";
@@ -302,7 +304,7 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   <script src="/assets/js/theme.js?v=${version}"></script>
   <link rel="stylesheet" href="/assets/css/main.css?v=${version}">
 ${stylesheets.length ? `${stylesheets.map((href) => `  <link rel="stylesheet" href="${esc(href)}">`).join("\n")}\n` : ""}  <link rel="stylesheet" href="/assets/css/studio.css?v=${version}">
-${["/", "/projects/", "/en/projects/", "/google-maps-projects/", "/en/google-maps-projects/", "/google-expert/", "/en/google-expert/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/maps-exhibition.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-stories.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
+${["/", "/projects/", "/en/projects/", "/google-maps-projects/", "/en/google-maps-projects/", "/google-expert/", "/en/google-expert/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/maps-exhibition.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-stories.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/(projects|products|google-maps-projects|work-evidence)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/work-evidence.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
   <script type="application/ld+json">${safeJson({ "@context": "https://schema.org", "@graph": graph })}</script>
 </head>`;
 }
@@ -353,8 +355,8 @@ function footer(language = "ar") {
   const isEnglish = language === "en";
   const social = socialLinks.map(([label, href, mark]) => `<a href="${href}" target="_blank" rel="noopener" aria-label="${label}" title="${label}">${mark}</a>`).join("");
   const exploreLinks = isEnglish
-    ? `<a href="/en/about/">About</a><a href="/en/projects/">Selected work</a><a href="/en/google-maps-projects/">Google Maps work</a><a href="/en/google-business-profile-audit/">Free GBP audit</a><a href="/en/book/">Book a consultation</a><a href="/en/local-seo/riyadh/">Local SEO in Riyadh</a><a href="/en/google-expert/">Google expertise</a><a href="/en/blog/">Insights</a><a href="/en/contact/">Contact</a>`
-    : `<a href="/about/">عن إسلام</a><a href="/projects/">أعمال المواقع</a><a href="/google-maps-projects/">أعمال خرائط Google</a><a href="/google-business-profile-audit/">فحص ملف Google مجانًا</a><a href="/book/">احجز استشارة</a><a href="/local-seo/riyadh/">السيو المحلي في الرياض</a><a href="/google-expert/">متخصص خرائط Google</a><a href="/blog/">المدونة</a><a href="/contact/">تواصل</a>`;
+    ? `<a href="/en/about/">About</a><a href="/en/projects/">Selected work</a><a href="/en/work-evidence/">Work evidence</a><a href="/en/google-maps-projects/">Google Maps work</a><a href="/en/google-business-profile-audit/">Free GBP audit</a><a href="/en/book/">Book a consultation</a><a href="/en/local-seo/riyadh/">Local SEO in Riyadh</a><a href="/en/google-expert/">Google expertise</a><a href="/en/blog/">Insights</a><a href="/en/contact/">Contact</a>`
+    : `<a href="/about/">عن إسلام</a><a href="/projects/">أعمال المواقع</a><a href="/work-evidence/">أدلة الأعمال</a><a href="/google-maps-projects/">أعمال خرائط Google</a><a href="/google-business-profile-audit/">فحص ملف Google مجانًا</a><a href="/book/">احجز استشارة</a><a href="/local-seo/riyadh/">السيو المحلي في الرياض</a><a href="/google-expert/">متخصص خرائط Google</a><a href="/blog/">المدونة</a><a href="/contact/">تواصل</a>`;
   const serviceLinks = services.slice(0, 6).map((service) => `<a href="${isEnglish ? `/en/services/${service.slug}/` : `/services/${service.slug}/`}">${esc(isEnglish ? englishServiceBySlug(service.slug)?.title || serviceTranslations[service.slug]?.title || service.title : service.title)}</a>`).join("");
   const mobileServiceLabels = {
     cybersecurity: ["الأمن السيبراني", "Cybersecurity"],
@@ -540,6 +542,7 @@ function homePage() {
   <p class="container stats-note">أرقام خبرة محدثة حتى سبتمبر 2026؛ ويمكن مراجعة النماذج العامة المنشورة في قسمي الأعمال وخرائط Google.</p>
 </section>
 <section class="section-pad projects-section"><div class="container"><div class="section-heading reveal">${eyebrow("مختارات من الأعمال")}<h2>مشروعات حقيقية، لكل واحد منها قصة وهوية</h2><p>نماذج حية من مواقع ومنتجات رقمية تم تطويرها للشركات والأنشطة، مع الجمع بين التصميم والتقنية والسيو ومسارات التحويل.</p></div>${projectsShowcase({ home: true })}<div class="section-action">${button("/projects/", "استكشف جميع الأعمال", "button-ghost")}</div></div></section>
+${renderRecentWork({ esc, icon })}
 <section class="section-pad needs-section" aria-labelledby="needs-title"><div class="container"><div class="section-heading reveal">${eyebrow("كيف أساعدك؟")}<h2 id="needs-title">ابدأ بما يحتاجه مشروعك</h2><p>اختر هدفك لتتعرف على نطاق العمل والمخرجات والخطوة التالية.</p></div><div class="needs-grid">${[
   ["web-development", "code", "أحتاج موقعًا لشركتي", "موقع يشرح خدماتك ويجعل التواصل معك أسهل.", "تصميم وتطوير المواقع"],
   ["google-business-profile", "pin", "ملفي التجاري يحتاج معالجة", "مراجعة التحقق والتعليق والبيانات وخطة الظهور المحلي.", "حلول ملفات Google"],
@@ -927,6 +930,7 @@ function googleMapsProjectsPage(english = false) {
   };
   const body = `${renderMapsHero({ english, esc, icon })}
 ${renderMapsStories({ english, esc, icon })}
+${renderAccountReview({ english, esc, icon })}
 ${renderMapsCollection({ english, esc, icon })}
 ${english
     ? englishFinalCta("Give your business a clearer local presence.", "Send your public profile link and the issue you want to solve. We will define the right next step for your business.")
@@ -946,6 +950,15 @@ ${english
       { name: english ? "Work" : "الأعمال", path: english ? "/en/projects/" : "/projects/" },
       { name: english ? "Google Maps work" : "أعمال خرائط Google", path }
     ])]
+  });
+}
+
+function workEvidencePage(english = false) {
+  const path = `${english ? "/en" : ""}/work-evidence/`;
+  const title = english ? "Latest Work & Business Profile Evidence | Eslam Elshikh" : "أحدث الأعمال وأدلة الملفات التجارية | إسلام الشيخ";
+  const description = english ? "Reviewed deliveries for Kermez, Alya, Sama Scan, Tawod and Naqada, with actual interfaces, public links and a dated Business Profile record." : "أحدث أعمال كرمز وعليا وسما سكان وتعاود ونقادة، مع نطاق التنفيذ وصور فعلية وروابط مباشرة للمراجعة، وسجل مؤرخ لحالة 35 ملفًا تجاريًا.";
+  return page({ title, description, path, active: "projects", lang: english ? "en" : "ar", body: renderWorkEvidence({ english, esc, icon }), modified: latestWorkReviewedAt,
+    schema: [{ "@type": "CollectionPage", "@id": `${absolute(path)}#evidence`, url: absolute(path), name: title, description, dateModified: latestWorkReviewedAt, creator: { "@id": `${site.url}/#person` } }, breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" }, { name: english ? "Work" : "الأعمال", path: english ? "/en/projects/" : "/projects/" }, { name: english ? "Work evidence" : "أدلة الأعمال", path }])]
   });
 }
 
@@ -973,6 +986,7 @@ function projectsPage() {
     dateModified: projectAudit.auditedAt
   };
   const body = `${renderWorkHero({ esc, icon })}
+${renderRecentWork({ esc, icon })}
 ${renderWorkStories({ esc, icon, name: project => esc(project.title), description: project => project.description, category: project => project.category })}
 ${renderProductCollection({ esc, icon })}
 ${verifiedWorkArchive()}
@@ -1012,8 +1026,8 @@ function productsIndexPage(english = false) {
     itemListElement: products.map((product, index) => ({ "@type": "ListItem", position: index + 1,
       name: productText(product.name, english), url: absolute(`${path}${product.slug}/`) })) };
   return page({ title: name, description: english
-    ? "Explore Sama Scan, ALARGAN CRM, and Tawod as independent digital products, with public interface tours, workflow details, and clear delivery stages."
-    : "استعرض مركز عمليات سما سكان، وتصوّر الأرجان CRM، ومركز قيادة تعاود كمنتجات مستقلة، مع جولات بالواجهة وشرح الوظائف ومرحلة تنفيذ كل منتج.",
+    ? "Explore five digital products: Sama Scan, Tawod, Kermez, Alya and the ALARGAN concept, with interface tours, delivery scope and clear implementation stages."
+    : "استعرض خمسة منتجات لسما سكان وتعاود وكرمز وعليا وتصوّر الأرجان CRM، مع صور الواجهات وجولات الوظائف ونطاق العمل ومرحلة تنفيذ كل منتج.",
     path, active: "projects", lang: english ? "en" : "ar", modified: projectAudit.auditedAt,
     body: renderProductsIndex({ english, esc, icon }), schema: [list,
       { "@type": "CollectionPage", "@id": `${absolute(path)}#collection`, name, url: absolute(path), mainEntity: { "@id": list["@id"] } },
@@ -1508,6 +1522,7 @@ function englishProjectsPage() {
   const projectList = { "@type": "ItemList", "@id": `${absolute(path)}#project-list`, name: "Verified live web projects by Eslam Elshikh", numberOfItems: webProjects.length, itemListElement: webProjects.map((project, index) => ({ "@type": "ListItem", position: index + 1, name: caseStudies[index].englishName, url: absolute(caseHref(caseStudies[index], true)) })) };
   const collectionSchema = { "@type": "CollectionPage", "@id": `${absolute(path)}#collection`, url: absolute(path), name: "Web projects and case studies by Eslam Elshikh", description: `${projectAudit.listedProjects} web projects in the portfolio, with a dedicated case study for each project and public tours of independent products.`, creator: { "@id": `${site.url}/#person` }, mainEntity: { "@id": projectList["@id"] }, dateModified: projectAudit.auditedAt };
   const body = `${renderWorkHero({ english: true, esc, icon })}
+${renderRecentWork({ english: true, esc, icon })}
 ${renderWorkStories({ english: true, esc, icon, name: officialProjectName, description: englishProjectDescription, category: project => englishProjectStudies[project.slug]?.category || englishProjectCategory(project.category) })}
 ${renderProductCollection({ english: true, esc, icon })}
 ${englishVerifiedWorkArchive()}
@@ -1692,6 +1707,7 @@ function englishPage() {
 <section class="section-pad" id="services"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Core capabilities</span><h2>Specialist work that can operate independently or as one delivery plan</h2><p>Each engagement starts with the business outcome, current state, constraints, risks, and a measurable definition of done.</p></div><div class="services-grid">${englishServices.map(englishServiceCard).join("")}</div><div class="section-action">${button("/en/services/", "Explore all services", "button-ghost")}</div></div></section>
 <section class="section-pad muted-section" id="about"><div class="container promise-grid"><div class="promise-copy reveal"><span class="eyebrow"><span></span>About & approach</span><h2>A strong digital project is more than a polished interface</h2><p>I approach security, software, user experience, discoverability, and measurement as connected parts of one system. The work should remain understandable, maintainable, and reviewable after launch.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome first</h3><p>We define the user decision and business result before selecting tools.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Secure by design</h3><p>Data, permissions, and failure modes are considered from the start.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for devices</h3><p>Mobile-first testing across iOS, Android, Huawei, tablets, and desktops.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Ready to improve</h3><p>Performance, SEO, analytics, and conversion are part of operations.</p></article></div></div></section>
 <section class="section-pad projects-section" id="work"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Selected case studies</span><h2>Real projects with distinct goals, constraints, and delivery decisions</h2><p>Three live examples showing how content, design, engineering, search visibility, and conversion paths are shaped around the business rather than copied from a generic template.</p></div><div class="posts-grid">${workCards}</div><div class="section-action">${button("/en/projects/", "Explore all verified work", "button-ghost")}</div></div></section>
+${renderRecentWork({ english: true, esc, icon })}
 <section class="section-pad" id="google-expertise"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>Google Maps and Business Profile experience</span><h2>Structured diagnosis instead of random profile changes</h2><p>I help eligible businesses understand verification, suspension, ownership, category, consistency, and local visibility issues using official paths and realistic expectations.</p></div><div class="proof-actions">${button("/en/google-expert/", "Explore Google expertise")}${button(site.googleMapsProfile, "Business profile", "button-ghost", true)}</div></div></section>
 <section class="section-pad muted-section blog-section" id="insights"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Practical insights</span><h2>Original English guidance for technical and growth decisions</h2><p>Decision-focused articles covering the same disciplines used in delivery, written for English readers rather than translated sentence by sentence.</p></div><div class="posts-grid">${insightCards}</div><div class="section-action">${button("/en/blog/", "Explore all English guides", "button-ghost")}</div></div></section>
 <section class="section-pad faq-section" id="faq"><div class="container faq-grid"><div class="faq-intro reveal"><span class="eyebrow"><span></span>Frequently asked questions</span><h2>Direct answers before an engagement begins</h2><p>Scope, dependencies, evidence, and expected outcomes are clarified before implementation.</p><a class="button button-ghost" href="/en/contact/">Discuss your project ${icon("arrow", "button-icon")}</a></div>${faqBlock(englishHomeFaq)}</div></section>
@@ -1760,6 +1776,7 @@ async function build() {
   await writeRoute("/google-expert/", googleExpertPage());
   await writeRoute("/google-ads/", googleAdsPage());
   await writeRoute("/projects/", projectsPage());
+  await writeRoute("/work-evidence/", workEvidencePage());
   for (const project of caseStudies) {
     await writeRoute(`/projects/${project.slug}/`, projectCaseStudyPage(project));
   }
@@ -1782,6 +1799,7 @@ async function build() {
   await writeRoute("/en/google-expert/", englishGoogleExpertPage());
   await writeRoute("/en/google-ads/", englishGoogleAdsPage());
   await writeRoute("/en/projects/", englishProjectsPage());
+  await writeRoute("/en/work-evidence/", workEvidencePage(true));
   for (const project of caseStudies) {
     await writeRoute(`/en/projects/${project.slug}/`, englishProjectCaseStudyPage(project));
   }
@@ -1822,7 +1840,7 @@ async function build() {
     sameAs: personSameAs,
     knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "Google Search", "Google Search Console", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"]
   }, null, 2));
-  await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Verified public work\n- ${projectAudit.listedProjects} web projects in the portfolio, audited from ${projectAudit.githubRepositories} GitHub repositories and ${projectAudit.vercelProjects} Vercel projects on ${projectAudit.auditedAt}: ${absolute("/projects/")}\n- ${mapsProjects.length} public Google Maps examples: ${absolute("/google-maps-projects/")}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- About: ${absolute("/about/")}\n- Google Maps specialist services: ${absolute("/google-expert/")}\n- Free Google Business Profile audit: ${absolute("/google-business-profile-audit/")}\n- Google Maps work: ${absolute("/google-maps-projects/")}\n- Book a consultation: ${absolute("/book/")}\n- Google Ads management: ${absolute("/google-ads/")}\n- Local SEO in Riyadh: ${absolute("/local-seo/riyadh/")}\n- Contact: ${absolute("/contact/")}\n`);
+  await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Verified public work\n- ${projectAudit.listedProjects} web projects in the portfolio, source-audited from ${projectAudit.githubRepositories} GitHub repositories and ${projectAudit.vercelProjects} Vercel projects on ${projectAudit.sourceAuditedAt}, with latest delivery updates on ${projectAudit.auditedAt}: ${absolute("/projects/")}\n- ${mapsProjects.length} public Google Maps examples: ${absolute("/google-maps-projects/")}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- Latest work and dated evidence: ${absolute("/work-evidence/")}\n- About: ${absolute("/about/")}\n- Google Maps specialist services: ${absolute("/google-expert/")}\n- Free Google Business Profile audit: ${absolute("/google-business-profile-audit/")}\n- Google Maps work: ${absolute("/google-maps-projects/")}\n- Book a consultation: ${absolute("/book/")}\n- Google Ads management: ${absolute("/google-ads/")}\n- Local SEO in Riyadh: ${absolute("/local-seo/riyadh/")}\n- Contact: ${absolute("/contact/")}\n`);
   if (isDistBuild) await cp(join(root, "llms-full.txt"), join(outDir, "llms-full.txt"));
   await writeText("humans.txt", `Site: ${site.brandName}\nCanonical identity: ${site.nameAr} | ${site.nameEn}\nEnglish alternate: Islam Elshikh\nOfficial website: ${site.url}/\nLocation: ${site.city}, ${site.country}\nDesign and development: ${site.nameEn}\nUpdated: ${site.lastUpdated}\n`);
   await writeText("CNAME", "www.eslam-elshikh.com\n");

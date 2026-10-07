@@ -57,10 +57,8 @@ export const projectPreviews = {
     "capturedAt": "2026-10-04"
   },
   "https://dahanat-alya-riyadh.vercel.app/": {
-    "src": "/assets/projects/gallery/project-13.webp",
-    "origin": "live",
-    "captureUrl": "https://dahanat-alya-riyadh.vercel.app/",
-    "capturedAt": "2026-10-04"
+    "src": "/assets/projects/alya-home-20261007.webp",
+    "origin": "live", "captureUrl": "https://dahanat-alya-riyadh.vercel.app/", "capturedAt": "2026-10-07"
   },
   "https://abdulhakim-lighting-riyadh.vercel.app/": {
     "src": "/assets/projects/gallery/project-14.webp",
@@ -564,5 +562,9 @@ export const projectPreviews = {
     "captureUrl": "https://github.com/EslamElshikh-dev/najar-abu-yousef/blob/main/index.html",
     "capturedAt": "2026-10-04",
     "liveAvailable": false
+  }
+  ,"https://kermez-cafe.vercel.app/": {
+    "src": "/assets/projects/kermez-home-20261007.webp",
+    "origin": "live", "captureUrl": "https://kermez-cafe.vercel.app/", "capturedAt": "2026-10-07"
   }
 };

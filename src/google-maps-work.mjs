@@ -1,9 +1,11 @@
 // Public portfolio evidence. Private correspondence and account identifiers are deliberately excluded.
+import { accountReviewByCid, accountReviewDate } from "./account-review.mjs";
+
 export const mapsWorkAudit = {
-  "reviewedAt": "2026-10-04",
-  "newProfiles": 14,
-  "historicalRecords": 77,
-  "publicRecords": 73,
+  "reviewedAt": "2026-10-07",
+  "newProfiles": 15,
+  "historicalRecords": 78,
+  "publicRecords": 74,
   "archivedRecords": 4
 };
 
@@ -1529,6 +1531,25 @@ export const mapsProjects = [
     "evidenceEn": "The public profile was reviewed on 4 October 2026."
   }
 ];
+
+mapsProjects.push({
+  title: "كرمز كافيه", publicTitle: "كرمز كافيه", category: "مطاعم وضيافة",
+  location: "العليا، الرياض", region: "riyadh", cid: "11638879468923755595",
+  url: "https://maps.google.com/maps?cid=11638879468923755595", website: "https://kermez-cafe.vercel.app/",
+  imageKind: "website-preview", image: "/assets/projects/kermez-home-20261007.webp",
+  featured: true, recentAddition: true,
+  scope: "مواءمة الملف مع الموقع والمنيو ونظام التشغيل",
+  scopeEn: "Profile alignment with the cafe website, menu and operations system",
+  summary: "موقع بهوية المقهى ومنيو قابل للإدارة ونظام للطلبات والعملاء والمخزون والمتابعة. يربط العمل معلومات الزيارة والخريطة بتجربة كرمز، مع نموذج يجهّز استفسار الحجز عبر واتساب.",
+  summaryEn: "A branded cafe website, managed menu and workspace for orders, customers, stock and follow-ups. Visit information and Maps connect with the experience; the booking form prepares a WhatsApp enquiry.",
+  evidence: "ظهر الملف مثبت الملكية في مراجعة الحساب بتاريخ 7 أكتوبر 2026. الموقع والمنيو وجولة النظام ببيانات تجريبية متاحة للمراجعة.",
+  evidenceEn: "The profile displayed verified status in the account review on 7 October 2026. The live website, menu and operations tour using demonstration data are available to inspect.",
+  storyTitle: "من موقع المقهى إلى إدارة العمل اليومي", storyTitleEn: "From the cafe website to daily operations"
+});
+for (const item of mapsProjects) {
+  const reviewed = accountReviewByCid.get(item.cid);
+  if (reviewed) Object.assign(item, { reviewState: reviewed.state, accountReviewedAt: accountReviewDate });
+}
 
 export const mapsArchive = [
   {

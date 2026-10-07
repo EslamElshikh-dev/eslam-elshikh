@@ -4,12 +4,13 @@ import { projectPreviews } from "./project-previews.mjs";
 import { caseEditorial } from "./case-editorial.mjs";
 import { caseEvidence } from "./case-evidence.mjs";
 import { englishSectorNames } from "./english.mjs";
+import { latestWorkByUrl } from "./latest-work.mjs";
 
 const slugOverrides = {
   1: "tawod-contracting", 2: "tawod-maintenance", 6: "bowdy-labs", 7: "sama-scan",
-  8: "sama-scan-control-center", 9: "alargan-crm-concept", 96: "najar-abu-yousef"
+  8: "sama-scan-control-center", 9: "alargan-crm-concept", 96: "najar-abu-yousef", 97: "kermez-cafe"
 };
-const productSlugs = { 1: "tawod-control-center", 7: "sama-scan-control-center", 8: "sama-scan-control-center", 9: "alargan-crm" };
+const productSlugs = { 1: "tawod-control-center", 7: "sama-scan-control-center", 8: "sama-scan-control-center", 9: "alargan-crm", 13: "alya-catalog-control", 97: "kermez-control-center" };
 const sectorMethods = {
   "المقاولات والتشطيبات": ["صاحب مشروع يبحث عن نطاق تنفيذ واضح", "الانتقال من تخصص البناء أو التشطيب إلى وصف المشروع والموقع وحجم العمل.", "تجميع الخدمات بحسب نوع العمل يجعل النقاش عن النطاق أسهل، ويمنع خلط التأسيس بالصيانة أو التشطيب.", "المشروعات والصور تشرح طبيعة التنفيذ؛ وتأتي وسيلة التواصل بعد تعريف الزائر بالخدمة.", ["يحدد نوع العمل", "يراجع التخصص والتفاصيل", "يجهّز وصف المشروع", "يتواصل لتنسيق الخطوة التالية"]],
   "النجارة والديكور": ["عميل يخطط لمساحة أو قطعة تُنفذ حسب الطلب", "تحويل فكرة بصرية إلى استفسار محدد عن المقاس والاستخدام والتقسيم المطلوب.", "البدء بنوع القطعة أو المساحة يساعد على مقارنة الخيارات المناسبة قبل السؤال عن السعر.", "تستفيد رحلة التواصل من المقاسات والصور؛ لذلك تخدم الواجهة وصف الاحتياج بدل الاكتفاء بعرض اسم النشاط.", ["يختار القطعة أو المساحة", "يراجع الخيارات والصور", "يجهّز المقاسات أو الفكرة", "يناقش تفاصيل التنفيذ"]],
@@ -24,8 +25,9 @@ const sectorMethods = {
 
 export const caseStudies = webProjects.map((project, index) => {
   const number = index + 1;
-  const [englishName, focus, challenge, solution, outcome, englishFocus, englishNarrative] = caseEditorial[index];
-  const evidence = caseEvidence[index];
+  const reviewed = latestWorkByUrl.get(project.liveUrl)?.editorial;
+  const [englishName, focus, challenge, solution, outcome, englishFocus, englishNarrative] = caseEditorial[index] || [reviewed.englishName, reviewed.focus, reviewed.challenge, reviewed.solution, reviewed.outcome, reviewed.englishFocus, reviewed.englishNarrative];
+  const evidence = caseEvidence[index] || { topics: reviewed.topics, technology: reviewed.technology, hasPhone: true, hasWhatsApp: true, hasMap: true };
   const featured = projects.find(item => item.liveUrl === project.liveUrl);
   const preview = projectPreviews[project.liveUrl];
   const url = new URL(project.sourceUrl || project.liveUrl);
@@ -41,11 +43,13 @@ export const caseStudies = webProjects.map((project, index) => {
     productSlug: productSlugs[number], liveAvailable: preview.liveAvailable !== false,
     status: number === 9 ? "concept" : project.access === "restricted" ? "private-product" : preview.liveAvailable === false ? "archived" : "published",
     tags: featured?.tags || ["Interface Design", evidence.technology === "Next.js" ? "Next.js" : "Web Development", "Arabic UX"],
-    originalStudy: featured?.caseStudy
+    originalStudy: reviewed ? undefined : featured?.caseStudy,
+    ...reviewed,
+    ...(reviewed ? { hasPhone: true, hasWhatsApp: true, hasMap: true } : {})
   };
 });
 
-if (caseStudies.length !== 96 || new Set(caseStudies.map(study => study.slug)).size !== 96) throw new Error("Every project must have a unique case study.");
+if (caseStudies.length !== webProjects.length || new Set(caseStudies.map(study => study.slug)).size !== webProjects.length) throw new Error("Every project must have a unique case study.");
 export const caseByUrl = new Map(caseStudies.map(study => [study.liveUrl, study]));
 export const caseHref = (study, english = false) => `${english ? "/en" : ""}/projects/${study.slug}/`;
 export const productHref = (slug, english = false) => `${english ? "/en" : ""}/products/${slug}/`;
