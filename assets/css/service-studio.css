@@ -85,6 +85,8 @@
 
 /* A contextual CRM preview inside its service card. */
 .crm-service-preview{z-index:2;gap:1rem;padding:1.7rem;justify-content:start;scroll-margin-top:110px}
+.service-card[data-service-kind="crm-systems"] .service-card-main{justify-content:center}
+.service-card[data-service-kind="crm-systems"] .service-card-main>.text-link{margin-top:1.25rem;align-self:flex-start}
 .crm-service-preview .service-visual-head{font-size:.5rem;line-height:1.8;align-items:center}
 .crm-service-preview .service-visual-head>span:last-child{direction:inherit;letter-spacing:0;white-space:nowrap;color:var(--secondary)}
 .service-preview-intro h4{font-size:1.3rem;line-height:1.7;font-weight:650;margin:0 0 .25rem;text-wrap:balance}
