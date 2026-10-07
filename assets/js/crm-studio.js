@@ -61,7 +61,7 @@
    const color=toneButtons.find(b=>b.dataset.crmTone===tone).textContent.trim();
    const list=choices();
    const lines=en?['Hello Eng. Eslam, I would like a working custom CRM trial.',`Business: ${name.value.trim()||'To be discussed'}`,`Business type: ${business}`,`Preview color direction: ${color} (final brand to be agreed)`,`Priorities: ${list.length?list.join(', '):'To be discussed'}`,requirement.value.trim()?`Specific task: ${requirement.value.trim()}`:'','Please confirm the proposed trial tasks, scope, timing and commercial terms.']:['مرحبًا م. إسلام، أرغب في تجربة CRM فعلية مخصصة لنشاطي.',`اسم المنشأة: ${name.value.trim()||'نحدده في النقاش'}`,`نوع النشاط: ${business}`,`اتجاه لون المعاينة: ${color} (الهوية النهائية نعتمدها معًا)`,`الأولويات: ${list.length?list.join('، '):'نحددها في النقاش'}`,requirement.value.trim()?`مهمة خاصة: ${requirement.value.trim()}`:'','أرغب في تحديد مهام التجربة ونطاقها وموعدها والشروط التجارية.'];
-   if(lab.dataset.crmDemoIncluded)lines.push(en?'Tasks to test: recording a request, assigning an owner, setting a next action and reviewing the activity record.':'مهام أرغب في اختبارها: تسجيل الطلب، تعيين المسؤول، تحديد المتابعة، ومراجعة سجل الخطوات.');
+   if(lab.dataset.crmDemoIncluded)lines.push(en?'Tasks to test: recording a request, assigning an owner, setting a next action and timing, and reviewing the activity record from team and management perspectives.':'مهام أرغب في اختبارها: تسجيل الطلب، تعيين المسؤول، تحديد المتابعة وموعدها، ومراجعة سجل الإجراءات من منظور الفريق والإدارة.');
    const message=lines.filter(Boolean).join('\n');brief.value=message;request.href='https://wa.me/966579395299?text='+encodeURIComponent(message);status.textContent=en?'Request prepared. Review it in WhatsApp before sending.':'الطلب جاهز. راجعه في WhatsApp قبل الإرسال.';
   };
   sectorButtons.forEach(button=>button.addEventListener('click',()=>{
@@ -92,6 +92,8 @@
   const subject=dialog.querySelector('[data-crm-demo-subject]');
   const owner=dialog.querySelector('[data-crm-demo-owner]');
   const action=dialog.querySelector('[data-crm-demo-action]');
+  const due=dialog.querySelector('[data-crm-demo-due]');
+  const note=dialog.querySelector('[data-crm-demo-note]');
   const sections=[...dialog.querySelectorAll('[data-crm-demo-step]')];
   const progress=[...dialog.querySelectorAll('[data-crm-demo-progress]')];
   const benefits=[...dialog.querySelectorAll('[data-crm-demo-benefit]')];
@@ -99,11 +101,26 @@
   const nextLabel=dialog.querySelector('[data-crm-demo-next-label]');
   const log=dialog.querySelector('[data-crm-demo-log]');
   const status=dialog.querySelector('[data-crm-demo-status]');
-  let phase=0,record={};
+  const viewButtons=[...dialog.querySelectorAll('[data-crm-demo-view]')];
+  const lanes=[...dialog.querySelectorAll('[data-crm-demo-lane]')];
+  const checkpoints=[...dialog.querySelectorAll('[data-crm-demo-checkpoint]')];
+  let phase=0,record={},view='owner';
   const populate=(select,items)=>{
    select.replaceChildren();
    [en?'Choose an option':'اختر من الخيارات',...items].forEach((text,i)=>{
     const option=document.createElement('option');option.value=i?text:'';option.textContent=text;select.append(option);
+   });
+  };
+  const perspective=()=>{
+   viewButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.crmDemoView===view)));
+   dialog.querySelector('[data-crm-demo-owner-focus]').hidden=view!=='owner';
+   dialog.querySelector('[data-crm-demo-management-focus]').hidden=view!=='management';
+   dialog.querySelector('[data-crm-demo-perspective]').textContent=view==='owner'?(en?'An illustrative focus on your assigned task and next action.':'معاينة توضيحية تركّز على المهمة المسندة إليك وخطوتها القادمة.'):(en?'An illustrative overview of responsibility, action and timing.':'معاينة توضيحية لاكتمال المسؤولية والإجراء والموعد.');
+   dialog.querySelector('[data-crm-demo-focus-action]').textContent=record.action||(en?'The next action will appear here.':'تظهر هنا خطوة المتابعة عند اعتمادها.');
+   dialog.querySelector('[data-crm-demo-focus-due]').textContent=record.due||(en?'Timing is not defined yet.':'موعد المتابعة بانتظار التحديد.');
+   checkpoints.forEach((item,i)=>{
+    const ready=!![record.owner,record.action,record.due][i];item.dataset.ready=String(ready);
+    item.querySelector('[data-crm-demo-checkpoint-state]').textContent=ready?(en?'Ready':'مكتمل'):(en?'Pending':'بانتظار التحديد');
    });
   };
   const render=()=>{
@@ -114,28 +131,44 @@
     if(i===phase)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current');
    });
    back.hidden=phase===0;nextLabel.textContent=labels[phase];
-   status.textContent=en?`Step ${phase+1} of 4`:`الخطوة ${phase+1} من 4`;
+   const completed=[record.subject,record.owner,record.action,record.due].filter(Boolean).length;
+   status.textContent=en?`Step ${phase+1} of 4 · ${completed}/4 request details`:`الخطوة ${phase+1} من 4 · ${completed}/4 من عناصر الطلب`;
+   dialog.querySelector('[data-crm-demo-clarity]').textContent=completed+' / 4';
+   dialog.querySelector('[data-crm-demo-meter]').value=completed;
    dialog.querySelector('[data-crm-demo-record-subject]').textContent=record.subject||(en?'Not recorded yet':'لم يُسجّل بعد');
    dialog.querySelector('[data-crm-demo-record-owner]').textContent=record.owner||(en?'To be assigned':'بانتظار الإسناد');
    dialog.querySelector('[data-crm-demo-record-action]').textContent=record.action||(en?'To be defined':'لم تُحدد بعد');
+   dialog.querySelector('[data-crm-demo-record-due]').textContent=record.due||(en?'To be agreed':'بانتظار التحديد');
+   dialog.querySelector('[data-crm-demo-record-note]').textContent=record.note||'';
+   dialog.querySelector('[data-crm-demo-note-row]').hidden=!record.note;
    dialog.querySelector('[data-crm-demo-record-status]').textContent=record.action?(en?'Ready for follow-up':'جاهز للمتابعة'):record.owner?(en?'Assigned':'تم الإسناد'):record.subject?(en?'Recorded':'تم التسجيل'):(en?'Example in preparation':'مثال قيد التجهيز');
    log.replaceChildren();
-   [[record.subject,en?'Request recorded':'تسجيل الطلب'],[record.owner,en?'Owner assigned':'إسناد المسؤول'],[record.action,en?'Next action set':'تحديد المتابعة']].forEach(([value,label])=>{
+   const lane=record.action?2:record.owner?1:record.subject?0:-1;
+   lanes.forEach((item,i)=>{item.dataset.state=i<lane?'done':i===lane?'current':'pending';if(i===lane)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current');});
+   [[record.subject,en?'Request recorded':'تسجيل الطلب'],[record.owner,en?'Owner assigned':'إسناد المسؤول'],[record.action?[record.action,record.due,record.note].filter(Boolean).join(' · '):'',en?'Follow-up planned':'اعتماد المتابعة']].forEach(([value,label])=>{
     if(!value)return;
     const item=document.createElement('li');const title=document.createElement('strong');const detail=document.createElement('span');
     title.textContent=label;detail.textContent=value;item.append(title,detail);log.append(item);
    });
    dialog.querySelector('[data-crm-demo-log-empty]').hidden=!!record.subject;
+   perspective();
   };
   const move=step=>{phase=step;render();sections[phase].querySelector('h3').focus({preventScroll:false});};
   const launchers=[...lab.querySelectorAll('[data-crm-rehearse]')];
+  const reset=button=>{
+   phase=0;record={};view='owner';subject.value=button.dataset.demoRequest;subject.setCustomValidity('');
+   owner.value='';action.value='';due.value='';note.value='';render();
+  };
+  let activeLauncher;
   const open=button=>{
     if(dialog.open)dialog.close();
-    const plan=button.closest('[data-crm-plan]');phase=0;record={};subject.value=button.dataset.demoRequest;subject.setCustomValidity('');
+    const plan=button.closest('[data-crm-plan]');activeLauncher=button;
     populate(owner,[...plan.querySelectorAll('.crm-lab-roles>div>span')].map(item=>item.textContent.trim()));
     populate(action,[button.dataset.demoAction,en?'Ask for more information':'طلب تفاصيل إضافية',en?'Review the request with management':'مراجعة الطلب مع الإدارة']);
     dialog.querySelector('[data-crm-demo-brand]').textContent=lab.querySelector('[data-crm-brand-preview]').textContent;
-    render();history.replaceState(history.state,'','#'+button.id);dialog.showModal();subject.focus({preventScroll:true});
+    dialog.querySelector('[data-crm-demo-sector-name]').textContent=plan.dataset.crmSectorName;
+    dialog.dataset.tone=lab.querySelector('[data-crm-tone][aria-pressed="true"]').dataset.crmTone;
+    reset(button);history.replaceState(history.state,'','#'+button.id);dialog.showModal();subject.focus({preventScroll:true});
   };
   launchers.forEach(button=>{
    button.hidden=false;button.addEventListener('click',()=>open(button));
@@ -143,6 +176,8 @@
   dialog.querySelector('[data-crm-demo-close]').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('close',()=>{if(!dialog.open&&launchers.some(button=>location.hash==='#'+button.id))history.replaceState(history.state,'','#crm-personal-trial');});
   back.addEventListener('click',()=>{if(phase>0)move(phase-1);});
+  viewButtons.forEach(button=>button.addEventListener('click',()=>{view=button.dataset.crmDemoView;perspective();}));
+  dialog.querySelector('[data-crm-demo-restart]').addEventListener('click',()=>{reset(activeLauncher);subject.focus({preventScroll:false});});
   subject.addEventListener('input',()=>subject.setCustomValidity(''));
   form.addEventListener('submit',event=>{
    event.preventDefault();
@@ -150,7 +185,7 @@
     subject.setCustomValidity(subject.value.trim()?'':(en?'Enter a sample request subject.':'اكتب عنوانًا للطلب التجريبي.'));
     if(!subject.reportValidity())return;record.subject=subject.value.trim();
    }else if(phase===1){if(!owner.reportValidity())return;record.owner=owner.value;
-   }else if(phase===2){if(!action.reportValidity())return;record.action=action.value;
+   }else if(phase===2){if(!action.reportValidity()||!due.reportValidity())return;record.action=action.value;record.due=due.selectedOptions[0].textContent;record.note=note.value.trim();
    }else{
     lab.dataset.crmDemoIncluded='true';dialog.close();lab.dispatchEvent(new CustomEvent('crm:include-demo'));return;
    }
