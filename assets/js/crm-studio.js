@@ -30,3 +30,47 @@
   });
  });
 })();
+
+(() => {
+ 'use strict';
+ const en=document.documentElement.lang==='en';
+ document.querySelectorAll('[data-crm-lab]').forEach(lab=>{
+  const controls=lab.querySelector('[data-crm-lab-controls]');
+  const sectorButtons=[...lab.querySelectorAll('[data-crm-sector]')];
+  const toneButtons=[...lab.querySelectorAll('[data-crm-tone]')];
+  const plans=[...lab.querySelectorAll('[data-crm-plan]')];
+  const name=lab.querySelector('[data-crm-brand]');
+  const previewName=lab.querySelector('[data-crm-brand-preview]');
+  const selected=lab.querySelector('[data-crm-selected]');
+  const priorities=[...lab.querySelectorAll('[data-crm-priority]')];
+  const panel=lab.querySelector('[data-crm-brief-panel]');
+  const brief=lab.querySelector('[data-crm-brief]');
+  const request=lab.querySelector('[data-crm-request]');
+  const status=lab.querySelector('[data-crm-brief-status]');
+  const requirement=lab.querySelector('[data-crm-requirement]');
+  if(!controls||!name||!previewName||!selected||!panel||!brief||!request||!status||!requirement||!plans.length)return;
+  let sector='company',tone='silver';
+  const choices=()=>priorities.filter(i=>i.checked).map(i=>i.value);
+  const update=()=>{
+   previewName.textContent=name.value.trim()||(en?'Your business workspace':'مساحة عمل منشأتك');
+   const list=choices();selected.textContent=list.length?list.join(' · '):(en?'Choose a priority to discuss.':'حدد أولوية لنناقشها.');
+   if(!panel.hidden)prepare();
+  };
+  const prepare=()=>{
+   const business=plans.find(p=>p.dataset.crmPlan===sector).dataset.crmSectorName;
+   const color=toneButtons.find(b=>b.dataset.crmTone===tone).textContent.trim();
+   const list=choices();
+   const lines=en?['Hello Eng. Eslam, I would like a working custom CRM trial.',`Business: ${name.value.trim()||'To be discussed'}`,`Business type: ${business}`,`Preview color direction: ${color} (final brand to be agreed)`,`Priorities: ${list.length?list.join(', '):'To be discussed'}`,requirement.value.trim()?`Specific task: ${requirement.value.trim()}`:'','Please confirm the proposed trial tasks, scope, timing and commercial terms.']:['مرحبًا م. إسلام، أرغب في تجربة CRM فعلية مخصصة لنشاطي.',`اسم المنشأة: ${name.value.trim()||'نحدده في النقاش'}`,`نوع النشاط: ${business}`,`اتجاه لون المعاينة: ${color} (الهوية النهائية نعتمدها معًا)`,`الأولويات: ${list.length?list.join('، '):'نحددها في النقاش'}`,requirement.value.trim()?`مهمة خاصة: ${requirement.value.trim()}`:'','أرغب في تحديد مهام التجربة ونطاقها وموعدها والشروط التجارية.'];
+   const message=lines.filter(Boolean).join('\n');brief.value=message;request.href='https://wa.me/966579395299?text='+encodeURIComponent(message);status.textContent=en?'Request prepared. Review it in WhatsApp before sending.':'الطلب جاهز. راجعه في WhatsApp قبل الإرسال.';
+  };
+  sectorButtons.forEach(button=>button.addEventListener('click',()=>{
+   sector=button.dataset.crmSector;sectorButtons.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));plans.forEach(p=>p.hidden=p.dataset.crmPlan!==sector);update();
+  }));
+  toneButtons.forEach(button=>button.addEventListener('click',()=>{
+   tone=button.dataset.crmTone;toneButtons.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));lab.querySelector('.crm-lab-preview').className='crm-lab-preview crm-tone-'+tone;update();
+  }));
+  name.addEventListener('input',update);priorities.forEach(input=>input.addEventListener('change',update));requirement.addEventListener('input',update);
+  lab.querySelector('[data-crm-prepare]').addEventListener('click',()=>{panel.hidden=false;prepare();brief.focus({preventScroll:false});});
+  controls.hidden=false;update();
+ });
+})();

@@ -226,7 +226,8 @@ for (const route of sitemapRoutes) {
   const hasMapsExhibition = /class="[^"]*\bmaps-(?:exhibit-hero|portfolio-teaser|sample-card)\b/.test(html);
   const hasWorkEvidence = route === "/" || route === "/en/" || /^(\/en)?\/(projects|products|google-maps-projects|work-evidence)\//.test(route);
   const hasCrmStudio = ["/", "/en/", "/projects/", "/en/projects/"].includes(route) || /^(\/en)?\/products\//.test(route) || /^(\/en)?\/services\/crm-systems\//.test(route);
-  const expectedStylesheets = Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
+  const hasServiceStudio = ["/", "/en/", "/services/", "/en/services/"].includes(route);
+  const expectedStylesheets = Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
   if (hasProjectGallery && !html.includes(`/assets/css/project-gallery.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned project gallery stylesheet`);
   if (hasProjectStories && !html.includes(`/assets/css/project-stories.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned case and product stylesheet`);
   if (hasMapsExhibition && !html.includes(`/assets/css/maps-exhibition.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned Google Maps exhibition stylesheet`);
