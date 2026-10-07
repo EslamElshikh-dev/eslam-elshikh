@@ -219,6 +219,8 @@ const faqSchema = (faq) => ({
 function head({ title, description, path = "/", lang = "ar", schema = [], image = site.shareImage, type = "website", published, modified, keywords = [], articleSection = "", stylesheets = [], preloadImage = "", robots = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" }) {
   const isEnglish = lang === "en";
   const articleVisual = Object.values(articleVisuals).find((visual) => visual.src === image);
+  const storyImage = caseStudies.some((study) => study.image === image) || products.some((product) => product.image === image);
+  const socialVisual = articleVisual || (storyImage ? { width: 1200, height: 750 } : null);
   const canonical = absolute(path);
   const alternates = path === "/404.html" ? null : routePair(path);
   const titleBrand = isEnglish ? site.nameEn : site.brandName;
@@ -293,9 +295,9 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   <meta property="og:url" content="${canonical}">
   <meta property="og:image" content="${absolute(image)}">
   <meta property="og:image:secure_url" content="${absolute(image)}">
-  <meta property="og:image:type" content="${articleVisual ? "image/webp" : "image/png"}">
-  <meta property="og:image:width" content="${articleVisual?.width || 1200}">
-  <meta property="og:image:height" content="${articleVisual?.height || 630}">
+  <meta property="og:image:type" content="${socialVisual ? "image/webp" : "image/png"}">
+  <meta property="og:image:width" content="${socialVisual?.width || 1200}">
+  <meta property="og:image:height" content="${socialVisual?.height || 630}">
   <meta property="og:image:alt" content="${esc(fullTitle)}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@remoesoo10">
