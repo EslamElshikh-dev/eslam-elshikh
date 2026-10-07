@@ -1,5 +1,7 @@
+import { renderHomeSignature } from './home-signature.mjs';
+
 // Shared home opening: client value first, followed by evidence and clear routes.
-export function renderHomeOpening({ english = false, site, button, studioVisual, esc, icon }) {
+export function renderHomeOpening({ english = false, site, button, profilePhoto, esc, icon }) {
  const prefix = english ? '/en' : '';
  const routes = english ? [
   ['code', 'web-development', 'A website that earns attention', 'Design, development & security'],
@@ -22,7 +24,7 @@ export function renderHomeOpening({ english = false, site, button, studioVisual,
     <a class="home-trial-link" href="${prefix}/services/crm-systems/#crm-personal-trial"><span class="home-trial-icon">${icon('layers')}</span><span><strong>${english ? 'Picture a system with your business identity.' : 'تصوّر نظامًا يحمل هوية منشأتك.'}</strong><small>${english ? 'Add your name and logo. Explore how a sample request moves through your team.' : 'ضع اسمك وشعارك، واستكشف كيف ينتقل الطلب بين أعضاء فريقك.'}</small></span>${icon('arrow')}</a>
     <div class="hero-trust"><a href="${site.googleMapsProfile}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>${english ? 'Google Business Profile' : 'ملفي التجاري على Google'}</a><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot"></span>${english ? 'Google Developer Profile' : 'ملفي على Google للمطورين'}</a></div>
    </div>
-   ${studioVisual(english ? 'en' : 'ar')}
+   ${renderHomeSignature({ english, site, portrait: profilePhoto, esc, icon })}
   </div>
   <nav class="container home-starting-points" aria-label="${english ? 'Choose a starting point for your project' : 'اختر نقطة البداية لمشروعك'}"><div class="home-route-intro"><span dir="ltr">01 — 03</span><p>${english ? 'Where should<br>your next step begin?' : 'لكلّ طموحٍ<br><strong>نقطةُ بداية.</strong>'}</p></div>${routes.map(([glyph, slug, title, detail], index) => `<a href="${slug === 'local-seo' ? `${prefix}/local-seo/riyadh/` : `${prefix}/services/${slug}/`}"><span class="home-route-number" dir="ltr">0${index + 1}</span><span class="home-route-copy"><strong>${esc(title)}</strong><small>${esc(detail)}</small></span>${icon(glyph)}${icon('arrow')}</a>`).join('')}</nav>
   <div class="container stats-bar reveal">${site.stats.map((stat, index) => `<div><strong>${esc(stat.value)}</strong><span>${esc(statLabels[index])}</span></div>`).join('')}</div>

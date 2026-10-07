@@ -502,31 +502,10 @@ function postCard(post, { featured = false } = {}) {
   </article>`;
 }
 
-function studioVisual(language = "ar") {
-  const english = language === "en";
-  const prefix = english ? "/en" : "";
-  const specialties = [
-    ["code", "web-development", english ? "Build" : "أطوّر"],
-    ["shield", "cybersecurity", english ? "Secure" : "أحمي"],
-    ["chart", "seo", english ? "Grow" : "أُنمّي"]
-  ];
-  return `<div class="hero-visual studio-visual reveal" aria-label="${english ? "Eslam Elshikh — digital engineering" : "إسلام الشيخ — هندسة رقمية"}">
-    <div class="studio-canvas">
-      <span class="studio-sheen" aria-hidden="true"></span>
-      <div class="studio-canvas-top"><span dir="ltr">ES / DIGITAL ENGINEERING</span><span>${icon("pin")}${english ? "Riyadh, Saudi Arabia" : "الرياض، السعودية"}</span></div>
-      <div class="studio-portrait-stage"><span class="studio-orbit studio-orbit-one" aria-hidden="true"></span><span class="studio-orbit studio-orbit-two" aria-hidden="true"></span><span class="studio-spark" aria-hidden="true">${icon("spark")}</span><div class="studio-portrait">${logo("hero-logo", english ? "Portrait of Eslam Elshikh" : "صورة المهندس إسلام الشيخ")}</div><span class="studio-portrait-label" dir="ltr">SECURE · BUILD · GROW</span></div>
-      <div class="studio-name"><strong dir="ltr">${site.nameEn}</strong><span>${english ? "Cybersecurity & software engineer" : "مهندس أمن سيبراني ومطوّر برمجيات"}</span></div>
-      <div class="studio-specialties">${specialties.map(([mark, slug, label]) => `<a href="${prefix}/services/${slug}/">${icon(mark)}<span>${label}</span>${icon("arrow")}</a>`).join("")}</div>
-      <div class="studio-canvas-bottom"><strong dir="ltr">360°</strong><p>${english ? "Security, user experience, discoverability, and measurement in one system." : "تصميمٌ يُحسن التجربة، وهندسةٌ تمنحها أساسًا متينًا."}</p><a href="${prefix}/projects/" aria-label="${english ? "Explore Eslam's projects" : "استكشف أعمال إسلام الشيخ"}">${icon("external")}</a></div>
-    </div>
-    <div class="studio-canvas-caption"><span aria-hidden="true"></span><p>${english ? "Thoughtful engineering. A distinct identity." : "طموحك يُلهم الفكرة. واحتياجك يرسم الحل."}</p><span dir="ltr" aria-hidden="true">ES — 01</span></div>
-  </div>`;
-}
-
 function homePage() {
   const faq = homeFaq;
   const body = `
-${renderHomeOpening({ site, button, studioVisual, esc, icon })}
+${renderHomeOpening({ site, button, profilePhoto, esc, icon })}
 <section class="section-pad projects-section"><div class="container"><div class="section-heading reveal">${eyebrow("مختارات من الأعمال")}<h2>مشروعات حقيقية، لكل واحد منها قصة وهوية</h2><p>نماذج حية من مواقع ومنتجات رقمية تم تطويرها للشركات والأنشطة، مع الجمع بين التصميم والتقنية والسيو ومسارات التحويل.</p></div>${projectsShowcase({ home: true })}<div class="section-action">${button("/projects/", "استكشف جميع الأعمال", "button-ghost")}</div></div></section>
 ${renderRecentWork({ esc, icon })}
 <section class="section-pad services-section" id="services"><div class="container">
@@ -1686,7 +1665,7 @@ const englishHomeFaq = [
 function englishPage() {
   const workCards = projects.slice(0, 3).map((project, index) => englishShowcaseProject(project, index)).join("");
   const insightCards = ["secure-website-development", "google-business-profile-suspension", "local-seo-riyadh-service-business"].map(englishArticleBySlug).filter(Boolean).map((post) => englishPostCard(post)).join("");
-  const body = `${renderHomeOpening({ english: true, site, button, studioVisual, esc, icon })}
+  const body = `${renderHomeOpening({ english: true, site, button, profilePhoto, esc, icon })}
 <section class="section-pad" id="services"><div class="container">${renderServiceIntro({ english: true, esc, icon })}<div class="service-filters" role="group" aria-label="Filter services"><button type="button" aria-pressed="true" data-service-filter="all">All services</button>${[...new Set(englishServices.map(s=>s.group))].map(group=>`<button type="button" aria-pressed="false" data-service-filter="${esc(group)}">${esc(group)}</button>`).join("")}</div><div class="services-grid">${orderedServices(englishServices).map(englishServiceCard).join("")}</div><div class="section-action">${button("/en/services/", "Explore all services", "button-ghost")}</div></div></section>
 <section class="section-pad muted-section" id="about"><div class="container promise-grid"><div class="promise-copy reveal"><span class="eyebrow"><span></span>About & approach</span><h2>Every thoughtful detail has an engineering decision behind it.</h2><p>I approach security, software, user experience, discoverability, and measurement as connected parts of one system. The work should remain understandable, maintainable, and reviewable after launch.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome first</h3><p>We define the user decision and business result before selecting tools.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Secure by design</h3><p>Data, permissions, and failure modes are considered from the start.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for devices</h3><p>Mobile-first testing across iOS, Android, Huawei, tablets, and desktops.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Ready to improve</h3><p>Performance, SEO, analytics, and conversion are part of operations.</p></article></div></div></section>
 <section class="section-pad projects-section" id="work"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Selected case studies</span><h2>Real projects with distinct goals, constraints, and delivery decisions</h2><p>Three live examples showing how content, design, engineering, search visibility, and conversion paths are shaped around the business rather than copied from a generic template.</p></div><div class="posts-grid">${workCards}</div><div class="section-action">${button("/en/projects/", "Explore all verified work", "button-ghost")}</div></div></section>
