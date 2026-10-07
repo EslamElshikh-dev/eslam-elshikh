@@ -957,7 +957,7 @@ function workEvidencePage(english = false) {
   const path = `${english ? "/en" : ""}/work-evidence/`;
   const title = english ? "Latest Work & Business Profile Evidence | Eslam Elshikh" : "أحدث الأعمال وأدلة الملفات التجارية | إسلام الشيخ";
   const description = english ? "Reviewed deliveries for Kermez, Alya, Sama Scan, Tawod and Naqada, with actual interfaces, public links and a dated Business Profile record." : "أحدث أعمال كرمز وعليا وسما سكان وتعاود ونقادة، مع نطاق التنفيذ وصور فعلية وروابط مباشرة للمراجعة، وسجل مؤرخ لحالة 35 ملفًا تجاريًا.";
-  return page({ title, description, path, active: "projects", lang: english ? "en" : "ar", body: renderWorkEvidence({ english, esc, icon }), modified: latestWorkReviewedAt,
+  return page({ title, description, path, active: "projects", lang: english ? "en" : "ar", body: renderWorkEvidence({ english, esc, icon }), modified: latestWorkReviewedAt, pageScripts: [`/assets/js/work-evidence.js?v=${version}`],
     schema: [{ "@type": "CollectionPage", "@id": `${absolute(path)}#evidence`, url: absolute(path), name: title, description, dateModified: latestWorkReviewedAt, creator: { "@id": `${site.url}/#person` } }, breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" }, { name: english ? "Work" : "الأعمال", path: english ? "/en/projects/" : "/projects/" }, { name: english ? "Work evidence" : "أدلة الأعمال", path }])]
   });
 }
