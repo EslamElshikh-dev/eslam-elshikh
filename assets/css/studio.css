@@ -718,6 +718,11 @@ p { text-wrap: pretty; }
 .hero.home-opening .studio-specialties>a{font-size:.85rem;min-height:46px}
 .hero.home-opening .studio-canvas-bottom p{font-size:.75rem;line-height:1.9}
 .hero.home-opening .studio-canvas-caption p{font-size:.7rem;line-height:1.8}
+.hero.home-opening .studio-canvas{box-shadow:inset 0 1px 0 color-mix(in srgb,var(--secondary) 12%,transparent),0 28px 65px rgb(3 8 18 / .18)}
+:root[data-theme="light"] .hero.home-opening .studio-canvas{box-shadow:inset 0 1px 0 #fff,0 28px 65px rgb(41 61 87 / .14)}
+.hero.home-opening .home-trial-link .home-trial-icon{transition:border-color .2s,background .2s}
+.hero.home-opening .home-trial-link:hover .home-trial-icon,.hero.home-opening .home-trial-link:focus-visible .home-trial-icon{border-color:var(--secondary);background:var(--surface-3)}
+@media(prefers-reduced-motion:no-preference){.home-hero-promise em::after{transform-origin:right;animation:homeSignature .65s .15s ease both}[dir="ltr"] .home-hero-promise em::after{transform-origin:left}@keyframes homeSignature{from{opacity:0;transform:scaleX(.2)}to{opacity:1;transform:scaleX(1)}}}
 .home-starting-points{display:grid;grid-template-columns:.6fr repeat(3,minmax(0,1fr));margin-top:3rem;border-block:1px solid var(--line-strong)}
 .home-route-intro{padding:1.2rem 0;align-self:center}
 .home-route-intro>span{color:var(--muted-2);font-size:.52rem;letter-spacing:.08em}

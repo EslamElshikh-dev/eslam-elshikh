@@ -15,7 +15,7 @@ export function renderHomeOpening({ english = false, site, button, studioVisual,
   <div class="container hero-grid">
    <div class="hero-copy reveal">
     <p class="home-hero-kicker"><span aria-hidden="true"></span>${english ? 'DIGITAL ENGINEERING, SHAPED AROUND YOUR BUSINESS' : 'هندسة رقميّة تبدأ من طموحك'}</p>
-    <h1><span class="home-hero-name">${english ? 'Eng. Eslam Elshikh' : 'المهندس إسلام الشيخ'}</span><span class="home-hero-promise">${english ? 'A presence that persuades.<br><em>Systems that get things done.</em>' : 'أصنعُ لعملك حضورًا يُقنع،<br><em>وأنظمةً تُنجز.</em>'}</span></h1>
+    <h1><span class="home-hero-name">${english ? 'Eng. Eslam Elshikh' : 'المهندس إسلام الشيخ'}</span> <span class="home-hero-promise">${english ? 'A presence that persuades.<br><em>Systems that get things done.</em>' : 'أصنعُ لعملك حضورًا يُقنع،<br><em>وأنظمةً تُنجز.</em>'}</span></h1>
     <p class="hero-lead">${english ? 'Thoughtful websites, custom CRM systems and a considered presence in search and Google Maps. I bring development, cybersecurity and user experience together around what your business needs.' : 'مواقعٌ متقنة، وأنظمة CRM تُصمَّم حول فريقك، وحضورٌ مدروس في البحث وخرائط Google. أجمع التطوير والأمن السيبراني وتجربة المستخدم في حلولٍ تخدم احتياج منشأتك.'}</p>
     <p class="hero-support">${english ? 'Based in Riyadh. A clear scope, delivery in stages and work you can review.' : 'من الرياض، أبدأ بفهم أعمالك؛ ثم نحوّل احتياجك إلى نطاقٍ واضح، وتنفيذٍ متدرّج، وتسليمٍ يمكنك مراجعته.'}</p>
     <div class="hero-actions">${button(`${prefix}/contact/`, english ? 'Discuss your project' : 'ناقش مشروعك معي')}${button(`${prefix}/projects/`, english ? 'Explore the work' : 'شاهد الأعمال المنفّذة', 'button-ghost')}</div>

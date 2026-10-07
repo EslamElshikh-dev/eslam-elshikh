@@ -288,3 +288,25 @@
 [data-crm-demo-owner-focus][hidden],[data-crm-demo-management-focus][hidden],[data-crm-demo-note-row][hidden]{display:none!important}
 @media(max-width:700px){.crm-demo-body{grid-template-columns:1fr;padding:1rem;gap:1rem}.crm-demo-header h2{font-size:1.16rem}.crm-demo-task h3{font-size:1.06rem}.crm-demo-task section>p{font-size:.77rem}.crm-demo-record-head strong{font-size:.81rem}.crm-demo-view-switch button{font-size:.67rem}.crm-demo-footer .button{font-size:.68rem}.crm-demo-record .crm-demo-pipeline li>span{font-size:.6rem}}
 @media(prefers-reduced-motion:reduce){.crm-demo-meter::-webkit-progress-value{transition:none}}
+
+/* A usable handoff and short navigation inside the workflow simulation. */
+.crm-demo-quick-nav{display:flex;justify-content:center;gap:.5rem;padding:.5rem 1.5rem;border-bottom:1px solid var(--line);flex-shrink:0;background:var(--surface)}
+.crm-demo-quick-nav button{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:44px;padding:.5rem .85rem;border:1px solid var(--line-strong);border-radius:.5rem;color:var(--text-soft);background:var(--surface-2);font:inherit;font-size:.66rem;line-height:1.8;cursor:pointer}
+.crm-demo-quick-nav .icon{width:1rem;height:1rem;color:var(--trial-accent);flex-shrink:0}
+.crm-demo-quick-nav[hidden]{display:none!important}
+.crm-demo-handoff{margin:1.1rem 0 1.4rem;padding:1rem;border:1px solid var(--line-strong);border-radius:.85rem;background:var(--surface)}
+.crm-demo-handoff-heading{display:flex;align-items:center;gap:.55rem}
+.crm-demo-handoff-heading .icon{width:1.2rem;height:1.2rem;color:var(--trial-accent);flex-shrink:0}
+.crm-demo-handoff-heading h4{font-size:.88rem;line-height:1.8;margin:0;font-weight:600}
+.crm-demo-handoff>p:not(.crm-demo-copy-status){font-size:.73rem;line-height:1.9;color:var(--muted);margin:.6rem 0 .9rem}
+.crm-demo-handoff textarea{display:block;width:100%;padding:.9rem;min-height:210px;max-height:340px;resize:vertical;border:1px solid var(--line-strong);border-radius:.5rem;background:var(--bg);color:var(--text-soft);font:inherit;font-size:16px;line-height:1.9}
+.crm-demo-handoff-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.65rem}
+.crm-demo-handoff-actions button{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:44px;border:1px solid var(--line-strong);border-radius:.5rem;padding:.5rem .7rem;color:var(--text-soft);background:var(--surface-2);font:inherit;font-size:.66rem;line-height:1.8;cursor:pointer}
+.crm-demo-handoff-actions button[data-crm-demo-copy]{border-color:var(--trial-accent);color:var(--trial-accent)}
+.crm-demo-handoff-actions .icon{width:1rem;height:1rem;flex-shrink:0}
+.crm-demo-handoff .crm-demo-copy-status{font-size:.67rem;line-height:1.8;color:var(--trial-accent);margin:.5rem 0 0}
+.crm-demo-copy-status:empty{display:none}
+.crm-rehearsal-dialog :is(.crm-demo-record-head,h3,textarea):focus-visible{outline:2px solid var(--trial-accent);outline-offset:3px}
+@media(hover:hover){.crm-demo-quick-nav button:hover,.crm-demo-handoff-actions button:hover{color:var(--trial-accent);background:color-mix(in srgb,var(--trial-accent) 8%,var(--surface-2))}}
+@media(prefers-reduced-motion:no-preference){.crm-demo-task>section:not([hidden]){animation:crm-panel .22s ease-out}.crm-demo-complete .icon{animation:crmHandoffCheck .3s ease-out}@keyframes crmHandoffCheck{from{opacity:0;transform:scale(.75)}to{opacity:1;transform:scale(1)}}}
+@media(max-width:700px){.crm-demo-quick-nav{padding:.35rem 1rem;gap:.4rem}.crm-demo-quick-nav button{flex:1;font-size:.63rem;padding:.4rem}.crm-demo-handoff{padding:.85rem}.crm-demo-handoff-heading h4{font-size:.83rem}.crm-demo-handoff-actions button{flex:1;white-space:normal;font-size:.64rem}}

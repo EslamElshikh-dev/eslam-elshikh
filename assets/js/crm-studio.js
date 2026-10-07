@@ -61,7 +61,7 @@
    const color=toneButtons.find(b=>b.dataset.crmTone===tone).textContent.trim();
    const list=choices();
    const lines=en?['Hello Eng. Eslam, I would like a working custom CRM trial.',`Business: ${name.value.trim()||'To be discussed'}`,`Business type: ${business}`,`Preview color direction: ${color} (final brand to be agreed)`,`Priorities: ${list.length?list.join(', '):'To be discussed'}`,requirement.value.trim()?`Specific task: ${requirement.value.trim()}`:'','Please confirm the proposed trial tasks, scope, timing and commercial terms.']:['مرحبًا م. إسلام، أرغب في تجربة CRM فعلية مخصصة لنشاطي.',`اسم المنشأة: ${name.value.trim()||'نحدده في النقاش'}`,`نوع النشاط: ${business}`,`اتجاه لون المعاينة: ${color} (الهوية النهائية نعتمدها معًا)`,`الأولويات: ${list.length?list.join('، '):'نحددها في النقاش'}`,requirement.value.trim()?`مهمة خاصة: ${requirement.value.trim()}`:'','أرغب في تحديد مهام التجربة ونطاقها وموعدها والشروط التجارية.'];
-   if(lab.dataset.crmDemoIncluded)lines.push(en?'Tasks to test: recording a request, assigning an owner, setting a next action and timing, and reviewing the activity record from team and management perspectives.':'مهام أرغب في اختبارها: تسجيل الطلب، تعيين المسؤول، تحديد المتابعة وموعدها، ومراجعة سجل الإجراءات من منظور الفريق والإدارة.');
+   if(lab.dataset.crmDemoIncluded)lines.push(en?'Tasks to test: recording a request, assigning an owner, setting a next action and timing, preparing a handoff card, and reviewing the activity record from team and management perspectives.':'مهام أرغب في اختبارها: تسجيل الطلب، تعيين المسؤول، تحديد المتابعة وموعدها، إعداد بطاقة تسليم المهمة، ومراجعة سجل الإجراءات من منظور الفريق والإدارة.');
    const message=lines.filter(Boolean).join('\n');brief.value=message;request.href='https://wa.me/966579395299?text='+encodeURIComponent(message);status.textContent=en?'Request prepared. Review it in WhatsApp before sending.':'الطلب جاهز. راجعه في WhatsApp قبل الإرسال.';
   };
   sectorButtons.forEach(button=>button.addEventListener('click',()=>{
@@ -104,6 +104,9 @@
   const viewButtons=[...dialog.querySelectorAll('[data-crm-demo-view]')];
   const lanes=[...dialog.querySelectorAll('[data-crm-demo-lane]')];
   const checkpoints=[...dialog.querySelectorAll('[data-crm-demo-checkpoint]')];
+  const summary=dialog.querySelector('[data-crm-demo-summary]');
+  const copyStatus=dialog.querySelector('[data-crm-demo-copy-status]');
+  const quickNav=dialog.querySelector('[data-crm-demo-nav]');
   let phase=0,record={},view='owner';
   const populate=(select,items)=>{
    select.replaceChildren();
@@ -151,6 +154,10 @@
     title.textContent=label;detail.textContent=value;item.append(title,detail);log.append(item);
    });
    dialog.querySelector('[data-crm-demo-log-empty]').hidden=!!record.subject;
+   const brand=dialog.querySelector('[data-crm-demo-brand]').textContent;
+   const sector=dialog.querySelector('[data-crm-demo-sector-name]').textContent;
+   const card=en?['Task handoff card — simulation',`Business: ${brand}`,`Context: ${sector}`,`Request: ${record.subject||'Not recorded yet'}`,`Owner: ${record.owner||'To be assigned'}`,`Next action: ${record.action||'To be defined'}`,`Timing: ${record.due||'To be agreed'}`,record.note?`Note: ${record.note}`:'','Sample information for this simulation.']:['بطاقة تسليم المهمة — محاكاة',`المنشأة: ${brand}`,`النشاط: ${sector}`,`الطلب: ${record.subject||'لم يُسجّل بعد'}`,`المسؤول: ${record.owner||'بانتظار الإسناد'}`,`خطوة المتابعة: ${record.action||'لم تُحدد بعد'}`,`الموعد: ${record.due||'بانتظار التحديد'}`,record.note?`ملاحظة: ${record.note}`:'','معلومات تجريبية لهذه المحاكاة.'];
+   summary.value=card.filter(Boolean).join('\n');copyStatus.textContent='';
    perspective();
   };
   const move=step=>{phase=step;render();sections[phase].querySelector('h3').focus({preventScroll:false});};
@@ -176,6 +183,23 @@
   dialog.querySelector('[data-crm-demo-close]').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('close',()=>{if(!dialog.open&&launchers.some(button=>location.hash==='#'+button.id))history.replaceState(history.state,'','#crm-personal-trial');});
   back.addEventListener('click',()=>{if(phase>0)move(phase-1);});
+  quickNav.querySelectorAll('[data-crm-demo-jump]').forEach(button=>button.addEventListener('click',()=>{
+   const destination=button.dataset.crmDemoJump==='record'?dialog.querySelector('.crm-demo-record-head'):sections[phase].querySelector('h3');
+   destination.focus({preventScroll:false});
+  }));quickNav.hidden=false;
+  dialog.querySelector('[data-crm-demo-edit]').addEventListener('click',()=>move(2));
+  dialog.querySelector('[data-crm-demo-copy]').addEventListener('click',async()=>{
+   const card=summary.value;
+   try{
+    if(!navigator.clipboard||!navigator.clipboard.writeText)throw new Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(card);
+    if(!dialog.open||phase!==3||summary.value!==card)return;
+    copyStatus.textContent=en?'Sample task card copied.':'تم نسخ بطاقة المهمة التجريبية.';
+   }catch{
+    if(!dialog.open||phase!==3||summary.value!==card)return;
+    summary.focus();summary.select();copyStatus.textContent=en?'The sample card is selected. Copy it from the text field.':'تم تحديد البطاقة التجريبية. انسخها من حقل النص.';
+   }
+  });
   viewButtons.forEach(button=>button.addEventListener('click',()=>{view=button.dataset.crmDemoView;perspective();}));
   dialog.querySelector('[data-crm-demo-restart]').addEventListener('click',()=>{reset(activeLauncher);subject.focus({preventScroll:false});});
   subject.addEventListener('input',()=>subject.setCustomValidity(''));

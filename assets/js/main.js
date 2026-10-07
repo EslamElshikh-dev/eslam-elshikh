@@ -186,6 +186,37 @@
     });
   };
 
+  // A short, keyboard-accessible path selector; all content is readable without JS.
+  doc.querySelectorAll("[data-service-paths]").forEach(compass => {
+    const controls = compass.querySelector("[data-service-path-controls]");
+    const tabs = [...compass.querySelectorAll("[data-service-path-tab]")];
+    const panels = [...compass.querySelectorAll("[data-service-path-panel]")];
+    if (!controls || !tabs.length || tabs.length !== panels.length) return;
+    const select = (index, focus = false) => {
+      tabs.forEach((tab, position) => {
+        const active = index === position;
+        tab.setAttribute("aria-selected", String(active));
+        tab.tabIndex = active ? 0 : -1;
+        panels[position].hidden = !active;
+      });
+      if (focus) tabs[index].focus();
+    };
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => select(index));
+      tab.addEventListener("keydown", event => {
+        let next = index;
+        if (event.key === "Home") next = 0;
+        else if (event.key === "End") next = tabs.length - 1;
+        else if (event.key === "ArrowRight") next = (index + (root.dir === "rtl" ? -1 : 1) + tabs.length) % tabs.length;
+        else if (event.key === "ArrowLeft") next = (index + (root.dir === "rtl" ? 1 : -1) + tabs.length) % tabs.length;
+        else return;
+        event.preventDefault();
+        select(next, true);
+      });
+    });
+    select(0); controls.hidden = false;
+  });
+
   const filterButtons = [...doc.querySelectorAll("[data-service-filter]")];
   const serviceCards = [...doc.querySelectorAll("[data-service-group]")];
   if (filterButtons.length && serviceCards.length) {
