@@ -1,3 +1,5 @@
+import { renderCrmStudio, renderCrmInvitation } from "./src/crm-studio.mjs";
+import { crmServiceAr, crmServiceEn } from "./src/crm-content.mjs";
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -304,7 +306,7 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   <script src="/assets/js/theme.js?v=${version}"></script>
   <link rel="stylesheet" href="/assets/css/main.css?v=${version}">
 ${stylesheets.length ? `${stylesheets.map((href) => `  <link rel="stylesheet" href="${esc(href)}">`).join("\n")}\n` : ""}  <link rel="stylesheet" href="/assets/css/studio.css?v=${version}">
-${["/", "/projects/", "/en/projects/", "/google-maps-projects/", "/en/google-maps-projects/", "/google-expert/", "/en/google-expert/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/maps-exhibition.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-stories.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/(projects|products|google-maps-projects|work-evidence)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/work-evidence.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
+${["/", "/projects/", "/en/projects/", "/google-maps-projects/", "/en/google-maps-projects/", "/google-expert/", "/en/google-expert/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/maps-exhibition.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-stories.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/(projects|products|google-maps-projects|work-evidence)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/work-evidence.css?v=${version}">\n` : ""}${["/", "/en/", "/projects/", "/en/projects/"].includes(path) || /^(\/en)?\/products\//.test(path) || /^(\/en)?\/services\/crm-systems\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/crm-studio.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
   <script type="application/ld+json">${safeJson({ "@context": "https://schema.org", "@graph": graph })}</script>
 </head>`;
 }
@@ -355,8 +357,8 @@ function footer(language = "ar") {
   const isEnglish = language === "en";
   const social = socialLinks.map(([label, href, mark]) => `<a href="${href}" target="_blank" rel="noopener" aria-label="${label}" title="${label}">${mark}</a>`).join("");
   const exploreLinks = isEnglish
-    ? `<a href="/en/about/">About</a><a href="/en/projects/">Selected work</a><a href="/en/work-evidence/">Work evidence</a><a href="/en/google-maps-projects/">Google Maps work</a><a href="/en/google-business-profile-audit/">Free GBP audit</a><a href="/en/book/">Book a consultation</a><a href="/en/local-seo/riyadh/">Local SEO in Riyadh</a><a href="/en/google-expert/">Google expertise</a><a href="/en/blog/">Insights</a><a href="/en/contact/">Contact</a>`
-    : `<a href="/about/">عن إسلام</a><a href="/projects/">أعمال المواقع</a><a href="/work-evidence/">أدلة الأعمال</a><a href="/google-maps-projects/">أعمال خرائط Google</a><a href="/google-business-profile-audit/">فحص ملف Google مجانًا</a><a href="/book/">احجز استشارة</a><a href="/local-seo/riyadh/">السيو المحلي في الرياض</a><a href="/google-expert/">متخصص خرائط Google</a><a href="/blog/">المدونة</a><a href="/contact/">تواصل</a>`;
+    ? `<a href="/en/about/">About</a><a href="/en/projects/">Selected work</a><a href="/en/work-evidence/">Work evidence</a><a href="/en/services/crm-systems/">CRM & dashboards</a><a href="/en/google-maps-projects/">Google Maps work</a><a href="/en/google-business-profile-audit/">Free GBP audit</a><a href="/en/book/">Book a consultation</a><a href="/en/local-seo/riyadh/">Local SEO in Riyadh</a><a href="/en/google-expert/">Google expertise</a><a href="/en/blog/">Insights</a><a href="/en/contact/">Contact</a>`
+    : `<a href="/about/">عن إسلام</a><a href="/projects/">أعمال المواقع</a><a href="/work-evidence/">أدلة الأعمال</a><a href="/services/crm-systems/">CRM ولوحات التحكم</a><a href="/google-maps-projects/">أعمال خرائط Google</a><a href="/google-business-profile-audit/">فحص ملف Google مجانًا</a><a href="/book/">احجز استشارة</a><a href="/local-seo/riyadh/">السيو المحلي في الرياض</a><a href="/google-expert/">متخصص خرائط Google</a><a href="/blog/">المدونة</a><a href="/contact/">تواصل</a>`;
   const serviceLinks = services.slice(0, 6).map((service) => `<a href="${isEnglish ? `/en/services/${service.slug}/` : `/services/${service.slug}/`}">${esc(isEnglish ? englishServiceBySlug(service.slug)?.title || serviceTranslations[service.slug]?.title || service.title : service.title)}</a>`).join("");
   const mobileServiceLabels = {
     cybersecurity: ["الأمن السيبراني", "Cybersecurity"],
@@ -543,6 +545,7 @@ function homePage() {
 </section>
 <section class="section-pad projects-section"><div class="container"><div class="section-heading reveal">${eyebrow("مختارات من الأعمال")}<h2>مشروعات حقيقية، لكل واحد منها قصة وهوية</h2><p>نماذج حية من مواقع ومنتجات رقمية تم تطويرها للشركات والأنشطة، مع الجمع بين التصميم والتقنية والسيو ومسارات التحويل.</p></div>${projectsShowcase({ home: true })}<div class="section-action">${button("/projects/", "استكشف جميع الأعمال", "button-ghost")}</div></div></section>
 ${renderRecentWork({ esc, icon })}
+${renderCrmInvitation({ esc, icon })}
 <section class="section-pad needs-section" aria-labelledby="needs-title"><div class="container"><div class="section-heading reveal">${eyebrow("كيف أساعدك؟")}<h2 id="needs-title">ابدأ بما يحتاجه مشروعك</h2><p>اختر هدفك لتتعرف على نطاق العمل والمخرجات والخطوة التالية.</p></div><div class="needs-grid">${[
   ["web-development", "code", "أحتاج موقعًا لشركتي", "موقع يشرح خدماتك ويجعل التواصل معك أسهل.", "تصميم وتطوير المواقع"],
   ["google-business-profile", "pin", "ملفي التجاري يحتاج معالجة", "مراجعة التحقق والتعليق والبيانات وخطة الظهور المحلي.", "حلول ملفات Google"],
@@ -725,6 +728,7 @@ function articleSourcesSection(post, language = "ar") {
 }
 
 function serviceDetailPage(service) {
+  if (service.slug === "crm-systems") return crmServicePage(false);
   const path = `/services/${service.slug}/`;
   const sectionCopy = serviceSectionCopy[service.slug];
   const related = services.filter((item) => item.slug !== service.slug && (item.group === service.group || ["web-development", "seo", "cybersecurity"].includes(item.slug))).slice(0, 3);
@@ -988,7 +992,7 @@ function projectsPage() {
   const body = `${renderWorkHero({ esc, icon })}
 ${renderRecentWork({ esc, icon })}
 ${renderWorkStories({ esc, icon, name: project => esc(project.title), description: project => project.description, category: project => project.category })}
-${renderProductCollection({ esc, icon })}
+${renderCrmInvitation({ esc, icon })}
 ${verifiedWorkArchive()}
 ${mapsWorkTeaser()}
 ${googleGrowthTeaser()}
@@ -1019,6 +1023,13 @@ function projectCaseStudyPage(study, english = false) {
   });
 }
 
+function crmServicePage(english = false) {
+ const path = `${english ? "/en" : ""}/services/crm-systems/`;
+ const service = english ? crmServiceEn : crmServiceAr;
+ const list = { "@type": "ItemList", "@id": `${absolute(path)}#experiences`, numberOfItems: products.length, itemListElement: products.map((product,index) => ({ "@type": "ListItem", position: index+1, name: productText(product.name,english), url: absolute(`${english ? "/en" : ""}/products/${product.slug}/`) })) };
+ return page({ title: service.seoTitle, description: service.meta, path, active: "services", lang: english ? "en" : "ar", keywords: service.keywords, modified: latestWorkReviewedAt, image: "/assets/products/sama-overview.webp", body: renderCrmStudio({english,esc,icon}), pageScripts: [`/assets/js/crm-studio.js?v=${version}`], schema: [ { "@type": "Service", "@id": `${absolute(path)}#service`, name: service.title, description: service.meta, url: absolute(path), serviceType: service.title, provider: { "@id": `${site.url}/#professional-service` }, areaServed: [{"@type":"City",name:"Riyadh"},{"@type":"Country",name:"Saudi Arabia"}] }, list, breadcrumbSchema([{name: english ? "Home" : "الرئيسية",path: english ? "/en/" : "/"},{name: english ? "Services" : "الخدمات",path: english ? "/en/services/" : "/services/"},{name: english ? "CRM & dashboards" : "CRM ولوحات التحكم",path}]) ] });
+}
+
 function productsIndexPage(english = false) {
   const path = `${english ? "/en" : ""}/products/`;
   const name = english ? "Digital Products by Eslam Elshikh" : "منتجات رقمية من تصميم وتطوير إسلام الشيخ";
@@ -1044,10 +1055,10 @@ function productPage(product, english = false) {
   const work = { "@type": "CreativeWork", "@id": `${absolute(path)}#product`, name, description,
     url: absolute(path), image: absolute(product.image), creator: { "@id": `${site.url}/#person` }, dateModified: projectAudit.auditedAt,
     creativeWorkStatus: product.stage === "concept" ? "Interactive product concept" : "Implemented custom product" };
-  return page({ title: `${name} | ${english ? "Product Tour" : "جولة المنتج"}`, description, path, active: "projects",
-    body: renderProductPage(product, { english, esc, icon }), image: product.image, modified: projectAudit.auditedAt, lang: english ? "en" : "ar",
+  return page({ title: `${name} | ${english ? "Product Tour" : "جولة المنتج"}`, description, path, active: "services",
+    pageScripts: [`/assets/js/crm-studio.js?v=${version}`], body: renderProductPage(product, { english, esc, icon }), image: product.image, modified: projectAudit.auditedAt, lang: english ? "en" : "ar",
     schema: [work, breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" },
-      { name: english ? "Products" : "المنتجات", path: english ? "/en/products/" : "/products/" }, { name, path }])]
+      { name: english ? "CRM & dashboards" : "CRM ولوحات التحكم", path: english ? "/en/services/crm-systems/" : "/services/crm-systems/" }, { name, path }])]
   });
 }
 
@@ -1315,6 +1326,7 @@ ${englishFinalCta("Not sure which service fits your situation?", "Send the probl
 }
 
 function englishServiceDetailPage(service) {
+  if (service.slug === "crm-systems") return crmServicePage(true);
   const path = `/en/services/${service.slug}/`;
   const related = englishServices.filter((item) => item.slug !== service.slug && (item.group === service.group || ["web-development", "seo", "cybersecurity"].includes(item.slug))).slice(0, 3);
   const serviceSchema = {
@@ -1524,7 +1536,7 @@ function englishProjectsPage() {
   const body = `${renderWorkHero({ english: true, esc, icon })}
 ${renderRecentWork({ english: true, esc, icon })}
 ${renderWorkStories({ english: true, esc, icon, name: officialProjectName, description: englishProjectDescription, category: project => englishProjectStudies[project.slug]?.category || englishProjectCategory(project.category) })}
-${renderProductCollection({ english: true, esc, icon })}
+${renderCrmInvitation({ english: true, esc, icon })}
 ${englishVerifiedWorkArchive()}
 ${englishMapsWorkTeaser()}
 ${googleGrowthTeaser("en")}
@@ -1708,6 +1720,7 @@ function englishPage() {
 <section class="section-pad muted-section" id="about"><div class="container promise-grid"><div class="promise-copy reveal"><span class="eyebrow"><span></span>About & approach</span><h2>A strong digital project is more than a polished interface</h2><p>I approach security, software, user experience, discoverability, and measurement as connected parts of one system. The work should remain understandable, maintainable, and reviewable after launch.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome first</h3><p>We define the user decision and business result before selecting tools.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Secure by design</h3><p>Data, permissions, and failure modes are considered from the start.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for devices</h3><p>Mobile-first testing across iOS, Android, Huawei, tablets, and desktops.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Ready to improve</h3><p>Performance, SEO, analytics, and conversion are part of operations.</p></article></div></div></section>
 <section class="section-pad projects-section" id="work"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Selected case studies</span><h2>Real projects with distinct goals, constraints, and delivery decisions</h2><p>Three live examples showing how content, design, engineering, search visibility, and conversion paths are shaped around the business rather than copied from a generic template.</p></div><div class="posts-grid">${workCards}</div><div class="section-action">${button("/en/projects/", "Explore all verified work", "button-ghost")}</div></div></section>
 ${renderRecentWork({ english: true, esc, icon })}
+${renderCrmInvitation({ english: true, esc, icon })}
 <section class="section-pad" id="google-expertise"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>Google Maps and Business Profile experience</span><h2>Structured diagnosis instead of random profile changes</h2><p>I help eligible businesses understand verification, suspension, ownership, category, consistency, and local visibility issues using official paths and realistic expectations.</p></div><div class="proof-actions">${button("/en/google-expert/", "Explore Google expertise")}${button(site.googleMapsProfile, "Business profile", "button-ghost", true)}</div></div></section>
 <section class="section-pad muted-section blog-section" id="insights"><div class="container"><div class="section-heading reveal"><span class="eyebrow"><span></span>Practical insights</span><h2>Original English guidance for technical and growth decisions</h2><p>Decision-focused articles covering the same disciplines used in delivery, written for English readers rather than translated sentence by sentence.</p></div><div class="posts-grid">${insightCards}</div><div class="section-action">${button("/en/blog/", "Explore all English guides", "button-ghost")}</div></div></section>
 <section class="section-pad faq-section" id="faq"><div class="container faq-grid"><div class="faq-intro reveal"><span class="eyebrow"><span></span>Frequently asked questions</span><h2>Direct answers before an engagement begins</h2><p>Scope, dependencies, evidence, and expected outcomes are clarified before implementation.</p><a class="button button-ghost" href="/en/contact/">Discuss your project ${icon("arrow", "button-icon")}</a></div>${faqBlock(englishHomeFaq)}</div></section>

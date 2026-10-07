@@ -1,3 +1,4 @@
+import { crmServiceAr } from "./crm-content.mjs";
 import { projectAudit } from "./web-projects.mjs";
 import { mapsProjects } from "./google-maps-work.mjs";
 export { mapsProjects };
@@ -526,6 +527,8 @@ export const services = [
     ]
   }
 ];
+services.push(crmServiceAr);
+
 
 export const projects = [
   {

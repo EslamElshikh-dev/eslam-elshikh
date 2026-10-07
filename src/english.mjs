@@ -1,3 +1,4 @@
+import { crmServiceEn } from "./crm-content.mjs";
 const service = (entry) => ({
   ...entry,
   keywords: entry.keywords || [],
@@ -484,6 +485,8 @@ export const englishServices = [
     keywords: ["Google Ads Saudi Arabia", "landing page design Riyadh", "paid search campaign management"]
   })
 ];
+englishServices.push(crmServiceEn);
+
 
 export const englishServiceBySlug = (slug) => englishServices.find((item) => item.slug === slug);
 
