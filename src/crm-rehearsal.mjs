@@ -1,5 +1,5 @@
 const pair = (ar, en) => ({ ar, en });
-const scenarios = {
+export const scenarios = {
  company: {
   request: pair('استفسار تجريبي عن خدمة الشركة', 'Sample enquiry about a company service'),
   action: pair('مراجعة الاحتياج وتجهيز الخطوة التالية', 'Review the need and prepare the next step'),
