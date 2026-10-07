@@ -49,21 +49,85 @@
   const status=lab.querySelector('[data-crm-brief-status]');
   const requirement=lab.querySelector('[data-crm-requirement]');
   if(!controls||!name||!previewName||!selected||!panel||!brief||!request||!status||!requirement||!plans.length)return;
+  const logoInput=lab.querySelector('[data-crm-logo]');
+  const removeLogo=lab.querySelector('[data-crm-logo-remove]');
+  const logoStatus=lab.querySelector('[data-crm-logo-status]');
+  const logoImages=[...lab.querySelectorAll('[data-crm-brand-logo]')];
+  const brandInitials=[...lab.querySelectorAll('[data-crm-brand-initial]')];
+  const brandFallbacks=[...lab.querySelectorAll('[data-crm-brand-fallback]')];
+  let logoUrl='',logoRevision=0;
   let sector='company',tone='silver';
   const choices=()=>priorities.filter(i=>i.checked).map(i=>i.value);
   const update=()=>{
-   previewName.textContent=name.value.trim()||(en?'Your business workspace':'مساحة عمل منشأتك');
+   const businessName=name.value.trim();
+   previewName.textContent=businessName||(en?'Your business workspace':'مساحة عمل منشأتك');
+   const words=businessName.replace(/[\u064b-\u065f\u0670\u0640]/g,'').split(/\s+/).filter(Boolean);
+   const initials=words.slice(0,2).map(word=>Array.from(word)[0]).join('').toLocaleUpperCase();
+   brandInitials.forEach(item=>{item.textContent=initials;item.hidden=!!logoUrl||!initials;});
+   brandFallbacks.forEach(item=>item.hidden=!!logoUrl||!!initials);
+   logoImages.forEach(item=>{item.hidden=!logoUrl;if(logoUrl)item.src=logoUrl;else item.removeAttribute('src');});
    const list=choices();selected.textContent=list.length?list.join(' · '):(en?'Choose a priority to discuss.':'حدد أولوية لنناقشها.');
    if(!panel.hidden)prepare();
   };
   const prepare=()=>{
-   const business=plans.find(p=>p.dataset.crmPlan===sector).dataset.crmSectorName;
+   const activePlan=plans.find(p=>p.dataset.crmPlan===sector);
+   const business=activePlan.dataset.crmSectorName;
+   const stages=[...activePlan.querySelectorAll('[data-crm-flow-tab] strong')].map(item=>item.textContent.trim());
    const color=toneButtons.find(b=>b.dataset.crmTone===tone).textContent.trim();
    const list=choices();
    const lines=en?['Hello Eng. Eslam, I would like a working custom CRM trial.',`Business: ${name.value.trim()||'To be discussed'}`,`Business type: ${business}`,`Preview color direction: ${color} (final brand to be agreed)`,`Priorities: ${list.length?list.join(', '):'To be discussed'}`,requirement.value.trim()?`Specific task: ${requirement.value.trim()}`:'','Please confirm the proposed trial tasks, scope, timing and commercial terms.']:['مرحبًا م. إسلام، أرغب في تجربة CRM فعلية مخصصة لنشاطي.',`اسم المنشأة: ${name.value.trim()||'نحدده في النقاش'}`,`نوع النشاط: ${business}`,`اتجاه لون المعاينة: ${color} (الهوية النهائية نعتمدها معًا)`,`الأولويات: ${list.length?list.join('، '):'نحددها في النقاش'}`,requirement.value.trim()?`مهمة خاصة: ${requirement.value.trim()}`:'','أرغب في تحديد مهام التجربة ونطاقها وموعدها والشروط التجارية.'];
+   lines.splice(4,0,en?`Proposed stages to discuss: ${stages.join(' → ')}`:`مراحل مبدئية نناقشها: ${stages.join(' ← ')}`);
+   if(logoUrl)lines.splice(4,0,en?'Logo: previewed locally; brand files to be shared separately.':'الشعار: تمت معاينته محليًا؛ تُشارك ملفات الهوية بشكل مستقل.');
    if(lab.dataset.crmDemoIncluded)lines.push(en?'Tasks to test: recording a request, assigning an owner, setting a next action and timing, preparing a handoff card, and reviewing the activity record from team and management perspectives.':'مهام أرغب في اختبارها: تسجيل الطلب، تعيين المسؤول، تحديد المتابعة وموعدها، إعداد بطاقة تسليم المهمة، ومراجعة سجل الإجراءات من منظور الفريق والإدارة.');
    const message=lines.filter(Boolean).join('\n');brief.value=message;request.href='https://wa.me/966579395299?text='+encodeURIComponent(message);status.textContent=en?'Request prepared. Review it in WhatsApp before sending.':'الطلب جاهز. راجعه في WhatsApp قبل الإرسال.';
   };
+  // The image stays in this document. No upload, storage or filename in the brief.
+  if(logoInput&&removeLogo&&logoStatus){
+   logoInput.addEventListener('change',()=>{
+    const file=logoInput.files[0];const revision=++logoRevision;logoInput.value='';
+    if(!file)return;
+    if(!['image/png','image/jpeg','image/webp'].includes(file.type)||!file.size||file.size>2*1024*1024){
+     logoStatus.textContent=en?'Choose a PNG, JPG or WebP image up to 2 MB.':'اختر صورة PNG أو JPG أو WebP بحجم لا يتجاوز 2 ميجابايت.';return;
+    }
+    const candidate=URL.createObjectURL(file);const probe=new Image();
+    logoStatus.textContent=en?'Preparing the logo preview…':'جارٍ تجهيز معاينة الشعار…';
+    probe.onload=()=>{
+     if(revision!==logoRevision){URL.revokeObjectURL(candidate);return;}
+     const previous=logoUrl;logoUrl=candidate;removeLogo.hidden=false;update();
+     if(previous)URL.revokeObjectURL(previous);
+     logoStatus.textContent=en?'Logo added to the preview. It is not attached to the request.':'أُضيف الشعار إلى المعاينة. لا يُرفق الشعار بالطلب.';
+    };
+    probe.onerror=()=>{
+     URL.revokeObjectURL(candidate);if(revision!==logoRevision)return;
+     logoStatus.textContent=en?'This image could not be displayed. Choose another image.':'تعذّر عرض هذه الصورة. اختر صورة أخرى.';
+    };
+    probe.src=candidate;
+   });
+   removeLogo.addEventListener('click',()=>{
+    ++logoRevision;const previous=logoUrl;logoUrl='';update();if(previous)URL.revokeObjectURL(previous);
+    removeLogo.hidden=true;logoStatus.textContent=en?'Logo removed from the preview.':'أُزيل الشعار من المعاينة.';logoInput.focus({preventScroll:true});
+   });
+  }
+  lab.querySelectorAll('[data-crm-flow]').forEach(flow=>{
+   const tabs=[...flow.querySelectorAll('[data-crm-flow-tab]')];
+   const panels=[...flow.querySelectorAll('[data-crm-flow-panel]')];
+   const select=(index,focus=false)=>{
+    tabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',String(i===index));tab.tabIndex=i===index?0:-1;});
+    panels.forEach((item,i)=>item.hidden=i!==index);if(focus)tabs[index].focus({preventScroll:true});
+   };
+   tabs.forEach((tab,index)=>{
+    tab.addEventListener('click',()=>select(index));
+    tab.addEventListener('keydown',event=>{
+     let next=index;
+     if(event.key==='Home')next=0;else if(event.key==='End')next=tabs.length-1;
+     else if(event.key==='ArrowRight')next=(index+(en?1:-1)+tabs.length)%tabs.length;
+     else if(event.key==='ArrowLeft')next=(index+(en?-1:1)+tabs.length)%tabs.length;
+     else return;
+     event.preventDefault();select(next,true);
+    });
+   });
+   select(0);flow.querySelector('[data-crm-flow-tools]').hidden=false;
+  });
   sectorButtons.forEach(button=>button.addEventListener('click',()=>{
    if(sector!==button.dataset.crmSector)delete lab.dataset.crmDemoIncluded;
    sector=button.dataset.crmSector;sectorButtons.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));plans.forEach(p=>p.hidden=p.dataset.crmPlan!==sector);update();
@@ -72,6 +136,17 @@
    tone=button.dataset.crmTone;toneButtons.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));lab.querySelector('.crm-lab-preview').className='crm-lab-preview crm-tone-'+tone;update();
   }));
   name.addEventListener('input',update);priorities.forEach(input=>input.addEventListener('change',update));requirement.addEventListener('input',update);
+  lab.querySelector('[data-crm-brief-copy]').addEventListener('click',async()=>{
+   const message=brief.value;
+   try{
+    if(!navigator.clipboard||!navigator.clipboard.writeText)throw new Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(message);if(panel.hidden||brief.value!==message)return;
+    status.textContent=en?'Trial brief copied. Review it before sharing.':'تم نسخ ملخص التجربة. راجعه قبل مشاركته.';
+   }catch{
+    if(panel.hidden||brief.value!==message)return;
+    brief.focus();brief.select();status.textContent=en?'The trial brief is selected. Copy it from the text field.':'تم تحديد الملخص. انسخه من حقل النص.';
+   }
+  });
   lab.querySelector('[data-crm-prepare]').addEventListener('click',()=>{panel.hidden=false;prepare();brief.focus({preventScroll:false});});
   lab.addEventListener('crm:include-demo',()=>{
    priorities.forEach((input,i)=>{if(i<4)input.checked=true;});
