@@ -10,7 +10,7 @@ export function renderHomeOpening({ english = false, site, button, studioVisual,
   ['layers', 'crm-systems', 'نظامٌ يجمع تفاصيل أعمالك', 'CRM وتجارب مخصصة'],
   ['pin', 'local-seo', 'حضورٌ يصل إليه عملاؤك', 'البحث وخرائط Google'],
  ];
- const statLabels = english ? ['Google Business Profiles supported through verification', 'Business profile issues resolved', 'Public Google Maps examples', 'Verified live web projects'] : site.stats.map(stat => stat.label);
+ const statLabels = english ? ['Google Business Profiles supported through verification', 'Business profile issues resolved', 'Public Google Maps examples', 'Web projects in the work registry'] : site.stats.map(stat => stat.label);
  return `<section class="hero section-pad home-opening${english ? ' hero-en' : ''}">
   <div class="container hero-grid">
    <div class="hero-copy reveal">
