@@ -1,6 +1,7 @@
 import { renderHomeOpening } from "./src/home-opening.mjs";
 import { renderServiceCard, renderServiceIntro, orderedServices } from "./src/service-studio.mjs";
 import { renderCrmStudio, renderCrmInvitation } from "./src/crm-studio.mjs";
+import { renderCrmCampaign } from "./src/crm-campaign.mjs";
 import { crmServiceAr, crmServiceEn } from "./src/crm-content.mjs";
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
@@ -986,6 +987,20 @@ function crmServicePage(english = false) {
  return page({ title: service.seoTitle, description: service.meta, path, active: "services", lang: english ? "en" : "ar", keywords: service.keywords, modified: latestWorkReviewedAt, image: "/assets/products/sama-overview.webp", body: renderCrmStudio({english,esc,icon}), pageScripts: [`/assets/js/crm-studio.js?v=${version}`], schema: [ { "@type": "Service", "@id": `${absolute(path)}#service`, name: service.title, description: service.meta, url: absolute(path), serviceType: service.title, provider: { "@id": `${site.url}/#professional-service` }, areaServed: [{"@type":"City",name:"Riyadh"},{"@type":"Country",name:"Saudi Arabia"}] }, list, breadcrumbSchema([{name: english ? "Home" : "الرئيسية",path: english ? "/en/" : "/"},{name: english ? "Services" : "الخدمات",path: english ? "/en/services/" : "/services/"},{name: english ? "CRM & dashboards" : "CRM ولوحات التحكم",path}]) ] });
 }
 
+function crmCampaignPage(english = false) {
+  const path = `${english ? "/en" : ""}/crm-riyadh/`;
+  return page({
+    title: english ? "Custom CRM for Riyadh Businesses | Eslam Elshikh" : "CRM مخصص لشركات الرياض | إسلام الشيخ",
+    description: english ? "Explore a request, its owner and follow-up. Discuss a custom CRM trial for your Riyadh business, with agreed tasks, scope and commercial terms." : "شوف الطلب ومسؤوله وخطوة المتابعة في مسار واضح. تطوير CRM مخصص لشركات الرياض، وتجربة بهوية منشأتك بعد الاتفاق على النطاق والشروط.",
+    path, active: "services", lang: english ? "en" : "ar", robots: "noindex, follow",
+    stylesheets: [`/assets/css/crm-campaign.css?v=${version}`],
+    pageScripts: [`/assets/js/crm-campaign.js?v=${version}`],
+    body: renderCrmCampaign({ english, icon, whatsapp: site.whatsapp }),
+    modified: "2026-10-08",
+    schema: [breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" }, { name: english ? "CRM in Riyadh" : "CRM في الرياض", path }])]
+  });
+}
+
 function productsIndexPage(english = false) {
   const path = `${english ? "/en" : ""}/products/`;
   const name = english ? "Digital Products by Eslam Elshikh" : "منتجات رقمية من تصميم وتطوير إسلام الشيخ";
@@ -1732,6 +1747,8 @@ async function build() {
   await writeRoute("/", homePage());
   await writeRoute("/en/", englishPage());
   await writeRoute("/services/", servicesIndexPage());
+  await writeRoute("/crm-riyadh/", crmCampaignPage(), { index: false });
+  await writeRoute("/en/crm-riyadh/", crmCampaignPage(true), { index: false });
   for (const service of services) await writeRoute(`/services/${service.slug}/`, serviceDetailPage(service));
   await writeRoute("/local-seo/riyadh/", localSeoPage());
   await writeRoute("/about/", aboutPage());
