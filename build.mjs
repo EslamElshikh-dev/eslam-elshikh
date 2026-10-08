@@ -993,7 +993,7 @@ function crmCampaignPage(english = false) {
     title: english ? "Custom CRM for Riyadh Businesses | Eslam Elshikh" : "CRM مخصص لشركات الرياض | إسلام الشيخ",
     description: english ? "Explore a request, its owner and follow-up. Discuss a custom CRM trial for your Riyadh business, with agreed tasks, scope and commercial terms." : "شوف الطلب ومسؤوله وخطوة المتابعة في مسار واضح. تطوير CRM مخصص لشركات الرياض، وتجربة بهوية منشأتك بعد الاتفاق على النطاق والشروط.",
     path, active: "services", lang: english ? "en" : "ar", robots: "noindex, follow",
-    stylesheets: [`/assets/css/crm-campaign.css?v=${version}`],
+    stylesheets: [`/assets/css/crm-campaign.css?v=${version}&campaign=20261008.2`],
     pageScripts: [`/assets/js/crm-campaign.js?v=${version}`],
     body: renderCrmCampaign({ english, icon, whatsapp: site.whatsapp }),
     modified: "2026-10-08",
