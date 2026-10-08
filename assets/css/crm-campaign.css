@@ -50,6 +50,7 @@
 .crm-campaign-handoff { display:flex; gap:.45rem; align-items:flex-start; font-size:.65rem; color:var(--cc-accent); margin-top:1rem; }
 .crm-campaign-handoff .icon { width:1rem; height:1rem; flex-shrink:0; }
 .crm-campaign :is([hidden]) { display:none !important; }
+.crm-campaign [data-crm-campaign-announcement] { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
 .crm-campaign-fit,.crm-campaign-proof,.crm-campaign-brief,.crm-campaign-faq { padding:4rem 0; border-top:1px solid var(--line); }
 .crm-campaign-heading { max-width:46rem; margin-bottom:2rem; }
 .crm-campaign-heading h2,.crm-campaign-brief h2,.crm-campaign-faq h2 { font-size:clamp(1.8rem,3vw,2.7rem); line-height:1.5; margin:.5rem 0 1rem; }
