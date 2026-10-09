@@ -113,8 +113,18 @@ const socialLinks = [
 // The Facebook handle differs between public sources, so exclude it until verified.
 const personSameAs = [...new Set([
   site.social.github, site.social.x, site.social.instagram, site.social.threads,
-  site.social.youtube, site.social.tiktok, site.social.wikidata, site.social.googleDeveloper
+  site.social.youtube, site.social.tiktok, site.social.wikidata, site.social.googleDeveloper,
+  site.social.iknuva, site.social.usayrat, site.social.naqada
 ])];
+const publicIdentityProfiles = [
+  ["Google Developer Program", site.social.googleDeveloper],
+  ["GitHub", site.social.github],
+  ["YouTube", site.social.youtube],
+  ["Wikidata", site.social.wikidata],
+  ["IKNUVA", site.social.iknuva],
+  ["دليل العسيرات", site.social.usayrat],
+  ["دليل نقادة", site.social.naqada]
+];
 const personIdentifier = {
   "@type": "PropertyValue",
   propertyID: "Wikidata",
@@ -385,6 +395,10 @@ function footer(language = "ar") {
       <div class="social-row" aria-label="${isEnglish ? "Social profiles" : "الحسابات الاجتماعية"}">${social}</div>
     </div>
   </div>
+  <nav class="container identity-profile-links" aria-label="${isEnglish ? "Eslam Elshikh public profiles" : "ملفات إسلام الشيخ العامة"}">
+    <span>${isEnglish ? "Eslam Elshikh profiles" : "إسلام الشيخ | Eslam Elshikh"}</span>
+    ${publicIdentityProfiles.map(([label, href]) => `<a href="${esc(href)}" target="_blank" rel="noopener me">${esc(label)}</a>`).join("")}
+  </nav>
   <div class="container mobile-footer">
     <div class="mobile-footer-identity">
       <a class="mobile-footer-brand" href="${isEnglish ? "/en/" : "/"}">${logo("brand-logo")}<span><strong>${isEnglish ? `Eng. ${site.nameEn}` : site.brandName}</strong><small>${isEnglish ? "Cybersecurity & software" : site.nameEn}</small></span></a>
