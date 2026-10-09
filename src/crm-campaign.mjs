@@ -11,19 +11,23 @@ export function renderCrmCampaign({ english = false, icon, whatsapp }) {
   const steps = english ? ['Request', 'Owner', 'Follow-up', 'Overview'] : ['الطلب', 'المسؤول', 'المتابعة', 'الصورة الكاملة'];
   const cases = [
     ['tawod-control-center', t('الفرصة لها مصدر.<br>والمتابعة لها مسار.', 'A source for the opportunity.<br>A path for the follow-up.'), t('مركز قيادة للمبيعات والتسويق، بتصميم فاتح وأقسام مستقلة في الإصدار الحالي. استكشف كيف يجتمع العميل والفرصة والمسؤول والخطوة القادمة.', 'A sales and marketing command center. Its current release has a light interface and distinct sections. Explore customer records, opportunities, owners and next actions.')],
-    ['kermez-control-center', t('المنيو أمام العميل.<br>ويوم المقهى أمام فريقك.', 'The menu for your customer.<br>The day for your team.'), t('منيو قابل للإدارة، وطلبات وعملاء ومخزون ومتابعات في مساحة واحدة. الجولة العامة ببيانات توضيحية والحفظ معطّل فيها.', 'An administered menu, orders, customers, stock and follow-up in one workspace. The public tour uses sample data and disables saving.')],
-    ['sama-scan-control-center', t('التواصل يبدأ طلبًا.<br>والتنظيم يوضح خطوته.', 'Contact starts a request.<br>Structure shows the next step.'), t('إدارة للطلبات والمواعيد والمتابعات وأدوار الفريق. نطاق إداري، والواجهات المعروضة ببيانات أمثلة.', 'Requests, appointments, follow-up and team roles. An administrative scope, with sample data in the displayed interfaces.')],
+    ['kermez-control-center', t('المنيو أمام العميل.<br>ويوم المقهى أمام فريقك.', 'The menu for your customer.<br>The day for your team.'), t('منيو قابل للإدارة، وطلبات وعملاء ومخزون ومتابعات في مساحة واحدة. تفاصيل التشغيل أمام الفريق، وتحديث المنيو في مكانه.', 'An administered menu, orders, customers, stock and follow-up in one workspace. Operations stay visible to the team and menu updates have a clear home.')],
+    ['sama-scan-control-center', t('التواصل يبدأ طلبًا.<br>والتنظيم يوضح خطوته.', 'Contact starts a request.<br>Structure shows the next step.'), t('إدارة للطلبات والمواعيد والمتابعات وأدوار الفريق. يعرف الاستقبال حالة الطلب، ويتابع الفريق الخطوة القادمة.', 'Requests, appointments, follow-up and team roles. Reception sees request status and the team follows the next action.')],
     ['alya-catalog-control', t('منتج يلقى مكانه.<br>واستفسار يبدأ بوضوح.', 'A place for each product.<br>A clearer enquiry.'), t('كتالوج عربي ببحث وتصنيفات وتفاصيل للمنتجات، تديره لوحة خاصة بالفريق. المعروض صور الموقع العام ومسار الاستفسار.', 'An Arabic catalog with search, categories and product details, administered by a private team workspace. The preview shows the public website and enquiry journey.')],
     ['alargan-crm', t('قبل بناء النظام.<br>خلّنا نشوف رحلة البيع.', 'Before the build.<br>See the sales journey.'), t('تصوّر تفاعلي لمناقشة مراحل البيع والمهام ومصدر البيانات. نموذج لتحديد نطاق المشروع؛ ربط SAP فكرة ضمن التصوّر.', 'An interactive concept for discussing sales stages, tasks and data sources. A model for defining scope; SAP integration is a proposed concept.')]
   ].map(([slug, title, copy]) => ({ product: productBySlug.get(slug), title, copy }));
-  const captureLabel = product => product.previewKind === 'archived-interface'
+  const captureLabel = product => product.previewKind === 'scenario-interface'
+    ? t('رؤية الإدارة · مسار البيع', 'Management workspace · Sales pipeline')
+    : product.previewKind === 'archived-interface'
     ? t('لقطة محفوظة من الإصدار السابق · التصميم الحالي فاتح', 'Saved capture of the earlier release · the current design is light')
     : product.previewKind === 'public-site'
       ? t('لقطة فعلية من الموقع العام', 'Actual public website capture')
       : product.stage === 'concept'
         ? t('لقطة من التصوّر التفاعلي', 'Interactive concept capture')
-        : t('واجهة فعلية ببيانات توضيحية', 'Actual interface with sample data');
-  const casePreview = product => `<figure class="crm-case-preview"><div class="crm-case-image"><img src="${product.image}" alt="${productText(product.name, english)} — ${captureLabel(product)}" width="1200" height="750" loading="lazy" decoding="async"><span dir="ltr">${product.code}</span></div><figcaption>${captureLabel(product)}</figcaption></figure>`;
+        : t('جولة المنتج', 'Product walkthrough');
+  const casePreview = product => product.previewKind === 'scenario-interface'
+    ? `<figure class="crm-case-preview"><div class="crm-case-image crm-case-mobile-captures">${product.tour.map(view => `<div><img src="${view.image}" alt="${productText(product.name, english)} — ${productText(view.label, english)} — ${captureLabel(product)}" width="${view.imageSize.width}" height="${view.imageSize.height}" loading="lazy" decoding="async"><small>${productText(view.label, english)}</small></div>`).join('')}</div><figcaption>${captureLabel(product)}</figcaption></figure>`
+    : `<figure class="crm-case-preview"><div class="crm-case-image"><img src="${product.image}" alt="${productText(product.name, english)} — ${captureLabel(product)}" width="1200" height="750" loading="lazy" decoding="async"><span dir="ltr">${product.code}</span></div><figcaption>${captureLabel(product)}</figcaption></figure>`;
   return `<article class="crm-campaign" data-crm-campaign data-crm-scene-mode="after">
     <section class="crm-campaign-hero" aria-labelledby="crm-campaign-title">
       <div class="container">

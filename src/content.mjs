@@ -50,6 +50,9 @@ export const site = {
     tiktok: "https://www.tiktok.com/@remoesoo",
     wikidata: "https://www.wikidata.org/wiki/Q138800449",
     googleDeveloper: "https://me.developers.google.com/u/EslamElshikh",
+    iknuva: "https://iknuva.com/creators/eslam-elshikh-q138800449?lang=ar",
+    usayrat: "https://usayrat.online/developer",
+    naqada: "https://naqada-directory.vercel.app/developer/",
     blog: "https://blog.eslam-elshikh.com"
   },
   stats: [

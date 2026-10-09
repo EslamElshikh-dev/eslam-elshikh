@@ -117,6 +117,10 @@
 .crm-case-card { display:block; min-width:0; border:1px solid var(--line-strong); border-radius:1.4rem; overflow:hidden; background:var(--surface); transition:box-shadow .25s,transform .25s; }
 .crm-case-preview { min-width:0; margin:0; background:var(--cc-panel); }
 .crm-case-preview figcaption { padding:.55rem 1.4rem .7rem; color:var(--text-soft); font-size:.62rem; line-height:1.8; border-bottom:1px solid var(--line); }
+.crm-case-image.crm-case-mobile-captures { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; aspect-ratio:auto; }
+.crm-case-mobile-captures > div { min-width:0; }
+.crm-case-image.crm-case-mobile-captures img { height:clamp(260px,28vw,420px); object-fit:contain; background:#f0f2f5; }
+.crm-case-mobile-captures small { display:block; padding-top:.6rem; text-align:center; font-size:.65rem; color:var(--text-soft); }
 .crm-case-image { position:relative; aspect-ratio:1.65; overflow:hidden; background:var(--cc-panel); padding:1.4rem; border-bottom:1px solid var(--line); }
 .crm-case-image img { display:block; width:100%; height:100%; object-fit:cover; object-position:top; border:1px solid var(--line); border-radius:.65rem; box-shadow:0 10px 25px #11284014; transition:transform .4s; }
 .crm-case-image > span { position:absolute; inset-block-end:1.85rem; inset-inline-start:1.9rem; padding:.3rem .65rem; font-size:.48rem; letter-spacing:.06em; background:#132840; color:#f1f5fc; border:1px solid #c0d5f240; border-radius:999px; }

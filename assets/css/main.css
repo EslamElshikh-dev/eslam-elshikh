@@ -1040,3 +1040,9 @@ input, textarea, select { min-width: 0; }
   a { color: #000; }
   .service-card, .portfolio-featured, .portfolio-project, .portfolio-archive-row, .map-case-card, .map-ledger-card, .map-track-card, .scope-card, .article-conclusion { break-inside: avoid; border-color: #bbb; background: #fff; box-shadow: none; }
 }
+
+/* Public author profiles: shared identity, readable on small screens. */
+.identity-profile-links{display:flex;flex-wrap:wrap;align-items:center;gap:.65rem;padding-block:1.2rem;border-block-start:1px solid var(--line);font-size:.85rem}
+.identity-profile-links>span{font-weight:700;margin-inline-end:.35rem}
+.identity-profile-links a{display:inline-flex;align-items:center;min-height:44px;padding:.35rem .65rem;border:1px solid var(--line);border-radius:.65rem;overflow-wrap:anywhere}
+.identity-profile-links a:hover,.identity-profile-links a:focus-visible{color:var(--primary);text-decoration:underline;text-underline-offset:4px}
