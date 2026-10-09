@@ -1,6 +1,7 @@
 import { renderHomeOpening } from "./src/home-opening.mjs";
 import { renderServiceCard, renderServiceIntro, orderedServices } from "./src/service-studio.mjs";
 import { renderCrmStudio, renderCrmInvitation } from "./src/crm-studio.mjs";
+import { renderCrmCampaign } from "./src/crm-campaign.mjs";
 import { crmServiceAr, crmServiceEn } from "./src/crm-content.mjs";
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
@@ -320,7 +321,7 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   <script src="/assets/js/theme.js?v=${version}"></script>
   <link rel="stylesheet" href="/assets/css/main.css?v=${version}">
 ${stylesheets.length ? `${stylesheets.map((href) => `  <link rel="stylesheet" href="${esc(href)}">`).join("\n")}\n` : ""}  <link rel="stylesheet" href="/assets/css/studio.css?v=${version}">
-${["/", "/projects/", "/en/projects/", "/google-maps-projects/", "/en/google-maps-projects/", "/google-expert/", "/en/google-expert/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/maps-exhibition.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-stories.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/(projects|products|google-maps-projects|work-evidence)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/work-evidence.css?v=${version}">\n` : ""}${["/", "/en/", "/projects/", "/en/projects/"].includes(path) || /^(\/en)?\/products\//.test(path) || /^(\/en)?\/services\/crm-systems\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/crm-studio.css?v=${version}">\n` : ""}${["/", "/en/", "/services/", "/en/services/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/service-studio.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
+${["/", "/projects/", "/en/projects/", "/google-maps-projects/", "/en/google-maps-projects/", "/google-expert/", "/en/google-expert/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/maps-exhibition.css?v=${version}">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-stories.css?v=${version}&captures=20261009.2">\n` : ""}${path === "/" || path === "/en/" || /^(\/en)?\/(projects|products|google-maps-projects|work-evidence)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/work-evidence.css?v=${version}">\n` : ""}${["/", "/en/", "/projects/", "/en/projects/"].includes(path) || /^(\/en)?\/products\//.test(path) || /^(\/en)?\/services\/crm-systems\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/crm-studio.css?v=${version}">\n` : ""}${["/", "/en/", "/services/", "/en/services/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/service-studio.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
 ${["/", "/en/", "/services/", "/en/services/"].includes(path) ? `  <script src="/assets/js/service-preview.js?v=${version}" defer></script>\n` : ""}
   <script type="application/ld+json">${safeJson({ "@context": "https://schema.org", "@graph": graph })}</script>
 </head>`;
@@ -998,6 +999,20 @@ function crmServicePage(english = false) {
  const service = english ? crmServiceEn : crmServiceAr;
  const list = { "@type": "ItemList", "@id": `${absolute(path)}#experiences`, numberOfItems: products.length, itemListElement: products.map((product,index) => ({ "@type": "ListItem", position: index+1, name: productText(product.name,english), url: absolute(`${english ? "/en" : ""}/products/${product.slug}/`) })) };
  return page({ title: service.seoTitle, description: service.meta, path, active: "services", lang: english ? "en" : "ar", keywords: service.keywords, modified: latestWorkReviewedAt, image: "/assets/products/sama-overview.webp", body: renderCrmStudio({english,esc,icon}), pageScripts: [`/assets/js/crm-studio.js?v=${version}`], schema: [ { "@type": "Service", "@id": `${absolute(path)}#service`, name: service.title, description: service.meta, url: absolute(path), serviceType: service.title, provider: { "@id": `${site.url}/#professional-service` }, areaServed: [{"@type":"City",name:"Riyadh"},{"@type":"Country",name:"Saudi Arabia"}] }, list, breadcrumbSchema([{name: english ? "Home" : "الرئيسية",path: english ? "/en/" : "/"},{name: english ? "Services" : "الخدمات",path: english ? "/en/services/" : "/services/"},{name: english ? "CRM & dashboards" : "CRM ولوحات التحكم",path}]) ] });
+}
+
+function crmCampaignPage(english = false) {
+  const path = `${english ? "/en" : ""}/crm-riyadh/`;
+  return page({
+    title: english ? "Custom CRM for Riyadh Businesses | Eslam Elshikh" : "CRM مخصص لشركات الرياض | إسلام الشيخ",
+    description: english ? "Explore a request, its owner and follow-up. Discuss a custom CRM trial for your Riyadh business, with agreed tasks, scope and commercial terms." : "شوف الطلب ومسؤوله وخطوة المتابعة في مسار واضح. تطوير CRM مخصص لشركات الرياض، وتجربة بهوية منشأتك بعد الاتفاق على النطاق والشروط.",
+    path, active: "services", lang: english ? "en" : "ar", robots: "noindex, follow",
+    stylesheets: [`/assets/css/crm-campaign.css?v=${version}&campaign=20261009.8`],
+    pageScripts: [`/assets/js/crm-campaign.js?v=${version}&campaign=20261009.8`],
+    body: renderCrmCampaign({ english, icon, whatsapp: site.whatsapp }),
+    modified: "2026-10-09",
+    schema: [breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" }, { name: english ? "CRM in Riyadh" : "CRM في الرياض", path }])]
+  });
 }
 
 function productsIndexPage(english = false) {
@@ -1746,6 +1761,8 @@ async function build() {
   await writeRoute("/", homePage());
   await writeRoute("/en/", englishPage());
   await writeRoute("/services/", servicesIndexPage());
+  await writeRoute("/crm-riyadh/", crmCampaignPage(), { index: false });
+  await writeRoute("/en/crm-riyadh/", crmCampaignPage(true), { index: false });
   for (const service of services) await writeRoute(`/services/${service.slug}/`, serviceDetailPage(service));
   await writeRoute("/local-seo/riyadh/", localSeoPage());
   await writeRoute("/about/", aboutPage());
