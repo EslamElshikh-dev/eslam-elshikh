@@ -16,9 +16,14 @@ export function renderCrmCampaign({ english = false, icon, whatsapp }) {
     ['alya-catalog-control', t('منتج يلقى مكانه.<br>واستفسار يبدأ بوضوح.', 'A place for each product.<br>A clearer enquiry.'), t('كتالوج عربي ببحث وتصنيفات وتفاصيل للمنتجات، تديره لوحة خاصة بالفريق. المعروض صور الموقع العام ومسار الاستفسار.', 'An Arabic catalog with search, categories and product details, administered by a private team workspace. The preview shows the public website and enquiry journey.')],
     ['alargan-crm', t('قبل بناء النظام.<br>خلّنا نشوف رحلة البيع.', 'Before the build.<br>See the sales journey.'), t('تصوّر تفاعلي لمناقشة مراحل البيع والمهام ومصدر البيانات. نموذج لتحديد نطاق المشروع؛ ربط SAP فكرة ضمن التصوّر.', 'An interactive concept for discussing sales stages, tasks and data sources. A model for defining scope; SAP integration is a proposed concept.')]
   ].map(([slug, title, copy]) => ({ product: productBySlug.get(slug), title, copy }));
-  const casePreview = product => product.slug === 'tawod-control-center'
-    ? `<div class="crm-case-image crm-case-workflow"><div class="crm-case-workflow-head"><span dir="ltr">TAWOD / WORKFLOW</span>${icon('layers')}</div><p>${t('من أول تواصل<br><strong>إلى خطوة واضحة.</strong>', 'From first contact<br><strong>to a clear next step.</strong>')}</p><ol>${[t('العميل', 'Customer'), t('الفرصة', 'Opportunity'), t('المسؤول', 'Owner'), t('المتابعة', 'Follow-up')].map((label, i) => `<li><span dir="ltr">0${i + 1}</span><strong>${label}</strong></li>`).join('')}</ol><small>${t('تصوّر لمسار العمل · اللوحة الحية خاصة بالفريق', 'Illustrative workflow · the live workspace is private')}</small></div>`
-    : `<div class="crm-case-image"><img src="${product.image}" alt="${productText(product.name, english)} — ${product.previewKind === 'public-site' ? t('صورة من الموقع العام', 'Public website capture') : product.stage === 'concept' ? t('تصور تفاعلي', 'Interactive concept') : t('واجهة ببيانات توضيحية', 'Interface with sample data')}" width="1200" height="750" loading="lazy" decoding="async"><span dir="ltr">${product.code}</span></div>`;
+  const captureLabel = product => product.previewKind === 'archived-interface'
+    ? t('لقطة محفوظة من الإصدار السابق · التصميم الحالي فاتح', 'Saved capture of the earlier release · the current design is light')
+    : product.previewKind === 'public-site'
+      ? t('لقطة فعلية من الموقع العام', 'Actual public website capture')
+      : product.stage === 'concept'
+        ? t('لقطة من التصوّر التفاعلي', 'Interactive concept capture')
+        : t('واجهة فعلية ببيانات توضيحية', 'Actual interface with sample data');
+  const casePreview = product => `<figure class="crm-case-preview"><div class="crm-case-image"><img src="${product.image}" alt="${productText(product.name, english)} — ${captureLabel(product)}" width="1200" height="750" loading="lazy" decoding="async"><span dir="ltr">${product.code}</span></div><figcaption>${captureLabel(product)}</figcaption></figure>`;
   return `<article class="crm-campaign" data-crm-campaign data-crm-scene-mode="after">
     <section class="crm-campaign-hero" aria-labelledby="crm-campaign-title">
       <div class="container">
