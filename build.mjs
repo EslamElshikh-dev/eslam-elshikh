@@ -520,7 +520,7 @@ function postCard(post, { featured = false } = {}) {
 
 function homePage() {
   const body = renderHomeExperience({ site, services, profilePhoto, faqHtml: faqBlock(homeFaq), esc, icon });
-  return page({ title: "المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع بالرياض", description: site.description, path: "/", active: "home", body, modified: "2026-10-09", schema: [faqSchema(homeFaq)], stylesheets: ["/assets/css/home-experience.css?v=20261009.1"], pageScripts: ["/assets/js/home-experience.js?v=20261009.1"], preloadImage: "/assets/projects/tawod.webp" });
+  return page({ title: "المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع بالرياض", description: site.description, path: "/", active: "home", body, modified: "2026-10-09", schema: [faqSchema(homeFaq)], stylesheets: ["/assets/css/home-experience.css?v=20261009.2"], pageScripts: ["/assets/js/home-experience.js?v=20261009.2"], preloadImage: "/assets/projects/tawod.webp" });
 }
 
 function finalCta(title = "لنحوّل فكرتك أو مشكلتك إلى خطة واضحة قابلة للتنفيذ", text = "أرسل الهدف والوضع الحالي والروابط المتاحة والموعد المتوقع. ستحصل على نقطة بداية منظمة تساعدك على اتخاذ القرار الصحيح.") {
@@ -1670,7 +1670,7 @@ const englishHomeFaq = [
 
 function englishPage() {
   const body = renderHomeExperience({ english: true, site, services: englishServices, profilePhoto, faqHtml: faqBlock(englishHomeFaq), esc, icon });
-  return page({ title: `${site.nameEn} | Cybersecurity & Software Engineer`, description: "Eslam Elshikh is a Riyadh-based cybersecurity engineer and software developer specializing in web development, AI agents, Google Maps, and technical SEO.", path: "/en/", active: "home", body, lang: "en", modified: "2026-10-09", schema: [faqSchema(englishHomeFaq)], stylesheets: ["/assets/css/home-experience.css?v=20261009.1"], pageScripts: ["/assets/js/home-experience.js?v=20261009.1"], preloadImage: "/assets/projects/tawod.webp" });
+  return page({ title: `${site.nameEn} | Cybersecurity & Software Engineer`, description: "Eslam Elshikh is a Riyadh-based cybersecurity engineer and software developer specializing in web development, AI agents, Google Maps, and technical SEO.", path: "/en/", active: "home", body, lang: "en", modified: "2026-10-09", schema: [faqSchema(englishHomeFaq)], stylesheets: ["/assets/css/home-experience.css?v=20261009.2"], pageScripts: ["/assets/js/home-experience.js?v=20261009.2"], preloadImage: "/assets/projects/tawod.webp" });
 }
 
 function notFoundPage() {

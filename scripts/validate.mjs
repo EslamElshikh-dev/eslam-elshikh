@@ -229,7 +229,7 @@ for (const route of sitemapRoutes) {
   const hasCrmStudio = ["/projects/", "/en/projects/"].includes(route) || /^(\/en)?\/products\//.test(route) || /^(\/en)?\/services\/crm-systems\//.test(route);
   const hasServiceStudio = ["/services/", "/en/services/"].includes(route);
   const expectedStylesheets = Number(hasHomeExperience) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
-  if (hasHomeExperience && (!html.includes('/assets/css/home-experience.css?v=20261009.1') || !html.includes('/assets/js/home-experience.js?v=20261009.1') || !html.includes('data-home-experience'))) errors.push(`${route}: missing versioned homepage experience assets or root`);
+  if (hasHomeExperience && (!html.includes('/assets/css/home-experience.css?v=20261009.2') || !html.includes('/assets/js/home-experience.js?v=20261009.2') || !html.includes('data-home-experience'))) errors.push(`${route}: missing versioned homepage experience assets or root`);
   if (hasProjectGallery && !html.includes(`/assets/css/project-gallery.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned project gallery stylesheet`);
   if (hasProjectStories && !html.includes(`/assets/css/project-stories.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned case and product stylesheet`);
   if (hasMapsExhibition && !html.includes(`/assets/css/maps-exhibition.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned Google Maps exhibition stylesheet`);
