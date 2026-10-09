@@ -54,6 +54,7 @@
   const name = el('campaign-name');
   const company = el('brief-company');
   const need = el('brief-need');
+  const sector = el('brief-sector');
   const form = el('campaign-form');
   const messagePanel = el('campaign-message');
   const messageText = el('campaign-message-text');
@@ -63,6 +64,10 @@
   const pathButtons = [...root.querySelectorAll('[data-crm-path]')];
   let selected = 'quotes', stage = 0, pathChosen = false;
   let started = false, completed = false, hasPrepared = false, needEdited = false;
+  let sourceKey = '', planRequested = false;
+  const sectorButtons = [...root.querySelectorAll('[data-crm-plan-sector]')];
+  const sourceButtons = [...root.querySelectorAll('[data-crm-plan-source]')];
+  const compareButtons = [...root.querySelectorAll('[data-crm-compare]')];
   const animatePanel = panel => {
     if (!reduced.matches && panel?.animate) panel.animate(
       [{ opacity: 0.75, transform: 'translateY(5px)' }, { opacity: 1, transform: 'translateY(0)' }],
@@ -70,6 +75,93 @@
     );
   };
   const announce = text => el('campaign-announcement').textContent = text;
+
+  const sectors = {
+    services: { value: t('خدمات أو صيانة','Services or maintenance'), label: t('خدمات وصيانة','Services and maintenance'), context: t('الخدمة المطلوبة وبيانات التواصل','Service requirements and contact context') },
+    contracting: { value: t('مقاولات أو تشطيبات','Contracting or fit-out'), label: t('مقاولات وتشطيبات','Contracting and fit-out'), context: t('تفاصيل المشروع وبيانات التواصل','Project details and contact context') },
+    sales: { value: t('مبيعات بين الشركات','B2B sales'), label: t('مبيعات بين الشركات','B2B sales'), context: t('احتياج المنشأة وبيانات التواصل','Business needs and contact context') }
+  };
+  const sources = {
+    phone: t('مكالمة','Phone call'),
+    whatsapp: t('رسالة WhatsApp','WhatsApp message'),
+    form: t('نموذج تواصل','Enquiry form')
+  };
+  const workflows = {
+    requests: {
+      nodes: [
+        [t('تسجيل الطلب','Record the request'),t('الاحتياج وبيانات التواصل','The need and contact context')],
+        [t('تحديد المسؤول','Assign an owner'),t('دور يستلم الطلب ويعرف سياقه','A role taking the request with its context')],
+        [t('ترتيب الخطوة','Arrange the next action'),t('الإجراء وموعده حسب الاتفاق','An action and timing agreed with the customer')],
+        [t('متابعة الحالة','Review the status'),t('آخر تحديث والخطوة المطلوبة','The latest update and next task')]
+      ],
+      insight: t('الهدف: كل طلب له مسؤول وخطوة يعرفها الفريق.','The aim: every request has an owner and a step the team can see.')
+    },
+    quotes: {
+      nodes: [
+        [t('تسجيل الفرصة','Record the opportunity'),t('الاحتياج وبيانات التواصل','The need and contact context')],
+        [t('مسؤول واضح','A clear owner'),t('دور يراجع الطلب والخطوة المطلوبة','A role reviewing the request and next action')],
+        [t('متابعة العرض','Follow up on the quote'),t('توثيق آخر تواصل والخطوة التالية','Record the last contact and next action')],
+        [t('مراجعة القرار','Review the decision'),t('الملاحظات والمرحلة أمام الفريق','Feedback and stage in the team’s view')]
+      ],
+      insight: t('الهدف: كل عرض له مسؤول وخطوة متابعة موثّقة.','The aim: every quote has an owner and a recorded next action.')
+    },
+    overview: {
+      nodes: [
+        [t('توثيق الاحتياج','Record the need'),t('متطلبات الفرصة وبيانات التواصل','Opportunity requirements and contact context')],
+        [t('توزيع الأدوار','Assign the roles'),t('مسؤول يعرف المطلوب من الفريق','An owner who knows what the team needs to do')],
+        [t('تحديث المرحلة','Update the stage'),t('الملاحظات والإجراء القادم','Notes and the next action')],
+        [t('مراجعة الفريق','Review team progress'),t('المرحلة والمسؤول والمتابعة في سياق واحد','Stage, owner and follow-up in one context')]
+      ],
+      insight: t('الهدف: صورة أوضح للإدارة، مبنية على تحديثات الفريق.','The aim: a clearer management view built on the team’s updates.')
+    }
+  };
+  const renderCompare = () => {
+    const before = root.dataset.crmSceneMode === 'before';
+    el('transform-title').textContent = paths[selected].request;
+    el('transform-context').textContent = before
+      ? t('المعلومة موزّعة، والخطوة تحتاج سؤالًا.','The context is scattered and the next action needs a question.')
+      : t('السياق أمام الفريق، والخطوة موضّحة.','The context is visible and the next step is defined.');
+    el('transform-state').textContent = before
+      ? t('نحتاج نجمع السياق','The context needs bringing together')
+      : t('المتابعة لها مسار','Follow-up has a workflow');
+    el('transform-contact').textContent = before ? t('آخر تواصل وين؟','Where is the last contact?') : t('تواصل موثّق','Contact recorded');
+    el('transform-contact-note').textContent = before ? t('معلومة تحتاج مراجعة','Context needing review') : t('يُحدّثه فريقك','Updated by your team');
+    el('transform-owner').textContent = before ? t('مين يتابع الطلب؟','Who follows this up?') : paths[selected].stages[1][1].split(' · ')[0];
+    el('transform-owner-note').textContent = before ? t('دور يحتاج تحديدًا','An owner needing assignment') : t('دور محدد في المثال','An assigned example role');
+    el('transform-action').textContent = before ? t('وش الخطوة الجاية؟','What happens next?') : paths[selected].stages[2][2];
+    el('transform-action-note').textContent = before ? t('متابعة تحتاج توضيحًا','A next action needing clarity') : t('بعد توثيق التواصل','After recording contact');
+    el('transform-caption').textContent = before
+      ? t('نفس الطلب، لكن السياق يحتاج تجميعًا. المثال للتوضيح.','The same request, with context still to gather. This is an illustration.')
+      : t('ترتيب المعلومات يساعد الفريق يعرف وش بعده. المثال للتوضيح.','Organized information helps the team see the next action. This is an illustration.');
+  };
+  const showCompare = (mode, interactive = true) => {
+    if (!['before','after'].includes(mode)) return;
+    root.dataset.crmSceneMode = mode;
+    compareButtons.forEach(button => button.setAttribute('aria-pressed',String(button.dataset.crmCompare === mode)));
+    renderCompare();
+    if (interactive) {
+      animatePanel(root.querySelector('.crm-transform-center'));
+      announce(el('transform-caption').textContent);
+      if (!started) { started = true; track('crm_preview_start'); }
+    }
+  };
+  const renderPlan = () => {
+    const sectorKey = Object.keys(sectors).find(key => sectors[key].value === sector.value);
+    const business = sectorKey ? sectors[sectorKey] : null;
+    const workflow = workflows[selected];
+    sectorButtons.forEach(button => button.setAttribute('aria-pressed',String(button.dataset.crmPlanSector === sectorKey)));
+    sourceButtons.forEach(button => button.setAttribute('aria-pressed',String(button.dataset.crmPlanSource === sourceKey)));
+    el('plan-sector-label').textContent = business?.label || sector.value || t('حدد نشاطك','Choose your business');
+    el('plan-source-label').textContent = sourceKey ? sources[sourceKey] : t('حدد بداية الطلب','Choose a request source');
+    workflow.nodes.forEach(([title,copy],index) => {
+      root.querySelector('[data-crm-plan-node-title="' + index + '"]').textContent = title;
+      root.querySelector('[data-crm-plan-node-copy="' + index + '"]').textContent = index === 0
+        ? (business?.context || copy) + (sourceKey ? ' · ' + sources[sourceKey] : '')
+        : copy;
+    });
+    el('plan-insight').textContent = workflow.insight;
+  };
+
   const showStage = (index, interactive = true) => {
     const values = paths[selected].stages[index];
     if (!values) return;
@@ -102,6 +194,8 @@
     ['kicker','title','copy'].forEach(k => el('path-' + k).textContent = path[k]);
     el('selected-label').textContent = path.label;
     need.placeholder = path.need;
+    renderPlan();
+    renderCompare();
     setBriefSelection();
     showStage(0);
     animatePanel(root.querySelector('#crm-path-result'));
@@ -116,17 +210,45 @@
     });
   });
   pathButtons.forEach(button => button.addEventListener('click', () => choosePath(button.dataset.crmPath)));
-  bindArrows(pathButtons, index => choosePath(pathButtons[index].dataset.crmPath));
+  root.querySelectorAll('[data-crm-path-controls],[data-crm-plan-path-controls]').forEach(group => {
+    const buttons = [...group.querySelectorAll('[data-crm-path]')];
+    bindArrows(buttons,index => choosePath(buttons[index].dataset.crmPath));
+  });
+  compareButtons.forEach(button => button.addEventListener('click',() => showCompare(button.dataset.crmCompare)));
+  bindArrows(compareButtons,index => showCompare(compareButtons[index].dataset.crmCompare));
+  const chooseSector = key => {
+    if (!sectors[key]) return;
+    sector.value = sectors[key].value;
+    renderPlan();
+    if (hasPrepared) prepareMessage();
+    announce(t('النشاط: ','Business type: ') + sectors[key].label);
+  };
+  const chooseSource = key => {
+    if (!sources[key]) return;
+    sourceKey = key;
+    renderPlan();
+    if (hasPrepared) prepareMessage();
+    announce(t('بداية الطلب: ','Request source: ') + sources[key]);
+  };
+  sectorButtons.forEach(button => button.addEventListener('click',() => chooseSector(button.dataset.crmPlanSector)));
+  bindArrows(sectorButtons,index => chooseSector(sectorButtons[index].dataset.crmPlanSector));
+  sourceButtons.forEach(button => button.addEventListener('click',() => chooseSource(button.dataset.crmPlanSource)));
+  bindArrows(sourceButtons,index => chooseSource(sourceButtons[index].dataset.crmPlanSource));
+  sector.addEventListener('change',renderPlan);
   stageButtons.forEach((button,index) => button.addEventListener('click', () => showStage(index)));
   bindArrows(stageButtons, showStage);
   el('tour-prev').addEventListener('click', () => showStage(Math.max(0,stage-1)));
   el('tour-next').addEventListener('click', () => showStage(Math.min(3,stage+1)));
   root.querySelectorAll('[data-crm-path-to-brief]').forEach(link => link.addEventListener('click', () => {
     pathChosen = true;
+    if (link.hasAttribute('data-crm-plan-to-brief')) planRequested = true;
     if (!needEdited && !need.value.trim()) need.value = paths[selected].need;
     setBriefSelection();
   }));
-  const updateBrand = value => el('campaign-brand').textContent = value.trim() || t('مساحة عمل شركتك','Your business workspace');
+  const updateBrand = value => {
+    el('campaign-brand').textContent = value.trim() || t('مساحة عمل شركتك','Your business workspace');
+    el('plan-brand').textContent = value.trim() || t('مسار شركتك','Your business workflow');
+  };
   const validateText = () => {
     company.setCustomValidity(company.value.trim() ? '' : t('اكتب اسم المنشأة.','Enter your business name.'));
     need.setCustomValidity(need.value.trim() ? '' : t('اذكر احتياج المتابعة.','Describe your follow-up need.'));
@@ -134,13 +256,15 @@
   const prepareMessage = () => {
     validateText();
     if (!form.checkValidity()) { messagePanel.hidden = true; return; }
-    const sector = el('brief-sector').value;
+    const businessType = sector.value;
     const team = el('brief-team').value;
     const lines = [
       t('السلام عليكم، ودي أناقش مشروع CRM مخصص لمنشأتنا في الرياض.','Hello, I would like to discuss a custom CRM project for our Riyadh business.'),
       `${t('المنشأة','Business')}: ${company.value.trim()}`,
-      `${t('النشاط','Business type')}: ${sector}`,
+      `${t('النشاط','Business type')}: ${businessType}`,
       ...(pathChosen ? [`${t('مسار الاهتمام','Workflow of interest')}: ${paths[selected].label}`] : []),
+      ...(sourceKey ? [t('بداية الطلب','Request source') + ': ' + sources[sourceKey]] : []),
+      ...(planRequested ? [t('التصور الأولي للمناقشة','Starting workflow to discuss') + ': ' + workflows[selected].nodes.map(node=>node[0]).join(en ? ' → ' : ' ← ')] : []),
       ...(team ? [`${t('عدد متابعي العملاء','People following up')}: ${team}`] : []),
       `${t('الاحتياج','Need')}: ${need.value.trim()}`,
       t('أرغب بمراجعة مسار الفريق ونطاق التنفيذ والتكلفة وشروط التجربة.','I would like to review the team workflow, build scope, cost and trial terms.')
@@ -169,23 +293,11 @@
   form.addEventListener('input', () => { if (hasPrepared) prepareMessage(); });
   form.addEventListener('change', () => { if (hasPrepared) prepareMessage(); });
 
-  const process = [
-    [t('نفهم شغلك','Understand your work'),t('نبدأ من المسار، قبل الشاشة.','Start with the workflow, before the screen.'),t('نراجع كيف يصل الطلب، ومن يستلمه، ومتى يحتاج متابعة. نحدد الأدوار والمهام التي تستحق أن يجمعها النظام.','Review how a request arrives, who takes it and when it needs follow-up. Agree the roles and tasks worth connecting.'),t('احتياج محدد · أدوار واضحة · نطاق وشروط','Defined need · clear roles · scope and terms')],
-    [t('يختبر فريقك','Your team tests'),t('خلّ الفريق يجرّب طريقة عمله.','Let the team test its own workflow.'),t('نناقش تجربة مخصصة بهوية منشأتك ومهام متفق عليها. يختبرها الفريق ببيانات اختبار، ويحدد ما يحتاج تعديلًا.','Discuss a custom trial with your branding and agreed tasks. Your team tests with sample data and identifies changes.'),t('مهام متفق عليها · بيانات اختبار · ملاحظات الفريق','Agreed tasks · test data · team feedback')],
-    [t('نراجع ونبني','Review and build'),t('التنفيذ الكامل، على نطاق مفهوم.','A full build with a clear scope.'),t('نراجع الملاحظات، ثم نحدد نطاق التنفيذ والربط والصلاحيات والدعم والتكلفة. تبدأ الخطوة التالية بعد الاتفاق.','Review feedback, then agree the build, integrations, permissions, support and cost. The next step follows that agreement.'),t('نطاق تنفيذ · تكلفة واضحة · دعم متفق عليه','Build scope · clear cost · agreed support')]
-  ];
-  const buildButtons = [...root.querySelectorAll('[data-crm-build-step]')];
-  const showBuild = index => {
-    buildButtons.forEach((b,i) => b.setAttribute('aria-pressed',String(i===index)));
-    ['label','title','copy','note'].forEach((k,i) => el('build-' + k).textContent = process[index][i]);
-    animatePanel(root.querySelector('#crm-build-panel'));
-    announce(`${process[index][0]}. ${process[index][1]}`);
-  };
-  buildButtons.forEach((button,index) => button.addEventListener('click',() => showBuild(index)));
-  bindArrows(buildButtons,showBuild);
-
-  ['path-controls','campaign-controls','tour-actions','build-controls','campaign-form'].forEach(k => el(k).hidden=false);
+  ['path-controls','campaign-controls','tour-actions','compare-controls','plan-controls','campaign-form'].forEach(k => el(k).hidden=false);
   showStage(0,false);
+  showCompare('after',false);
+  renderPlan();
+  updateBrand(company.value);
   const sections = [...root.querySelectorAll('[data-crm-nav-section]')];
   const navLinks = [...root.querySelectorAll('[data-crm-nav]')];
   const setNav = id => navLinks.forEach(link => {
