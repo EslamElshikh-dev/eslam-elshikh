@@ -7,10 +7,10 @@ export const latestWork = [
     image: "/assets/projects/kermez-home-20261007.webp", cid: "11638879468923755595",
     summary: pair("هوية رقمية للمقهى، ومنيو يمكن إدارته، ونظام تشغيل يضم 11 قسمًا، ومسار لاستفسارات الحجز؛ مرتبطة بحضور كرمز في العليا على Google.", "A cafe website, an editable menu, an 11-module operations workspace and a booking-enquiry workflow, connected with Kermez's Google presence in Al Olaya."),
     delivered: [
-      pair("موقع عربي بهوية كرمز، ومنيو مصوّر ببحث وتصنيفات وتفاصيل الأصناف.", "An Arabic branded website with a searchable, categorized photo menu and item details."),
+      pair("تصميم وبرمجة وتطوير موقع كرمز العربي من الصفر، مع منيو مصوّر ببحث وتصنيفات وتفاصيل الأصناف.", "Designed, coded and developed the Arabic Kermez website from scratch, with a searchable, categorized photo menu and item details."),
       pair("لوحة لإدارة أسماء المنتجات وصورها وأوصافها وأسعارها وتوفرها، مع نشر التعديل في المنيو.", "Administration for product names, images, descriptions, prices and availability, feeding the public menu."),
       pair("نموذج يجهّز استفسار الحجز عبر واتساب، ونظام مستقل لإدارة الطلبات والعملاء، ومساعدة الزائر عبر كرموزة.", "A form preparing a booking enquiry through WhatsApp, a separate orders-and-customers workspace, and the Karmouza visitor assistant."),
-      pair("مواءمة بيانات النشاط والخريطة، وإعداد ملفات الفهرسة والبيانات المنظمة، ودليل استخدام مصوّر.", "Business-information and Maps alignment, indexing files, structured data, and an illustrated user guide.")
+      pair("إنشاء الملف التجاري وتحسين السيو المحلي، ومواءمة بيانات النشاط والخريطة، مع ملفات الفهرسة والبيانات المنظمة ودليل استخدام مصوّر.", "Google Business Profile creation and local SEO, aligned business and Maps information, indexing files, structured data and an illustrated user guide.")
     ],
     links: [
       { label: pair("المنيو الحي", "Live menu"), url: "https://kermez-cafe.vercel.app/menu/" },
@@ -33,10 +33,10 @@ export const latestWork = [
     image: "/assets/projects/alya-home-20261007.webp", cid: "6767429191682531127",
     summary: pair("تطوير التجربة إلى موقع لهوية عليا وكتالوج منتجات، مع لوحة إدارة وربط معلومات المتجر بملفه التجاري.", "A refreshed brand website and product catalog with administration and aligned store information on Google."),
     delivered: [
-      pair("هوية بصرية جديدة وتجربة عربية لعرض منتجات الدهانات والتأسيس والطلاءات.", "A refreshed visual identity and Arabic experience for paints, preparation products and coatings."),
+      pair("تصميم وبرمجة وتطوير موقع دهانات عليا من الصفر، بهوية بصرية وتجربة عربية لعرض الدهانات والتأسيس والطلاءات.", "Designed, coded and developed the Alya Paints website from scratch, with its visual identity and an Arabic experience for paints, preparation products and coatings."),
       pair("كتالوج من 13 منتجًا وقت المراجعة، مع تصنيف وبحث وصفحة مستقلة لكل منتج.", "A 13-product catalog at review, with categories, search and individual product pages."),
       pair("إدارة اسم المنتج وصورته ووصفه وسعره ونشره من لوحة خاصة بالفريق.", "Private team controls for product names, imagery, descriptions, prices and publication."),
-      pair("مطابقة بيانات المتجر وساعات العمل والخريطة، وتجهيز دليل استخدام للموقع ولوحة الإدارة.", "Aligned store details, opening hours and Maps, plus an illustrated website and administration guide.")
+      pair("إنشاء الملف التجاري وتحسين السيو المحلي، ومطابقة بيانات المتجر وساعات العمل والخريطة، وتجهيز دليل استخدام للموقع ولوحة الإدارة.", "Google Business Profile creation and local SEO, aligned store details, opening hours and Maps, plus an illustrated website and administration guide.")
     ],
     links: [
       { label: pair("كتالوج المنتجات", "Product catalog"), url: "https://dahanat-alya-riyadh.vercel.app/products" },
@@ -45,10 +45,10 @@ export const latestWork = [
     editorial: {
       englishName: "Alya Paints Riyadh", focus: "من هوية جديدة إلى كتالوج يُدار من داخل النشاط.",
       challenge: "احتاج متجر عليا إلى عرض منتجاته بأسمائها واستخداماتها، مع فصل المنتجات عن خدمات التنفيذ وتمكين الفريق من تحديث المحتوى دون الاعتماد على تعديل صفحات الموقع يدويًا.",
-      solution: "طورت هوية الموقع وتجربة اختيار الألوان، وبنيت كتالوجًا بتصنيفات وبحث وصفحات منتجات مستقلة. ترتبط إدارة الاسم والصورة والوصف والسعر والنشر بلوحة خاصة، وتظهر بيانات المتجر وساعات عمله والخريطة بوضوح.",
+      solution: "صممت وبرمجت وطوّرت موقع دهانات عليا من الصفر، بهوية بصرية وتجربة لاختيار الألوان وكتالوج بتصنيفات وبحث وصفحات منتجات مستقلة. ترتبط إدارة الاسم والصورة والوصف والسعر والنشر بلوحة خاصة، وتظهر بيانات المتجر وساعات عمله والخريطة بوضوح.",
       outcome: "موقع متجر بكتالوج من 13 منتجًا وقت المراجعة، وصفحات للخدمات والتواصل، ولوحة لإدارة المنتجات ودليل استخدام مصوّر. جرى تحديث صورة المشروع لتعرض النسخة الحالية المنشورة.",
       englishFocus: "A refreshed brand and a catalog the business can manage.",
-      englishNarrative: "The updated experience separates product discovery from installation services. A searchable catalog, individual product pages, color inspiration and private product administration support day-to-day content changes, with store details aligned to Google Maps.",
+      englishNarrative: "I designed, coded and developed the Alya Paints website from scratch, separating product discovery from installation services. A searchable catalog, individual product pages, color inspiration and private product administration support day-to-day content changes, with store details aligned to Google Maps.",
       topics: ["كتالوج المنتجات وصفحاتها", "لوحة إدارة المنتجات", "هوية المتجر والخريطة"], technology: "Next.js"
     }
   },
@@ -58,10 +58,10 @@ export const latestWork = [
     image: "/assets/products/sama-overview.webp", cid: "249734721661275541",
     summary: pair("موقع للفحوصات وطلبات الحجز، يمتد إلى مركز قيادة ينظّم الطلبات والمواعيد والمتابعات وعلاقات الأطباء.", "A service and booking-request website extended by a control center for requests, appointments, follow-ups and physician relationships."),
     delivered: [
-      pair("موقع وخدمات فحوصات ومعلومات الوصول وطلب حجز مرتبط بالخدمة.", "A service website with examination information, location details and service-specific booking requests."),
+      pair("تصميم وبرمجة وتطوير موقع سما سكان من الصفر، مع صفحات الفحوصات ومعلومات الوصول وطلب حجز مرتبط بالخدمة.", "Designed, coded and developed the Sama Scan website from scratch, with examination information, location details and service-specific booking requests."),
       pair("إدارة جهات الاتصال والطلبات والمواعيد والمهام والتقارير بصلاحيات للفريق.", "Role-based administration of contacts, requests, appointments, tasks and reports."),
       pair("مسار إداري لعلاقات الأطباء والمتابعة، مع جولة عامة ببيانات توضيحية.", "Administrative physician relationships and follow-up, documented through a public tour using demonstration data."),
-      pair("مراجعة محتوى الملف التجاري والردود وربطه بتجربة الموقع.", "Business Profile content and review-response work aligned with the website experience.")
+      pair("إنشاء الملف التجاري وتحسين السيو المحلي، وإعداد المحتوى والردود وربط الملف بتجربة الموقع.", "Google Business Profile creation, local SEO, content and review responses aligned with the website experience.")
     ],
     links: [{ label: pair("موقع المركز", "Center website"), url: "https://samascan.vercel.app/" }],
     note: pair("النظام لتنظيم العمل الإداري؛ لا يعرض في هذه الجولة سجلات مرضى حقيقية أو نظام تقارير تشخيصية.", "This is an administrative workflow. The public tour contains demonstration data and does not expose patient records or diagnostic reporting.")
@@ -72,7 +72,7 @@ export const latestWork = [
     image: "/assets/products/tawod-overview.webp", cid: "10137711914490617617",
     summary: pair("بنية تجمع موقع الشركة وصفحات الخدمات والملفات المحلية وقياس التواصل، مع مركز قيادة للمصادر والفرص والمتابعة.", "A company website, service pages, local profiles and contact measurement, extended by a control center for sources, opportunities and follow-up."),
     delivered: [
-      pair("موقع الشركة ومسارات للخدمات وحضور منفصل للرياض والدمام.", "A company website and service journeys with distinct Riyadh and Dammam presence."),
+      pair("تصميم وبرمجة وتطوير موقع تواد من الصفر، وإنشاء الملفات التجارية وتحسين السيو المحلي لحضور الرياض والدمام.", "Designed, coded and developed the Tawod website from scratch, created its Business Profiles and improved local SEO for its Riyadh and Dammam presence."),
       pair("تنظيم الحملات ومصادر التواصل وقياس نقرات الاتصال وواتساب.", "Campaign and source organization with call and WhatsApp click measurement."),
       pair("مركز قيادة يميّز مصدر التواصل والفرصة والمتابعة والنتيجة المسجلة.", "A control center distinguishing source, opportunity, follow-up and recorded outcome."),
       pair("مراجعة دورية للأداء والمنافسة وفرص التحسين، مع تعريف واضح للمؤشرات.", "Dated performance, competition and improvement reviews with explicit metric definitions.")
@@ -86,7 +86,7 @@ export const latestWork = [
     image: "/assets/projects/gallery/project-04.webp",
     summary: pair("دليل محلي يجمع الأنشطة والقرى والمحتوى والوظائف؛ تطورت فيه بطاقات الأنشطة وأغلفتها ومسارات التواصل.", "A directory bringing together businesses, villages, local content and jobs, with updated business cards, covers and contact routes."),
     delivered: [
-      pair("بحث وتصنيفات وصفحات للأنشطة والقرى والمحتوى المحلي.", "Search, categories and pages for businesses, villages and local content."),
+      pair("تصميم وبرمجة وتطوير دليل نقادة من الصفر، ببحث وتصنيفات وصفحات للأنشطة والقرى والمحتوى المحلي.", "Designed, coded and developed Naqada Directory from scratch, with search, categories and pages for businesses, villages and local content."),
       pair("تطوير أغلفة الأنشطة وبطاقاتها وأزرار التواصل والاتصال والخريطة.", "Updated business covers, cards and WhatsApp, call and map actions."),
       pair("إشعارات قبول الأنشطة وتذكير الصور وتوسعة عرض فرص الوظائف.", "Business-approval notifications, image reminders and expanded job opportunities.")
     ],

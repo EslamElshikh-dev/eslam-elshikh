@@ -81,16 +81,16 @@ export const verifiedCaseResults = {
     ],
     "role": [
       [
-        "هندسة صفحات البناء والتشطيب وتسليم المفتاح، وربطها بالأعمال والمقالات المناسبة.",
-        "Designed construction, finishing and turnkey service routes, connecting them to relevant projects and articles."
+        "تصميم وبرمجة وتطوير موقع تواد من الصفر، ببنية تضم صفحات البناء والتشطيب وتسليم المفتاح والأعمال والمقالات.",
+        "Designed, coded and developed the Tawod website from scratch, including construction, finishing and turnkey service pages, projects and articles."
       ],
       [
-        "تطوير الواجهة ومسارات الاتصال وواتساب ونموذج طلب المشروع، مع تحسين تجربة الجوال.",
-        "Developed the interface, phone and WhatsApp routes and project enquiry form, with mobile experience improvements."
+        "بناء واجهة عربية متجاوبة ومسارات الاتصال وواتساب ونموذج طلب المشروع، وتطوير تجربة الجوال.",
+        "Built a responsive Arabic interface, phone and WhatsApp routes and the project enquiry form, and developed the mobile experience."
       ],
       [
-        "تنظيم السيو التقني والبيانات المنظمة والروابط الداخلية وخريطة الموقع.",
-        "Organized technical SEO, structured data, internal links and the sitemap."
+        "إنشاء الملف التجاري على Google وتحسين السيو المحلي والتقني، مع البيانات المنظمة والروابط الداخلية وخريطة الموقع.",
+        "Created the Google Business Profile and improved local and technical SEO, including structured data, internal links and the sitemap."
       ],
       [
         "إعداد وقراءة قياس الزيارات وتفاعلات التواصل، ومراجعة فرص تحسين الطلب والمتابعة.",
@@ -102,8 +102,8 @@ export const verifiedCaseResults = {
       "The task was to help a prospective client find the relevant contracting service, inspect related work and prepare a clear project enquiry. A multi-page website needed a structure connecting the company, delivery evidence, contact routes and performance measurement."
     ],
     "solution": [
-      "طوّرت مسارات مستقلة للخدمات وربطتها بمشروعات ومقالات مناسبة، مع واجهة عربية متجاوبة وأزرار اتصال وواتساب مباشرة ونموذج يطلب نوع الخدمة وتفاصيل المشروع. شمل العمل تنظيم الروابط الداخلية والبيانات المنظمة وخريطة الموقع، وقراءة تفاعلات التواصل ضمن تقارير الأداء.",
-      "I developed dedicated service routes linked to relevant projects and articles, an Arabic responsive interface, direct phone and WhatsApp actions and an enquiry form asking for service and project details. Delivery also covered internal links, structured data, the sitemap and contact-interaction reporting."
+      "صممت وبرمجت وطوّرت موقع تواد من الصفر، بمسارات مستقلة للخدمات مرتبطة بالأعمال والمقالات، وواجهة عربية متجاوبة وأزرار اتصال وواتساب ونموذج لطلب المشروع. أنشأت الملف التجاري على Google وحسّنت السيو المحلي والتقني، بما يشمل الروابط الداخلية والبيانات المنظمة وخريطة الموقع. ثم تابعت تفاعلات التواصل ضمن تقارير الأداء وطوّرت التجربة.",
+      "I designed, coded and developed the Tawod website from scratch, with dedicated service routes linked to projects and articles, a responsive Arabic interface, phone and WhatsApp actions and a project enquiry form. I created the Google Business Profile and improved local and technical SEO, including internal links, structured data and the sitemap. I then monitored contact interactions through performance reports and continued developing the experience."
     ],
     "outcome": [
       "6 مسارات خدمة رئيسية، ومعرض أعمال ومحتوى مرتبط بها، وتجربة تواصل تجمع الهاتف وواتساب وطلب المشروع. وتوثّق مقارنة GA4 ارتفاع الجلسات من 946 إلى 1,334 والأحداث الرئيسية من 289 إلى 325 خلال فترتين متساويتين؛ وتوضح المقارنة أيضًا أين يحتاج التفاعل داخل الجلسة إلى تحسين.",
@@ -218,16 +218,16 @@ export const verifiedCaseResults = {
     ],
     "role": [
       [
-        "تصميم وتطوير موقع المركز باستخدام Next.js، وصفحات مستقلة للفحوصات ومعلومات الوصول.",
-        "Designed and developed the Next.js website, dedicated examination pages and location information."
+        "تصميم وبرمجة وتطوير موقع سما سكان من الصفر باستخدام Next.js، مع صفحات مستقلة للفحوصات ومعلومات الوصول.",
+        "Designed, coded and developed the Sama Scan website from scratch using Next.js, with dedicated examination pages and location information."
       ],
       [
         "تحسين رحلة الحجز والتواصل على الجوال، وإظهار صورة المركز الفعلية والخطوة التالية للمراجع.",
         "Improved mobile booking and contact routes, showing the actual center and a clear next step."
       ],
       [
-        "مراجعة محتوى الملف التجاري والخدمات والمنشورات والردود وربطها بالموقع.",
-        "Reviewed Business Profile content, services, posts and responses, connecting them to the website."
+        "إنشاء الملف التجاري على Google وتحسين السيو المحلي، وإعداد المحتوى والخدمات والمنشورات والردود وربط الملف بالموقع.",
+        "Created the Google Business Profile, improved local SEO and prepared its content, services, posts and responses, connecting the profile to the website."
       ],
       [
         "تحليل بيانات الملف التجاري وSearch Console بفترات محددة، وربط تجربة الموقع بنظام إدارة الطلبات والمتابعة.",
@@ -239,8 +239,8 @@ export const verifiedCaseResults = {
       "Visitors needed to understand the requested examination, the center's location and how to coordinate an appointment through a clear mobile experience. The scope included examination pages, contact routes, alignment between the Google presence and website, and Business Profile interaction measurement."
     ],
     "solution": [
-      "بنيت صفحات للفحوصات الرئيسية ومعلومات الوصول، وطوّرت مسارات الهاتف وواتساب وطلب الحجز المرتبط بالخدمة. تعرض الواجهة الحالية صورة المركز الحقيقية، ويكتمل العمل بمراجعة محتوى الملف التجاري والمنشورات والردود وتحليل الأداء، مع منتج مستقل لإدارة الطلبات والمواعيد والمتابعة.",
-      "I built pages for the main examinations and location information, and developed phone, WhatsApp and service-specific booking-request routes. The current interface shows the actual center. Business Profile content, posts, responses and performance analysis complement a separate product for requests, appointments and follow-ups."
+      "صممت وبرمجت وطوّرت موقع سما سكان من الصفر، بصفحات للفحوصات ومعلومات الوصول ومسارات الهاتف وواتساب وطلب الحجز المرتبط بالخدمة. أنشأت الملف التجاري على Google وحسّنت السيو المحلي، وأعددت محتواه ومنشوراته وردوده وربطته بالموقع. تعرض الواجهة الحالية صورة المركز الحقيقية، ويكمل التجربة منتج مستقل لإدارة الطلبات والمواعيد والمتابعة وتحليل الأداء.",
+      "I designed, coded and developed the Sama Scan website from scratch, with examination pages, location information, phone and WhatsApp actions and service-specific booking requests. I created the Google Business Profile, improved local SEO and prepared its content, posts and responses, connecting it to the website. The current interface shows the actual center, with a separate product for requests, appointments, follow-ups and performance analysis."
     ],
     "outcome": [
       "4 وحدات فحوصات بمسارات مستقلة، ووسائل وصول وتواصل واضحة، ومنتج إدارة مرتبط بتجربة المركز. توثّق مقارنة الملف التجاري انتقال ضغطات الاتصال من 18 إلى 118، والمشاهدات من 271 إلى 1,267 خلال فترتين مكتملتين من 32 يومًا.",
