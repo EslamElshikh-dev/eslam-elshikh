@@ -221,13 +221,13 @@ for (const route of sitemapRoutes) {
   const stylesheetCount = (html.match(/<link\b[^>]*\brel=["']stylesheet["'][^>]*>/gi) || []).length;
   const growthStyleRoutes = new Set(["/book/", "/google-business-profile-audit/", "/google-maps-projects/", "/en/book/", "/en/google-business-profile-audit/", "/en/google-maps-projects/"]);
   if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/studio\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned studio stylesheet`);
-  const hasProjectGallery = route === "/" || route === "/en/" || /^(\/en)?\/projects\//.test(route);
+  const hasProjectGallery = /^(\/en)?\/projects\//.test(route);
   const hasProjectStories = /^(\/en)?\/(projects|products)\//.test(route);
   const hasMapsExhibition = /class="[^"]*\bmaps-(?:exhibit-hero|portfolio-teaser|sample-card)\b/.test(html);
-  const hasWorkEvidence = route === "/" || route === "/en/" || /^(\/en)?\/(projects|products|google-maps-projects|work-evidence)\//.test(route);
-  const hasCrmStudio = ["/", "/en/", "/projects/", "/en/projects/"].includes(route) || /^(\/en)?\/products\//.test(route) || /^(\/en)?\/services\/crm-systems\//.test(route);
+  const hasWorkEvidence = /^(\/en)?\/(projects|products|google-maps-projects|work-evidence)\//.test(route);
+  const hasCrmStudio = ["/projects/", "/en/projects/"].includes(route) || /^(\/en)?\/products\//.test(route) || /^(\/en)?\/services\/crm-systems\//.test(route);
   const hasCrmShowcase = /^(\/en)?\/services\/crm-systems\/$/.test(route);
-  const hasServiceStudio = ["/", "/en/", "/services/", "/en/services/"].includes(route);
+  const hasServiceStudio = ["/services/", "/en/services/"].includes(route);
   const hasVerifiedCase = caseStudies.some(study => study.proof && [`/projects/${study.slug}/`, `/en/projects/${study.slug}/`].includes(route));
   const hasHomeMagic = route === "/" || route === "/en/";
   const expectedStylesheets = Number(hasHomeMagic) + Number(hasVerifiedCase) + Number(hasCrmShowcase) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
@@ -375,10 +375,14 @@ if (!/User-agent:\s*\*[\s\S]*Allow:\s*\//i.test(robotsText)) errors.push("robots
 if (/^Host:/im.test(robotsText)) errors.push("robots.txt contains the unsupported Host directive");
 
 const home = pages.get("/") || "";
-if ((home.match(/class=["']service-card reveal["']/g) || []).length !== services.length) errors.push("Homepage does not render the complete service catalog");
+if ((home.match(/\bdata-home-catalog-link\b/g) || []).length !== services.length) errors.push("Homepage does not render the complete service catalog");
 if ((home.match(/aria-label=["']تفاصيل خدمة /g) || []).length !== services.length) errors.push("Homepage service detail links need unique accessible labels");
+for (const service of services) {
+  if (!home.includes(`href="/services/${service.slug}/" aria-label="تفاصيل خدمة `)) errors.push(`Homepage service directory is missing /services/${service.slug}/`);
+}
 if (/<script\b[^>]*\bsrc=["']https:\/\/www\.googletagmanager\.com/i.test(home)) errors.push("Homepage loads Google Analytics before consent");
-if (!home.includes('<strong>472</strong>') || !home.includes('<strong>233</strong>') || !home.includes(`<strong>${mapsProjects.length}</strong>`) || !home.includes(`<strong>${projectAudit.listedProjects}</strong>`)) errors.push(`Homepage trust metrics are missing the 472/233/${mapsProjects.length}/${projectAudit.listedProjects} figures`);
+const homeMetrics = matchOne(home, /<div\s+class="container stats-bar reveal">([\s\S]*?)<\/div>/);
+if (![472, 233, mapsProjects.length, projectAudit.listedProjects].every(value => new RegExp(`<strong\\b[^>]*>${value}<\\/strong>`).test(homeMetrics))) errors.push(`Homepage trust metrics are missing the 472/233/${mapsProjects.length}/${projectAudit.listedProjects} figures`);
 if (!/href=["']\/local-seo\/riyadh\/["']/.test(home)) errors.push("Homepage needs a direct internal link to /local-seo/riyadh/");
 if (wordCount(home) < 900) warnings.push(`Homepage content is shorter than 900 words (${wordCount(home)})`);
 for (const [route, html] of pages) {
@@ -572,10 +576,13 @@ for (let left = 0; left < englishArticleShingles.length; left += 1) {
 }
 
 const english = pages.get("/en/") || "";
-const englishServicesSection = matchOne(english, /<section\s+class=["']section-pad["']\s+id=["']services["']>([\s\S]*?)<\/section>/i);
+const englishServicesSection = matchOne(english, /<section\s+class=["'][^"']*\bsection-pad\b[^"']*["']\s+id=["']services["']>([\s\S]*?)<\/section>/i);
 const englishFooterServices = matchOne(english, /<div\s+class=["']footer-column footer-services["']>([\s\S]*?)<\/div>/i);
-if ((englishServicesSection.match(/class=["']service-card reveal["']/g) || []).length !== services.length) errors.push("English homepage does not render the complete translated service catalog");
+if ((englishServicesSection.match(/\bdata-home-catalog-link\b/g) || []).length !== services.length) errors.push("English homepage does not render the complete translated service catalog");
 if ((englishServicesSection.match(/aria-label=["']View /g) || []).length !== services.length) errors.push("English service links need unique accessible labels");
+for (const service of services) {
+  if (!englishServicesSection.includes(`href="/en/services/${service.slug}/" aria-label="View `)) errors.push(`English homepage service directory is missing /en/services/${service.slug}/`);
+}
 if (/[\u0600-\u06ff]/.test(englishServicesSection)) errors.push("English service cards still contain Arabic text");
 if (/[\u0600-\u06ff]/.test(englishFooterServices)) errors.push("English footer service links still contain Arabic text");
 if (/اتصل الآن|راسلني واتساب/.test(textContent(english))) errors.push("English page still contains Arabic floating-contact labels");

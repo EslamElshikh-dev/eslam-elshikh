@@ -47,7 +47,7 @@ export function renderHomeOpening({ english = false, site, button, profilePhoto,
    ${renderHomeSignature({ english, site, portrait: profilePhoto, esc, icon })}
   </div>
   <nav class="container home-starting-points" aria-label="${english ? 'Choose a starting point for your project' : 'اختر نقطة البداية لمشروعك'}"><div class="home-route-intro"><span dir="ltr">01 — 03</span><p>${english ? 'Where should<br>your next step begin?' : 'لكلّ طموحٍ<br><strong>نقطةُ بداية.</strong>'}</p></div>${routes.map(([glyph, slug, title, detail], index) => `<a href="${slug === 'local-seo' ? `${prefix}/local-seo/riyadh/` : `${prefix}/services/${slug}/`}"><span class="home-route-number" dir="ltr">0${index + 1}</span><span class="home-route-copy"><strong>${esc(title)}</strong><small>${esc(detail)}</small></span>${icon(glyph)}${icon('arrow')}</a>`).join('')}</nav>
-  <div class="container stats-bar reveal">${site.stats.map((stat, index) => `<div><strong>${esc(stat.value)}</strong><span>${esc(statLabels[index])}</span></div>`).join('')}</div>
+  <div class="container stats-bar reveal">${site.stats.map((stat, index) => `<a href="${prefix}${['/google-expert/', '/services/google-business-profile/', '/google-maps-projects/', '/work-evidence/'][index]}"><strong dir="ltr">${esc(stat.value)}</strong><span>${esc(statLabels[index])}</span></a>`).join('')}</div>
   <p class="container stats-note">${english ? 'Experience figures updated through September 2026. Public examples are available in the projects and Google Maps work sections.' : 'أرقام خبرة محدثة حتى سبتمبر 2026؛ ويمكن مراجعة النماذج العامة المنشورة في قسمي الأعمال وخرائط Google.'}</p>
  </section>${renderHomeJourney({ english, icon })}`;
 }
