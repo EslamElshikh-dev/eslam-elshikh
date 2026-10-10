@@ -984,7 +984,8 @@ function projectCaseStudyPage(study, english = false) {
   const body = `${renderCaseStudy(study, { english, esc, icon })}${projectServicesSection(study.slug, english ? "en" : "ar")}`;
   return page({ title: english ? metaName.length > 54 ? `${metaName} | Case` : `${metaName} Case Study` : `دراسة حالة ${metaName}`, description, path,
     active: "projects", body, image: study.image, modified, lang: english ? "en" : "ar",
-    stylesheets: study.proof ? ["/assets/css/case-results.css?v=20261010.1"] : [],
+    stylesheets: study.proof ? ["/assets/css/case-results.css?v=20261010.2"] : [],
+    pageScripts: study.proof ? ["/assets/js/case-experience.js?v=20261010.2"] : [],
     schema: [schema, breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" },
       { name: english ? "Work" : "الأعمال", path: english ? "/en/projects/" : "/projects/" }, { name, path }])]
   });

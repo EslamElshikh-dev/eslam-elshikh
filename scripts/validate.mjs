@@ -478,6 +478,23 @@ function validateVerifiedCaseEvidence(route, html, proof) {
       errors.push(`${route}: invalid recorded metric ${metric.key}`);
     }
   }
+  const caseScript = "/assets/js/case-experience.js?v=";
+  if (!html.includes(caseScript)) errors.push(`${route}: case experience controls are missing`);
+  for (const metric of proof.metrics) {
+    const card = html.match(new RegExp(`<article[^>]+data-case-metric="${metric.key}"[\\s\\S]*?</article>`))?.[0];
+    const format = value => new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(value);
+    if (!card || !card.includes(format(metric.before)) || !card.includes(format(metric.after))) {
+      errors.push(`${route}: recorded metric ${metric.key} is missing from the visible comparison`);
+    }
+    if (metric.after < metric.before && !card?.includes("case-metric-decline")) {
+      errors.push(`${route}: a declining metric is presented as growth`);
+    }
+  }
+  for (const section of ["brief", "role", "solution", "experience", "decisions", "output", "results", "visual-proof"]) {
+    if (!html.includes(`data-case-section="${section}"`) || !html.includes(`id="${section}"`)) {
+      errors.push(`${route}: case navigation points to a missing section ${section}`);
+    }
+  }
   for (const section of ["role", "results", "visual-proof"]) {
     if (!html.includes(`id="${section}"`)) errors.push(`${route}: dated evidence is missing ${section}`);
   }
