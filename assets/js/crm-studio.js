@@ -79,6 +79,7 @@
    lines.splice(4,0,en?`Proposed stages to discuss: ${stages.join(' → ')}`:`مراحل مبدئية نناقشها: ${stages.join(' ← ')}`);
    if(logoUrl)lines.splice(4,0,en?'Logo: previewed locally; brand files to be shared separately.':'الشعار: تمت معاينته محليًا؛ تُشارك ملفات الهوية بشكل مستقل.');
    if(lab.dataset.crmDemoIncluded)lines.push(en?'Tasks to test: recording a request, assigning an owner, setting a next action and timing, preparing a handoff card, and reviewing the activity record from team and management perspectives.':'مهام أرغب في اختبارها: تسجيل الطلب، تعيين المسؤول، تحديد المتابعة وموعدها، إعداد بطاقة تسليم المهمة، ومراجعة سجل الإجراءات من منظور الفريق والإدارة.');
+   if(lab.dataset.crmReference)lines.splice(4,0,en?`Reference experience: ${lab.dataset.crmReference}`:`التجربة المرجعية: ${lab.dataset.crmReference}`);
    const message=lines.filter(Boolean).join('\n');brief.value=message;request.href='https://wa.me/966579395299?text='+encodeURIComponent(message);status.textContent=en?'Request prepared. Review it in WhatsApp before sending.':'الطلب جاهز. راجعه في WhatsApp قبل الإرسال.';
   };
   // The image stays in this document. No upload, storage or filename in the brief.
@@ -135,12 +136,13 @@
    select(0);flow.querySelector('[data-crm-flow-tools]').hidden=false;
   });
   sectorButtons.forEach(button=>button.addEventListener('click',()=>{
-   if(sector!==button.dataset.crmSector)delete lab.dataset.crmDemoIncluded;
+   if(sector!==button.dataset.crmSector){delete lab.dataset.crmDemoIncluded;delete lab.dataset.crmReference;lab.querySelector('[data-crm-reference]')?.remove();}
    sector=button.dataset.crmSector;sectorButtons.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));plans.forEach(p=>p.hidden=p.dataset.crmPlan!==sector);update();
   }));
   toneButtons.forEach(button=>button.addEventListener('click',()=>{
    tone=button.dataset.crmTone;toneButtons.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));lab.querySelector('.crm-lab-preview').className='crm-lab-preview crm-tone-'+tone;update();
   }));
+  lab.addEventListener('crm:reference-selected',update);
   name.addEventListener('input',update);priorities.forEach(input=>input.addEventListener('change',update));requirement.addEventListener('input',update);
   lab.querySelector('[data-crm-brief-copy]').addEventListener('click',async()=>{
    const message=brief.value;

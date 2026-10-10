@@ -226,12 +226,14 @@ for (const route of sitemapRoutes) {
   const hasMapsExhibition = /class="[^"]*\bmaps-(?:exhibit-hero|portfolio-teaser|sample-card)\b/.test(html);
   const hasWorkEvidence = route === "/" || route === "/en/" || /^(\/en)?\/(projects|products|google-maps-projects|work-evidence)\//.test(route);
   const hasCrmStudio = ["/", "/en/", "/projects/", "/en/projects/"].includes(route) || /^(\/en)?\/products\//.test(route) || /^(\/en)?\/services\/crm-systems\//.test(route);
+  const hasCrmShowcase = /^(\/en)?\/services\/crm-systems\/$/.test(route);
   const hasServiceStudio = ["/", "/en/", "/services/", "/en/services/"].includes(route);
-  const expectedStylesheets = Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
+  const expectedStylesheets = Number(hasCrmShowcase) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
   if (hasProjectGallery && !html.includes(`/assets/css/project-gallery.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned project gallery stylesheet`);
   if (hasProjectStories && !html.includes(`/assets/css/project-stories.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned case and product stylesheet`);
   if (hasMapsExhibition && !html.includes(`/assets/css/maps-exhibition.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned Google Maps exhibition stylesheet`);
   if (hasWorkEvidence && !html.includes(`/assets/css/work-evidence.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned work evidence stylesheet`);
+  if (hasCrmShowcase && !html.includes('/assets/css/crm-showcase.css?v=')) errors.push(`${route}: missing versioned CRM showcase stylesheet`);
   if (stylesheetCount !== expectedStylesheets) errors.push(`${route}: expected ${expectedStylesheets} stylesheet link(s), found ${stylesheetCount}`);
   if (/improvements\.css|brand\.css|seo-cro\.css/.test(html)) errors.push(`${route}: references legacy CSS`);
   if (/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/ld\+json["'])[^>]*>/i.test(html)) errors.push(`${route}: contains executable inline JavaScript`);
