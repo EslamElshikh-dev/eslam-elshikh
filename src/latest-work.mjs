@@ -69,7 +69,7 @@ export const latestWork = [
   {
     liveUrl: "https://tawodco.com/", slug: "tawod-contracting", productSlug: "tawod-control-center",
     title: pair("تعاود للمقاولات", "Tawod Contracting"), category: pair("مقاولات · موقع وقياس ومتابعة", "Contracting · website, measurement and follow-up"),
-    image: "/assets/products/tawod-workspace-scenario-20261009.svg", cid: "10137711914490617617",
+    image: "/assets/products/tawod-overview.webp", cid: "10137711914490617617",
     summary: pair("بنية تجمع موقع الشركة وصفحات الخدمات والملفات المحلية وقياس التواصل، مع مركز قيادة للمصادر والفرص والمتابعة.", "A company website, service pages, local profiles and contact measurement, extended by a control center for sources, opportunities and follow-up."),
     delivered: [
       pair("موقع الشركة ومسارات للخدمات وحضور منفصل للرياض والدمام.", "A company website and service journeys with distinct Riyadh and Dammam presence."),

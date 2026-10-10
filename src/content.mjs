@@ -37,17 +37,9 @@ export const site = {
   googleMapsEmbed: "https://www.google.com/maps?q=6619%20%D8%A3%D8%A8%D9%8A%20%D8%B2%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A8%D9%84%D8%AE%D9%8A%D8%8C%20%D8%AD%D9%8A%20%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C%20%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6%2012465&z=16&output=embed",
   logo: "/assets/brand/eslam-elshikh-logo-ui-20260827.webp",
   shareImage: "/assets/og/eslam-elshikh-social-card.png",
-  lastUpdated: "2026-10-10",
-  description: "إسلام الشيخ: مهندس أمن سيبراني، مطور برمجيات وخبير في خرائط Google والملفات التجارية بالرياض. تعرف على أعماله وعضوياته في برامج Google.",
+  lastUpdated: "2026-10-07",
+  description: "المهندس إسلام الشيخ في الرياض: مهندس أمن سيبراني ومطور برمجيات ومتخصص خرائط Google، يقدم تطوير المواقع والسيو المحلي وحلول الملفات التجارية في السعودية.",
   positioning: "هندسة رقمية تجمع الأمان والبرمجة والذكاء الاصطناعي وحلول خرائط Google والسيو في خطة واحدة قابلة للقياس.",
-  googleMemberships: {
-    summaryAr: "مطوّر برمجيات وخبير في خرائط Google والملفات التجارية. عضو في Google Developer Program وعضو برونزي في برنامج خبراء منتجات Google.",
-    summaryEn: "Software developer and Google Maps & Business Profile specialist. Google Developer Program member and Bronze Member in the Google Product Experts Program.",
-    organizations: [
-      { "@type": "Organization", name: "Google Developer Program", url: "https://developers.google.com/program" },
-      { "@type": "Organization", name: "Google Product Experts Program", url: "https://productexperts.withgoogle.com/" }
-    ]
-  },
   social: {
     github: "https://github.com/EslamElshikh-dev",
     facebook: "https://facebook.com/remesoo",
@@ -58,9 +50,6 @@ export const site = {
     tiktok: "https://www.tiktok.com/@remoesoo",
     wikidata: "https://www.wikidata.org/wiki/Q138800449",
     googleDeveloper: "https://me.developers.google.com/u/EslamElshikh",
-    iknuva: "https://iknuva.com/creators/eslam-elshikh-q138800449?lang=ar",
-    usayrat: "https://usayrat.online/developer",
-    naqada: "https://naqada-directory.vercel.app/developer/",
     blog: "https://blog.eslam-elshikh.com"
   },
   stats: [
