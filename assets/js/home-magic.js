@@ -61,18 +61,22 @@
 
   // Each lens works with mouse, touch and a direction-aware keyboard.
   // Without JavaScript all server-rendered panels remain available.
-  root.querySelectorAll('[data-home-tabs]').forEach(area => {
-    const controls = area.querySelector('[data-home-tab-controls]');
-    const tabs = [...area.querySelectorAll('[data-home-tab]')];
-    const panels = [...area.querySelectorAll('[data-home-panel]')];
+  root.querySelectorAll('[data-home-tabs], [data-home-signature]').forEach(area => {
+    const controls = area.querySelector('[data-home-tab-controls], [data-signature-tools]');
+    const tabs = [...area.querySelectorAll('[data-home-tab], [data-signature-tab]')];
+    const panels = [...area.querySelectorAll('[data-home-panel], [data-signature-panel]')];
+    const position = area.querySelector('[data-signature-position]');
+    const tabKey = tab => tab.dataset.homeTab || tab.dataset.signatureTab;
+    const panelKey = panel => panel.dataset.homePanel || panel.dataset.signaturePanel;
     if (!controls || !tabs.length || tabs.length !== panels.length ||
-      tabs.some(tab => !panels.some(panel => panel.id === tab.getAttribute('aria-controls') && panel.dataset.homePanel === tab.dataset.homeTab))) return;
+      tabs.some(tab => !panels.some(panel => panel.id === tab.getAttribute('aria-controls') && panelKey(panel) === tabKey(tab)))) return;
     const select = (index, focus = false) => {
       tabs.forEach((tab, i) => {
         tab.setAttribute('aria-selected', String(i === index));
         tab.tabIndex = i === index ? 0 : -1;
       });
       panels.forEach(panel => { panel.hidden = panel.id !== tabs[index].getAttribute('aria-controls'); });
+      if (position) position.textContent = `${String(index + 1).padStart(2, '0')} / ${String(tabs.length).padStart(2, '0')}`;
       if (focus) tabs[index].focus();
       scheduleLocation();
     };
