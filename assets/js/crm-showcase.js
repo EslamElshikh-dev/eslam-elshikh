@@ -24,6 +24,15 @@
     let active = 0;
     let opener = null;
     let drag = null;
+    const sceneLabel = button => button.querySelector('.crm-showcase-scene-label > span')?.textContent.trim() || button.textContent.trim();
+    const animateChange = (element, direction = 1) => {
+      if (reducedMotion || !element.animate || !showcase.classList.contains('is-enhanced')) return;
+      element.getAnimations().forEach(animation => animation.cancel());
+      element.animate([
+        { opacity: .35, transform: `translateX(${direction * (rtl ? -1 : 1) * 14}px)` },
+        { opacity: 1, transform: 'translateX(0)' }
+      ], { duration: 380, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+    };
 
     // Add tab semantics only after the whole gallery can be enhanced.
     const enhanceTabs = (list, buttons, content) => {
@@ -54,13 +63,14 @@
       fullImage.alt = image.alt;
       fullImage.width = Number(image.getAttribute('width'));
       fullImage.height = Number(image.getAttribute('height'));
-      dialog.querySelector('#crm-lightbox-title').textContent = view.tabs[view.selected].textContent.trim();
+      dialog.querySelector('#crm-lightbox-title').textContent = sceneLabel(view.tabs[view.selected]);
       dialog.querySelector('[data-showcase-lightbox-brand]').textContent = panels[active].querySelector('.crm-showcase-meta > span').textContent;
       dialog.querySelector('[data-showcase-lightbox-count]').textContent = `${number(view.selected + 1)} / ${number(view.scenes.length)}`;
       resetZoom();
     };
     const selectScene = (productIndex, sceneIndex, { focus = false, hash = false } = {}) => {
       const view = views[productIndex];
+      const previous = view.selected;
       view.selected = (sceneIndex + view.scenes.length) % view.scenes.length;
       view.tabs.forEach((tab, index) => {
         const selected = index === view.selected;
@@ -69,11 +79,16 @@
         view.scenes[index].hidden = !selected;
       });
       panels[productIndex].querySelector('[data-showcase-counter]').textContent = `${number(view.selected + 1)} / ${number(view.scenes.length)}`;
+      panels[productIndex].querySelector('[data-showcase-progress]').style.setProperty('--scene-progress', `${(view.selected + 1) / view.scenes.length * 100}%`);
+      scrollTab(panels[productIndex].querySelector('[data-showcase-scenes]'), view.tabs[view.selected]);
+      if (previous !== view.selected) animateChange(view.scenes[view.selected], sceneIndex - previous);
+      if (hash) showcase.querySelector('[data-showcase-announcement]').textContent = `${sceneLabel(view.tabs[view.selected])} — ${view.selected + 1} / ${view.scenes.length}`;
       if (focus) view.tabs[view.selected].focus({ preventScroll: true });
       if (hash) saveHash(view.scenes[view.selected].id);
       if (dialog.open && productIndex === active) syncLightbox();
     };
     const selectProduct = (index, { focus = false, hash = false } = {}) => {
+      const previous = active;
       active = index;
       tabs.forEach((tab, position) => {
         const selected = position === active;
@@ -82,6 +97,7 @@
         panels[position].hidden = !selected;
       });
       scrollTab(picker, tabs[active]);
+      if (previous !== active) animateChange(panels[active], active - previous);
       if (focus) tabs[active].focus({ preventScroll: true });
       if (hash) saveHash(panels[active].id);
     };
@@ -198,8 +214,20 @@
       }
       return false;
     };
-    selectProduct(0);
+    const featured = tabs.findIndex(tab => tab.hasAttribute('data-showcase-featured'));
+    selectProduct(featured === -1 ? 0 : featured);
     showcase.classList.add('is-enhanced');
+    if (!reducedMotion && 'IntersectionObserver' in window) {
+      const reveal = new IntersectionObserver(entries => entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.remove('is-reveal-pending');
+        reveal.unobserve(entry.target);
+      }), { threshold: .08 });
+      showcase.querySelectorAll('.crm-showcase-heading, .crm-showcase-picker, .crm-showcase-workflow').forEach(element => {
+        element.classList.add('crm-showcase-reveal', 'is-reveal-pending');
+        reveal.observe(element);
+      });
+    }
     showcase.querySelector('[data-showcase-picker-hint]').hidden = false;
     if (applyHash()) requestAnimationFrame(() => showcase.scrollIntoView({ block: 'start', behavior: 'instant' }));
     window.addEventListener('hashchange', () => { if (applyHash()) panels[active].scrollIntoView({ block: 'start', behavior: 'instant' }); });

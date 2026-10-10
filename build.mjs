@@ -221,7 +221,8 @@ function head({ title, description, path = "/", lang = "ar", schema = [], image 
   const isEnglish = lang === "en";
   const articleVisual = Object.values(articleVisuals).find((visual) => visual.src === image);
   const storyImage = caseStudies.some((study) => study.image === image) || products.some((product) => product.image === image);
-  const socialVisual = articleVisual || (storyImage ? { width: 1200, height: 750 } : null);
+  const productVisual = products.find((product) => product.image === image);
+  const socialVisual = articleVisual || (storyImage ? { width: productVisual?.imageWidth || 1200, height: productVisual?.imageHeight || 750 } : null);
   const canonical = absolute(path);
   const alternates = path === "/404.html" ? null : routePair(path);
   const titleBrand = isEnglish ? site.nameEn : site.brandName;
@@ -983,7 +984,7 @@ function crmServicePage(english = false) {
  const path = `${english ? "/en" : ""}/services/crm-systems/`;
  const service = english ? crmServiceEn : crmServiceAr;
  const list = { "@type": "ItemList", "@id": `${absolute(path)}#experiences`, numberOfItems: products.length, itemListElement: products.map((product,index) => ({ "@type": "ListItem", position: index+1, name: productText(product.name,english), url: absolute(`${english ? "/en" : ""}/products/${product.slug}/`) })) };
- return page({ title: service.seoTitle, description: service.meta, path, active: "services", lang: english ? "en" : "ar", keywords: service.keywords, modified: latestWorkReviewedAt, image: "/assets/products/sama-overview.webp", body: renderCrmStudio({english,esc,icon}), stylesheets: ["/assets/css/crm-showcase.css?v=20261010.1"], pageScripts: ["/assets/js/crm-studio.js?v=20261010.1", "/assets/js/crm-showcase.js?v=20261010.1"], schema: [ { "@type": "Service", "@id": `${absolute(path)}#service`, name: service.title, description: service.meta, url: absolute(path), serviceType: service.title, provider: { "@id": `${site.url}/#professional-service` }, areaServed: [{"@type":"City",name:"Riyadh"},{"@type":"Country",name:"Saudi Arabia"}] }, list, breadcrumbSchema([{name: english ? "Home" : "الرئيسية",path: english ? "/en/" : "/"},{name: english ? "Services" : "الخدمات",path: english ? "/en/services/" : "/services/"},{name: english ? "CRM & dashboards" : "CRM ولوحات التحكم",path}]) ] });
+ return page({ title: service.seoTitle, description: service.meta, path, active: "services", lang: english ? "en" : "ar", keywords: service.keywords, modified: latestWorkReviewedAt, image: "/assets/products/sama-overview.webp", body: renderCrmStudio({english,esc,icon}), stylesheets: ["/assets/css/crm-showcase.css?v=20261010.2"], pageScripts: ["/assets/js/crm-studio.js?v=20261010.2", "/assets/js/crm-showcase.js?v=20261010.2"], schema: [ { "@type": "Service", "@id": `${absolute(path)}#service`, name: service.title, description: service.meta, url: absolute(path), serviceType: service.title, provider: { "@id": `${site.url}/#professional-service` }, areaServed: [{"@type":"City",name:"Riyadh"},{"@type":"Country",name:"Saudi Arabia"}] }, list, breadcrumbSchema([{name: english ? "Home" : "الرئيسية",path: english ? "/en/" : "/"},{name: english ? "Services" : "الخدمات",path: english ? "/en/services/" : "/services/"},{name: english ? "CRM & dashboards" : "CRM ولوحات التحكم",path}]) ] });
 }
 
 function productsIndexPage(english = false) {

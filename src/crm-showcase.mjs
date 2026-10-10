@@ -1,4 +1,4 @@
-import { products, productText } from './products.mjs';
+import { products, productText, productImageSize } from './products.mjs';
 
 const experiences = {
   'sama-scan-control-center': { brand: ['سما سكان', 'Sama Scan'], field: ['المراكز الصحية', 'Healthcare centers'], focus: ['الطلبات والمواعيد', 'Requests & appointments'], sector: 'health', icon: 'user' },
@@ -14,6 +14,7 @@ export function renderCrmShowcase({ english = false, esc, icon }) {
   const number = n => String(n).padStart(2, '0');
   const prefix = english ? '/en' : '';
   const screens = products.reduce((total, product) => total + product.tour.length, 0);
+  const thumb = (product, scene) => { const size = productImageSize(product, scene); return `<img src="${scene.image}" width="${size.width}" height="${size.height}" alt="" loading="lazy" decoding="async">`; };
 
   return `<section class="section-pad crm-showcase" id="crm-experiences" data-crm-showcase>
     <div class="container">
@@ -25,7 +26,7 @@ export function renderCrmShowcase({ english = false, esc, icon }) {
       <div class="crm-showcase-picker" data-showcase-tabs aria-label="${english ? 'CRM experiences by business' : 'تجارب الأنظمة حسب النشاط'}">
         ${products.map((product, index) => {
           const item = experiences[product.slug];
-          return `<button type="button" class="crm-showcase-tab" id="crm-choice-${product.slug}" data-showcase-tab="${product.slug}" aria-controls="crm-tour-${product.slug}"><span class="crm-showcase-tab-top"><span class="crm-showcase-tab-icon">${icon(item.icon)}</span><span class="crm-showcase-tab-number" dir="ltr">${number(index + 1)}</span></span><strong>${esc(label(item.brand))}</strong><span class="crm-showcase-tab-field">${esc(label(item.field))}</span><span class="crm-showcase-tab-focus">${esc(label(item.focus))}${icon('arrow')}</span></button>`;
+          return `<button type="button" class="crm-showcase-tab" id="crm-choice-${product.slug}" data-showcase-tab="${product.slug}"${product.theme === 'tawod' ? ' data-showcase-featured' : ''} aria-controls="crm-tour-${product.slug}"><span class="crm-showcase-tab-top"><span class="crm-showcase-tab-icon">${icon(item.icon)}</span><span class="crm-showcase-tab-number" dir="ltr">${number(index + 1)}</span></span><span class="crm-showcase-tab-brand"><strong>${esc(label(item.brand))}</strong>${product.theme === 'tawod' ? `<span class="crm-showcase-new">${english ? 'New UI' : 'واجهة جديدة'}</span>` : ''}</span><span class="crm-showcase-tab-field">${esc(label(item.field))}</span><span class="crm-showcase-tab-focus">${esc(label(item.focus))}${icon('arrow')}</span></button>`;
         }).join('')}
       </div>
       <div class="crm-showcase-panels">
@@ -37,9 +38,10 @@ export function renderCrmShowcase({ english = false, esc, icon }) {
             <div class="crm-showcase-grid">
               <div class="crm-showcase-context"><p class="crm-kicker">${esc(label(item.field))}</p><h3>${esc(text(product.name))}</h3><p>${esc(text(product.description))}</p><div class="crm-showcase-audience">${icon('user')}<p>${esc(text(product.audience))}</p></div><div class="crm-showcase-actions"><a class="button" href="#crm-personal-trial" data-showcase-trial="${item.sector}" data-showcase-reference="${esc(text(product.name))}">${english ? 'Shape a similar trial' : 'أريد تجربة مشابهة'}${icon('arrow')}</a><a class="crm-text-link" href="${href}">${english ? 'Explore the complete project' : 'تفاصيل التجربة كاملة'}${icon('layers')}</a></div></div>
               <div class="crm-showcase-viewer">
-                <div class="crm-showcase-scenes" data-showcase-scenes aria-label="${english ? 'Choose an interface view' : 'اختر الواجهة'}">${product.tour.map(scene => `<button type="button" id="crm-view-${product.slug}-${scene.id}" data-showcase-scene-tab="${scene.id}" aria-controls="crm-scene-${product.slug}-${scene.id}">${esc(text(scene.label))}</button>`).join('')}</div>
-                <div class="crm-showcase-window"><div class="crm-showcase-window-bar"><span class="crm-showcase-window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span dir="ltr">${esc(product.code.split(' / ')[0])} / WORKSPACE</span><span class="crm-showcase-counter" data-showcase-counter dir="ltr">01 / ${number(product.tour.length)}</span></div>
-                  ${product.tour.map(scene => `<div class="crm-showcase-scene" id="crm-scene-${product.slug}-${scene.id}" data-showcase-scene="${scene.id}" aria-labelledby="crm-view-${product.slug}-${scene.id}"><figure><a href="${scene.image}" data-showcase-image aria-label="${esc(english ? `Enlarge ${text(scene.label)}` : `تكبير ${text(scene.label)}`)}"><img src="${scene.image}" width="${['kermez', 'alya'].includes(product.theme) ? 1348 : 1200}" height="${['kermez', 'alya'].includes(product.theme) ? 926 : 750}" loading="lazy" decoding="async" alt="${esc(`${text(product.name)} — ${text(scene.label)}`)}"><span class="crm-showcase-image-action" aria-hidden="true">${icon('search')}${english ? 'Inspect the interface' : 'كبّر الواجهة'}</span></a></figure><div class="crm-showcase-scene-notes"><h4>${esc(text(scene.title))}</h4><p>${esc(text(scene.text))}</p><ul>${scene.points.map(point => `<li>${icon('check')}${esc(text(point))}</li>`).join('')}</ul></div></div>`).join('')}
+                <div class="crm-showcase-viewer-label"><span>${english ? '02 / INSIDE THE WORKSPACE' : '02 / داخل مساحة العمل'}</span><span>${icon('search')}${english ? 'Click the image to explore' : 'اضغط الصورة لاستكشاف التفاصيل'}</span></div>
+                <div class="crm-showcase-scenes" data-showcase-scenes aria-label="${english ? 'Choose an interface view' : 'اختر الواجهة'}">${product.tour.map((scene, index) => `<button type="button" id="crm-view-${product.slug}-${scene.id}" data-showcase-scene-tab="${scene.id}" aria-controls="crm-scene-${product.slug}-${scene.id}"><span class="crm-showcase-thumbnail">${thumb(product, scene)}</span><span class="crm-showcase-scene-label"><small dir="ltr">${number(index + 1)}</small><span>${esc(text(scene.label))}</span></span></button>`).join('')}</div>
+                <div class="crm-showcase-window"><div class="crm-showcase-window-bar"><span class="crm-showcase-window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span dir="ltr">${esc(product.code.split(' / ')[0])} / WORKSPACE</span><span class="crm-showcase-counter" data-showcase-counter dir="ltr">01 / ${number(product.tour.length)}</span></div><div class="crm-showcase-progress" data-showcase-progress aria-hidden="true"><i></i></div>
+                  ${product.tour.map((scene, index) => { const size = productImageSize(product, scene); return `<div class="crm-showcase-scene" id="crm-scene-${product.slug}-${scene.id}" data-showcase-scene="${scene.id}" aria-labelledby="crm-view-${product.slug}-${scene.id}"><figure><a href="${scene.image}" data-showcase-image aria-label="${esc(english ? `Enlarge ${text(scene.label)}` : `تكبير ${text(scene.label)}`)}"><img src="${scene.image}" width="${size.width}" height="${size.height}" loading="lazy" decoding="async" alt="${esc(`${text(product.name)} — ${text(scene.label)}`)}"><span class="crm-showcase-image-action" aria-hidden="true">${icon('search')}${english ? 'Inspect the interface' : 'كبّر الواجهة'}</span></a></figure><div class="crm-showcase-scene-notes"><span class="crm-showcase-scene-index" aria-hidden="true" dir="ltr">${number(index + 1)}</span><div><h4>${esc(text(scene.title))}</h4><p>${esc(text(scene.text))}</p></div><ul>${scene.points.map(point => `<li>${icon('check')}${esc(text(point))}</li>`).join('')}</ul></div></div>`; }).join('')}
                 </div>
                 <div class="crm-showcase-view-controls" data-showcase-view-controls hidden><button type="button" data-showcase-prev>${icon('arrow')}<span>${english ? 'Previous view' : 'الواجهة السابقة'}</span></button><span>${english ? '02 / EXPLORE THE INTERFACE' : '02 / استكشف الواجهة'}</span><button type="button" data-showcase-next><span>${english ? 'Next view' : 'الواجهة التالية'}</span>${icon('arrow')}</button></div>
               </div>
@@ -49,6 +51,7 @@ export function renderCrmShowcase({ english = false, esc, icon }) {
           </section>`;
         }).join('')}
       </div>
+      <p class="visually-hidden" data-showcase-announcement aria-live="polite" aria-atomic="true"></p>
     </div>
     <dialog class="crm-showcase-lightbox" data-showcase-lightbox aria-labelledby="crm-lightbox-title">
       <div class="crm-showcase-lightbox-head"><div><span data-showcase-lightbox-brand dir="ltr"></span><h3 id="crm-lightbox-title"></h3></div><form method="dialog"><button type="submit" aria-label="${english ? 'Close interface preview' : 'إغلاق معاينة الواجهة'}"><span aria-hidden="true">×</span></button></form></div>
