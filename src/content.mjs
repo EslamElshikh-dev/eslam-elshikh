@@ -38,11 +38,11 @@ export const site = {
   logo: "/assets/brand/eslam-elshikh-logo-ui-20260827.webp",
   shareImage: "/assets/og/eslam-elshikh-social-card.png",
   lastUpdated: "2026-10-10",
-  description: "المهندس إسلام الشيخ في الرياض: مهندس أمن سيبراني ومطور برمجيات ومتخصص خرائط Google، يقدم تطوير المواقع والسيو المحلي وحلول الملفات التجارية في السعودية.",
+  description: "إسلام الشيخ: مهندس أمن سيبراني، مطور برمجيات وخبير في خرائط Google والملفات التجارية بالرياض. تعرف على أعماله وعضوياته في برامج Google.",
   positioning: "هندسة رقمية تجمع الأمان والبرمجة والذكاء الاصطناعي وحلول خرائط Google والسيو في خطة واحدة قابلة للقياس.",
   googleMemberships: {
-    summaryAr: "مطوّر برمجيات، عضو في Google Developer Program، وعضو برونزي في برنامج خبراء منتجات Google.",
-    summaryEn: "Software developer, Google Developer Program member, and Bronze Member in the Google Product Experts Program.",
+    summaryAr: "مطوّر برمجيات وخبير في خرائط Google والملفات التجارية. عضو في Google Developer Program وعضو برونزي في برنامج خبراء منتجات Google.",
+    summaryEn: "Software developer and Google Maps & Business Profile specialist. Google Developer Program member and Bronze Member in the Google Product Experts Program.",
     organizations: [
       { "@type": "Organization", name: "Google Developer Program", url: "https://developers.google.com/program" },
       { "@type": "Organization", name: "Google Product Experts Program", url: "https://productexperts.withgoogle.com/" }

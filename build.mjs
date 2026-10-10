@@ -152,8 +152,8 @@ const baseGraph = (language = "ar") => {
       ? `Eslam Elshikh is a cybersecurity engineer and Google Maps specialist in Riyadh. ${site.googleMemberships.summaryEn}`
       : `${site.description} ${site.googleMemberships.summaryAr}`,
     jobTitle: isEnglish
-      ? ["Cybersecurity Engineer", "Software Developer", "Google Maps Specialist"]
-      : ["مهندس أمن سيبراني", "مطور برمجيات", "متخصص خرائط Google"],
+      ? ["Cybersecurity Engineer", "Software Developer", "Google Maps and Business Profile Specialist"]
+      : ["مهندس أمن سيبراني", "مطور برمجيات", "خبير في خرائط Google والملفات التجارية"],
     email: `mailto:${site.email}`,
     telephone: site.phone,
     workLocation: { "@type": "Place", name: isEnglish ? "Riyadh" : site.city, address: { "@type": "PostalAddress", addressLocality: isEnglish ? "Riyadh" : site.city, addressRegion: isEnglish ? "Riyadh Province" : site.region, addressCountry: site.countryCode } },
@@ -521,7 +521,7 @@ function postCard(post, { featured = false } = {}) {
 
 function homePage() {
   const body = renderHomeExperience({ site, services, profilePhoto, faqHtml: faqBlock(homeFaq), esc, icon });
-  return page({ title: "المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع بالرياض", description: site.description, path: "/", active: "home", body, modified: "2026-10-09", schema: [faqSchema(homeFaq)], stylesheets: ["/assets/css/home-experience.css?v=20261009.2"], pageScripts: ["/assets/js/home-experience.js?v=20261009.2"], preloadImage: "/assets/projects/tawod.webp" });
+  return page({ title: "إسلام الشيخ | مطور برمجيات وخبير خرائط Google بالرياض", description: site.description, path: "/", active: "home", body, modified: site.lastUpdated, schema: [faqSchema(homeFaq)], stylesheets: ["/assets/css/home-experience.css?v=20261009.2"], pageScripts: ["/assets/js/home-experience.js?v=20261009.2"], preloadImage: "/assets/projects/tawod.webp" });
 }
 
 function finalCta(title = "لنحوّل فكرتك أو مشكلتك إلى خطة واضحة قابلة للتنفيذ", text = "أرسل الهدف والوضع الحالي والروابط المتاحة والموعد المتوقع. ستحصل على نقطة بداية منظمة تساعدك على اتخاذ القرار الصحيح.") {
@@ -745,7 +745,7 @@ function aboutPage() {
     dateModified: `${site.lastUpdated}T00:00:00+03:00`
   };
   return page({
-    title: "عن المهندس إسلام الشيخ | مهندس برمجيات وأمن سيبراني",
+    title: "عن إسلام الشيخ | مطور برمجيات وخبير خرائط Google",
     description: "إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات بالرياض، عضو Google Developer Program وعضو برونزي في برنامج خبراء منتجات Google. تعرف على عضوياته وأعماله.",
     path: "/about/",
     active: "about",
@@ -1679,7 +1679,7 @@ const englishHomeFaq = [
 
 function englishPage() {
   const body = renderHomeExperience({ english: true, site, services: englishServices, profilePhoto, faqHtml: faqBlock(englishHomeFaq), esc, icon });
-  return page({ title: `${site.nameEn} | Cybersecurity & Software Engineer`, description: "Eslam Elshikh is a Riyadh-based cybersecurity engineer and software developer specializing in web development, AI agents, Google Maps, and technical SEO.", path: "/en/", active: "home", body, lang: "en", modified: "2026-10-09", schema: [faqSchema(englishHomeFaq)], stylesheets: ["/assets/css/home-experience.css?v=20261009.2"], pageScripts: ["/assets/js/home-experience.js?v=20261009.2"], preloadImage: "/assets/projects/tawod.webp" });
+  return page({ title: `${site.nameEn} | Software Developer & Google Maps Specialist`, description: "Eslam Elshikh: cybersecurity engineer, software developer and Google Maps & Business Profile specialist in Riyadh. Explore his work and Google program memberships.", path: "/en/", active: "home", body, lang: "en", modified: site.lastUpdated, schema: [faqSchema(englishHomeFaq)], stylesheets: ["/assets/css/home-experience.css?v=20261009.2"], pageScripts: ["/assets/js/home-experience.js?v=20261009.2"], preloadImage: "/assets/projects/tawod.webp" });
 }
 
 function notFoundPage() {
@@ -1804,7 +1804,7 @@ async function build() {
     mainEntityOfPage: `${site.url}/about/#profile`,
     image: absolute(profilePhoto),
     telephone: site.phone,
-    jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "متخصص خرائط Google"],
+    jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "خبير في خرائط Google والملفات التجارية"],
     description: `${site.description} ${site.googleMemberships.summaryAr}`,
     memberOf: site.googleMemberships.organizations,
     identifier: personIdentifier,
