@@ -9,7 +9,7 @@ function renderExpertiseRibbon({ english, esc, icon }) {
   ['spark', '/services/ai-agents/', 'مطور وكلاء AI', 'AI agent developer'],
   ['megaphone', '/google-ads/', 'خبير إعلانات جوجل', 'Google Ads expert']
  ];
- const group = duplicate => `<div class="home-ticker-group" dir="${english ? 'ltr' : 'rtl'}"${duplicate ? ' aria-hidden="true" inert' : ''}>${items.map(([glyph, path, ar, en]) => `<a href="${prefix}${path}">${icon(glyph)}<span>${esc(english ? en : ar).replace('AI', '<bdi dir="ltr">AI</bdi>')}</span><span class="home-ticker-divider" aria-hidden="true">✦</span></a>`).join('')}</div>`;
+ const group = duplicate => `<div class="home-ticker-group" dir="${english ? 'ltr' : 'rtl'}"${duplicate ? ' aria-hidden="true"' : ''}>${items.map(([glyph, path, ar, en]) => `<a href="${prefix}${path}"${duplicate ? ' tabindex="-1"' : ''}>${icon(glyph)}<span>${esc(english ? en : ar).replace('AI', '<bdi dir="ltr">AI</bdi>')}</span><span class="home-ticker-divider" aria-hidden="true">✦</span></a>`).join('')}</div>`;
  return `<div class="home-ticker" data-home-ticker role="region" aria-label="${english ? 'My areas of expertise' : 'مجالات خبرتي'}"><div class="home-ticker-heading"><span>${english ? 'FIVE CAPABILITIES. ONE VISION.' : 'تخصصات تتكامل. ورؤية واحدة.'}</span><button class="home-ticker-toggle" type="button" data-ticker-toggle aria-pressed="false" aria-label="${english ? 'Pause the moving expertise ribbon' : 'إيقاف الشريط المتحرك'}" hidden><span class="ticker-pause" aria-hidden="true">Ⅱ</span><span class="ticker-play" aria-hidden="true">▷</span><span data-ticker-action>${english ? 'Pause' : 'إيقاف'}</span></button></div><div class="home-ticker-window"><div class="home-ticker-track">${group(false)}${group(true)}</div></div></div>`;
 }
 
