@@ -5,11 +5,11 @@ const signatureViews = [
  {
   id: 'website', label: ['موقع شركة', 'Website'], glyph: 'code',
   title: ['تعاود للمقاولات', 'Tawod Contracting'],
-  image: '/assets/projects/tawod.webp', width: 1200, height: 750,
+  image: '/assets/case-results/tawod-current-20261010.webp', width: 1348, height: 926,
   host: 'tawodco.com',
   caption: ['واجهة الموقع المنشور', 'Published website interface'],
   summary: ['خدماتٌ واضحة، ومحتوى منظّم، ومسارات تواصل تربط الزائر بما يحتاج إليه.', 'Clear service pages, structured content and contact paths shaped around the visitor’s needs.'],
-  detail: ['تصميم وتطوير · بنية محتوى · سيو تقني', 'Design & development · content structure · technical SEO'],
+  detail: ['بناء من الصفر · ملف تجاري · سيو محلي وتقني', 'Built from scratch · Business Profile · local & technical SEO'],
   proof: '/projects/tawod-contracting/', proofLabel: ['اكتشف المشروع', 'Explore the project'],
   question: ['ما الذي يجعل الموقع أكثر من واجهة جميلة؟', 'What makes a website more than a good-looking interface?'],
   answer: ['ترتيب الخدمات والمحتوى وخطوة التواصل. في تعاود، يخدم التصميم فهم نطاق العمل، وتدعم البنية التقنية وضوح الصفحات لمحركات البحث.', 'Service structure, useful content and a clear contact step. In Tawod, the design explains the work while the technical structure supports search discoverability.']
@@ -55,7 +55,7 @@ export function renderHomeSignature({ english = false, site, portrait, esc, icon
     <div class="signature-project-copy"><div class="signature-project-title"><h3>${esc(t(view.title))}</h3><a href="${prefix}${view.proof}">${esc(t(view.proofLabel))}${icon('arrow')}</a></div><p>${esc(t(view.summary))}</p><small>${esc(t(view.detail))}</small></div>
     <details class="signature-question"><summary>${esc(t(view.question))}<span class="signature-question-toggle" aria-hidden="true">+</span></summary><p>${esc(t(view.answer))}</p></details>
    </section>`).join('')}</div>
-   <footer class="signature-footer"><span>${english ? 'Work reviewed' : 'أعمال راجعتها'} <time datetime="${latestWorkReviewedAt}">${esc(date)}</time></span><a href="${prefix}/work-evidence/">${english ? 'The delivery record' : 'سجل الأعمال'}${icon('external')}</a></footer>
+   <footer class="signature-footer"><span>${english ? 'My work · review dated' : 'مشاريع بنيتها · مراجعة بتاريخ'} <time datetime="${latestWorkReviewedAt}">${esc(date)}</time></span><a href="${prefix}/work-evidence/">${english ? 'The delivery record' : 'سجل الأعمال'}${icon('external')}</a></footer>
   </div>
   <p class="signature-caption">${english ? 'One approach. A different solution for each business.' : 'منهجٌ واحد. وحلٌّ يليق بكلّ نشاط.'}<span aria-hidden="true"></span></p>
  </aside>`;

@@ -426,8 +426,13 @@ function footer(language = "ar") {
 }
 
 function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image, keywords = [], articleSection = "", stylesheets = [], pageScripts = [], preloadImage = "", robots }) {
-  return `${head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection, stylesheets, preloadImage, ...(robots ? { robots } : {}) })}
-<body>${header(active, lang, path)}<main id="main">${body}${businessMapSection(lang)}</main>${footer(lang)}${pageScripts.map((src) => `<script src="${esc(src)}" defer></script>`).join("")}</body></html>`;
+  const isHome = path === "/" || path === "/en/";
+  const homeAssetVersion = "20261010.1";
+  const pageBody = isHome ? `<div class="home-crafted" data-home-crafted>${body}</div>` : body;
+  const scripts = isHome ? [...pageScripts, `/assets/js/home-magic.js?v=${homeAssetVersion}`] : pageScripts;
+  const pageHead = head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection, stylesheets, preloadImage, ...(robots ? { robots } : {}) });
+  return `${isHome ? pageHead.replace("</head>", `  <link rel="stylesheet" href="/assets/css/home-magic.css?v=${homeAssetVersion}">\n</head>`) : pageHead}
+<body>${header(active, lang, path)}<main id="main">${pageBody}${businessMapSection(lang)}</main>${footer(lang)}${scripts.map((src) => `<script src="${esc(src)}" defer></script>`).join("")}</body></html>`;
 }
 
 const eyebrow = (text) => `<span class="eyebrow"><span aria-hidden="true"></span>${esc(text)}</span>`;
@@ -505,16 +510,16 @@ function postCard(post, { featured = false } = {}) {
 
 function homePage() {
   const faq = homeFaq;
-  const body = `
+  const homeContent = `
 ${renderHomeOpening({ site, button, profilePhoto, esc, icon })}
-<section class="section-pad projects-section"><div class="container"><div class="section-heading reveal">${eyebrow("مختارات من الأعمال")}<h2>مشروعات حقيقية، لكل واحد منها قصة وهوية</h2><p>نماذج حية من مواقع ومنتجات رقمية تم تطويرها للشركات والأنشطة، مع الجمع بين التصميم والتقنية والسيو ومسارات التحويل.</p></div>${projectsShowcase({ home: true })}<div class="section-action">${button("/projects/", "استكشف جميع الأعمال", "button-ghost")}</div></div></section>
+<section class="section-pad projects-section" id="home-work"><div class="container"><div class="section-heading reveal">${eyebrow("مختارات من الأعمال")}<h2>مشروعات حقيقية، لكل واحد منها قصة وهوية</h2><p>نماذج حية من مواقع ومنتجات رقمية تم تطويرها للشركات والأنشطة، مع الجمع بين التصميم والتقنية والسيو ومسارات التحويل.</p></div>${projectsShowcase({ home: true })}<div class="section-action">${button("/projects/", "استكشف جميع الأعمال", "button-ghost")}</div></div></section>
 ${renderRecentWork({ esc, icon })}
 <section class="section-pad services-section" id="services"><div class="container">
   ${renderServiceIntro({ esc, icon })}
   <div class="service-filters" role="group" aria-label="تصفية الخدمات"><button type="button" aria-pressed="true" data-service-filter="all">كل الخدمات</button>${[...new Set(services.map((s) => s.group))].map((group) => `<button type="button" aria-pressed="false" data-service-filter="${esc(group)}">${esc(group)}</button>`).join("")}</div>
   <div class="services-grid" data-services-grid>${orderedServices(services).map(serviceCard).join("")}</div>
 </div></section>
-<section class="section-pad promise-section"><div class="container promise-grid"><div class="promise-copy reveal">${eyebrow("منهجية التنفيذ")}<h2>كلّ تفصيلٍ جميل، وراءه قرارٌ هندسي.</h2><p>أوازن بين جاذبية التصميم ووضوح الاستخدام، وبين أمان البنية وقابليتها للتطوير. كلّ صفحة ومسار وصلاحية تُبنى لخدمة هدفٍ واضح، ثم تُراجع ضمن تجربة المشروع كاملة.</p>${button("/about/", "تعرف على منهجية العمل", "button-ghost")}</div><div class="principles-grid">
+<section class="section-pad promise-section" id="home-method"><div class="container promise-grid"><div class="promise-copy reveal">${eyebrow("منهجية التنفيذ")}<h2>كلّ تفصيلٍ جميل، وراءه قرارٌ هندسي.</h2><p>أوازن بين جاذبية التصميم ووضوح الاستخدام، وبين أمان البنية وقابليتها للتطوير. كلّ صفحة ومسار وصلاحية تُبنى لخدمة هدفٍ واضح، ثم تُراجع ضمن تجربة المشروع كاملة.</p>${button("/about/", "تعرف على منهجية العمل", "button-ghost")}</div><div class="principles-grid">
   <article class="principle reveal"><span>01</span>${icon("target")}<h3>هدف تجاري واضح</h3><p>نحدد القرار أو التحويل المطلوب قبل اختيار التقنية أو شكل الواجهة.</p></article>
   <article class="principle reveal"><span>02</span>${icon("shield")}<h3>أمان من التصميم</h3><p>الصلاحيات والبيانات والمخاطر تُراجع من البداية، لا بعد وقوع المشكلة.</p></article>
   <article class="principle reveal"><span>03</span>${icon("user")}<h3>تجربة لكل جهاز</h3><p>Mobile First مع اختبار iOS وAndroid وHuawei والتابلت والكمبيوتر.</p></article>
@@ -527,8 +532,9 @@ ${googleGrowthTeaser()}
 <section class="section-pad google-proof-section"><div class="container proof-panel reveal"><div class="proof-icon">${icon("google")}</div><div><span>إسلام الشيخ — متخصص خرائط Google</span><h2>خبرة عملية موثقة في الملفات التجارية والظهور المحلي</h2><p>تشخيص مشكلات التحقق والتعليق والملكية والفئات، وتحسين اتساق بيانات النشاط والظهور المحلي وفق سياسات Google، مع نماذج أعمال منشورة يمكن مراجعتها.</p><div class="proof-numbers"><span><strong>472</strong> ملفًا تم دعم توثيقه</span><span><strong>233</strong> مشكلة ملف تجاري تمت معالجتها</span><span><strong>${mapsProjects.length}</strong> نموذجًا عامًا منشورًا</span></div></div><div class="proof-actions">${button("/google-expert/", "تعرف على خدمات خرائط Google")}${button(site.social.googleDeveloper, "ملف Google للمطورين", "button-ghost", true)}</div></div></section>
 <section class="section-pad process-section"><div class="container"><div class="section-heading reveal">${eyebrow("مسار العمل")}<h2>وضوح من أول سؤال حتى ما بعد الإطلاق</h2></div><ol class="process-list"><li class="reveal"><span>01</span><h3>تشخيص الهدف</h3><p>فهم المستخدم والنتيجة والقيود والمخاطر والبيانات المتاحة قبل اختيار الأدوات.</p></li><li class="reveal"><span>02</span><h3>تصميم الحل</h3><p>تحديد البنية والمحتوى والنطاق والمخرجات ومعايير القبول وخطة التنفيذ.</p></li><li class="reveal"><span>03</span><h3>تنفيذ ومراجعة</h3><p>بناء على مراحل قصيرة قابلة للاختبار، مع توثيق القرارات والملاحظات.</p></li><li class="reveal"><span>04</span><h3>إطلاق وتحسين</h3><p>فحص الأداء والأجهزة والفهرسة والروابط، ثم متابعة المؤشرات وفرص التطوير.</p></li></ol></div></section>
 <section class="section-pad blog-section"><div class="container"><div class="section-heading reveal">${eyebrow("معرفة عملية")}<h2>مقالات تساعدك على اتخاذ قرارات تقنية أكثر وضوحًا</h2></div><div class="posts-grid">${allPosts.slice(0, 3).map((post) => postCard(post)).join("")}</div><div class="section-action">${button("/blog/", "استكشف المدونة", "button-ghost")}</div></div></section>
-<section class="section-pad faq-section"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>إجابات صريحة قبل بدء المشروع</h2><p>لا توجد باقة واحدة تناسب الجميع؛ لذلك أوضح الحدود والمخرجات والاعتماديات من البداية.</p>${button("/contact/", "أرسل تفاصيل مشروعك", "button-ghost")}</div>${faqBlock(faq)}</div></section>
+<section class="section-pad faq-section" id="home-faq"><div class="container faq-grid"><div class="faq-intro reveal">${eyebrow("الأسئلة الشائعة")}<h2>إجابات صريحة قبل بدء المشروع</h2><p>لا توجد باقة واحدة تناسب الجميع؛ لذلك أوضح الحدود والمخرجات والاعتماديات من البداية.</p>${button("/contact/", "أرسل تفاصيل مشروعك", "button-ghost")}</div>${faqBlock(faq)}</div></section>
 ${finalCta("ما الخطوة التي تستحقها أعمالك الآن؟", "حدّثني عن مشروعك، وما تريد أن يتحسّن فيه. نبدأ بفهم احتياجك، ونرسم نطاقًا واضحًا للحل وخطوات تنفيذه.")}`;
+  const body = homeContent.replace('<section class="section-pad final-cta">', '<section class="section-pad final-cta" id="home-contact">');
   return page({ title: "المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع بالرياض", description: site.description, path: "/", active: "home", body, modified: searchRevision, schema: [faqSchema(faq)], preloadImage: profilePhoto });
 }
 
