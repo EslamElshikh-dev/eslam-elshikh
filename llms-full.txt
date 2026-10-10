@@ -13,6 +13,12 @@
 
 خبرة منتجات Google مستقلة، ولا تعني أن إسلام الشيخ موظف لدى Google أو يملك التحكم في قرارات المنصة.
 
+## عضويات برامج Google
+- عضو في Google Developer Program. ملفه العام: https://me.developers.google.com/u/EslamElshikh
+- عضو برونزي (Bronze Member) في Google Product Experts Program، ضمن مجتمع الملف التجاري على Google (Google Business Profile)، ويساهم في مساعدة مستخدمي المنتج.
+- شرح البرنامج والرتب من Google: https://support.google.com/communities/answer/9138806?hl=ar
+- صفحة العضويات والأعمال المهنية: https://www.eslam-elshikh.com/about/#google-programs
+
 ## الخدمات بالتفصيل
 ### الأمن السيبراني وحماية الأنظمة
 أساعد الشركات وأصحاب المنتجات الرقمية على معرفة نقاط الضعف قبل أن تتحول إلى حادث أمني. تبدأ الخدمة بفهم الأصول الحساسة ونطاق العمل، ثم تقييم المخاطر وفحص الضوابط وكتابة توصيات قابلة للتنفيذ حسب الأولوية.

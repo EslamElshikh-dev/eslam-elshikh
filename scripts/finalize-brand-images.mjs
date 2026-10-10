@@ -39,7 +39,9 @@ function updateSchemaImages(value) {
   const hasType = (...names) => names.some((name) => types.includes(name));
 
   if (hasType("Person")) value.image = profilePhoto;
-  if (hasType("ProfessionalService", "LocalBusiness", "Organization")) {
+  const isSiteOrganization = hasType("Organization")
+    && String(value["@id"] || value.url || "").startsWith("https://www.eslam-elshikh.com/");
+  if (hasType("ProfessionalService", "LocalBusiness") || isSiteOrganization) {
     value.logo = approvedLogo;
     value.image = profilePhoto;
   }

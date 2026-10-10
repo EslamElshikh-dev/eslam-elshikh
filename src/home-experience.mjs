@@ -43,6 +43,7 @@ export function renderHomeExperience({ english = false, site, services, profileP
       <h1 class="hx-title" id="home-title">${t('طموحك يستحق.<br><em>تنفيذًا يليق به.</em>', 'Ambition deserves<br><em>thoughtful execution.</em>')}</h1>
       <p class="hx-hero-lead">${t('أحوّل احتياجك إلى تجربة متقنة: موقع يُظهر قيمتك، ونظام CRM يرتّب أعمالك، وحضور يسهّل وصول العميل لك.', 'I turn your business needs into considered digital experiences: a website that shows your value, a CRM that organizes work, and a presence customers can find.')}</p>
       <div class="hx-hero-actions">${a('#home-paths', t('اكتشف البداية المناسبة', 'Find your starting point'))}${a('#home-work', t('استكشف شغلي', 'Explore the work'), 'hx-button-outline')}</div>
+      <div class="hx-hero-note">${icon('google')}<span><a href="${p}/about/#google-programs">${esc(t(site.googleMemberships.summaryAr, site.googleMemberships.summaryEn))}</a></span></div>
       <div class="hx-hero-note">${icon('shield')}<span>${t('تطوير، تصميم، وأمان. قرار واحد مترابط.', 'Design, development and security. Considered together.')}</span></div>
     </div>
     <div class="hx-scene" aria-label="${t('استكشف نماذج الأعمال', 'Explore selected work')}">
