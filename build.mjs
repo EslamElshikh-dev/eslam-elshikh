@@ -427,7 +427,7 @@ function footer(language = "ar") {
 
 function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image, keywords = [], articleSection = "", stylesheets = [], pageScripts = [], preloadImage = "", robots }) {
   const isHome = path === "/" || path === "/en/";
-  const homeAssetVersion = "20261010.1";
+  const homeAssetVersion = "20261010.2";
   const pageBody = isHome ? `<div class="home-crafted" data-home-crafted>${body}</div>` : body;
   const scripts = isHome ? [...pageScripts, `/assets/js/home-magic.js?v=${homeAssetVersion}`] : pageScripts;
   const pageHead = head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection, stylesheets, preloadImage, ...(robots ? { robots } : {}) });

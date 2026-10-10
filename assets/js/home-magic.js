@@ -14,8 +14,6 @@
       toggle.setAttribute('aria-label', paused
         ? english ? 'Resume the moving expertise ribbon' : 'تشغيل الشريط المتحرك'
         : english ? 'Pause the moving expertise ribbon' : 'إيقاف الشريط المتحرك');
-      const label = toggle.querySelector('[data-ticker-action]');
-      if (label) label.textContent = paused ? english ? 'Play' : 'تشغيل' : english ? 'Pause' : 'إيقاف';
     });
   }
   const opening = root.querySelector('[data-home-opening]');
