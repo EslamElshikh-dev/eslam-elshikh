@@ -961,6 +961,7 @@ ${renderWorkClosing({ english: false, icon })}`;
 function projectCaseStudyPage(study, english = false) {
   const path = caseHref(study, english);
   const name = english ? study.englishName : study.title;
+  const modified = study.proof?.updatedAt || projectAudit.auditedAt;
   const rawDescription = english
     ? `${name}: design decisions, user journey, and reviewable output. Explore the interface and project structure.`
     : `دراسة حالة ${name}: ${study.focus} اكتشف التحدي والحل وقرارات التصميم ورحلة المستخدم، مع صور الواجهة والمخرجات.`;
@@ -970,11 +971,20 @@ function projectCaseStudyPage(study, english = false) {
     "@type": "CreativeWork", "@id": `${absolute(path)}#project`, name,
     description: english ? study.englishNarrative : study.solution, url: absolute(path), image: absolute(study.image),
     ...(study.liveAvailable && study.status === "published" ? { sameAs: study.liveUrl } : {}),
-    creator: { "@id": `${site.url}/#person` }, keywords: study.tags, dateModified: projectAudit.auditedAt
+    creator: { "@id": `${site.url}/#person` }, keywords: study.tags, dateModified: modified,
+    ...(study.proof ? {
+      author: { "@id": `${site.url}/#person` },
+      citation: {
+        "@type": "CreativeWork",
+        name: study.proof.sourceTitle[english ? 1 : 0],
+        dateCreated: study.proof.sourceDate
+      }
+    } : {})
   };
   const body = `${renderCaseStudy(study, { english, esc, icon })}${projectServicesSection(study.slug, english ? "en" : "ar")}`;
   return page({ title: english ? metaName.length > 54 ? `${metaName} | Case` : `${metaName} Case Study` : `دراسة حالة ${metaName}`, description, path,
-    active: "projects", body, image: study.image, modified: projectAudit.auditedAt, lang: english ? "en" : "ar",
+    active: "projects", body, image: study.image, modified, lang: english ? "en" : "ar",
+    stylesheets: study.proof ? ["/assets/css/case-results.css?v=20261010.1"] : [],
     schema: [schema, breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" },
       { name: english ? "Work" : "الأعمال", path: english ? "/en/projects/" : "/projects/" }, { name, path }])]
   });

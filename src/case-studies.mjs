@@ -5,6 +5,7 @@ import { caseEditorial } from "./case-editorial.mjs";
 import { caseEvidence } from "./case-evidence.mjs";
 import { englishSectorNames } from "./english.mjs";
 import { latestWorkByUrl } from "./latest-work.mjs";
+import { verifiedCaseResults } from "./verified-case-results.mjs";
 
 const slugOverrides = {
   1: "tawod-contracting", 2: "tawod-maintenance", 6: "bowdy-labs", 7: "sama-scan",
@@ -45,7 +46,15 @@ export const caseStudies = webProjects.map((project, index) => {
     tags: featured?.tags || ["Interface Design", evidence.technology === "Next.js" ? "Next.js" : "Web Development", "Arabic UX"],
     originalStudy: reviewed ? undefined : featured?.caseStudy,
     ...reviewed,
-    ...(reviewed ? { hasPhone: true, hasWhatsApp: true, hasMap: true } : {})
+    ...(reviewed ? { hasPhone: true, hasWhatsApp: true, hasMap: true } : {}),
+    ...(verifiedCaseResults[slug] ? {
+      proof: verifiedCaseResults[slug],
+      image: verifiedCaseResults[slug].currentImage,
+      challenge: verifiedCaseResults[slug].challenge[0],
+      solution: verifiedCaseResults[slug].solution[0],
+      outcome: verifiedCaseResults[slug].outcome[0],
+      englishNarrative: verifiedCaseResults[slug].solution[1]
+    } : {})
   };
 });
 

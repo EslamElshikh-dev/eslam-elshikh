@@ -228,7 +228,9 @@ for (const route of sitemapRoutes) {
   const hasCrmStudio = ["/", "/en/", "/projects/", "/en/projects/"].includes(route) || /^(\/en)?\/products\//.test(route) || /^(\/en)?\/services\/crm-systems\//.test(route);
   const hasCrmShowcase = /^(\/en)?\/services\/crm-systems\/$/.test(route);
   const hasServiceStudio = ["/", "/en/", "/services/", "/en/services/"].includes(route);
-  const expectedStylesheets = Number(hasCrmShowcase) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
+  const hasVerifiedCase = caseStudies.some(study => study.proof && [`/projects/${study.slug}/`, `/en/projects/${study.slug}/`].includes(route));
+  const expectedStylesheets = Number(hasVerifiedCase) + Number(hasCrmShowcase) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
+  if (hasVerifiedCase && !html.includes("/assets/css/case-results.css?v=")) errors.push(`${route}: missing the versioned results stylesheet`);
   if (hasProjectGallery && !html.includes(`/assets/css/project-gallery.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned project gallery stylesheet`);
   if (hasProjectStories && !html.includes(`/assets/css/project-stories.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned case and product stylesheet`);
   if (hasMapsExhibition && !html.includes(`/assets/css/maps-exhibition.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned Google Maps exhibition stylesheet`);
@@ -428,7 +430,9 @@ for (const [route, html] of pages) {
 for (const route of expectedCaseStudyRoutes) {
   const html = pages.get(route) || "";
   if (!html.includes('"@type":"CreativeWork"')) errors.push(`${route}: missing CreativeWork structured data`);
-  if (!html.includes("لا تتضمن هذه الدراسة أرقام زيارات أو تحويلات")) errors.push(`${route}: missing the evidence boundary for unverified business outcomes`);
+  const proof = caseStudies.find(study => `/projects/${study.slug}/` === route)?.proof;
+  if (proof) validateVerifiedCaseEvidence(route, html, proof);
+  else if (!html.includes("لا تتضمن هذه الدراسة أرقام زيارات أو تحويلات")) errors.push(`${route}: missing the evidence boundary for unverified business outcomes`);
   for (const section of ["brief", "solution", "experience", "decisions", "output"]) if (!html.includes(`id="${section}"`)) errors.push(`${route}: missing case study section ${section}`);
 }
 
@@ -455,7 +459,34 @@ for (const english of [false, true]) {
 for (const route of expectedEnglishCaseStudyRoutes) {
   const html = pages.get(route) || "";
   if (!html.includes('"@type":"CreativeWork"')) errors.push(`${route}: missing CreativeWork structured data`);
-  if (!html.includes("does not claim traffic, conversion, or return-on-investment figures")) errors.push(`${route}: missing the English evidence boundary for unverified business outcomes`);
+  const proof = caseStudies.find(study => `/en/projects/${study.slug}/` === route)?.proof;
+  if (proof) validateVerifiedCaseEvidence(route, html, proof);
+  else if (!html.includes("does not claim traffic, conversion, or return-on-investment figures")) errors.push(`${route}: missing the English evidence boundary for unverified business outcomes`);
+}
+
+function validateVerifiedCaseEvidence(route, html, proof) {
+  const days = period => (Date.parse(period.end) - Date.parse(period.start)) / 86400000 + 1;
+  if (days(proof.before) !== proof.days || days(proof.after) !== proof.days || proof.before.end >= proof.after.start) {
+    errors.push(`${route}: performance periods must be equal, complete and non-overlapping`);
+  }
+  if (proof.sourceDate < proof.after.end || !proof.sourceTitle?.every(Boolean) || !proof.sourceFile || !proof.sourcePages?.length) {
+    errors.push(`${route}: dated performance source is incomplete`);
+  }
+  for (const metric of proof.metrics) {
+    if (!Number.isFinite(metric.before) || !Number.isFinite(metric.after) || metric.before <= 0 || metric.after < 0 ||
+      !["count", "rate"].includes(metric.type) || metric.type === "rate" && (metric.before > 100 || metric.after > 100)) {
+      errors.push(`${route}: invalid recorded metric ${metric.key}`);
+    }
+  }
+  for (const section of ["role", "results", "visual-proof"]) {
+    if (!html.includes(`id="${section}"`)) errors.push(`${route}: dated evidence is missing ${section}`);
+  }
+  const english = route.startsWith("/en/");
+  for (const text of [proof.sourceDate, proof.before.label[english ? 1 : 0], proof.after.label[english ? 1 : 0],
+    proof.methodology[english ? 1 : 0], proof.previousImage, proof.currentImage]) {
+    if (!html.includes(text)) errors.push(`${route}: source dates, definitions or authentic images are missing`);
+  }
+  if (!html.includes(`"dateModified":"${proof.updatedAt}"`)) errors.push(`${route}: case evidence modification date is stale`);
 }
 
 for (const [route, html] of pages) {

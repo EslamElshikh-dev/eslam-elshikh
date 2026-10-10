@@ -1,0 +1,64 @@
+/* Scoped to the two case studies with dated source evidence. */
+.evidence-panel { padding: clamp(1.4rem, 3vw, 2.4rem); border: 1px solid var(--line); border-radius: 1.6rem; background: var(--surface); }
+.case-proof-heading h2 { margin: .4rem 0 .85rem; font-size: clamp(1.5rem, 2.6vw, 2.3rem); line-height: 1.5; }
+.case-proof-heading > p:last-of-type { margin: 0; color: var(--muted); line-height: 1.9; max-width: 780px; }
+.case-proof-heading .product-text-link { margin-top: 1.1rem; }
+.case-role { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 2.3rem; background: radial-gradient(ellipse at 85% 15%, color-mix(in srgb, var(--primary) 8%, transparent), transparent 65%), var(--surface); }
+.case-contribution-list { display: grid; gap: .25rem; margin: 0; padding: 0; list-style: none; }
+.case-contribution-list li { display: grid; grid-template-columns: 2.3rem minmax(0, 1fr); gap: .9rem; padding: .85rem 0; border-bottom: 1px solid var(--line); }
+.case-contribution-list li:last-child { border: 0; }
+.case-contribution-list span { color: var(--primary); font-size: .8rem; font-weight: 800; padding-top: .2rem; }
+.case-contribution-list p { margin: 0; color: var(--text); line-height: 1.9; font-size: .94rem; }
+.case-measurement-periods { display: flex; align-items: center; flex-wrap: wrap; gap: 1.25rem; padding: 1.25rem 0 1.6rem; }
+.case-measurement-periods > div { display: grid; gap: .35rem; }
+.case-measurement-periods > div > span { color: var(--muted); font-size: .8rem; }
+.case-measurement-periods strong { font-size: .93rem; font-weight: 650; }
+.case-measurement-periods > span { color: var(--primary); font-size: 1.5rem; padding-inline: .3rem; }
+.case-results-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 1rem; }
+.case-results-table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+.case-results-table th, .case-results-table td { padding: 1.05rem 1.1rem; text-align: start; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.case-results-table thead th { font-size: .8rem; color: var(--muted); background: color-mix(in srgb, var(--primary) 5%, var(--surface)); }
+.case-results-table tbody th { font-weight: 600; min-width: 130px; }
+.case-results-table tbody tr:last-child > * { border-bottom: 0; }
+.case-results-table td bdi { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.case-result-current { color: var(--primary); font-size: 1.3rem; font-weight: 800; }
+.case-result-change { font-size: .85rem; font-weight: 700; }
+.case-result-growth { color: var(--primary); }
+.case-result-decline { color: var(--muted); }
+.case-result-reading { display: flex; align-items: flex-start; gap: .9rem; padding: 1.3rem 0; }
+.case-result-reading > span { flex: 0 0 2.5rem; width: 2.5rem; height: 2.5rem; display: grid; place-items: center; border: 1px solid var(--line); border-radius: .7rem; color: var(--primary); }
+.case-result-reading p { margin: 0; color: var(--muted); font-size: .94rem; line-height: 1.95; }
+.case-result-source { border-top: 1px solid var(--line); }
+.case-result-source summary { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.15rem 0 .3rem; cursor: pointer; font-size: .88rem; font-weight: 700; list-style: none; }
+.case-result-source summary::-webkit-details-marker { display: none; }
+.case-result-source summary > span { color: var(--primary); font-size: 1.4rem; }
+.case-result-source[open] summary > span { transform: rotate(45deg); }
+.case-result-source > div { padding-top: .5rem; color: var(--muted); font-size: .87rem; line-height: 1.95; }
+.case-result-source > div > a { display: inline-flex; align-items: center; gap: .5rem; color: var(--primary); text-decoration: underline; }
+.case-result-source time { direction: ltr; unicode-bidi: isolate; white-space: nowrap; }
+.case-proof-images { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem; margin-top: 1.7rem; }
+.case-proof-images figure { margin: 0; min-width: 0; border: 1px solid var(--line); border-radius: 1.05rem; overflow: hidden; background: var(--surface); }
+.case-proof-image-label { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .5rem; padding: .9rem 1rem; border-bottom: 1px solid var(--line); }
+.case-proof-image-label > span { font-size: .88rem; font-weight: 750; }
+.case-proof-image-label small { color: var(--muted); font-size: .72rem; }
+.case-proof-images figure > a { display: flex; align-items: flex-start; aspect-ratio: 1.4557; background: #edf0f4; }
+.case-proof-images img { display: block; width: 100%; height: auto; object-fit: contain; }
+.case-proof-images figcaption { padding: .85rem 1rem; font-size: .78rem; line-height: 1.75; color: var(--muted); border-top: 1px solid var(--line); }
+.case-proof-period-note { margin: 1.2rem 0; font-size: .85rem; color: var(--muted); line-height: 1.9; }
+.case-meta .case-evidence-author { display: inline-flex; align-items: center; gap: .4rem; text-decoration: underline; text-underline-offset: .2rem; color: inherit; }
+.case-role a:focus-visible, .case-proof-images a:focus-visible, .case-result-source summary:focus-visible { outline: 3px solid var(--primary); outline-offset: 4px; border-radius: .3rem; }
+@media (max-width: 800px) { .case-role { grid-template-columns: 1fr; gap: 1rem; } }
+@media (max-width: 600px) {
+  .evidence-panel { padding: 1.2rem; border-radius: 1.15rem; }
+  .case-proof-images { grid-template-columns: 1fr; gap: 1.1rem; }
+  .case-measurement-periods { gap: .8rem; }
+  .case-measurement-periods strong { font-size: .82rem; }
+  .case-results-table { font-size: .82rem; }
+  .case-results-table th, .case-results-table td { padding: .85rem .65rem; }
+  .case-results-table tbody th { min-width: 108px; }
+  .case-result-current { font-size: 1.08rem; }
+  .case-result-change { font-size: .75rem; }
+  .case-contribution-list li { grid-template-columns: 1.8rem minmax(0, 1fr); gap: .5rem; }
+  .case-contribution-list p { font-size: .89rem; }
+}
+@media print { .evidence-panel { break-inside: avoid; } .case-result-source > div { display: block; } }
