@@ -19,7 +19,7 @@ const topics = {
       ["الظهور بعد الاستقرار", "اربط الملف بموقع قوي ومحتوى محلي واتساق وقياس بدل مطاردة ترتيب مؤقت."]
     ],
     links: [
-      ["/google-expert/", "خدمات متخصص خرائط Google"],
+      ["/google-expert/", "خبير خرائط جوجل"],
       ["/services/google-business-profile/", "خدمة ملفات Google التجارية"],
       ["/local-seo/riyadh/", "السيو المحلي في الرياض"]
     ]

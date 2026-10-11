@@ -231,11 +231,13 @@ for (const route of sitemapRoutes) {
   const hasVerifiedCase = caseStudies.some(study => study.proof && [`/projects/${study.slug}/`, `/en/projects/${study.slug}/`].includes(route));
   const hasHomeMagic = route === "/" || route === "/en/";
   const hasGoogleProfilePricing = ["/google-expert/", "/en/google-expert/", "/services/google-business-profile/", "/en/services/google-business-profile/"].includes(route);
-  const expectedStylesheets = Number(hasGoogleProfilePricing) + Number(hasHomeMagic) + Number(hasVerifiedCase) + Number(hasCrmShowcase) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
+  const hasMapsExpert = /class="maps-expert"/.test(html);
+  const expectedStylesheets = Number(hasMapsExpert) + Number(hasGoogleProfilePricing) + Number(hasHomeMagic) + Number(hasVerifiedCase) + Number(hasCrmShowcase) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
   if (hasHomeMagic && (!html.includes('/assets/css/home-magic.css?v=') || !html.includes('/assets/js/home-magic.js?v='))) errors.push(`${route}: missing versioned home experience assets`);
   if (hasVerifiedCase && !html.includes("/assets/css/case-results.css?v=")) errors.push(`${route}: missing the versioned results stylesheet`);
   if (hasProjectGallery && !html.includes(`/assets/css/project-gallery.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned project gallery stylesheet`);
   if (hasProjectStories && !html.includes(`/assets/css/project-stories.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned case and product stylesheet`);
+  if (hasMapsExpert && !html.includes("/assets/css/google-maps-expert.css?v=")) errors.push(`${route}: missing Google Maps Expert stylesheet`);
   if (hasMapsExhibition && !html.includes(`/assets/css/maps-exhibition.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned Google Maps exhibition stylesheet`);
   if (hasWorkEvidence && !html.includes(`/assets/css/work-evidence.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned work evidence stylesheet`);
   if (hasCrmShowcase && !html.includes('/assets/css/crm-showcase.css?v=')) errors.push(`${route}: missing versioned CRM showcase stylesheet`);

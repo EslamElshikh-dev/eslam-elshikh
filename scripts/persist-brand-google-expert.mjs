@@ -112,7 +112,7 @@ const llmsTxt = `# المهندس إسلام الشيخ
 ## صفحات مهمة
 
 - [عن المهندس إسلام الشيخ](${canonical}/about/)
-- [إسلام الشيخ — متخصص خرائط Google والملفات التجارية](${canonical}/google-expert/)
+- [خبير خرائط جوجل — إسلام الشيخ](${canonical}/google-expert/)
 - [إسلام الشيخ — خبير إعلانات جوجل وإدارة حملات Google Ads](${canonical}/google-ads/)
 - [السيو المحلي في الرياض](${canonical}/local-seo/riyadh/)
 - [الأعمال والمشروعات](${canonical}/projects/)
