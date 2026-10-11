@@ -1,0 +1,19 @@
+.google-profile-pricing { border-block: 1px solid var(--line); background: var(--bg-elevated); }
+.google-profile-pricing .section-heading { max-width: 780px; }
+.google-profile-pricing-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.15rem; }
+.google-profile-price-card { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; padding: 1.6rem; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-sm); }
+.google-profile-price-icon { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 1.15rem; border: 1px solid var(--line-strong); border-radius: 14px; color: var(--secondary); background: var(--surface-2); }
+.google-profile-price-card h3 { margin: 0 0 0.8rem; min-height: 4.2em; font-size: 1.12rem; line-height: 1.6; color: var(--text); }
+.google-profile-price-description { flex: 1; margin: 0 0 1.3rem; font-size: 0.94rem; color: var(--text-soft); }
+.google-profile-price { display: flex; align-items: baseline; gap: 0.55rem; margin: 0; line-height: 1.2; color: var(--text); }
+.google-profile-price bdi { font-size: clamp(2.3rem, 3vw, 3rem); font-weight: 850; letter-spacing: -0.03em; }
+.google-profile-price > span { font-size: 1rem; font-weight: 700; color: var(--muted); }
+.google-profile-price-duration { display: grid; gap: 0.25rem; width: 100%; margin: 1.3rem 0; padding-block: 1rem; border-block: 1px solid var(--line); font-size: 0.86rem; line-height: 1.6; color: var(--muted); }
+.google-profile-price-duration strong { font-size: 0.98rem; color: var(--text); }
+.google-profile-price-card .button { width: 100%; padding-inline: 0.9rem; }
+.google-profile-pricing-note { display: flex; align-items: flex-start; gap: 0.9rem; margin-top: 1.3rem; padding: 1.3rem 1.5rem; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface-2); }
+.google-profile-pricing-note > .icon { margin-top: 0.2rem; color: var(--secondary); }
+.google-profile-pricing-note strong { display: block; color: var(--text); }
+.google-profile-pricing-note p { margin: 0.3rem 0 0; color: var(--text-soft); }
+@media (max-width: 1050px) { .google-profile-pricing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .google-profile-price-card h3 { min-height: 3.2em; } }
+@media (max-width: 620px) { .google-profile-pricing-grid { grid-template-columns: minmax(0, 1fr); } .google-profile-price-card { padding: 1.4rem; } .google-profile-price-card h3 { min-height: 0; } .google-profile-pricing-note { padding: 1.15rem; } }
