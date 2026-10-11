@@ -5,7 +5,7 @@
   const tabs = [...root.querySelectorAll('[data-expert-tab]')];
   const panels = [...root.querySelectorAll('[data-expert-panel]')];
   const rtl = document.documentElement.dir === 'rtl';
-  const activate = (id, focus = false) => {
+  const activate = (id, focus = false, updateHash = false) => {
     const chosen = tabs.find(tab => tab.dataset.expertTab === id);
     if (!chosen) return;
     tabs.forEach(tab => {
@@ -20,10 +20,15 @@
       panel.tabIndex = 0;
     });
     if (focus) chosen.focus();
+    if (updateHash) history.replaceState(null, '', `#path-${id}`);
   };
   const openHash = () => {
     const id = location.hash.replace(/^#path-/, '');
-    if (tabs.some(tab => tab.dataset.expertTab === id)) activate(id);
+    const panel = panels.find(item => item.dataset.expertPanel === id);
+    if (!panel) return;
+    const wasHidden = panel.hidden;
+    activate(id);
+    if (wasHidden) requestAnimationFrame(() => panel.scrollIntoView({ block: 'start' }));
   };
   if (controls && tabs.length && panels.length === tabs.length) {
     activate(tabs[0].dataset.expertTab);
@@ -31,7 +36,7 @@
     root.classList.add('expert-enhanced');
     openHash();
     tabs.forEach((tab, index) => {
-      tab.addEventListener('click', () => activate(tab.dataset.expertTab));
+      tab.addEventListener('click', () => activate(tab.dataset.expertTab, false, true));
       tab.addEventListener('keydown', event => {
         let next = index;
         if (event.key === 'Home') next = 0;
@@ -40,7 +45,7 @@
         else if (event.key === 'ArrowLeft') next = (index + (rtl ? 1 : -1) + tabs.length) % tabs.length;
         else return;
         event.preventDefault();
-        activate(tabs[next].dataset.expertTab, true);
+        activate(tabs[next].dataset.expertTab, true, true);
       });
     });
     root.querySelectorAll('[data-expert-select]').forEach(link => {

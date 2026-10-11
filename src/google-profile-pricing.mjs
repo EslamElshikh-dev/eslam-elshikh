@@ -44,7 +44,7 @@ export function googleProfileOfferCatalog({ language = 'ar', url, provider }) {
   };
 }
 
-export function renderGoogleProfilePricing({ language = 'ar', site, esc, icon, button }) {
+export function renderGoogleProfilePricing({ language = 'ar', site, esc, icon, button, headingText, eyebrowText }) {
   const english = language === 'en';
   const cards = googleProfileOffers.map((offer) => {
     const copy = offer[language];
@@ -62,7 +62,7 @@ ${button(`${site.whatsapp}?text=${encodeURIComponent(message)}`, english ? 'Requ
   }).join('');
   return `<section class="section-pad google-profile-pricing" id="service-pricing" aria-labelledby="google-profile-pricing-title">
 <div class="container">
-<div class="section-heading reveal"><span class="eyebrow"><span aria-hidden="true"></span>${english ? 'Services and prices' : 'الخدمات والأسعار'}</span><h2 id="google-profile-pricing-title">${english ? 'Choose the service your Business Profile needs' : 'اختر الخدمة المناسبة لملفك التجاري على Google'}</h2><p>${english ? 'Clear prices and delivery times for profile creation, re-verification, suspension support, and professional status reviews.' : 'أسعار واضحة ومدة تنفيذ محددة لخدمات الإنشاء والتوثيق وإعادة إثبات الملكية ومعالجة التعليق والفحص المتخصص.'}</p></div>
+<div class="section-heading reveal"><span class="eyebrow"><span aria-hidden="true"></span>${esc(eyebrowText || (english ? 'Services and prices' : 'الخدمات والأسعار'))}</span><h2 id="google-profile-pricing-title">${esc(headingText || (english ? 'Choose the service your Business Profile needs' : 'اختر الخدمة المناسبة لملفك التجاري على Google'))}</h2><p>${english ? 'Clear prices and estimated delivery times for profile creation, re-verification, suspension support, and professional status reviews.' : 'أسعار واضحة ومدة تنفيذ متوقعة لخدمات الإنشاء والتوثيق وإعادة إثبات الملكية ومعالجة التعليق والفحص المتخصص.'}</p></div>
 <div class="google-profile-pricing-grid">${cards}</div>
 <div class="google-profile-pricing-note reveal">${icon('clock')}<div><strong>${english ? 'Delivery time for all services' : 'مدة تنفيذ جميع الخدمات'}</strong><p>${english ? 'Estimated delivery is 3 to 5 business days. In some cases subject to restrictions, it may take up to 14 business days.' : 'مدة التنفيذ المتوقعة من 3 إلى 5 أيام عمل لجميع الخدمات. وفي بعض الحالات التي فُرضت عليها قيود، قد تصل المدة إلى 14 يوم عمل.'}</p></div></div>
 </div></section>`;
