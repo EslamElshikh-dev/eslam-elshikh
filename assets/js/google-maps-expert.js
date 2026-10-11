@@ -7,6 +7,7 @@
   const rtl = document.documentElement.dir === 'rtl';
   const requestForm = root.querySelector('[data-expert-request-form]');
   const requestService = requestForm?.querySelector('[data-request-service]');
+  const requestModel = requestForm?.querySelector('[data-request-model]');
   const requestProfile = requestForm?.querySelector('[data-request-profile]');
   const requestNote = requestForm?.querySelector('[data-request-note]');
   const requestLink = requestForm?.querySelector('[data-request-link]');
@@ -20,6 +21,7 @@
       : ['مرحبًا م. إسلام، أرغب في طلب الخدمة التالية:', `الخدمة: ${name}`, `السعر: ${price} ريال`, 'مدة التنفيذ المتوقعة: من 3 إلى 5 أيام عمل. وفي بعض الحالات التي فُرضت عليها قيود، قد تصل المدة إلى 14 يوم عمل.'];
     const profile = requestProfile.value.trim();
     const note = requestNote.value.trim();
+    if (requestModel?.value) lines.push(`${english ? 'Business model' : 'نموذج النشاط'}: ${requestModel.selectedOptions[0].dataset.name}`);
     if (profile) lines.push(`${english ? 'Profile link' : 'رابط الملف'}: ${profile}`);
     if (note) lines.push(`${english ? 'Case details' : 'تفاصيل الحالة'}: ${note}`);
     const message = lines.join('\n');
@@ -95,6 +97,7 @@
     });
     requestProfile.addEventListener('input', updateRequest);
     requestNote.addEventListener('input', updateRequest);
+    requestModel?.addEventListener('change', updateRequest);
     requestLink.addEventListener('click', event => {
       if (!requestForm.reportValidity()) event.preventDefault();
     });
@@ -103,6 +106,49 @@
       if (requestForm.reportValidity()) requestLink.click();
     });
   }
+  const enhancePanels = (tabSelector, panelSelector, controlSelector) => {
+    const groupTabs = [...root.querySelectorAll(tabSelector)];
+    const groupPanels = [...root.querySelectorAll(panelSelector)];
+    const groupControls = root.querySelector(controlSelector);
+    if (!groupControls || !groupTabs.length || groupTabs.length !== groupPanels.length) return;
+    const select = (index, focus = false) => {
+      groupTabs.forEach((tab, i) => {
+        tab.setAttribute('aria-selected', String(i === index));
+        tab.tabIndex = i === index ? 0 : -1;
+      });
+      groupPanels.forEach((panel, i) => {
+        panel.hidden = i !== index;
+        panel.setAttribute('role', 'tabpanel');
+        panel.setAttribute('aria-labelledby', groupTabs[i].id);
+        panel.tabIndex = 0;
+      });
+      if (focus) groupTabs[index].focus();
+    };
+    select(0);
+    groupControls.hidden = false;
+    groupTabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => select(index));
+      tab.addEventListener('keydown', event => {
+        let next;
+        if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = groupTabs.length - 1;
+        else if (event.key === 'ArrowRight') next = (index + (rtl ? -1 : 1) + groupTabs.length) % groupTabs.length;
+        else if (event.key === 'ArrowLeft') next = (index + (rtl ? 1 : -1) + groupTabs.length) % groupTabs.length;
+        else return;
+        event.preventDefault();
+        select(next, true);
+      });
+    });
+  };
+  enhancePanels('[data-model-tab]', '[data-model-panel]', '[data-model-tabs]');
+  enhancePanels('[data-journey-tab]', '[data-journey-panel]', '[data-journey-tabs]');
+  root.querySelectorAll('[data-expert-model-select]').forEach(link => {
+    link.addEventListener('click', () => {
+      if (!requestModel) return;
+      requestModel.value = link.dataset.expertModelSelect;
+      updateRequest();
+    });
+  });
   const storyTabs = [...root.querySelectorAll('[data-story-tab]')];
   const storyPanels = [...root.querySelectorAll('[data-story-panel]')];
   if (storyTabs.length && storyTabs.length === storyPanels.length) {
