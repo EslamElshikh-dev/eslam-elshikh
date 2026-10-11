@@ -5,7 +5,8 @@
 .maps-expert h1, .maps-expert h2, .maps-expert h3, .maps-expert p { margin-top: 0; }
 .maps-expert a { text-decoration: none; }
 .maps-expert :is(a, button):focus-visible { outline: 3px solid var(--expert-blue); outline-offset: 5px; }
-.maps-expert :is(section[id], article[id]) { scroll-margin-top: 68px; }
+.maps-expert :is(section[id], article[id]) { scroll-margin-top: 90px; }
+.maps-expert section.expert-path-panel[id] { scroll-margin-top: 200px; }
 .maps-expert .expert-kicker { display: inline-flex; align-items: center; gap: .6rem; color: var(--expert-blue); font-size: .84rem; font-weight: 700; line-height: 1.7; }
 .maps-expert .expert-kicker .icon { width: 19px; height: 19px; }
 .expert-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--expert-blue); box-shadow: 0 0 0 5px color-mix(in srgb, var(--expert-blue) 12%, transparent); }
@@ -238,7 +239,8 @@
   .expert-closing-actions { align-items: start; }
 }
 @media (max-width: 620px) {
-  .maps-expert :is(section[id], article[id]) { scroll-margin-top: 55px; }
+  .maps-expert :is(section[id], article[id]) { scroll-margin-top: 75px; }
+  .maps-expert section.expert-path-panel[id] { scroll-margin-top: 300px; }
   .maps-expert .expert-hero { padding-top: 45px; }
   .maps-expert .expert-hero .breadcrumbs { font-size: .73rem; margin-bottom: 1.8rem; }
   .maps-expert .expert-kicker { font-size: .76rem; }
