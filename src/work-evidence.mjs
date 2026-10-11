@@ -4,6 +4,7 @@ import { accountProfiles, accountReviewByCid, accountReviewSummary, accountState
 import { mapsProjects } from "./google-maps-work.mjs";
 import { projectAudit } from "./web-projects.mjs";
 import { products } from "./products.mjs";
+import { renderPublicWorkCredit } from "./public-work-credits.mjs";
 
 const dateLabel = en => en ? "7 October 2026" : "7 أكتوبر 2026";
 const prefix = en => en ? "/en" : "";
@@ -61,7 +62,7 @@ function workDossier(item, index, options) {
       ${views.length > 1 ? `<div class="evidence-preview-switches" role="group" aria-label="${esc(english ? `${t(item.title)} interface previews` : `معاينات واجهات ${t(item.title)}`)}" data-evidence-switches hidden>${views.map((view, position) => `<button type="button" aria-pressed="${position === 0}" data-evidence-image="${view[0]}" data-evidence-alt="${esc(viewAlt(view))}" data-evidence-caption-text="${esc(viewCaption(view))}"><span dir="ltr">0${position + 1}</span>${esc(viewLabel(view))}</button>`).join("")}</div>` : ""}
       <a class="evidence-visual-link" href="${caseHref(study, english)}">${english ? "Explore the full project story" : "اكتشف قصة المشروع كاملة"}${icon("arrow")}</a>
     </div>
-    <div class="evidence-dossier-copy reveal"><p class="evidence-date">${english ? "DELIVERY RECORD" : "سجل التنفيذ"}<span aria-hidden="true">/</span><time datetime="${latestWorkReviewedAt}">${dateLabel(english)}</time></p><h3 id="title-${item.slug}"><a href="${caseHref(study, english)}">${esc(t(item.title))}</a></h3><p class="evidence-dossier-summary">${esc(t(item.summary))}</p>${profile ? `<span class="evidence-status evidence-status-${profile.state}">${icon("check")}${esc(accountStateLabel(profile.state, english))}</span>` : ""}<h4>${english ? "What I delivered" : "ما نفذته في المشروع"}</h4><ul class="evidence-deliverables">${item.delivered.map(value => `<li>${esc(t(value))}</li>`).join("")}</ul>${item.note ? `<p class="evidence-context">${esc(t(item.note))}</p>` : ""}${workLinks(item, options)}</div>
+    <div class="evidence-dossier-copy reveal"><p class="evidence-date">${english ? "DELIVERY RECORD" : "سجل التنفيذ"}<span aria-hidden="true">/</span><time datetime="${latestWorkReviewedAt}">${dateLabel(english)}</time></p><h3 id="title-${item.slug}"><a href="${caseHref(study, english)}">${esc(t(item.title))}</a></h3><p class="evidence-dossier-summary">${esc(t(item.summary))}</p>${profile ? `<span class="evidence-status evidence-status-${profile.state}">${icon("check")}${esc(accountStateLabel(profile.state, english))}</span>` : ""}<h4>${english ? "What I delivered" : "ما نفذته في المشروع"}</h4><ul class="evidence-deliverables">${item.delivered.map(value => `<li>${esc(t(value))}</li>`).join("")}</ul>${item.note ? `<p class="evidence-context">${esc(t(item.note))}</p>` : ""}${workLinks(item, options)}${renderPublicWorkCredit(item.slug, options)}</div>
   </article>`;
 }
 
@@ -117,5 +118,5 @@ export function renderReviewedCaseEvidence(study, options) {
   const item = latestWorkByUrl.get(study.liveUrl);
   if (!item) return "";
   const { english = false, esc } = options;
-  return `<section class="evidence-case-update" id="latest-delivery"><div><p class="story-kicker">${english ? "LATEST DELIVERY REVIEW" : "مراجعة أحدث نطاق منفذ"}</p><h2>${english ? "The current scope, with direct evidence." : "نطاق العمل الحالي، بأدلته المباشرة."}</h2><p class="evidence-date"><time datetime="${latestWorkReviewedAt}">${dateLabel(english)}</time></p></div><div><ul class="evidence-deliverables">${item.delivered.map(value => `<li>${esc(reviewedText(value, english))}</li>`).join("")}</ul>${workLinks(item, options)}${item.note ? `<p class="evidence-context">${esc(reviewedText(item.note, english))}</p>` : ""}</div></section>`;
+  return `<section class="evidence-case-update" id="latest-delivery"><div><p class="story-kicker">${english ? "LATEST DELIVERY REVIEW" : "مراجعة أحدث نطاق منفذ"}</p><h2>${english ? "The current scope, with direct evidence." : "نطاق العمل الحالي، بأدلته المباشرة."}</h2><p class="evidence-date"><time datetime="${latestWorkReviewedAt}">${dateLabel(english)}</time></p></div><div><ul class="evidence-deliverables">${item.delivered.map(value => `<li>${esc(reviewedText(value, english))}</li>`).join("")}</ul>${workLinks(item, options)}${item.note ? `<p class="evidence-context">${esc(reviewedText(item.note, english))}</p>` : ""}${renderPublicWorkCredit(item.slug, options, 3)}</div></section>`;
 }

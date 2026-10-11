@@ -19,6 +19,8 @@ import { renderCaseStudy, renderProductCollection, renderProductsIndex, renderPr
 import { guides } from "./src/guides.mjs";
 import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
 import { renderAbout } from "./src/about.mjs";
+import { profileUpdatedAt, renderOfficialProfiles } from "./src/identity.mjs";
+import { publicWorkCredits, publicWorkCreditsReviewedAt } from "./src/public-work-credits.mjs";
 import { serviceEvidence, searchRevision } from "./src/service-evidence.mjs";
 import { articleVisuals } from "./src/article-visuals.mjs";
 import {
@@ -111,9 +113,8 @@ const socialLinks = [
 ];
 
 // Person profiles only: a blog and a business listing describe separate entities.
-// The Facebook handle differs between public sources, so exclude it until verified.
 const personSameAs = [...new Set([
-  site.social.github, site.social.x, site.social.instagram, site.social.threads,
+  site.social.github, site.social.facebook, site.social.x, site.social.instagram, site.social.threads,
   site.social.youtube, site.social.tiktok, site.social.wikidata, site.social.googleDeveloper
 ])];
 const personIdentifier = {
@@ -730,13 +731,14 @@ function aboutPage() {
     mainEntity: { "@id": `${site.url}/#person` },
     relatedLink: projects.filter((project) => project.caseStudy && project.slug).slice(0, 3).map((project) => `${site.url}/projects/${project.slug}/`),
     // Google ProfilePage expects DateTime rather than a date-only value.
-    dateModified: `${site.lastUpdated}T00:00:00+03:00`
+    dateModified: profileUpdatedAt
   };
   return page({
     title: "عن المهندس إسلام الشيخ | مهندس برمجيات وأمن سيبراني",
     description: "تعرّف على المهندس إسلام الشيخ، مهندس أمن سيبراني ومطور مواقع وبرمجيات في الرياض، وشاهد مشروعات موثقة في الويب والذكاء الاصطناعي وخرائط Google والسيو.",
     path: "/about/",
     active: "about",
+    modified: profileUpdatedAt.slice(0, 10),
     body,
     stylesheets: [`/assets/css/about.css?v=${version}`],
     pageScripts: [`/assets/js/about.js?v=${version}`],
@@ -905,8 +907,8 @@ function workEvidencePage(english = false) {
   const path = `${english ? "/en" : ""}/work-evidence/`;
   const title = english ? "Latest Work & Business Profile Evidence | Eslam Elshikh" : "أحدث الأعمال وأدلة الملفات التجارية | إسلام الشيخ";
   const description = english ? "Reviewed deliveries for Kermez, Alya, Sama Scan, Tawod and Naqada, with actual interfaces, public links and a dated Business Profile record." : "أحدث أعمال كرمز وعليا وسما سكان وتعاود ونقادة، مع نطاق التنفيذ وصور فعلية وروابط مباشرة للمراجعة، وسجل مؤرخ لحالة 35 ملفًا تجاريًا.";
-  return page({ title, description, path, active: "projects", lang: english ? "en" : "ar", body: renderWorkEvidence({ english, esc, icon }), modified: latestWorkReviewedAt, pageScripts: [`/assets/js/work-evidence.js?v=${version}`],
-    schema: [{ "@type": "CollectionPage", "@id": `${absolute(path)}#evidence`, url: absolute(path), name: title, description, dateModified: latestWorkReviewedAt, creator: { "@id": `${site.url}/#person` } }, breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" }, { name: english ? "Work" : "الأعمال", path: english ? "/en/projects/" : "/projects/" }, { name: english ? "Work evidence" : "أدلة الأعمال", path }])]
+  return page({ title, description, path, active: "projects", lang: english ? "en" : "ar", body: renderWorkEvidence({ english, esc, icon }), modified: publicWorkCreditsReviewedAt, pageScripts: [`/assets/js/work-evidence.js?v=${version}`],
+    schema: [{ "@type": "CollectionPage", "@id": `${absolute(path)}#evidence`, url: absolute(path), name: title, description, dateModified: publicWorkCreditsReviewedAt, creator: { "@id": `${site.url}/#person` } }, breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" }, { name: english ? "Work" : "الأعمال", path: english ? "/en/projects/" : "/projects/" }, { name: english ? "Work evidence" : "أدلة الأعمال", path }])]
   });
 }
 
@@ -949,6 +951,8 @@ function projectCaseStudyPage(study, english = false) {
   const path = caseHref(study, english);
   const name = english ? study.englishName : study.title;
   const modified = study.proof?.updatedAt || projectAudit.auditedAt;
+  const publicCredit = publicWorkCredits[study.slug];
+  const pageModified = publicCredit ? publicWorkCreditsReviewedAt : modified;
   const rawDescription = english
     ? `${name}: design decisions, user journey, and reviewable output. Explore the interface and project structure.`
     : `دراسة حالة ${name}: ${study.focus} اكتشف التحدي والحل وقرارات التصميم ورحلة المستخدم، مع صور الواجهة والمخرجات.`;
@@ -959,18 +963,21 @@ function projectCaseStudyPage(study, english = false) {
     description: english ? study.englishNarrative : study.solution, url: absolute(path), image: absolute(study.image),
     ...(study.liveAvailable && study.status === "published" ? { sameAs: study.liveUrl } : {}),
     creator: { "@id": `${site.url}/#person` }, keywords: study.tags, dateModified: modified,
-    ...(study.proof ? {
-      author: { "@id": `${site.url}/#person` },
-      citation: {
+    ...(study.proof ? { author: { "@id": `${site.url}/#person` } } : {}),
+    ...(study.proof || publicCredit ? {
+      citation: [
+        ...(study.proof ? [{
         "@type": "CreativeWork",
         name: study.proof.sourceTitle[english ? 1 : 0],
         dateCreated: study.proof.sourceDate
-      }
+        }] : []),
+        ...(publicCredit ? [publicCredit.sourceUrl] : [])
+      ]
     } : {})
   };
   const body = `${renderCaseStudy(study, { english, esc, icon })}${projectServicesSection(study.slug, english ? "en" : "ar")}`;
   return page({ title: english ? metaName.length > 54 ? `${metaName} | Case` : `${metaName} Case Study` : `دراسة حالة ${metaName}`, description, path,
-    active: "projects", body, image: study.image, modified, lang: english ? "en" : "ar",
+    active: "projects", body, image: study.image, modified: pageModified, lang: english ? "en" : "ar",
     stylesheets: study.proof ? ["/assets/css/case-results.css?v=20261010.2"] : [],
     pageScripts: study.proof ? ["/assets/js/case-experience.js?v=20261010.2"] : [],
     schema: [schema, breadcrumbSchema([{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" },
@@ -1345,10 +1352,11 @@ function englishAboutPage() {
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Working principles")}<h2>Good engineering makes the important decisions easier to see</h2><p>The work should remain understandable to the business, maintainable by the team, and testable after delivery.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome before tooling</h3><p>Define the decision, user, constraint, and evidence of success before choosing a platform.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Security by design</h3><p>Consider identities, permissions, data, recovery, and failure paths from the beginning.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for real use</h3><p>Design for actual devices, content, operating capacity, accessibility, and edge cases.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Evidence over theatre</h3><p>Measure useful outcomes and state clearly where third-party or business results cannot be guaranteed.</p></article></div></div></section>
 <section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("Education and professional foundation")}<h2>Formal study connected to applied delivery</h2><p>The professional profile combines an academic foundation in information security with advanced cybersecurity study and hands-on work across software, web products, search, and Google business tools.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("shield")}<h3>Bachelor's degree in Information Security</h3><p>Faculty of Computers and Information · October 6 University.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Diploma in Cybersecurity</h3><p>Arab Open University · Riyadh.</p></article><article class="principle reveal"><span>03</span>${icon("code")}<h3>Applied software engineering</h3><p>Live websites, applications, interface systems, technical SEO, and maintainable delivery workflows.</p></article><article class="principle reveal"><span>04</span>${icon("google")}<h3>Google Maps specialist</h3><p>Practical experience with Business Profiles, verification, ownership, policy-aware correction, and local visibility.</p></article></div></div></section>
 <section class="section-pad"><div class="container case-method reveal"><div><span>Identity across languages</span><h2>Eslam Elshikh · إسلام الشيخ</h2></div><p>The professional English name used across the website and public profiles is “Eslam Elshikh”. Arabic references such as “إسلام الشيخ” and “المهندس إسلام الشيخ” refer to the same person and official digital identity.</p><div class="hero-actions">${button(site.social.wikidata, "View Wikidata", "button-ghost", true)}${button(site.social.github, "View GitHub", "button-ghost", true)}</div></div></section>
+${renderOfficialProfiles({ site, english: true, esc, icon })}
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Public evidence")}<h2>Work you can open and review</h2><p>Explore selected case studies, the web-project archive, and public Google Maps examples.</p></div><div class="stats-bar reveal"><div><strong>${projectAudit.listedProjects}</strong><span>web projects in the portfolio</span></div><div><strong>${mapsProjects.length}</strong><span>public Google Maps examples</span></div><div><strong>${projectAudit.githubRepositories}</strong><span>GitHub repositories reviewed</span></div><div><strong>${projectAudit.vercelProjects}</strong><span>Vercel projects reviewed</span></div></div><div class="section-action">${button("/en/projects/", "Explore the work")}</div></div></section>
 ${englishFinalCta("Have a project that crosses several disciplines?", "Share the business objective and the current technical situation. We can separate the problem into a practical sequence without losing the connections between security, experience, visibility, and operations.")}`;
-  const profileSchema = { "@type": "ProfilePage", "@id": `${absolute(path)}#profile`, url: absolute(path), name: "Professional profile of Eslam Elshikh", mainEntity: { "@id": `${site.url}/#person` }, inLanguage: "en", dateModified: `${site.lastUpdated}T00:00:00+03:00`, relatedLink: projects.filter((item) => item.slug && item.caseStudy).map((item) => absolute(`/en/projects/${item.slug}/`)) };
-  return page({ title: "About Eslam Elshikh | Cybersecurity & Software Engineer", description: "Meet Eslam Elshikh, a Riyadh-based cybersecurity engineer and software developer working across websites, AI agents, Google products, cloud systems, and SEO.", path, active: "about", body, lang: "en", schema: [profileSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "About", path }])], preloadImage: profilePhoto });
+  const profileSchema = { "@type": "ProfilePage", "@id": `${absolute(path)}#profile`, url: absolute(path), name: "Professional profile of Eslam Elshikh", mainEntity: { "@id": `${site.url}/#person` }, inLanguage: "en", dateModified: profileUpdatedAt, relatedLink: projects.filter((item) => item.slug && item.caseStudy).map((item) => absolute(`/en/projects/${item.slug}/`)) };
+  return page({ title: "About Eslam Elshikh | Cybersecurity & Software Engineer", description: "Meet Eslam Elshikh, a Riyadh-based cybersecurity engineer and software developer working across websites, AI agents, Google products, cloud systems, and SEO.", path, active: "about", body, lang: "en", modified: profileUpdatedAt.slice(0, 10), schema: [profileSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "About", path }])], preloadImage: profilePhoto });
 }
 
 function englishGoogleExpertPage() {

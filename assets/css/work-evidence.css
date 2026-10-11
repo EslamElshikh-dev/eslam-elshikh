@@ -263,6 +263,15 @@
   .evidence-project-label > span:last-child { font-size: .62rem; }
   .evidence-directory-filters button { padding-inline: .65rem; }
 }
+.public-work-credit { min-width: 0; margin-block-start: 1.25rem; padding: 1.1rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); overflow-wrap: anywhere; }
+.public-work-credit h3, .public-work-credit h4 { margin: 0 0 .9rem; color: var(--text); font-size: 1rem; }
+.public-work-credit dl { display: grid; gap: .8rem; margin: 0; }
+.public-work-credit dt { color: var(--muted); font-size: .78rem; font-weight: 700; }
+.public-work-credit dd { margin: .15rem 0 0; color: var(--text-soft); font-size: .9rem; line-height: 1.8; }
+.public-work-credit dd p { margin: 0 0 .25rem; color: inherit; font-size: inherit; }
+.public-work-credit .evidence-link { max-width: 100%; font-size: .86rem; }
+.public-work-credit .evidence-link:focus-visible { outline: 2px solid var(--secondary); outline-offset: 4px; }
+
 @media (prefers-reduced-motion:reduce) {
   .evidence-page *, .evidence-work-card, .evidence-work-image img { animation: none !important; transition: none !important; }
   .evidence-page .reveal { opacity: 1; transform: none; }
