@@ -331,7 +331,7 @@ for (const route of sitemapRoutes) {
   if (/^\/(?:en\/)?services\/[^/]+\/$/.test(route) && words < 520) warnings.push(`${route}: service page is shorter than 520 words (${words})`);
 }
 
-const linkedFiles = new Set(["/feed.xml", "/en/feed.xml", "/manifest.webmanifest", "/sitemap.xml", "/robots.txt", "/profile.json", "/llms.txt", "/humans.txt", "/favicon.ico", "/.well-known/security.txt"]);
+const linkedFiles = new Set(["/feed.xml", "/en/feed.xml", "/manifest.webmanifest", "/sitemap.xml", "/robots.txt", "/profile.json", "/eslam-elshikh.vcf", "/llms.txt", "/humans.txt", "/favicon.ico", "/.well-known/security.txt"]);
 for (const [route, html] of pages) {
   for (const match of html.matchAll(/href=["']([^"']+)["']/gi)) {
     const href = match[1];
@@ -352,7 +352,7 @@ for (const [route, html] of pages) {
   }
 }
 
-for (const required of ["robots.txt", "manifest.webmanifest", "feed.xml", "en/feed.xml", "profile.json", "llms.txt", "llms-full.txt", "humans.txt", "CNAME", ".well-known/security.txt", "404.html"]) {
+for (const required of ["robots.txt", "manifest.webmanifest", "feed.xml", "en/feed.xml", "profile.json", "eslam-elshikh.vcf", "llms.txt", "llms-full.txt", "humans.txt", "CNAME", ".well-known/security.txt", "404.html"]) {
   if (!(await exists(join(output, required)))) errors.push(`Missing generated file: ${required}`);
 }
 const notFound = await readFile(join(output, "404.html"), "utf8").catch(() => "");

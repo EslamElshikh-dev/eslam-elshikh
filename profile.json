@@ -21,24 +21,64 @@
   "givenName": "إسلام",
   "familyName": "الشيخ",
   "url": "https://www.eslam-elshikh.com/",
-  "mainEntityOfPage": "https://www.eslam-elshikh.com/about/#profile",
+  "mainEntityOfPage": {
+    "@id": "https://www.eslam-elshikh.com/about/#profile"
+  },
   "image": "https://www.eslam-elshikh.com/assets/brand/eslam-elshikh-portrait-20260827.webp",
-  "telephone": "+966579395299",
+  "description": "المهندس إسلام الشيخ في الرياض: مهندس أمن سيبراني ومطور برمجيات ومتخصص خرائط Google، يقدم تطوير المواقع والسيو المحلي وحلول الملفات التجارية في السعودية.",
+  "disambiguatingDescription": "مهندس أمن سيبراني ومطور برمجيات يعمل من الرياض، وصاحب الموقع eslam-elshikh.com وحساب GitHub باسم EslamElshikh-dev.",
   "jobTitle": [
     "مهندس أمن سيبراني",
     "مطور برمجيات",
     "متخصص خرائط Google"
   ],
-  "sameAs": [
-    "https://github.com/EslamElshikh-dev",
-    "https://www.facebook.com/eslamelshikhdev/",
-    "https://x.com/remoesoo10",
-    "https://www.instagram.com/remoesoo10",
-    "https://www.threads.com/@remoesoo10",
-    "https://www.youtube.com/channel/UCzzymecmc8SAH8vtpYpKVqQ",
-    "https://www.tiktok.com/@remoesoo",
-    "https://www.google.com/search?q=%D8%A5%D8%B3%D9%84%D8%A7%D9%85+%D8%A7%D9%84%D8%B4%D9%8A%D8%AE&kgmid=/g/11z3zxlvyt",
-    "https://me.developers.google.com/u/EslamElshikh"
+  "email": "mailto:info@eslam-elshikh.com",
+  "telephone": "+966579395299",
+  "workLocation": {
+    "@type": "Place",
+    "name": "الرياض",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "الرياض",
+      "addressRegion": "منطقة الرياض",
+      "addressCountry": "SA"
+    }
+  },
+  "areaServed": {
+    "@type": "City",
+    "name": "الرياض"
+  },
+  "alumniOf": [
+    {
+      "@type": "CollegeOrUniversity",
+      "name": "جامعة 6 أكتوبر",
+      "alternateName": "October 6 University"
+    },
+    {
+      "@type": "CollegeOrUniversity",
+      "name": "الجامعة العربية المفتوحة",
+      "alternateName": "Arab Open University"
+    }
+  ],
+  "hasCredential": [
+    {
+      "@type": "EducationalOccupationalCredential",
+      "name": "بكالوريوس أمن المعلومات",
+      "credentialCategory": "Bachelor degree",
+      "recognizedBy": {
+        "@type": "CollegeOrUniversity",
+        "name": "جامعة 6 أكتوبر"
+      }
+    },
+    {
+      "@type": "EducationalOccupationalCredential",
+      "name": "دبلوم الأمن السيبراني",
+      "credentialCategory": "Diploma",
+      "recognizedBy": {
+        "@type": "CollegeOrUniversity",
+        "name": "الجامعة العربية المفتوحة"
+      }
+    }
   ],
   "knowsAbout": [
     "الأمن السيبراني وحماية الأنظمة",
@@ -58,5 +98,20 @@
     "السيو المحلي",
     "إعلانات Google",
     "إدارة حملات Google Ads"
+  ],
+  "knowsLanguage": [
+    "ar",
+    "en"
+  ],
+  "sameAs": [
+    "https://github.com/EslamElshikh-dev",
+    "https://www.google.com/search?q=%D8%A5%D8%B3%D9%84%D8%A7%D9%85+%D8%A7%D9%84%D8%B4%D9%8A%D8%AE&kgmid=/g/11z3zxlvyt",
+    "https://me.developers.google.com/u/EslamElshikh",
+    "https://www.facebook.com/eslamelshikhdev/",
+    "https://www.instagram.com/remoesoo10",
+    "https://x.com/remoesoo10",
+    "https://www.threads.com/@remoesoo10",
+    "https://www.youtube.com/channel/UCzzymecmc8SAH8vtpYpKVqQ",
+    "https://www.tiktok.com/@remoesoo"
   ]
 }

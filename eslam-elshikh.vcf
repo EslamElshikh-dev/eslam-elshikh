@@ -1,0 +1,17 @@
+BEGIN:VCARD
+VERSION:3.0
+UID:https://www.eslam-elshikh.com/#person
+FN:إسلام الشيخ | Eslam Elshikh
+N:Elshikh;Eslam;;;
+TITLE:Cybersecurity Engineer and Software Developer
+ORG:Independent
+TEL;TYPE=WORK,VOICE:+966579395299
+EMAIL;TYPE=INTERNET,WORK:info@eslam-elshikh.com
+URL:https://www.eslam-elshikh.com/about/
+NOTE:Cybersecurity\, software and web development\, AI agents and automatio
+ n\, Google Maps and local SEO. الرياض، السعودية.
+X-SOCIALPROFILE;TYPE=github:https://github.com/EslamElshikh-dev
+X-SOCIALPROFILE;TYPE=google-developer:https://me.developers.google.com/u/Es
+ lamElshikh
+REV:20261018T022256Z
+END:VCARD

@@ -1,6 +1,8 @@
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { mapsProjects } from "../src/google-maps-work.mjs";
+import { site } from "../src/content.mjs";
+import { getOfficialProfiles } from "../src/identity.mjs";
 
 const outDir = process.argv[2] || "dist";
 const canonical = "https://www.eslam-elshikh.com";
@@ -95,6 +97,13 @@ for (const path of htmlFiles) {
 const llmsTxt = `# المهندس إسلام الشيخ
 
 > مهندس أمن سيبراني ومطور برمجيات ومتخصص خرائط Google في الرياض، يقدم تطوير المواقع ووكلاء الذكاء الاصطناعي والسيو والحلول السحابية للشركات في السعودية.
+
+## الهوية المهنية والحسابات الرسمية
+
+- الاسم المهني: ${site.nameAr} | ${site.nameEn}
+- [الملف المهني الرسمي](${canonical}/about/)
+- [بطاقة بيانات التواصل](${canonical}/eslam-elshikh.vcf)
+${getOfficialProfiles(site).map(([label, url]) => `- [${label}](${url})`).join("\n")}
 
 ## الخدمات الرئيسية
 

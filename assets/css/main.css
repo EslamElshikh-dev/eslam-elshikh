@@ -1041,6 +1041,8 @@ input, textarea, select { min-width: 0; }
 .identity-profile-name { display: flex; align-items: center; justify-content: space-between; gap: .6rem; color: var(--text); font-weight: 800; }
 .identity-profile-name .icon { width: 17px; height: 17px; flex: 0 0 17px; }
 .identity-profile-handle { color: var(--muted); font-size: .9rem; text-align: start; }
+.identity-profile-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem 1.5rem; }
+.identity-profile-actions > a { max-width: 100%; }
 @media (max-width: 900px) { .identity-profile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 540px) { .identity-profile-grid { grid-template-columns: minmax(0, 1fr); } }
 

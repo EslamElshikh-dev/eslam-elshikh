@@ -21,7 +21,7 @@ import { renderCaseStudy, renderProductCollection, renderProductsIndex, renderPr
 import { guides } from "./src/guides.mjs";
 import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
 import { renderAbout } from "./src/about.mjs";
-import { profileUpdatedAt, renderOfficialProfiles } from "./src/identity.mjs";
+import { profileUpdatedAt, getOfficialProfiles, renderOfficialProfiles, renderContactCard } from "./src/identity.mjs";
 import { publicWorkCredits, publicWorkCreditsReviewedAt } from "./src/public-work-credits.mjs";
 import { serviceEvidence, searchRevision } from "./src/service-evidence.mjs";
 import { articleVisuals } from "./src/article-visuals.mjs";
@@ -115,10 +115,7 @@ const socialLinks = [
 ];
 
 // Public references to the same person; the service listing keeps its own entity ID.
-const personSameAs = [...new Set([
-  site.social.github, site.social.facebook, site.social.x, site.social.instagram, site.social.threads,
-  site.social.youtube, site.social.tiktok, site.social.googleKnowledgePanel, site.social.googleDeveloper
-])];
+const personSameAs = [...new Set(getOfficialProfiles(site).map(([, url]) => url))];
 
 const baseGraph = (language = "ar") => {
   const isEnglish = language === "en";
@@ -137,13 +134,16 @@ const baseGraph = (language = "ar") => {
     description: isEnglish
       ? "Eslam Elshikh is a cybersecurity engineer, software developer, and Google Maps specialist in Riyadh, building secure digital products and measurable search experiences."
       : site.description,
+    disambiguatingDescription: isEnglish
+      ? "Riyadh-based cybersecurity engineer and software developer, owner of eslam-elshikh.com and the GitHub profile EslamElshikh-dev."
+      : "مهندس أمن سيبراني ومطور برمجيات يعمل من الرياض، وصاحب الموقع eslam-elshikh.com وحساب GitHub باسم EslamElshikh-dev.",
     jobTitle: isEnglish
       ? ["Cybersecurity Engineer", "Software Developer", "Google Maps Specialist"]
       : ["مهندس أمن سيبراني", "مطور برمجيات", "متخصص خرائط Google"],
     email: `mailto:${site.email}`,
     telephone: site.phone,
     workLocation: { "@type": "Place", name: isEnglish ? "Riyadh" : site.city, address: { "@type": "PostalAddress", addressLocality: isEnglish ? "Riyadh" : site.city, addressRegion: isEnglish ? "Riyadh Province" : site.region, addressCountry: site.countryCode } },
-    areaServed: { "@type": "Country", name: isEnglish ? "Saudi Arabia" : site.country },
+    areaServed: { "@type": "City", name: isEnglish ? "Riyadh" : site.city },
     alumniOf: [
       { "@type": "CollegeOrUniversity", name: isEnglish ? "October 6 University" : "جامعة 6 أكتوبر", alternateName: isEnglish ? "جامعة 6 أكتوبر" : "October 6 University" },
       { "@type": "CollegeOrUniversity", name: isEnglish ? "Arab Open University" : "الجامعة العربية المفتوحة", alternateName: isEnglish ? "الجامعة العربية المفتوحة" : "Arab Open University" }
@@ -1755,23 +1755,27 @@ async function build() {
   await writeText(join("en", "feed.xml"), englishFeedXml());
   await writeText("profile.json", JSON.stringify({
     "@context": "https://schema.org",
-    "@type": "Person",
-    "@id": `${site.url}/#person`,
-    name: site.nameAr,
-    honorificPrefix: "المهندس",
-    alternateName: site.alternateNames,
-    givenName: "إسلام",
-    familyName: "الشيخ",
-    url: `${site.url}/`,
-    mainEntityOfPage: `${site.url}/about/#profile`,
-    image: absolute(profilePhoto),
-    telephone: site.phone,
-    jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "متخصص خرائط Google"],
-    sameAs: personSameAs,
-    knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "Google Search", "Google Search Console", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"]
+    ...baseGraph("ar")[0]
   }, null, 2));
+  await writeText("eslam-elshikh.vcf", renderContactCard(site));
   await writeText("llms.txt", `# ${site.brandName}\n\n${site.description}\n\n## Verified public work\n- ${projectAudit.listedProjects} web projects in the portfolio, source-audited from ${projectAudit.githubRepositories} GitHub repositories and ${projectAudit.vercelProjects} Vercel projects on ${projectAudit.sourceAuditedAt}, with latest delivery updates on ${projectAudit.auditedAt}: ${absolute("/projects/")}\n- ${mapsProjects.length} public Google Maps examples: ${absolute("/google-maps-projects/")}\n\n## Core services\n${services.map((service) => `- ${service.title}: ${absolute(`/services/${service.slug}/`)}`).join("\n")}\n\n## Key pages\n- Latest work and dated evidence: ${absolute("/work-evidence/")}\n- About: ${absolute("/about/")}\n- Google Maps Expert: ${absolute("/google-expert/")}\n- Free Google Business Profile audit: ${absolute("/google-business-profile-audit/")}\n- Google Maps work: ${absolute("/google-maps-projects/")}\n- Book a consultation: ${absolute("/book/")}\n- Google Ads management: ${absolute("/google-ads/")}\n- Local SEO in Riyadh: ${absolute("/local-seo/riyadh/")}\n- Contact: ${absolute("/contact/")}\n`);
-  if (isDistBuild) await cp(join(root, "llms-full.txt"), join(outDir, "llms-full.txt"));
+  let fullReference = await readFile(join(root, "llms-full.txt"), "utf8");
+  const workReference = `## أعمال تطوير الويب الموثقة
+يضم سجل الأعمال ${projectAudit.listedProjects} مشروع ويب مسجّلًا في معرض الأعمال. مصدر الأرقام: مراجعة ${projectAudit.githubRepositories} مستودعًا على GitHub و${projectAudit.vercelProjects} مشروعًا على Vercel بتاريخ ${projectAudit.sourceAuditedAt}، وآخر تحديث لسجل التسليم بتاريخ ${projectAudit.auditedAt}. هذه تواريخ مراجعة السجل، وليست ادعاءً بفحص جميع الروابط اليوم.
+الرابط: ${absolute("/projects/")}
+
+`;
+  fullReference = fullReference.replace(/## أعمال تطوير الويب الموثقة[\s\S]*?(?=## نماذج أعمال ملفات Google التجارية)/, workReference);
+  const identityReference = `## المراجع الرسمية
+- الموقع: ${site.url}/
+- الملف المهني: ${absolute("/about/")}
+- بطاقة بيانات التواصل: ${absolute("/eslam-elshikh.vcf")}
+${getOfficialProfiles(site).map(([label, url]) => `- ${label}: ${url}`).join("\n")}
+- المدونة: ${absolute("/blog/")}
+
+`;
+  fullReference = fullReference.replace(/## المراجع الرسمية[\s\S]*?(?=## التواصل العام)/, identityReference);
+  await writeText("llms-full.txt", fullReference);
   await writeText("humans.txt", `Site: ${site.brandName}\nCanonical identity: ${site.nameAr} | ${site.nameEn}\nEnglish alternate: Islam Elshikh\nOfficial website: ${site.url}/\nLocation: ${site.city}, ${site.country}\nDesign and development: ${site.nameEn}\nUpdated: ${site.lastUpdated}\n`);
   await writeText("CNAME", "www.eslam-elshikh.com\n");
   await writeText(join(".well-known", "security.txt"), `Contact: mailto:${site.email}\nCanonical: ${site.url}/.well-known/security.txt\nPreferred-Languages: ar, en\nExpires: 2027-07-29T00:00:00.000Z\nPolicy: ${site.url}/terms/\n`);

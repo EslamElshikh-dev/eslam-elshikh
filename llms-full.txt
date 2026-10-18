@@ -56,7 +56,7 @@
 - حل التعليق وإثبات الملكية: https://www.eslam-elshikh.com/services/google-business-profile/
 
 ## أعمال تطوير الويب الموثقة
-تمت مراجعة 89 مستودعًا على GitHub و40 مشروعًا على Vercel بتاريخ 2026-09-02، مع استبعاد المستودعات الفارغة والنسخ المكررة والتجارب والروابط غير العامة. يضم السجل النهائي 73 مشروع ويب حيًا وفريدًا يمكن فتحه من صفحة الأعمال الرسمية.
+يضم سجل الأعمال 97 مشروع ويب مسجّلًا في معرض الأعمال. مصدر الأرقام: مراجعة 100 مستودعًا على GitHub و64 مشروعًا على Vercel بتاريخ 2026-10-04، وآخر تحديث لسجل التسليم بتاريخ 2026-10-07. هذه تواريخ مراجعة السجل، وليست ادعاءً بفحص جميع الروابط اليوم.
 الرابط: https://www.eslam-elshikh.com/projects/
 
 ## نماذج أعمال ملفات Google التجارية
@@ -71,9 +71,16 @@
 ## المراجع الرسمية
 - الموقع: https://www.eslam-elshikh.com/
 - الملف المهني: https://www.eslam-elshikh.com/about/
-- ملف Google للمطورين: https://me.developers.google.com/u/EslamElshikh
-- Google Knowledge Panel: https://www.google.com/search?q=%D8%A5%D8%B3%D9%84%D8%A7%D9%85+%D8%A7%D9%84%D8%B4%D9%8A%D8%AE&kgmid=/g/11z3zxlvyt
+- بطاقة بيانات التواصل: https://www.eslam-elshikh.com/eslam-elshikh.vcf
 - GitHub: https://github.com/EslamElshikh-dev
+- إسلام الشيخ على Google: https://www.google.com/search?q=%D8%A5%D8%B3%D9%84%D8%A7%D9%85+%D8%A7%D9%84%D8%B4%D9%8A%D8%AE&kgmid=/g/11z3zxlvyt
+- Google للمطورين: https://me.developers.google.com/u/EslamElshikh
+- Facebook: https://www.facebook.com/eslamelshikhdev/
+- Instagram: https://www.instagram.com/remoesoo10
+- X: https://x.com/remoesoo10
+- Threads: https://www.threads.com/@remoesoo10
+- YouTube: https://www.youtube.com/channel/UCzzymecmc8SAH8vtpYpKVqQ
+- TikTok: https://www.tiktok.com/@remoesoo
 - المدونة: https://www.eslam-elshikh.com/blog/
 
 ## التواصل العام
