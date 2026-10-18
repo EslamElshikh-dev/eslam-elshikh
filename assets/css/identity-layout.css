@@ -1,0 +1,231 @@
+/* Noto Sans Arabic: arabic subset; SIL Open Font License 1.1. */
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  font-style: normal;
+  font-weight: 400 900;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(/assets/fonts/noto-sans-arabic-arabic-ce85091f0209.woff2) format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC7, U+10EC9-10EEE, U+10EF0-10EFF, U+1EE00-1EE03, U+1EE05-1EE1F, U+1EE21-1EE22, U+1EE24, U+1EE27, U+1EE29-1EE32, U+1EE34-1EE37, U+1EE39, U+1EE3B, U+1EE42, U+1EE47, U+1EE49, U+1EE4B, U+1EE4D-1EE4F, U+1EE51-1EE52, U+1EE54, U+1EE57, U+1EE59, U+1EE5B, U+1EE5D, U+1EE5F, U+1EE61-1EE62, U+1EE64, U+1EE67-1EE6A, U+1EE6C-1EE72, U+1EE74-1EE77, U+1EE79-1EE7C, U+1EE7E, U+1EE80-1EE89, U+1EE8B-1EE9B, U+1EEA1-1EEA3, U+1EEA5-1EEA9, U+1EEAB-1EEBB, U+1EEF0-1EEF1;
+}
+/* Noto Sans Arabic: latin subset; SIL Open Font License 1.1. */
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  font-style: normal;
+  font-weight: 400 900;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(/assets/fonts/noto-sans-arabic-latin-fed070abc960.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Shared sizing for the Arabic and English professional profiles. */
+body.profile-page {
+  font-family: "Noto Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+  --profile-gutter: clamp(1rem, 3vw, 2rem);
+  --profile-section: clamp(2.75rem, 5.5vw, 5.5rem);
+  --profile-body: clamp(1rem, .96rem + .15vw, 1.075rem);
+  min-width: 0;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+.profile-page .container {
+  width: min(calc(100% - 2rem), var(--container));
+  width: min(calc(100% - var(--profile-gutter) - var(--profile-gutter) - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)), var(--container));
+}
+.profile-page .section-pad { padding-block: var(--profile-section); }
+.profile-page main { overflow-wrap: break-word; }
+.profile-page main :is(section, article, aside, div, ul, ol, li, a) { min-width: 0; }
+.profile-page main h2 { font-size: clamp(1.6rem, 1.15rem + 1.7vw, 2.6rem); line-height: 1.5; letter-spacing: 0; }
+.profile-page main h3 { font-size: clamp(1.2rem, 1.05rem + .6vw, 1.65rem); line-height: 1.55; letter-spacing: 0; }
+.profile-page main h4 { font-size: clamp(1.125rem, 1.05rem + .35vw, 1.375rem); line-height: 1.6; }
+.profile-page main p { font-size: var(--profile-body); line-height: 1.9; }
+.profile-page main small { font-size: .8125rem; line-height: 1.75; color: var(--muted); }
+.profile-page .eyebrow { font-size: .8125rem; line-height: 1.65; }
+.profile-page .inner-hero { padding-block: clamp(2rem, 4vw, 4rem); }
+.profile-page .inner-hero-grid { grid-template-columns: minmax(0, 1.45fr) minmax(17rem, .85fr); align-items: center; gap: clamp(1.5rem, 3vw, 3rem); }
+.profile-page .inner-hero-copy { padding-block: 0; }
+.profile-page .inner-hero-copy h1 { font-size: clamp(1.875rem, 1.05rem + 2.55vw, 3.25rem); line-height: 1.5; letter-spacing: 0; }
+html[dir="ltr"] .profile-page .inner-hero-copy h1 { line-height: 1.25; }
+html[dir="ltr"] .profile-page main h2 { line-height: 1.3; }
+.profile-page .inner-hero-copy > p { max-width: 65ch; font-size: var(--profile-body); line-height: 1.9; }
+.profile-page .inner-hero-copy h1 span { background: none; color: var(--primary); }
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .profile-page .inner-hero-copy h1 span { background: linear-gradient(100deg, var(--primary), var(--secondary) 75%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+}
+.profile-page .inner-hero-aside,
+.profile-page .about-identity-card { min-height: 0; height: auto; }
+.profile-page .about-identity-card { grid-template-columns: 1fr; gap: 1rem; padding: 2.5rem 1.25rem 1.5rem; }
+.profile-page .about-orbit-map { width: min(100%, 19rem); margin-block: .75rem 0; }
+.profile-page .about-orbit-node { width: clamp(3.25rem, 4vw, 3.5rem); min-height: clamp(3.25rem, 4vw, 3.5rem); padding: .375rem; }
+.profile-page .about-orbit-node b { font-size: .625rem; letter-spacing: .025em; }
+.profile-page .about-orbit-build { right: 0; }
+.profile-page .about-orbit-grow { left: 0; }
+.profile-page .about-system-status,
+.profile-page .about-identity-label { font-size: .6875rem; line-height: 1.5; letter-spacing: .08em; }
+.profile-page .about-identity-copy > strong { font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem); line-height: 1.6; }
+.profile-page .about-identity-copy > p { font-size: .9375rem; line-height: 1.7; }
+.profile-page .about-identity-links { gap: .5rem; }
+.profile-page .about-identity-links a { flex: 1 1 8rem; justify-content: center; min-height: 44px; padding: .625rem .75rem; font-size: .875rem; line-height: 1.6; text-align: center; white-space: normal; }
+.profile-page .about-identity-links .icon { flex: 0 0 1rem; width: 1rem; height: 1rem; }
+:root .profile-page .button { max-width: 100%; min-height: 48px; padding: .75rem 1.125rem; font-size: .9375rem; line-height: 1.6; white-space: normal; }
+.profile-page .button > .icon { flex: 0 0 1.125rem; width: 1.125rem; height: 1.125rem; }
+.profile-page .text-link { min-height: 44px; font-size: .9375rem; line-height: 1.6; }
+.profile-page .text-link > .icon { flex-shrink: 0; }
+.profile-page .about-hero-actions,
+.profile-page .hero-actions,
+.profile-page .about-proof-actions { align-items: stretch; gap: .75rem; }
+.profile-page .about-quick-facts { gap: .75rem; }
+.profile-page .about-quick-facts li { min-height: 80px; padding: .875rem; }
+.profile-page .about-quick-facts strong { font-size: .9375rem; line-height: 1.65; }
+.profile-page .about-signature-track span { min-height: 52px; gap: 1.25rem; letter-spacing: .08em; font-size: .8125rem; }
+.profile-page .about-name-registry { padding-block: var(--profile-section); }
+.profile-page .about-name-grid > div { min-height: 0; padding: clamp(1.125rem, 2vw, 1.75rem); }
+.profile-page .about-name-grid dt { color: var(--muted); font-size: .8125rem; line-height: 1.65; }
+.profile-page .about-name-grid dd { font-size: clamp(1.125rem, 1rem + .65vw, 1.5rem); line-height: 1.7; }
+.profile-page .about-manifesto { grid-template-columns: 3.5rem minmax(0, 1.3fr) minmax(15rem, .7fr); gap: clamp(1.5rem, 3vw, 2.5rem); }
+.profile-page .about-quote { grid-column: auto; margin-block: 0; padding: clamp(1.25rem, 2vw, 1.75rem); }
+.profile-page .about-quote p { font-size: 1.0625rem; line-height: 1.95; }
+.profile-page .about-heading-row { gap: 1.5rem; margin-bottom: 2rem; }
+.profile-page .about-journey-grid,
+.profile-page .about-method-grid { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: clamp(2rem, 4vw, 4rem); }
+.profile-page .about-journey-rail li { grid-template-columns: 3rem minmax(0, 1fr); min-height: 0; gap: .75rem 1rem; padding-block: 1.25rem; }
+.profile-page .about-journey-rail::before { inset-inline-start: 1.5rem; }
+.profile-page .about-journey-rail li > span { grid-row: 1 / span 2; align-self: start; width: 3rem; height: 3rem; }
+.profile-page .about-journey-rail li > b { grid-column: 2; justify-self: start; max-width: 100%; font-size: .6875rem; line-height: 1.5; white-space: normal; }
+.profile-page .about-focus-shell.is-enhanced { display: block; min-height: 0; }
+.profile-page .about-focus-shell.is-enhanced .about-focus-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: visible; border-inline-end: 0; border-bottom: 1px solid var(--line); }
+.profile-page .about-focus-tabs button { grid-template-columns: 1.5rem minmax(0, 1fr); gap: .5rem; min-width: 0; min-height: 88px; padding: .875rem; border: 0; border-inline-end: 1px solid var(--line); }
+.profile-page .about-focus-tabs button:last-child { border-inline-end: 0; }
+.profile-page .about-focus-tabs button::after { top: auto; bottom: 0; inset-inline: .875rem; width: auto; height: 3px; transform: scaleX(0); }
+.profile-page .about-focus-tabs button[aria-selected="true"]::after { transform: scaleX(1); }
+.profile-page .about-focus-tabs strong { font-size: .9375rem; line-height: 1.65; }
+.profile-page .about-focus-tabs small { font-size: .75rem; line-height: 1.65; letter-spacing: .025em; overflow-wrap: anywhere; }
+.profile-page .about-focus-tabs button:focus-visible { outline: 2px solid var(--secondary); outline-offset: -4px; }
+.profile-page .about-focus-panel { min-height: 0; grid-template-columns: minmax(9rem, 13rem) minmax(0, 1fr); gap: clamp(1.25rem, 3vw, 2.5rem); padding: clamp(1.25rem, 3vw, 2.5rem); }
+.profile-page .about-focus-art { width: 100%; max-width: 13rem; margin-inline: auto; }
+.profile-page .about-focus-copy h3,
+.profile-page .about-case-heading h3 { font-size: clamp(1.5rem, 1.15rem + 1.2vw, 2.125rem); line-height: 1.55; }
+.profile-page .about-focus-copy > span { font-size: .875rem; }
+.profile-page .about-focus-copy ul { grid-template-columns: 1fr; gap: .625rem; margin-block: 1.25rem; }
+.profile-page .about-focus-copy li { min-height: 0; padding: .75rem .875rem; font-size: .9375rem; line-height: 1.8; }
+.profile-page .about-focus-copy li .icon { flex: 0 0 1rem; }
+.profile-page .about-proof-strip article { min-height: 10rem; padding: 2rem 1.25rem 1.25rem; }
+.profile-page .about-proof-strip strong { font-size: clamp(2.25rem, 1.75rem + 2vw, 3.5rem); line-height: 1.2; letter-spacing: -.025em; }
+.profile-page .about-proof-strip span { font-size: 1rem; line-height: 1.7; }
+.profile-page .about-proof-strip article::before { font-size: .625rem; letter-spacing: .05em; }
+.profile-page .about-case-heading { gap: 1.5rem; }
+.profile-page .about-case-copy { padding: 1.25rem; }
+.profile-page .about-case-category { color: var(--muted); font-size: .8125rem; }
+.profile-page .about-case-tags span { font-size: .8125rem; line-height: 1.65; }
+.profile-page .about-case-live { min-height: 44px; font-size: .875rem; }
+.profile-page .about-standards-panel section { padding: clamp(1.25rem, 2.5vw, 2rem); }
+.profile-page .about-standard-label { font-size: .9375rem; }
+.profile-page .about-standards-panel li { padding: .875rem 0; padding-inline-start: 1.125rem; font-size: 1rem; line-height: 1.85; }
+.profile-page .about-method-list li { grid-template-columns: 2.5rem minmax(0, 1fr); gap: .875rem; }
+.profile-page .identity-profile-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.profile-page .identity-profile-grid > li { min-width: 0; }
+.profile-page .identity-profile-grid a { height: 100%; min-height: 7rem; justify-content: space-between; gap: .75rem; padding: 1.125rem; line-height: 1.65; }
+.profile-page .identity-profile-name { align-items: flex-start; gap: .75rem; font-size: 1rem; line-height: 1.65; }
+.profile-page .identity-profile-name > .icon { flex: 0 0 1.125rem; width: 1.125rem; height: 1.125rem; margin-top: .25rem; }
+.profile-page .identity-profile-handle { font-size: .9375rem; line-height: 1.65; overflow-wrap: anywhere; unicode-bidi: isolate; }
+html[dir="rtl"] .profile-page .identity-profile-handle { text-align: right; }
+html[dir="ltr"] .profile-page .identity-profile-handle { text-align: left; }
+.profile-page .identity-profile-actions { align-items: stretch; gap: .75rem 1.25rem; }
+.profile-page .identity-profile-actions .text-link { padding-block: .625rem; }
+.profile-page .service-intro-grid { grid-template-columns: minmax(0, 1.4fr) minmax(15rem, .8fr); gap: clamp(1.5rem, 4vw, 3rem); }
+.profile-page .service-quick-card h2 { font-size: clamp(1.375rem, 1.2rem + .5vw, 1.75rem); }
+.profile-page .principles-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.profile-page .principle { padding: clamp(1.25rem, 2.5vw, 2rem); }
+.profile-page .article-author-head { display: grid; grid-template-columns: 5rem minmax(0, 1fr); align-items: center; gap: 1rem; }
+.profile-page .article-author-photo { width: 5rem; height: 5rem; object-fit: cover; }
+.profile-page .case-method { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+.profile-page .stats-bar { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.profile-page .stats-bar > div { min-width: 0; padding: 1.25rem; }
+.profile-page .stats-bar span { font-size: .9375rem; line-height: 1.75; overflow-wrap: anywhere; }
+
+@media (max-width: 1099px) {
+  .profile-page .inner-hero-grid,
+  .profile-page .about-manifesto,
+  .profile-page .about-journey-grid,
+  .profile-page .about-method-grid { grid-template-columns: minmax(0, 1fr); }
+  .profile-page .inner-hero-aside { width: 100%; max-width: 46rem; margin-inline: auto; }
+  .profile-page .about-journey-intro,
+  .profile-page .about-method-intro { position: static; }
+  .profile-page .about-case-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .profile-page .about-quote { max-width: none; }
+}
+@media (min-width: 700px) and (max-width: 1099px) {
+  .profile-page .about-identity-card { grid-template-columns: minmax(10rem, .8fr) minmax(0, 1fr); align-items: center; text-align: start; gap: 1.5rem; padding: 2.5rem 1.5rem 1.5rem; }
+  .profile-page .about-identity-links { justify-content: flex-start; }
+}
+@media (max-width: 1024px) {
+  .profile-page .identity-profile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .profile-page .about-name-grid { grid-template-columns: minmax(0, 1fr); }
+  .profile-page .about-name-grid > div + div { border-inline-start: 0; border-top: 1px solid var(--line); }
+}
+@media (max-width: 900px) {
+  .profile-page .service-intro-grid { grid-template-columns: minmax(0, 1fr); }
+  .profile-page .about-quick-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .profile-page .about-quick-facts li:last-child { grid-column: auto; }
+  .profile-page .stats-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .profile-page .stats-bar > div:nth-child(3) { border-inline-start: 0; }
+  .profile-page .stats-bar > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+@media (max-width: 699px) {
+  .profile-page .inner-hero-aside { max-width: 28rem; }
+  .profile-page .about-hero-actions .button,
+  .profile-page .hero-actions .button,
+  .profile-page .about-proof-actions .button { flex: 1 1 12rem; }
+  .profile-page .about-quick-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .profile-page .about-quick-facts li:last-child { grid-column: 1 / -1; }
+  .profile-page .about-focus-shell.is-enhanced .about-focus-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .profile-page .about-focus-tabs button:nth-child(even) { border-inline-end: 0; }
+  .profile-page .about-focus-tabs button:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .profile-page .about-focus-panel { grid-template-columns: minmax(0, 1fr); }
+  .profile-page .about-focus-art { width: min(45%, 10rem); }
+  .profile-page .about-focus-art > div { width: 4rem; height: 4rem; }
+  .profile-page .about-focus-art > div .icon { width: 1.75rem; height: 1.75rem; }
+  .profile-page .about-case-grid,
+  .profile-page .principles-grid,
+  .profile-page .about-standards-panel { grid-template-columns: minmax(0, 1fr); }
+  .profile-page .about-standards-panel section + section { border-inline-start: 0; border-top: 1px solid var(--line); }
+  .profile-page .about-proof-strip article { min-height: 9rem; padding: 2rem 1rem 1rem; }
+  .profile-page .about-story-columns { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .profile-page .identity-profile-grid { grid-template-columns: minmax(0, 1fr); }
+  .profile-page .identity-profile-grid a { min-height: 6.5rem; }
+  .profile-page .identity-profile-actions { flex-direction: column; }
+  .profile-page .identity-profile-actions > a { width: 100%; justify-content: center; text-align: center; }
+}
+@media (max-width: 360px) {
+  .profile-page .about-quick-facts { grid-template-columns: minmax(0, 1fr); }
+  .profile-page .about-quick-facts li:last-child { grid-column: auto; }
+  .profile-page .about-focus-tabs button { grid-template-columns: minmax(0, 1fr); gap: .25rem; padding: .75rem; }
+  .profile-page .about-focus-tabs button > span:first-child { display: none; }
+}
+@media (hover: none) {
+  .profile-page .about-case-card:hover,
+  .profile-page .about-identity-links a:hover { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .profile-page *, .profile-page *::before, .profile-page *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+@supports not (aspect-ratio: 1) {
+  .profile-page .about-orbit-map,
+  .profile-page .about-focus-art { display: block; }
+  .profile-page .about-orbit-map::before,
+  .profile-page .about-focus-art::before { position: static; display: block; padding-top: 100%; border: 0; background: none; }
+  .profile-page .about-orbit-map .about-portrait { position: absolute; top: 19.5%; left: 19.5%; }
+  .profile-page .about-focus-art > div { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-7deg); }
+  .profile-page .about-case-media { height: 0; padding-bottom: 62.5%; }
+  .profile-page .about-case-media img { position: absolute; inset: 0; }
+}
+@media (forced-colors: active) {
+  .profile-page .inner-hero-copy h1 span { background: none; color: CanvasText; -webkit-text-fill-color: CanvasText; }
+  .profile-page .about-orbit-node,
+  .profile-page .identity-profile-grid a,
+  .profile-page .about-focus-tabs button { border: 1px solid ButtonText; box-shadow: none; }
+  .profile-page .about-focus-tabs button[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -4px; }
+}

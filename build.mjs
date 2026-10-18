@@ -306,8 +306,10 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   <meta name="twitter:image" content="${absolute(image)}">
   <meta name="twitter:image:alt" content="${esc(fullTitle)}">
   <script src="/assets/js/theme.js?v=${version}"></script>
+${["/about/", "/en/about/"].includes(path) ? `  <link rel="preload" href="/assets/fonts/${isEnglish ? "noto-sans-arabic-latin-fed070abc960.woff2" : "noto-sans-arabic-arabic-ce85091f0209.woff2"}" as="font" type="font/woff2" crossorigin>\n` : ""}
   <link rel="stylesheet" href="/assets/css/main.css?v=${version}">
 ${stylesheets.length ? `${stylesheets.map((href) => `  <link rel="stylesheet" href="${esc(href)}">`).join("\n")}\n` : ""}  <link rel="stylesheet" href="/assets/css/studio.css?v=${version}">
+${["/about/", "/en/about/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/identity-layout.css?v=${version}">\n` : ""}
 ${["/projects/", "/en/projects/", "/google-maps-projects/", "/en/google-maps-projects/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/maps-exhibition.css?v=${version}">\n` : ""}${/^(\/en)?\/projects\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-gallery.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/project-stories.css?v=${version}">\n` : ""}${/^(\/en)?\/(projects|products|google-maps-projects|work-evidence)\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/work-evidence.css?v=${version}">\n` : ""}${["/projects/", "/en/projects/"].includes(path) || /^(\/en)?\/products\//.test(path) || /^(\/en)?\/services\/crm-systems\//.test(path) ? `  <link rel="stylesheet" href="/assets/css/crm-studio.css?v=${version}">\n` : ""}${["/services/", "/en/services/"].includes(path) ? `  <link rel="stylesheet" href="/assets/css/service-studio.css?v=${version}">\n` : ""}  <script src="/assets/js/analytics.js?v=${version}" defer></script>
 ${["/services/", "/en/services/"].includes(path) ? `  <script src="/assets/js/service-preview.js?v=${version}" defer></script>\n` : ""}
   <script type="application/ld+json">${safeJson({ "@context": "https://schema.org", "@graph": graph })}</script>
@@ -429,7 +431,7 @@ function page({ title, description, path, active = "", body, schema = [], lang =
   const scripts = isHome ? [...pageScripts, `/assets/js/home-magic.js?v=${homeAssetVersion}`] : pageScripts;
   const pageHead = head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection, stylesheets, preloadImage, ...(robots ? { robots } : {}) });
   return `${isHome ? pageHead.replace("</head>", `  <link rel="stylesheet" href="/assets/css/home-magic.css?v=${homeAssetVersion}">\n</head>`) : pageHead}
-<body>${header(active, lang, path)}<main id="main">${pageBody}${businessMapSection(lang)}</main>${footer(lang)}${scripts.map((src) => `<script src="${esc(src)}" defer></script>`).join("")}</body></html>`;
+<body${["/about/", "/en/about/"].includes(path) ? ' class="profile-page"' : ""}>${header(active, lang, path)}<main id="main">${pageBody}${businessMapSection(lang)}</main>${footer(lang)}${scripts.map((src) => `<script src="${esc(src)}" defer></script>`).join("")}</body></html>`;
 }
 
 const eyebrow = (text) => `<span class="eyebrow"><span aria-hidden="true"></span>${esc(text)}</span>`;

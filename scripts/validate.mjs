@@ -232,7 +232,9 @@ for (const route of sitemapRoutes) {
   const hasHomeMagic = route === "/" || route === "/en/";
   const hasGoogleProfilePricing = ["/google-expert/", "/en/google-expert/", "/services/google-business-profile/", "/en/services/google-business-profile/"].includes(route);
   const hasMapsExpert = /class="maps-expert"/.test(html);
-  const expectedStylesheets = Number(hasMapsExpert) + Number(hasGoogleProfilePricing) + Number(hasHomeMagic) + Number(hasVerifiedCase) + Number(hasCrmShowcase) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories);
+  const hasIdentityLayout = ["/about/", "/en/about/"].includes(route);
+  const expectedStylesheets = Number(hasMapsExpert) + Number(hasGoogleProfilePricing) + Number(hasHomeMagic) + Number(hasVerifiedCase) + Number(hasCrmShowcase) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories) + Number(hasIdentityLayout);
+  if (hasIdentityLayout && !html.includes(`/assets/css/identity-layout.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned identity layout stylesheet`);
   if (hasHomeMagic && (!html.includes('/assets/css/home-magic.css?v=') || !html.includes('/assets/js/home-magic.js?v='))) errors.push(`${route}: missing versioned home experience assets`);
   if (hasVerifiedCase && !html.includes("/assets/css/case-results.css?v=")) errors.push(`${route}: missing the versioned results stylesheet`);
   if (hasProjectGallery && !html.includes(`/assets/css/project-gallery.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned project gallery stylesheet`);
