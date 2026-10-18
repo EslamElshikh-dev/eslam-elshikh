@@ -42,13 +42,13 @@ export const site = {
   positioning: "هندسة رقمية تجمع الأمان والبرمجة والذكاء الاصطناعي وحلول خرائط Google والسيو في خطة واحدة قابلة للقياس.",
   social: {
     github: "https://github.com/EslamElshikh-dev",
-    facebook: "https://www.facebook.com/remoesoo",
+    facebook: "https://www.facebook.com/eslamelshikhdev/",
     x: "https://x.com/remoesoo10",
     instagram: "https://www.instagram.com/remoesoo10",
     threads: "https://www.threads.com/@remoesoo10",
     youtube: "https://www.youtube.com/channel/UCzzymecmc8SAH8vtpYpKVqQ",
     tiktok: "https://www.tiktok.com/@remoesoo",
-    wikidata: "https://www.wikidata.org/wiki/Q138800449",
+    googleKnowledgePanel: "https://www.google.com/search?q=%D8%A5%D8%B3%D9%84%D8%A7%D9%85+%D8%A7%D9%84%D8%B4%D9%8A%D8%AE&kgmid=/g/11z3zxlvyt",
     googleDeveloper: "https://me.developers.google.com/u/EslamElshikh",
     blog: "https://blog.eslam-elshikh.com"
   },

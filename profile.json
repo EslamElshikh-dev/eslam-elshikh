@@ -29,20 +29,15 @@
     "مطور برمجيات",
     "متخصص خرائط Google"
   ],
-  "identifier": {
-    "@type": "PropertyValue",
-    "propertyID": "Wikidata",
-    "value": "Q138800449",
-    "url": "https://www.wikidata.org/wiki/Q138800449"
-  },
   "sameAs": [
     "https://github.com/EslamElshikh-dev",
+    "https://www.facebook.com/eslamelshikhdev/",
     "https://x.com/remoesoo10",
     "https://www.instagram.com/remoesoo10",
-    "https://www.threads.net/@remoesoo10",
-    "https://www.youtube.com/@remoesoo10",
+    "https://www.threads.com/@remoesoo10",
+    "https://www.youtube.com/channel/UCzzymecmc8SAH8vtpYpKVqQ",
     "https://www.tiktok.com/@remoesoo",
-    "https://www.wikidata.org/wiki/Q138800449",
+    "https://www.google.com/search?q=%D8%A5%D8%B3%D9%84%D8%A7%D9%85+%D8%A7%D9%84%D8%B4%D9%8A%D8%AE&kgmid=/g/11z3zxlvyt",
     "https://me.developers.google.com/u/EslamElshikh"
   ],
   "knowsAbout": [
@@ -53,8 +48,9 @@
     "استشارات ودعم منتجات Google",
     "حل مشكلات ملفات Google التجارية",
     "قواعد المعرفة والبحث الذكي",
-    "تحسين محركات البحث SEO والسيو المحلي",
+    "تحسين محركات البحث SEO",
     "إدارة الإعلانات الرقمية وصفحات الهبوط",
+    "تطوير أنظمة CRM ولوحات التحكم",
     "خرائط Google",
     "Google Business Profile",
     "Google Search",

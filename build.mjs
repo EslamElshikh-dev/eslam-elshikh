@@ -114,17 +114,11 @@ const socialLinks = [
   ["YouTube", site.social.youtube, "YT"]
 ];
 
-// Person profiles only: a blog and a business listing describe separate entities.
+// Public references to the same person; the service listing keeps its own entity ID.
 const personSameAs = [...new Set([
   site.social.github, site.social.facebook, site.social.x, site.social.instagram, site.social.threads,
-  site.social.youtube, site.social.tiktok, site.social.wikidata, site.social.googleDeveloper
+  site.social.youtube, site.social.tiktok, site.social.googleKnowledgePanel, site.social.googleDeveloper
 ])];
-const personIdentifier = {
-  "@type": "PropertyValue",
-  propertyID: "Wikidata",
-  value: "Q138800449",
-  url: site.social.wikidata
-};
 
 const baseGraph = (language = "ar") => {
   const isEnglish = language === "en";
@@ -161,7 +155,6 @@ const baseGraph = (language = "ar") => {
     knowsAbout: isEnglish
       ? [...englishServices.map((service) => service.title), "Google Maps", "Google Business Profile", "Google Search", "Google Search Console", "Local SEO", "Google Ads"]
       : [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "Google Search", "Google Search Console", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"],
-    identifier: personIdentifier,
     knowsLanguage: ["ar", "en"],
     sameAs: personSameAs
   },
@@ -284,7 +277,7 @@ ${keywords.length ? `  <meta name="keywords" content="${esc(keywords.join(", "))
   ${preloadImage ? `<link rel="preload" as="image" href="${absolute(preloadImage)}" type="image/webp" fetchpriority="high">` : ""}
   ${alternates ? `<link rel="alternate" hreflang="ar" href="${absolute(alternates.ar)}"><link rel="alternate" hreflang="ar-SA" href="${absolute(alternates.ar)}"><link rel="alternate" hreflang="en" href="${absolute(alternates.en)}"><link rel="alternate" hreflang="x-default" href="${absolute(alternates.ar)}">` : ""}
   <link rel="me" href="${site.social.googleDeveloper}">
-  <link rel="me" href="${site.social.wikidata}">
+  <link rel="me" href="${esc(site.social.googleKnowledgePanel)}">
   <link rel="me" href="${site.social.github}">
   <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml" sizes="any">
   <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
@@ -440,7 +433,7 @@ function page({ title, description, path, active = "", body, schema = [], lang =
 }
 
 const eyebrow = (text) => `<span class="eyebrow"><span aria-hidden="true"></span>${esc(text)}</span>`;
-const button = (href, label, variant = "", external = false) => `<a class="button${variant ? ` ${variant}` : ""}" href="${href}"${external ? ' target="_blank" rel="noopener"' : ""}>${esc(label)} ${icon(external ? "external" : "arrow", "button-icon")}</a>`;
+const button = (href, label, variant = "", external = false) => `<a class="button${variant ? ` ${variant}` : ""}" href="${esc(href)}"${external ? ' target="_blank" rel="noopener"' : ""}>${esc(label)} ${icon(external ? "external" : "arrow", "button-icon")}</a>`;
 const checkList = (items, className = "") => `<ul class="check-list${className ? ` ${esc(className)}` : ""}">${items.map((item) => `<li>${icon("check")}<span>${esc(item)}</span></li>`).join("")}</ul>`;
 const faqBlock = (faq) => `<div class="accordion">${faq.map(([question, answer], index) => `<details class="reveal"${index === 0 ? " open" : ""}><summary>${esc(question)}<span aria-hidden="true">+</span></summary><div><p>${esc(answer)}</p></div></details>`).join("")}</div>`;
 
@@ -1348,7 +1341,7 @@ function englishAboutPage() {
 <section class="section-pad"><div class="container service-intro-grid"><div class="rich-copy reveal"><h2>I work across the boundaries where digital projects usually break</h2><p>A website can look polished and still be difficult to find, insecure to operate, or unclear to customers. An AI assistant can be impressive in a demo and unreliable inside a real workflow. A Business Profile can contain complete fields and still represent the business incorrectly. My work connects these disciplines so decisions remain coherent from diagnosis through launch.</p><p>I begin with the business outcome, the current system, the people who operate it, and the evidence available. Technology is selected after the problem is framed. The engagement is then divided into reviewable stages with explicit scope, dependencies, risk, acceptance criteria, and handover.</p><p>My public work includes live web projects and Google Maps examples across companies and service businesses. Public links demonstrate the existence and presentation of those projects; they do not imply invented revenue, traffic, or ranking results. Where outcome data is unavailable, I say so.</p></div><aside class="service-quick-card reveal"><span>Professional focus</span><h2>One accountable delivery perspective</h2>${checkList(["Cybersecurity and systems protection", "Websites, applications, and technical products", "AI agents, knowledge systems, and automation", "Google Business Profile and product support", "Technical, content, and local SEO", "Cloud architecture, analytics, and conversion"])}${button("/en/contact/", "Discuss a project")}</aside></div></section>
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Working principles")}<h2>Good engineering makes the important decisions easier to see</h2><p>The work should remain understandable to the business, maintainable by the team, and testable after delivery.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("target")}<h3>Outcome before tooling</h3><p>Define the decision, user, constraint, and evidence of success before choosing a platform.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Security by design</h3><p>Consider identities, permissions, data, recovery, and failure paths from the beginning.</p></article><article class="principle reveal"><span>03</span>${icon("user")}<h3>Built for real use</h3><p>Design for actual devices, content, operating capacity, accessibility, and edge cases.</p></article><article class="principle reveal"><span>04</span>${icon("chart")}<h3>Evidence over theatre</h3><p>Measure useful outcomes and state clearly where third-party or business results cannot be guaranteed.</p></article></div></div></section>
 <section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("Education and professional foundation")}<h2>Formal study connected to applied delivery</h2><p>The professional profile combines an academic foundation in information security with advanced cybersecurity study and hands-on work across software, web products, search, and Google business tools.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("shield")}<h3>Bachelor's degree in Information Security</h3><p>Faculty of Computers and Information · October 6 University.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Diploma in Cybersecurity</h3><p>Arab Open University · Riyadh.</p></article><article class="principle reveal"><span>03</span>${icon("code")}<h3>Applied software engineering</h3><p>Live websites, applications, interface systems, technical SEO, and maintainable delivery workflows.</p></article><article class="principle reveal"><span>04</span>${icon("google")}<h3>Google Maps specialist</h3><p>Practical experience with Business Profiles, verification, ownership, policy-aware correction, and local visibility.</p></article></div></div></section>
-<section class="section-pad"><div class="container case-method reveal"><div><span>Identity across languages</span><h2>Eslam Elshikh · إسلام الشيخ</h2></div><p>The professional English name used across the website and public profiles is “Eslam Elshikh”. Arabic references such as “إسلام الشيخ” and “المهندس إسلام الشيخ” refer to the same person and official digital identity.</p><div class="hero-actions">${button(site.social.wikidata, "View Wikidata", "button-ghost", true)}${button(site.social.github, "View GitHub", "button-ghost", true)}</div></div></section>
+<section class="section-pad"><div class="container case-method reveal"><div><span>Identity across languages</span><h2>Eslam Elshikh · إسلام الشيخ</h2></div><p>The professional English name used across the website and public profiles is “Eslam Elshikh”. Arabic references such as “إسلام الشيخ” and “المهندس إسلام الشيخ” refer to the same person and official digital identity.</p><div class="hero-actions">${button(site.social.googleKnowledgePanel, "Eslam Elshikh on Google", "button-ghost", true)}${button(site.social.github, "View GitHub", "button-ghost", true)}</div></div></section>
 ${renderOfficialProfiles({ site, english: true, esc, icon })}
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Public evidence")}<h2>Work you can open and review</h2><p>Explore selected case studies, the web-project archive, and public Google Maps examples.</p></div><div class="stats-bar reveal"><div><strong>${projectAudit.listedProjects}</strong><span>web projects in the portfolio</span></div><div><strong>${mapsProjects.length}</strong><span>public Google Maps examples</span></div><div><strong>${projectAudit.githubRepositories}</strong><span>GitHub repositories reviewed</span></div><div><strong>${projectAudit.vercelProjects}</strong><span>Vercel projects reviewed</span></div></div><div class="section-action">${button("/en/projects/", "Explore the work")}</div></div></section>
 ${englishFinalCta("Have a project that crosses several disciplines?", "Share the business objective and the current technical situation. We can separate the problem into a practical sequence without losing the connections between security, experience, visibility, and operations.")}`;
@@ -1774,7 +1767,6 @@ async function build() {
     image: absolute(profilePhoto),
     telephone: site.phone,
     jobTitle: ["مهندس أمن سيبراني", "مطور برمجيات", "متخصص خرائط Google"],
-    identifier: personIdentifier,
     sameAs: personSameAs,
     knowsAbout: [...services.map((service) => service.title), "خرائط Google", "Google Business Profile", "Google Search", "Google Search Console", "السيو المحلي", "إعلانات Google", "إدارة حملات Google Ads"]
   }, null, 2));
