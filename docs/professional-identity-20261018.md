@@ -38,3 +38,7 @@ The generated PDF and motion graphics were rendered and visually inspected. Brow
 ## Production packaging
 
 The existing Vercel ignore rules exclude general PDF/ZIP files. Two exact allow rules include only the public identity PDF and media-kit ZIP. Production must pass the same required-asset validation as the local build. Release 4.17.1 includes this packaging correction.
+
+## Final downloadable profile
+
+The final PDF uses fixed table columns for consistent Arabic and English card alignment. Revised PDF and ZIP assets use distinct r2 filenames and explicit Vercel source-package allow rules. Release 4.17.2 updates the download targets without changing the credential, case-study or membership facts.
