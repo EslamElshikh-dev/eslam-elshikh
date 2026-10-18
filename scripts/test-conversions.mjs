@@ -30,7 +30,18 @@ function setup(choice = 'granted', search = '', legacyChoice = null) {
 for (const choice of [null, 'denied']) {
   const s = setup(choice);
   assert.equal(s.window.esAnalytics.track('whatsapp_click'), false);
+  assert.equal(s.window.esAnalytics.track('identity_download', { item: 'full-kit' }), false);
   assert.equal(s.window.dataLayer, undefined, 'No analytics request or queue before consent');
+}
+{
+  const s = setup();
+  s.window.esAnalytics.track('identity_download', { item: 'full-kit', message: 'private message' });
+  s.window.esAnalytics.track('credential_open', { item: 'private@example.com' });
+  const identity = s.events().filter(e => ['identity_download', 'credential_open'].includes(e[1]));
+  assert.equal(identity[0][2].item_id, 'full-kit');
+  assert.equal(identity[1][2].item_id, 'other');
+  assert.ok(!JSON.stringify(identity).includes('private'), 'Identity measurement must exclude arbitrary content');
+  assert.equal(s.events().filter(e => e[1] === 'conversion').length, 0, 'Downloads and credential visits must not become Ads contact conversions');
 }
 {
   const s = setup();

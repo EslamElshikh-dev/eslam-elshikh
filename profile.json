@@ -63,6 +63,30 @@
   "hasCredential": [
     {
       "@type": "EducationalOccupationalCredential",
+      "name": "Google Ads Search Certification (2026)",
+      "credentialCategory": "Professional certification",
+      "identifier": "196860691",
+      "url": "https://skillshop.credential.net/f10c0d9f-1417-41a8-b35c-a56c6a2d358d#acc.BUlXLe7J",
+      "recognizedBy": {
+        "@type": "Organization",
+        "name": "Google Skillshop",
+        "url": "https://skillshop.withgoogle.com/"
+      }
+    },
+    {
+      "@type": "EducationalOccupationalCredential",
+      "name": "Google Ads Measurement Certification",
+      "credentialCategory": "Professional certification",
+      "identifier": "191833453",
+      "url": "https://skillshop.credential.net/2e22949d-fa03-429b-b367-58be9ee2350d#acc.4fkdDFEJ",
+      "recognizedBy": {
+        "@type": "Organization",
+        "name": "Google Skillshop",
+        "url": "https://skillshop.withgoogle.com/"
+      }
+    },
+    {
+      "@type": "EducationalOccupationalCredential",
       "name": "بكالوريوس أمن المعلومات",
       "credentialCategory": "Bachelor degree",
       "recognizedBy": {

@@ -1,5 +1,5 @@
 // Fixed to the actual identity-content revision, not the build time.
-export const profileUpdatedAt = "2026-10-18T02:22:56+00:00";
+export const profileUpdatedAt = "2026-10-18T03:34:51+00:00";
 
 export function getOfficialProfiles(site, english = false) {
   return [

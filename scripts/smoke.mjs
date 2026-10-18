@@ -35,7 +35,7 @@ const dashboard = await readFile(join(output, "local-visibility-dashboard/index.
 const sitemap = await readFile(join(output, "sitemap.xml"), "utf8").catch(() => "");
 
 // Inspect the final files after every HTML transformation, not only the generator output.
-const finalHtmlFiles = (await readdir(output, { recursive: true })).filter((file) => file.endsWith(".html"));
+const finalHtmlFiles = (await readdir(output, { recursive: true })).filter((file) => file.endsWith(".html") && !file.replaceAll("\\", "/").startsWith("assets/identity-20261018/"));
 for (const file of finalHtmlFiles) {
   const html = await readFile(join(output, file), "utf8");
   const count = (pattern) => [...html.matchAll(pattern)].length;

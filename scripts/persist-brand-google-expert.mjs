@@ -22,7 +22,7 @@ async function walk(dir) {
   return files;
 }
 
-const statsHtml = `<section class="section-pad"><div class="container google-stats"><div class="google-stat reveal"><strong data-counter="472">472</strong><span>ملفًا تجاريًا على Google تم دعم توثيقه</span></div><div class="google-stat reveal"><strong data-counter="233">233</strong><span>مشكلة ملف تجاري تم حلها ومعالجتها</span></div><div class="google-stat reveal"><strong data-counter="${mapsProjects.length}">${mapsProjects.length}</strong><span>نموذجًا عامًا منشورًا يمكن مراجعته</span></div><div class="google-stat reveal"><strong>Google</strong><span>مساهمات عملية في منتجات Google</span></div></div></section>`;
+const statsHtml = `<section class="section-pad"><div class="container google-stats">${site.stats.map(item => `<div class="google-stat reveal"><strong>${item.value}</strong><span>${item.label}</span></div>`).join("")}</div></section>`;
 
 const professionalBio = `<aside class="disclaimer-card professional-summary-card reveal"><span>عن إسلام الشيخ</span><h2>خبرة عملية مدعومة بمساهمات ونماذج منشورة</h2><p>يجمع إسلام الشيخ بين العمل على منتجات Google وإدارة الملفات التجارية والسيو المحلي وتطوير المواقع، لتقديم معالجة مترابطة تبدأ من صحة الملف وتصل إلى تجربة الموقع والتحويل والقياس.</p><a class="text-link" href="https://me.developers.google.com/u/EslamElshikh" target="_blank" rel="noopener">عرض ملف Google للمطورين <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6m0-6-9 9"/><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/></svg></a></aside>`;
 
@@ -42,7 +42,7 @@ const socialIcons = {
   YouTube: '<svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/></svg>'
 };
 
-const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
+const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html") && !path.replaceAll("\\", "/").includes("/assets/identity-20261018/"));
 for (const path of htmlFiles) {
   let html = await readFile(path, "utf8");
   const isEnglish = /<html\s+lang="en"\s+dir="ltr"/i.test(html);
@@ -121,6 +121,9 @@ ${getOfficialProfiles(site).map(([label, url]) => `- [${label}](${url})`).join("
 ## صفحات مهمة
 
 - [عن المهندس إسلام الشيخ](${canonical}/about/)
+- [الشهادات والمساهمات](${canonical}/credentials/)
+- [ملاحظات من العمل](${canonical}/notes/)
+- [ملف التعريف والمشاركة](${canonical}/media-kit/)
 - [خبير خرائط جوجل — إسلام الشيخ](${canonical}/google-expert/)
 - [إسلام الشيخ — خبير إعلانات جوجل وإدارة حملات Google Ads](${canonical}/google-ads/)
 - [السيو المحلي في الرياض](${canonical}/local-seo/riyadh/)

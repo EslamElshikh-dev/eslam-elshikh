@@ -23,7 +23,8 @@ export const serviceEvidence = {
 
 // A reporting cohort. The full sitemap remains the discovery source for all canonical pages.
 export const coreRoutes = [
-  "/", "/about/", "/services/", "/services/web-development/", "/services/seo/",
+  "/", "/about/", "/credentials/", "/media-kit/", "/notes/",
+  "/en/about/", "/en/credentials/", "/en/media-kit/", "/en/notes/", "/projects/naqada-directory/", "/services/", "/services/web-development/", "/services/seo/",
   "/services/google-business-profile/", "/google-expert/", "/local-seo/riyadh/",
   "/projects/", "/projects/tawod-contracting/", "/projects/sama-scan/",
   "/projects/bowdy-labs/", "/projects/alargan-crm-concept/", "/google-maps-projects/", "/contact/"

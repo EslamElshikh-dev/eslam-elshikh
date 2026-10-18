@@ -31,3 +31,15 @@ npm run check
 `project_message_ready` يعني تجهيز الرسالة وفتح وجهة WhatsApp؛ لا يؤكد إرسالها أو وصول استفسار أو توقيع عقد. تصنيف الأحداث كأحداث رئيسية في GA4 والتحقق من الاستلام يتمان من الحساب، وتحتاج جودة العملاء والعقود إلى متابعة فعلية منفصلة.
 
 `node scripts/test-conversions.mjs` يتحقق من الموافقة، وعدم تسريب حقول الرسالة، والتحقق من الروابط، واختيار الخدمة، وعدم تكرار فتح WhatsApp.
+
+## الملف المهني ثنائي اللغة
+
+- [الشهادات والمساهمات](https://www.eslam-elshikh.com/credentials/) · [English credentials](https://www.eslam-elshikh.com/en/credentials/).
+- [ملاحظات من العمل](https://www.eslam-elshikh.com/notes/) · [Engineering practice notes](https://www.eslam-elshikh.com/en/notes/).
+- [ملف التعريف والمشاركة](https://www.eslam-elshikh.com/media-kit/) · [Media kit](https://www.eslam-elshikh.com/en/media-kit/).
+
+تُدار النبذات والشهادات والمساهمات والأعمال المختارة في `src/professional-identity.mjs`، والملاحظات الأصلية في `src/practice-notes.mjs`. تحافظ دراسات تعاود وسما سكان على فترات القياس الأصلية وتعريفاتها، بينما تعرض دراسة دليل نقادة أدلة تنفيذ تقنية دون ادعاء نمو الجمهور.
+
+تشمل الباقة PDF ثنائي اللغة وصور مشاركة وأغلفة وقوالب SVG وثلاثة مقاطع MP4 قصيرة مع ملفات WebVTT. تُخدّم الأصول تحت مسار مؤرخ؛ تُنشأ نسخة أصول جديدة عند تغيير التصميم حتى لا تتعارض مع التخزين المؤقت الطويل.
+
+أحداث `case_study_open` و`credential_open` و`contribution_open` و`identity_download` تصف الاهتمام بالمحتوى بعد موافقة التحليلات. تستخدم معرّفات محددة مسبقًا، ولا تُرسل باعتبارها تحويلات تواصل إلى Google Ads.

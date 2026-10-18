@@ -120,7 +120,7 @@ function patchArticle(html, language) {
 }
 
 const files = await walk(root);
-const htmlFiles = files.filter((file) => file.endsWith(".html"));
+const htmlFiles = files.filter((file) => file.endsWith(".html") && !file.replaceAll("\\", "/").includes("/assets/identity-20261018/"));
 let changed = 0;
 let patchedArticles = 0;
 

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { articleVisuals } from "../src/article-visuals.mjs";
 import { caseStudies } from "../src/case-studies.mjs";
 import { products } from "../src/products.mjs";
+import { identityAssetRoot } from "../src/professional-identity.mjs";
 
 const outDir = process.argv[2] || "dist";
 const canonical = "https://www.eslam-elshikh.com";
@@ -39,7 +40,11 @@ function updateSchemaImages(value) {
   const hasType = (...names) => names.some((name) => types.includes(name));
 
   if (hasType("Person")) value.image = profilePhoto;
-  if (hasType("ProfessionalService", "LocalBusiness", "Organization")) {
+  const ownedOrganization = hasType("Organization") && (
+    String(value["@id"] || "").startsWith(`${canonical}/#`)
+    || String(value.url || "").replace(/\/$/, "") === canonical
+  );
+  if (hasType("ProfessionalService", "LocalBusiness") || ownedOrganization) {
     value.logo = approvedLogo;
     value.image = profilePhoto;
   }
@@ -56,7 +61,7 @@ const iconTags = [
   `<link rel="apple-touch-icon" href="${interfaceLogo}" sizes="192x192">`
 ].join("\n  ");
 
-const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
+const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html") && !path.replaceAll("\\", "/").includes("/assets/identity-20261018/"));
 for (const path of htmlFiles) {
   let html = await readFile(path, "utf8");
   const isEnglish = /<html\s+lang="en"\s+dir="ltr"/i.test(html);
@@ -67,7 +72,9 @@ for (const path of htmlFiles) {
   const product = storySlug?.[1] === "products" ? products.find(item => item.slug === storySlug[2]) : null;
   const storyVisual = study ? { src: study.image, width: 1200, height: 750, altAr: study.title, altEn: study.englishName }
     : product ? { src: product.image, width: 1200, height: 750, altAr: product.name.ar, altEn: product.name.en } : null;
-  const customVisual = articleVisual || storyVisual;
+  const identityRoute = /(?:^|\/)(?:en\/)?(?:about|credentials|media-kit|notes)(?:\/|$)/.test(path.replaceAll("\\", "/"));
+  const identityVisual = identityRoute ? { src: `${identityAssetRoot}/${isEnglish ? "share-en" : "share-ar"}-1200x630.png`, width: 1200, height: 630, type: "image/png", altAr: "إسلام الشيخ | هندسة رقمية بأدلة واضحة", altEn: "Eslam Elshikh | Digital engineering, with evidence" } : null;
+  const customVisual = articleVisual || storyVisual || identityVisual;
   const socialImage = customVisual ? `${canonical}${customVisual.src}` : shareImage;
   const socialAlt = customVisual ? isEnglish ? customVisual.altEn : customVisual.altAr : isEnglish ? "Eslam Elshikh" : brandName;
 
@@ -76,7 +83,7 @@ for (const path of htmlFiles) {
 
   html = upsertMeta(html, "property", "og:image", socialImage);
   html = upsertMeta(html, "property", "og:image:secure_url", socialImage);
-  html = upsertMeta(html, "property", "og:image:type", customVisual ? "image/webp" : "image/png");
+  html = upsertMeta(html, "property", "og:image:type", customVisual?.type || (customVisual ? "image/webp" : "image/png"));
   html = upsertMeta(html, "property", "og:image:alt", socialAlt);
   html = upsertMeta(html, "property", "og:image:width", String(customVisual?.width || 1200));
   html = upsertMeta(html, "property", "og:image:height", String(customVisual?.height || 630));

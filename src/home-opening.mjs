@@ -30,7 +30,7 @@ export function renderHomeOpening({ english = false, site, button, profilePhoto,
   ['layers', 'crm-systems', 'نظامٌ يجمع تفاصيل أعمالك', 'CRM وتجارب مخصصة'],
   ['pin', 'local-seo', 'حضورٌ يصل إليه عملاؤك', 'البحث وخرائط Google'],
  ];
- const statLabels = english ? ['Google Business Profiles supported through verification', 'Business profile issues resolved', 'Public Google Maps examples', 'Web projects in the work registry'] : site.stats.map(stat => stat.label);
+ const statLabels = english ? ['Issuer-linked professional credentials', 'Selected evidence-led case studies', 'Public Google Maps examples', 'Web projects in the work registry'] : site.stats.map(stat => stat.label);
  return `<section class="hero section-pad home-opening home-magic${english ? ' hero-en' : ''}" id="home-opening" data-home-opening>
   <div class="home-atmosphere" aria-hidden="true"><span class="home-orbit home-orbit-one"></span><span class="home-orbit home-orbit-two"></span><span class="home-orbit-point"></span></div>
   <div class="container hero-grid">
@@ -47,7 +47,7 @@ export function renderHomeOpening({ english = false, site, button, profilePhoto,
    ${renderHomeSignature({ english, site, portrait: profilePhoto, esc, icon })}
   </div>
   <nav class="container home-starting-points" aria-label="${english ? 'Choose a starting point for your project' : 'اختر نقطة البداية لمشروعك'}"><div class="home-route-intro"><span dir="ltr">01 — 03</span><p>${english ? 'Where should<br>your next step begin?' : 'لكلّ طموحٍ<br><strong>نقطةُ بداية.</strong>'}</p></div>${routes.map(([glyph, slug, title, detail], index) => `<a href="${slug === 'local-seo' ? `${prefix}/local-seo/riyadh/` : `${prefix}/services/${slug}/`}"><span class="home-route-number" dir="ltr">0${index + 1}</span><span class="home-route-copy"><strong>${esc(title)}</strong><small>${esc(detail)}</small></span>${icon(glyph)}${icon('arrow')}</a>`).join('')}</nav>
-  <div class="container stats-bar reveal">${site.stats.map((stat, index) => `<a href="${prefix}${['/google-expert/', '/services/google-business-profile/', '/google-maps-projects/', '/work-evidence/'][index]}"><strong dir="ltr">${esc(stat.value)}</strong><span>${esc(statLabels[index])}</span></a>`).join('')}</div>
-  <p class="container stats-note">${english ? 'Experience figures updated through September 2026. Public examples are available in the projects and Google Maps work sections.' : 'أرقام خبرة محدثة حتى سبتمبر 2026؛ ويمكن مراجعة النماذج العامة المنشورة في قسمي الأعمال وخرائط Google.'}</p>
+  <div class="container stats-bar reveal">${site.stats.map((stat, index) => `<a href="${prefix}${['/credentials/', '/credentials/#selected-evidence', '/google-maps-projects/', '/work-evidence/'][index]}"><strong dir="ltr">${esc(stat.value)}</strong><span>${esc(statLabels[index])}</span></a>`).join('')}</div>
+  <p class="container stats-note">${english ? 'Credentials link to issuer records. Project and Maps figures describe published portfolio entries, not unique clients or search-indexed pages.' : 'الشهادات مرتبطة بسجلات الجهات المانحة؛ وأرقام المواقع والخرائط تصف نماذج المعرض، وليست عدد عملاء مستقلين أو صفحات مفهرسة.'}</p>
  </section>${renderHomeJourney({ english, icon })}`;
 }

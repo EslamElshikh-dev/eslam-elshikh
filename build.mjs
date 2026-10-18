@@ -22,6 +22,8 @@ import { guides } from "./src/guides.mjs";
 import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
 import { renderAbout } from "./src/about.mjs";
 import { profileUpdatedAt, getOfficialProfiles, renderOfficialProfiles, renderContactCard } from "./src/identity.mjs";
+import { renderCredentials, renderMediaKit, renderNotesIndex, renderPracticeNote, renderIdentityHighlights, credentialGraph, professionalRevision, identityAssetRoot } from "./src/professional-identity.mjs";
+import { practiceNotes, noteHref } from "./src/practice-notes.mjs";
 import { publicWorkCredits, publicWorkCreditsReviewedAt } from "./src/public-work-credits.mjs";
 import { serviceEvidence, searchRevision } from "./src/service-evidence.mjs";
 import { articleVisuals } from "./src/article-visuals.mjs";
@@ -149,6 +151,7 @@ const baseGraph = (language = "ar") => {
       { "@type": "CollegeOrUniversity", name: isEnglish ? "Arab Open University" : "الجامعة العربية المفتوحة", alternateName: isEnglish ? "الجامعة العربية المفتوحة" : "Arab Open University" }
     ],
     hasCredential: [
+      ...credentialGraph(),
       { "@type": "EducationalOccupationalCredential", name: isEnglish ? "Bachelor's degree in Information Security" : "بكالوريوس أمن المعلومات", credentialCategory: "Bachelor degree", recognizedBy: { "@type": "CollegeOrUniversity", name: isEnglish ? "October 6 University" : "جامعة 6 أكتوبر" } },
       { "@type": "EducationalOccupationalCredential", name: isEnglish ? "Diploma in Cybersecurity" : "دبلوم الأمن السيبراني", credentialCategory: "Diploma", recognizedBy: { "@type": "CollegeOrUniversity", name: isEnglish ? "Arab Open University" : "الجامعة العربية المفتوحة" } }
     ],
@@ -362,8 +365,8 @@ function footer(language = "ar") {
   const isEnglish = language === "en";
   const social = socialLinks.map(([label, href, mark]) => `<a href="${href}" target="_blank" rel="noopener" aria-label="${label}" title="${label}">${mark}</a>`).join("");
   const exploreLinks = isEnglish
-    ? `<a href="/en/about/">About</a><a href="/en/projects/">Selected work</a><a href="/en/work-evidence/">Work evidence</a><a href="/en/services/crm-systems/">CRM & dashboards</a><a href="/en/google-maps-projects/">Google Maps work</a><a href="/en/google-business-profile-audit/">Free GBP audit</a><a href="/en/book/">Book a consultation</a><a href="/en/local-seo/riyadh/">Local SEO in Riyadh</a><a href="/en/google-expert/">Google Maps Expert</a><a href="/en/blog/">Insights</a><a href="/en/contact/">Contact</a>`
-    : `<a href="/about/">عن إسلام</a><a href="/projects/">أعمال المواقع</a><a href="/work-evidence/">أدلة الأعمال</a><a href="/services/crm-systems/">CRM ولوحات التحكم</a><a href="/google-maps-projects/">أعمال خرائط Google</a><a href="/google-business-profile-audit/">فحص ملف Google مجانًا</a><a href="/book/">احجز استشارة</a><a href="/local-seo/riyadh/">السيو المحلي في الرياض</a><a href="/google-expert/">خبير خرائط جوجل</a><a href="/blog/">المدونة</a><a href="/contact/">تواصل</a>`;
+    ? `<a href="/en/about/">About</a><a href="/en/credentials/">Credentials</a><a href="/en/notes/">Practice notes</a><a href="/en/media-kit/">Media kit</a><a href="/en/projects/">Selected work</a><a href="/en/work-evidence/">Work evidence</a><a href="/en/services/crm-systems/">CRM & dashboards</a><a href="/en/google-maps-projects/">Google Maps work</a><a href="/en/google-business-profile-audit/">Free GBP audit</a><a href="/en/book/">Book a consultation</a><a href="/en/local-seo/riyadh/">Local SEO in Riyadh</a><a href="/en/google-expert/">Google Maps Expert</a><a href="/en/blog/">Insights</a><a href="/en/contact/">Contact</a>`
+    : `<a href="/about/">عن إسلام</a><a href="/credentials/">الشهادات والمساهمات</a><a href="/notes/">ملاحظات من العمل</a><a href="/media-kit/">ملف التعريف والمشاركة</a><a href="/projects/">أعمال المواقع</a><a href="/work-evidence/">أدلة الأعمال</a><a href="/services/crm-systems/">CRM ولوحات التحكم</a><a href="/google-maps-projects/">أعمال خرائط Google</a><a href="/google-business-profile-audit/">فحص ملف Google مجانًا</a><a href="/book/">احجز استشارة</a><a href="/local-seo/riyadh/">السيو المحلي في الرياض</a><a href="/google-expert/">خبير خرائط جوجل</a><a href="/blog/">المدونة</a><a href="/contact/">تواصل</a>`;
   const serviceLinks = services.slice(0, 6).map((service) => `<a href="${isEnglish ? `/en/services/${service.slug}/` : `/services/${service.slug}/`}">${esc(isEnglish ? englishServiceBySlug(service.slug)?.title || serviceTranslations[service.slug]?.title || service.title : service.title)}</a>`).join("");
   const mobileServiceLabels = {
     cybersecurity: ["الأمن السيبراني", "Cybersecurity"],
@@ -429,6 +432,12 @@ function page({ title, description, path, active = "", body, schema = [], lang =
   const homeAssetVersion = "20261010.3";
   const pageBody = isHome ? `<div class="home-crafted" data-home-crafted>${body}</div>` : body;
   const scripts = isHome ? [...pageScripts, `/assets/js/home-magic.js?v=${homeAssetVersion}`] : pageScripts;
+  const identitySurface = ["/about/", "/en/about/", "/credentials/", "/en/credentials/", "/media-kit/", "/en/media-kit/"].includes(path) || /^(\/en)?\/notes\//.test(path) || /^(\/en)?\/projects\/naqada-directory\/$/.test(path);
+  if (identitySurface) {
+    stylesheets = [...stylesheets, `/assets/css/professional-identity.css?v=${version}`];
+    if (!image) image = `${identityAssetRoot}/${lang === "en" ? "share-en" : "share-ar"}-1200x630.png`;
+  }
+  if (["/media-kit/", "/en/media-kit/"].includes(path)) scripts.push(`/assets/js/professional-identity.js?v=${version}`);
   const pageHead = head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection, stylesheets, preloadImage, ...(robots ? { robots } : {}) });
   return `${isHome ? pageHead.replace("</head>", `  <link rel="stylesheet" href="/assets/css/home-magic.css?v=${homeAssetVersion}">\n</head>`) : pageHead}
 <body${["/about/", "/en/about/"].includes(path) ? ' class="profile-page"' : ""}>${header(active, lang, path)}<main id="main">${pageBody}${businessMapSection(lang)}</main>${footer(lang)}${scripts.map((src) => `<script src="${esc(src)}" defer></script>`).join("")}</body></html>`;
@@ -714,6 +723,7 @@ function aboutPage() {
     mapsCount: mapsProjects.length,
     projectCount: webProjects.length,
     projects,
+    studies: caseStudies,
     profilePhoto,
     innerHero,
     icon,
@@ -729,7 +739,7 @@ function aboutPage() {
     url: `${site.url}/about/`,
     name: "الملف المهني للمهندس إسلام الشيخ",
     mainEntity: { "@id": `${site.url}/#person` },
-    relatedLink: projects.filter((project) => project.caseStudy && project.slug).slice(0, 3).map((project) => `${site.url}/projects/${project.slug}/`),
+    relatedLink: ["/credentials/", "/notes/", "/media-kit/", "/projects/tawod-contracting/", "/projects/sama-scan/", "/projects/naqada-directory/"].map(path => `${site.url}${path}`),
     // Google ProfilePage expects DateTime rather than a date-only value.
     dateModified: profileUpdatedAt
   };
@@ -1345,6 +1355,7 @@ function englishAboutPage() {
 <section class="section-pad"><div class="container"><div class="section-heading reveal">${eyebrow("Education and professional foundation")}<h2>Formal study connected to applied delivery</h2><p>The professional profile combines an academic foundation in information security with advanced cybersecurity study and hands-on work across software, web products, search, and Google business tools.</p></div><div class="principles-grid"><article class="principle reveal"><span>01</span>${icon("shield")}<h3>Bachelor's degree in Information Security</h3><p>Faculty of Computers and Information · October 6 University.</p></article><article class="principle reveal"><span>02</span>${icon("shield")}<h3>Diploma in Cybersecurity</h3><p>Arab Open University · Riyadh.</p></article><article class="principle reveal"><span>03</span>${icon("code")}<h3>Applied software engineering</h3><p>Live websites, applications, interface systems, technical SEO, and maintainable delivery workflows.</p></article><article class="principle reveal"><span>04</span>${icon("google")}<h3>Google Maps specialist</h3><p>Practical experience with Business Profiles, verification, ownership, policy-aware correction, and local visibility.</p></article></div></div></section>
 <section class="section-pad"><div class="container case-method reveal"><div><span>Identity across languages</span><h2>Eslam Elshikh · إسلام الشيخ</h2></div><p>The professional English name used across the website and public profiles is “Eslam Elshikh”. Arabic references such as “إسلام الشيخ” and “المهندس إسلام الشيخ” refer to the same person and official digital identity.</p><div class="hero-actions">${button(site.social.googleKnowledgePanel, "Eslam Elshikh on Google", "button-ghost", true)}${button(site.social.github, "View GitHub", "button-ghost", true)}</div></div></section>
 ${renderOfficialProfiles({ site, english: true, esc, icon })}
+${renderIdentityHighlights({ site, english: true, esc, icon, studies: caseStudies })}
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Public evidence")}<h2>Work you can open and review</h2><p>Explore selected case studies, the web-project archive, and public Google Maps examples.</p></div><div class="stats-bar reveal"><div><strong>${projectAudit.listedProjects}</strong><span>web projects in the portfolio</span></div><div><strong>${mapsProjects.length}</strong><span>public Google Maps examples</span></div><div><strong>${projectAudit.githubRepositories}</strong><span>GitHub repositories reviewed</span></div><div><strong>${projectAudit.vercelProjects}</strong><span>Vercel projects reviewed</span></div></div><div class="section-action">${button("/en/projects/", "Explore the work")}</div></div></section>
 ${englishFinalCta("Have a project that crosses several disciplines?", "Share the business objective and the current technical situation. We can separate the problem into a practical sequence without losing the connections between security, experience, visibility, and operations.")}`;
   const profileSchema = { "@type": "ProfilePage", "@id": `${absolute(path)}#profile`, url: absolute(path), name: "Professional profile of Eslam Elshikh", mainEntity: { "@id": `${site.url}/#person` }, inLanguage: "en", dateModified: profileUpdatedAt, relatedLink: projects.filter((item) => item.slug && item.caseStudy).map((item) => absolute(`/en/projects/${item.slug}/`)) };
@@ -1648,6 +1659,26 @@ function englishPage() {
   return page({ title: `${site.nameEn} | Cybersecurity & Software Engineer`, description: "Eslam Elshikh is a Riyadh-based cybersecurity engineer and software developer specializing in web development, AI agents, Google Maps, and technical SEO.", path: "/en/", active: "home", body, lang: "en", modified: searchRevision, schema: [faqSchema(englishHomeFaq)], preloadImage: profilePhoto });
 }
 
+function professionalIdentityPage(kind, english = false, note = null) {
+  const options = { site, english, esc, icon, studies: caseStudies };
+  const pairs = {
+    credentials: ["الشهادات والمساهمات المهنية | إسلام الشيخ", "Credentials & Contributions | Eslam Elshikh", "شهادتا Google Ads Search وMeasurement لإسلام الشيخ بروابط الجهات المانحة، وعضويات مجتمعات المطورين ومساهمات عامة ودراسات حالة موثقة.", "Eslam Elshikh's issuer-linked Google Ads Search and Measurement credentials, developer-community memberships, public contributions and evidence-led case studies."],
+    "media-kit": ["ملف التعريف والمشاركة | إسلام الشيخ", "Media Kit & Professional Introduction | Eslam Elshikh", "ملف إسلام الشيخ للتعريف والمشاركة: نبذات عربية وإنجليزية، ملف مهني PDF، صور مشاركة وأغلفة وقوالب قابلة للتنزيل، مع مراجع الشهادات والأعمال.", "Download Eslam Elshikh's bilingual biographies, professional profile PDF, sharing images, cover artwork and editable layouts for introductions and collaboration."],
+    notes: ["ملاحظات هندسية من العمل | إسلام الشيخ", "Engineering Practice Notes | Eslam Elshikh", "ملاحظات أصلية لإسلام الشيخ من مشروعات فعلية: قياس التواصل، تنظيم دليل عربي، وتوحيد الهوية المهنية، مع مصادر التنفيذ ودراسات الحالة المرتبطة.", "First-hand notes by Eslam Elshikh on contact measurement, Arabic-directory engineering and professional identity, with implementation sources and related case studies."]
+  };
+  const text = pairs[kind];
+  const path = note ? noteHref(note, english) : (english ? "/en" : "") + "/" + kind + "/";
+  const title = note ? note.title[english ? 1 : 0] : text[english ? 1 : 0];
+  const description = note ? note.description[english ? 1 : 0] : text[english ? 3 : 2];
+  const body = note ? renderPracticeNote(note, options) : kind === "credentials" ? renderCredentials(options) : kind === "media-kit" ? renderMediaKit(options) : renderNotesIndex(options);
+  const crumbs = [{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" }];
+  if (note) crumbs.push({ name: english ? "Practice notes" : "ملاحظات من العمل", path: (english ? "/en" : "") + "/notes/" });
+  crumbs.push({ name: title, path });
+  return page({ title, description, path, active: "about", body, lang: english ? "en" : "ar", modified: professionalRevision,
+    ...(note ? { type: "article", published: note.date, articleSection: note.category[english ? 1 : 0], keywords: ["Eslam Elshikh", "إسلام الشيخ", note.category[english ? 1 : 0]] } : {}),
+    schema: [breadcrumbSchema(crumbs)] });
+}
+
 function notFoundPage() {
   return `${head({ title: "الصفحة غير موجودة", description: "تعذر العثور على الصفحة المطلوبة في موقع المهندس إسلام الشيخ.", path: "/404.html", robots: "noindex, follow" })}<body>${header()}<main id="main"><section class="not-found"><div class="container"><span>404</span><h1>الصفحة غير موجودة</h1><p>ربما تغير الرابط أو تمت كتابة العنوان بصورة غير صحيحة. ابدأ من الصفحة الرئيسية أو استعرض الخدمات.</p><div class="hero-actions">${button("/", "العودة للرئيسية")}${button("/services/", "استعراض الخدمات", "button-ghost")}</div></div></section></main>${footer()}</body></html>`;
 }
@@ -1706,6 +1737,10 @@ async function build() {
   for (const service of services) await writeRoute(`/services/${service.slug}/`, serviceDetailPage(service));
   await writeRoute("/local-seo/riyadh/", localSeoPage());
   await writeRoute("/about/", aboutPage());
+  for (const english of [false, true]) {
+    for (const kind of ["credentials", "media-kit", "notes"]) await writeRoute(`${english ? "/en" : ""}/${kind}/`, professionalIdentityPage(kind, english));
+    for (const note of practiceNotes) await writeRoute(noteHref(note, english), professionalIdentityPage("notes", english, note));
+  }
   await writeRoute("/google-expert/", googleExpertPage());
   await writeRoute("/google-ads/", googleAdsPage());
   await writeRoute("/projects/", projectsPage());

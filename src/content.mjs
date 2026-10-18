@@ -53,8 +53,8 @@ export const site = {
     blog: "https://blog.eslam-elshikh.com"
   },
   stats: [
-    { value: "472", label: "ملفًا تجاريًا على Google تم دعم توثيقه" },
-    { value: "233", label: "مشكلة ملف تجاري تم حلها ومعالجتها" },
+    { value: "2", label: "شهادتان مهنيتان بروابط الجهة المانحة" },
+    { value: "3", label: "دراسات مختارة بأدلة أداء وتنفيذ" },
     { value: String(mapsProjects.length), label: "نموذجًا منشورًا يمكن مراجعته على الخرائط" },
     { value: String(projectAudit.listedProjects), label: "مشروع ويب في سجل الأعمال" }
   ]

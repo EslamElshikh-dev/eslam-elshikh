@@ -1,0 +1,53 @@
+نصوص مشاركة وسكربتات قصيرة | Eslam Elshikh
+هذه نصوص جاهزة للاستخدام. لا يعني وجودها في الحزمة أنها نُشرت على الحسابات.
+
+1) تعريف مهني
+أبدأ من هدف العمل، ثم أربط التجربة بالبرمجة والأمان والقياس. أنا إسلام الشيخ، مهندس أمن سيبراني ومطور برمجيات في الرياض. تجدون في ملفي المهني أعمالًا موثقة، وشهادات بروابط جهاتها، وملاحظات من التنفيذ.
+https://www.eslam-elshikh.com/about/
+
+Professional introduction
+I start with the business objective, then connect experience, software, security and measurement. I’m Eslam Elshikh, a Riyadh-based cybersecurity engineer and software developer. Explore documented work, issuer-linked credentials and notes from the delivery.
+https://www.eslam-elshikh.com/en/about/
+
+2) سكربت 45–60 ثانية: النقرة ليست الطلب
+افتتاح: عندك نقرات اتصال كثيرة، لكن الطلبات أقل؟ خلّينا نفصل المراحل.
+الشرح: ضغطة الهاتف تعني اختيار زر الاتصال، وفتح واتساب لا يعني إرسال الرسالة. الطلب المستلم يحتاج سجل متابعة، والمؤهل يحتاج تعريفًا يناسب نشاطك.
+المثال: في دراسة تعاود زادت الجلسات والأحداث الرئيسية، لكن انخفضت نسب التفاعل؛ لذلك قرأت الاتجاهين معًا، وراجعت مصادر الزيارة وصفحات الدخول.
+الخاتمة: سمِّ كل مؤشر بدقة، وقارن فترات متساوية، ثم اربط التفاعل بجودة الطلب. التفاصيل والمصادر في الملاحظة.
+https://www.eslam-elshikh.com/notes/contact-clicks-and-qualified-enquiries/
+لقطات مقترحة: عنوان المؤشر، رسم مراحل دون بيانات عملاء، ثم الفترات والأرقام المنشورة فقط. لا تعرض لوحة عميل خاصة.
+
+45–60 second script: A click is not an enquiry
+Opening: Plenty of call clicks, fewer enquiries? Separate the stages.
+Explanation: A phone click selects the calling action. Opening WhatsApp does not establish a sent message. A received enquiry needs a follow-up record; qualification needs business criteria.
+Example: Tawod's sessions and key events increased while engagement rates declined. I read both directions and reviewed sources and landing pages together.
+Close: Define the metric, compare equal periods and connect interactions to enquiry quality. Sources and details are in the note.
+https://www.eslam-elshikh.com/en/notes/contact-clicks-and-qualified-enquiries/
+
+3) سكربت 45–60 ثانية: دليل عربي يمكن الرجوع إليه
+افتتاح: الدليل المحلي الجيد يبدأ من سؤال الناس: أحتاج إيه، وفي أي مكان؟
+الشرح: في دليل نقادة نظّمت مداخل للأنشطة والتصنيفات والمواضع، مع بحث عربي وصفحات مستقلة وروابط يمكن مشاركتها.
+القرار الأهم: حالة النشر تسبق شكل البطاقة. السجل الذي يحتاج مراجعة لا يتحول إلى معلومة مؤكدة لمجرد أنه ظهر بتصميم جميل.
+الخاتمة: الوضوح في المصدر والتصحيح بعد الإطلاق جزء من جودة المنتج. اقرأ القرارات ومصادر التنفيذ.
+https://www.eslam-elshikh.com/notes/arabic-directory-data-and-discovery/
+
+45–60 second script: A useful Arabic directory
+Opening: A useful local directory starts with the visitor's task and location.
+Explanation: In Naqada Directory I organized businesses, categories and locations with Arabic search, independent routes and shareable records.
+Key decision: Eligibility comes before presentation. A record awaiting review does not become confirmed because its card looks polished.
+Close: Provenance and correction after launch belong to product quality. Read the decisions and implementation sources.
+https://www.eslam-elshikh.com/en/notes/arabic-directory-data-and-discovery/
+
+4) سكربت 45–60 ثانية: اسم واحد بلغتين
+افتتاح: اسمك بالعربي والإنجليزي يحتاج تعريفًا واحدًا يمكن تتبعه.
+الشرح: في موقعي ربطت صفحتي التعريف بمرجع شخص واحد، وجمعت الحسابات الرسمية في مصدر مشترك، وفصلت الحساب الشخصي عن الشهادة والعمل المنشور.
+الفائدة: تحديث أوضح وروابط أكثر اتساقًا ومحتوى يسهل مراجعته. شكل نتيجة البحث يظل قرار محرك البحث.
+الخاتمة: ابدأ باسم ثابت وتعريف دقيق وأعمال لها مصادر. التنفيذ موضح في الملاحظة والمستودع.
+https://www.eslam-elshikh.com/notes/one-professional-identity-two-languages/
+
+45–60 second script: One name across two languages
+Opening: Your Arabic and English names need one traceable professional identity.
+Explanation: My two profile pages refer to one person ID. A shared list supplies official accounts, while credentials and delivered work keep their own roles.
+Benefit: Clearer updates, consistent links and evidence people can review. Search presentation remains the search engine's decision.
+Close: Start with a stable name, precise description and sourced work. The note and repository show the implementation.
+https://www.eslam-elshikh.com/en/notes/one-professional-identity-two-languages/

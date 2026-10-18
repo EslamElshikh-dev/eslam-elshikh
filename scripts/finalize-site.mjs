@@ -46,7 +46,7 @@ function normalizeSchema(value, isEnglish = false) {
   return value;
 }
 
-const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html"));
+const htmlFiles = (await walk(outDir)).filter((path) => path.endsWith(".html") && !path.replaceAll("\\", "/").includes("/assets/identity-20261018/"));
 for (const path of htmlFiles) {
   let html = await readFile(path, "utf8");
   const isEnglish = /<html\s+lang="en"\s+dir="ltr"/i.test(html);

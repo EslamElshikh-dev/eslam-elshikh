@@ -10,6 +10,10 @@ const WEBMASTERS_READONLY = "https://www.googleapis.com/auth/webmasters.readonly
 const WEBMASTERS_WRITE = "https://www.googleapis.com/auth/webmasters";
 const PRIORITY_URLS = [
   `${DEFAULT_ORIGIN}/`,
+  `${DEFAULT_ORIGIN}/about/`,
+  `${DEFAULT_ORIGIN}/credentials/`,
+  `${DEFAULT_ORIGIN}/notes/`,
+  `${DEFAULT_ORIGIN}/en/about/`,
   `${DEFAULT_ORIGIN}/google-expert/`,
   `${DEFAULT_ORIGIN}/local-seo/riyadh/`,
   `${DEFAULT_ORIGIN}/services/google-business-profile/`,

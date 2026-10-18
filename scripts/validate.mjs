@@ -8,6 +8,7 @@ import { caseStudies } from "../src/case-studies.mjs";
 import { products } from "../src/products.mjs";
 import { guides } from "../src/guides.mjs";
 import { articleVisuals } from "../src/article-visuals.mjs";
+import { practiceNotes, noteHref } from "../src/practice-notes.mjs";
 import { englishArticles, englishServices, englishTopics } from "../src/english.mjs";
 
 const buildVersion = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8")).version;
@@ -27,6 +28,8 @@ const requiredRoutes = [
   "/blog/google-business-profile-suspension/", "/blog/secure-website-development/", "/blog/ecommerce-development-saudi/",
   "/blog/topics/google-business-profile/", "/blog/topics/local-seo-saudi/", "/blog/topics/cybersecurity/", "/blog/topics/ai-agents/", "/blog/topics/web-development/"
 ];
+for (const kind of ["credentials", "media-kit", "notes"]) requiredRoutes.push(`/${kind}/`);
+for (const note of practiceNotes) requiredRoutes.push(noteHref(note));
 const expectedArticleRoutes = [...posts, ...guides].map((post) => `/blog/${post.slug}/`);
 for (const route of expectedArticleRoutes) if (!requiredRoutes.includes(route)) requiredRoutes.push(route);
 const expectedCaseStudyRoutes = caseStudies.map((project) => `/projects/${project.slug}/`);
@@ -216,6 +219,9 @@ for (const route of sitemapRoutes) {
   const professionalServiceNode = structuredNodes.find((node) => node?.["@type"] === "ProfessionalService");
   const expectedProfessionalName = route.startsWith("/en/") ? "Eslam Elshikh" : "المهندس إسلام الشيخ";
   if (personNode?.image !== `${canonicalBase}/assets/brand/eslam-elshikh-portrait-20260827.webp`) errors.push(`${route}: Person schema must use the canonical profile portrait`);
+  for (const credential of personNode?.hasCredential || []) {
+    if (String(credential.url || "").startsWith("https://skillshop.credential.net/") && (credential.recognizedBy?.image === personNode.image || String(credential.recognizedBy?.logo || "").startsWith(canonicalBase))) errors.push(`${route}: credential issuer must not receive the personal website's branding`);
+  }
   if (professionalServiceNode?.name !== expectedProfessionalName || professionalServiceNode?.url !== `${canonicalBase}/`) errors.push(`${route}: ProfessionalService identity is inconsistent with the public brand`);
   if (!/<link\s+rel=["']stylesheet["']\s+href=["']\/assets\/css\/main\.css\?v=/i.test(html)) errors.push(`${route}: missing versioned main stylesheet`);
   const stylesheetCount = (html.match(/<link\b[^>]*\brel=["']stylesheet["'][^>]*>/gi) || []).length;
@@ -233,7 +239,9 @@ for (const route of sitemapRoutes) {
   const hasGoogleProfilePricing = ["/google-expert/", "/en/google-expert/", "/services/google-business-profile/", "/en/services/google-business-profile/"].includes(route);
   const hasMapsExpert = /class="maps-expert"/.test(html);
   const hasIdentityLayout = ["/about/", "/en/about/"].includes(route);
-  const expectedStylesheets = Number(hasMapsExpert) + Number(hasGoogleProfilePricing) + Number(hasHomeMagic) + Number(hasVerifiedCase) + Number(hasCrmShowcase) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories) + Number(hasIdentityLayout);
+  const hasProfessionalIdentity = ["/about/", "/en/about/", "/credentials/", "/en/credentials/", "/media-kit/", "/en/media-kit/"].includes(route) || /^(\/en)?\/notes\//.test(route) || /^(\/en)?\/projects\/naqada-directory\/$/.test(route);
+  if (hasProfessionalIdentity && !html.includes(`/assets/css/professional-identity.css?v=${buildVersion}`)) errors.push(`${route}: missing professional identity stylesheet`);
+  const expectedStylesheets = Number(hasProfessionalIdentity) + Number(hasMapsExpert) + Number(hasGoogleProfilePricing) + Number(hasHomeMagic) + Number(hasVerifiedCase) + Number(hasCrmShowcase) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories) + Number(hasIdentityLayout);
   if (hasIdentityLayout && !html.includes(`/assets/css/identity-layout.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned identity layout stylesheet`);
   if (hasHomeMagic && (!html.includes('/assets/css/home-magic.css?v=') || !html.includes('/assets/js/home-magic.js?v='))) errors.push(`${route}: missing versioned home experience assets`);
   if (hasVerifiedCase && !html.includes("/assets/css/case-results.css?v=")) errors.push(`${route}: missing the versioned results stylesheet`);
@@ -252,10 +260,12 @@ for (const route of sitemapRoutes) {
   const storyRoute = route.match(/^\/(?:en\/)?(projects|products)\/([^/]+)\/$/);
   const story = storyRoute?.[1] === "projects" ? caseStudies.find(item => item.slug === storyRoute[2])
     : storyRoute?.[1] === "products" ? products.find(item => item.slug === storyRoute[2]) : null;
-  const expectedShareImage = `${canonicalBase}${articleVisual?.src || story?.image || "/assets/og/eslam-elshikh-social-card.png"}`;
+  const identityShare = hasProfessionalIdentity && !story ? `/assets/identity-20261018/${route.startsWith("/en/") ? "share-en" : "share-ar"}-1200x630.png` : null;
+  const expectedShareImage = `${canonicalBase}${articleVisual?.src || story?.image || identityShare || "/assets/og/eslam-elshikh-social-card.png"}`;
   const socialImage = matchOne(html, /<meta\s+property=["']og:image["']\s+content=["']([^"']*)/i);
   const twitterImage = matchOne(html, /<meta\s+name=["']twitter:image["']\s+content=["']([^"']*)/i);
   if (socialImage !== expectedShareImage || twitterImage !== expectedShareImage) errors.push(`${route}: social metadata does not use its expected sharing image`);
+  if (identityShare && (!html.includes('property="og:image:type" content="image/png"') || !html.includes('property="og:image:width" content="1200"') || !html.includes('property="og:image:height" content="630"'))) errors.push(`${route}: incorrect identity sharing-image format or dimensions`);
   if (story && (!html.includes('property="og:image:type" content="image/webp"') || !html.includes('property="og:image:height" content="750"'))) errors.push(`${route}: incorrect project sharing-image format or dimensions`);
   if (articleVisual) {
     const articleNode = structuredNodes.find((node) => node?.["@type"] === "BlogPosting");
@@ -387,7 +397,7 @@ for (const service of services) {
 }
 if (/<script\b[^>]*\bsrc=["']https:\/\/www\.googletagmanager\.com/i.test(home)) errors.push("Homepage loads Google Analytics before consent");
 const homeMetrics = matchOne(home, /<div\s+class="container stats-bar reveal">([\s\S]*?)<\/div>/);
-if (![472, 233, mapsProjects.length, projectAudit.listedProjects].every(value => new RegExp(`<strong\\b[^>]*>${value}<\\/strong>`).test(homeMetrics))) errors.push(`Homepage trust metrics are missing the 472/233/${mapsProjects.length}/${projectAudit.listedProjects} figures`);
+if (![2, 3, mapsProjects.length, projectAudit.listedProjects].every(value => new RegExp(`<strong\\b[^>]*>${value}<\\/strong>`).test(homeMetrics))) errors.push(`Homepage trust metrics are missing the 2/3/${mapsProjects.length}/${projectAudit.listedProjects} figures`);
 if (!/href=["']\/local-seo\/riyadh\/["']/.test(home)) errors.push("Homepage needs a direct internal link to /local-seo/riyadh/");
 if (wordCount(home) < 900) warnings.push(`Homepage content is shorter than 900 words (${wordCount(home)})`);
 for (const [route, html] of pages) {
