@@ -34,3 +34,7 @@ The core sitemap reporting cohort and existing SEO monitor now include the ident
 Run `npm run check`. It validates all generated routes, reciprocal language links, schema, sharing-image paths/types/sizes, required assets, page landmarks and conversion/privacy behavior. Downloadable HTML email signatures are artifacts, so page transformations and page-landmark checks exclude that dated asset directory.
 
 The generated PDF and motion graphics were rendered and visually inspected. Browser-level responsive and interaction checks require a functioning browser session; static source checks do not establish device compatibility by themselves.
+
+## Production packaging
+
+The existing Vercel ignore rules exclude general PDF/ZIP files. Two exact allow rules include only the public identity PDF and media-kit ZIP. Production must pass the same required-asset validation as the local build. Release 4.17.1 includes this packaging correction.

@@ -7,3 +7,7 @@ node_modules
 *.pdf
 *.zip
 __pycache__
+
+# Public professional identity downloads
+!assets/identity-20261018/profile-bilingual.pdf
+!assets/identity-20261018/Eslam_Elshikh_Media_Kit.zip
