@@ -613,6 +613,7 @@ export const englishArticles = [
     "readTime": "7 min read",
     "slug": "technical-seo-saudi-businesses",
     "title": "Technical SEO for Saudi Businesses: Diagnose Delayed Indexing",
+    "modified": "2026-10-20",
     "seoTitle": "Technical SEO for Saudi Businesses | Indexing Diagnosis",
     "description": "A practical indexing diagnosis for Saudi business websites, covering URL inspection, final HTML, canonicals, crawlable links, useful service pages, and verification.",
     "excerpt": "Separate access problems from indexing decisions, inspect the final published HTML, and record evidence for each repair before measuring a new crawl.",
@@ -658,6 +659,11 @@ export const englishArticles = [
         "Connect service pages to case studies that describe goals, delivery decisions, scope, and a public implementation. Avoid unsupported outcome metrics and interchangeable district pages. There is no magic word count: a specific example can be more useful than a long generic explanation."
       ],
       [
+        "From this website: a source revision lost during publishing",
+        "While reviewing this website's release on 20 October 2026, I found a final transformation that fixed every article's review date at 3 October. Updating the source date alone did not survive publishing: the transformation overwrote structured metadata and visible dates, and the sitemap then inherited the result. This is why the deployed output needs checking after the entire build pipeline.",
+        "The repair preserves a newer article revision while retaining the earlier editorial cleanup date for unchanged articles. A final-output check now compares source revisions with machine-readable visible dates, structured data and sitemap lastmod in both languages. The implementation can be reviewed in this website's repository. An accurate lastmod describes a real change; it does not demonstrate recrawling or indexing."
+      ],
+      [
         "Verify the release before measuring search outcomes",
         "Repair access, canonical ambiguity, broken links, and damaged content before expanding the publishing schedule. Check the live output and sitemap after deployment. Use live inspection for materially changed pages; repeated requests for the same URL do not accelerate crawling.",
         "Track three separate outcomes: a crawl after the repair, an indexing-status change, and relevant search impressions or clicks. They may change at different times. A passing build and an accepted request are implementation evidence, not substitutes for actual indexing."
@@ -682,6 +688,10 @@ export const englishArticles = [
       ]
     ],
     "sources": [
+      {
+        "title": "This website's publishing transformation — worked example",
+        "url": "https://github.com/EslamElshikh-dev/eslam-elshikh/blob/main/scripts/refine-seo-architecture.mjs"
+      },
       {
         "title": "Page Indexing report — Google Search Console",
         "url": "https://support.google.com/webmasters/answer/7440203"

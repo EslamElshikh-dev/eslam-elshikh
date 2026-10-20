@@ -1,5 +1,7 @@
 import { renderHomeSignature } from './home-signature.mjs';
 
+export const homeOpeningRevision = '2026-10-20';
+
 function renderExpertiseRibbon({ english, esc, icon }) {
  const prefix = english ? '/en' : '';
  const items = [
@@ -37,7 +39,7 @@ export function renderHomeOpening({ english = false, site, button, profilePhoto,
    <div class="hero-copy reveal">
     <p class="home-hero-kicker"><span aria-hidden="true"></span>${english ? 'DIGITAL ENGINEERING, SHAPED AROUND YOUR BUSINESS' : 'هندسة رقميّة تبدأ من طموحك'}</p>
     <h1><span class="home-hero-name">${english ? 'Eng. Eslam Elshikh' : 'المهندس إسلام الشيخ'}</span> <span class="home-hero-promise">${english ? 'A presence that persuades.<br><em>Systems that get things done.</em>' : 'أصنعُ لعملك حضورًا يُقنع،<br><em>وأنظمةً تُنجز.</em>'}</span></h1>
-    <p class="hero-lead">${english ? 'I design and develop websites, stores and custom systems from scratch. Cybersecurity, AI agents, Google Maps and advertising connect the experience with the way your business works.' : 'أصمّم وأبرمج المواقع والمتاجر والأنظمة من الصفر، وأربط التجربة بالأمن السيبراني ووكلاء الذكاء الاصطناعي وخرائط Google وإعلاناته؛ لتخدم طموحك وطريقة عملك.'}</p>
+    <p class="hero-lead">${english ? `I design and develop <a class="home-service-link" href="${prefix}/services/web-development/">websites and stores</a> and build custom systems from scratch. Cybersecurity and AI agents support the work, while <a class="home-service-link" href="${prefix}/services/google-business-profile/">Google Business Profile services</a>, <a class="home-service-link" href="${prefix}/services/seo/">SEO</a> and advertising connect it with your customers.` : `أصمّم وأبرمج <a class="home-service-link" href="${prefix}/services/web-development/">المواقع والمتاجر</a> والأنظمة من الصفر، وأربط التجربة بالأمن السيبراني ووكلاء الذكاء الاصطناعي و<a class="home-service-link" href="${prefix}/services/google-business-profile/">خدمات ملفات Google التجارية</a> و<a class="home-service-link" href="${prefix}/services/seo/">تحسين محركات البحث</a> وإعلاناته؛ لتخدم طموحك وطريقة عملك.`}</p>
     <p class="hero-support">${english ? 'Based in Riyadh. A clear scope, delivery in stages and work you can review.' : 'من الرياض، أبدأ بفهم أعمالك؛ ثم نحوّل احتياجك إلى نطاقٍ واضح، وتنفيذٍ متدرّج، وتسليمٍ يمكنك مراجعته.'}</p>
     <div class="hero-actions">${button(`${prefix}/contact/`, english ? 'Discuss your project' : 'ناقش مشروعك معي')}${button(`${prefix}/projects/`, english ? 'Explore the work' : 'شاهد الأعمال المنفّذة', 'button-ghost')}</div>
     <a class="home-trial-link" href="${prefix}/services/crm-systems/#crm-personal-trial"><span class="home-trial-icon">${icon('layers')}</span><span><strong>${english ? 'Picture a system with your business identity.' : 'تصوّر نظامًا يحمل هوية منشأتك.'}</strong><small>${english ? 'Add your name and logo. Explore how a sample request moves through your team.' : 'ضع اسمك وشعارك، واستكشف كيف ينتقل الطلب بين أعضاء فريقك.'}</small></span>${icon('arrow')}</a>

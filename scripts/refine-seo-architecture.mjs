@@ -51,18 +51,21 @@ function removeGenericArticleSections(html) {
   return html;
 }
 
-function updateVisibleArticleDate(html, language) {
+function updateVisibleArticleDate(html, language, modified) {
+  const date = new Date(`${modified}T12:00:00Z`);
+  const arLabel = modified === ARTICLE_REVISION_DATE ? AR_REVISION_LABEL : new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium", calendar: "gregory", timeZone: "UTC" }).format(date);
+  const enLabel = modified === ARTICLE_REVISION_DATE ? EN_REVISION_LABEL : new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(date);
   if (language === "ar") {
-    html = html.replace(/(<p>آخر مراجعة:\s*)[^<]+(<\/p>)/, `$1${AR_REVISION_LABEL}$2`);
-    html = html.replace(/(<dt>آخر تحديث<\/dt><dd><time datetime=")[^"]+("[^>]*>)[^<]+(<\/time><\/dd>)/, `$1${ARTICLE_REVISION_DATE}$2${AR_REVISION_LABEL}$3`);
+    html = html.replace(/(<p>آخر مراجعة:\s*)[^<]+(<\/p>)/, `$1${arLabel}$2`);
+    html = html.replace(/(<dt>آخر تحديث<\/dt><dd><time datetime=")[^"]+("[^>]*>)[^<]+(<\/time><\/dd>)/, `$1${modified}$2${arLabel}$3`);
   } else {
-    html = html.replace(/(<p>Reviewed\s*)[^<]+(<\/p>)/, `$1${EN_REVISION_LABEL}$2`);
-    html = html.replace(/(<dt>Last updated<\/dt><dd><time datetime=")[^"]+("[^>]*>)[^<]+(<\/time><\/dd>)/, `$1${ARTICLE_REVISION_DATE}$2${EN_REVISION_LABEL}$3`);
+    html = html.replace(/(<p>Reviewed\s*)[^<]+(<\/p>)/, `$1${enLabel}$2`);
+    html = html.replace(/(<dt>Last (?:updated|reviewed)<\/dt><dd><time datetime=")[^"]+("[^>]*>)[^<]+(<\/time><\/dd>)/, `$1${modified}$2${enLabel}$3`);
   }
   return html;
 }
 
-function patchJsonLd(html, { article = false, seoService = false } = {}) {
+function patchJsonLd(html, { article = false, articleDate = ARTICLE_REVISION_DATE, seoService = false } = {}) {
   return html.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g, (full, jsonText) => {
     try {
       const data = JSON.parse(jsonText);
@@ -78,10 +81,10 @@ function patchJsonLd(html, { article = false, seoService = false } = {}) {
             .map((item, index) => ({ ...item, position: index + 1 }));
         }
         if (article && ["BlogPosting", "Article", "WebPage"].includes(type)) {
-          node.dateModified = ARTICLE_REVISION_DATE;
+          node.dateModified = articleDate;
         }
         if (seoService && type === "WebPage" && String(node.url || node["@id"] || "").includes("/services/seo/")) {
-          node.dateModified = REVISION_DATE;
+          node.dateModified = [REVISION_DATE, node.dateModified || REVISION_DATE].sort().at(-1);
         }
       }
       return `<script type="application/ld+json">${JSON.stringify(data).replaceAll("<", "\\u003c")}</script>`;
@@ -110,12 +113,22 @@ function patchSeoService(html, language) {
 }
 
 function patchArticle(html, language) {
+  // Preserve a later source revision; 3 October remains the dated cleanup of
+  // older articles, rather than a permanent override for future edits.
+  const dates = [ARTICLE_REVISION_DATE];
+  for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+    const data = JSON.parse(match[1]);
+    for (const node of Array.isArray(data?.["@graph"]) ? data["@graph"] : [data]) {
+      if (["BlogPosting", "Article"].includes(node?.["@type"]) && /^\d{4}-\d{2}-\d{2}$/.test(node.dateModified || "")) dates.push(node.dateModified);
+    }
+  }
+  const modified = dates.sort().at(-1);
   const topicPrefix = language === "ar" ? "/blog/topics/" : "/en/blog/topics/";
   html = removeTopicCrumb(html, topicPrefix);
   html = removeTopicSidebarCard(html, topicPrefix);
   html = removeGenericArticleSections(html);
-  html = updateVisibleArticleDate(html, language);
-  html = patchJsonLd(html, { article: true });
+  html = updateVisibleArticleDate(html, language, modified);
+  html = patchJsonLd(html, { article: true, articleDate: modified });
   return html;
 }
 

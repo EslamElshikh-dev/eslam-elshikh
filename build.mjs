@@ -1,4 +1,4 @@
-import { renderHomeOpening } from "./src/home-opening.mjs";
+import { renderHomeOpening, homeOpeningRevision } from "./src/home-opening.mjs";
 import { renderHomeSections } from "./src/home-sections.mjs";
 import { renderServiceCard, renderServiceIntro, orderedServices } from "./src/service-studio.mjs";
 import { renderGoogleMapsExpert, googleMapsExpertFaq, googleMapsExpertStylesheet, googleMapsExpertScript } from "./src/google-maps-expert.mjs";
@@ -429,7 +429,7 @@ function footer(language = "ar") {
 
 function page({ title, description, path, active = "", body, schema = [], lang = "ar", type = "website", published, modified, image, keywords = [], articleSection = "", stylesheets = [], pageScripts = [], preloadImage = "", robots }) {
   const isHome = path === "/" || path === "/en/";
-  const homeAssetVersion = "20261010.3";
+  const homeAssetVersion = "20261020.1";
   const pageBody = isHome ? `<div class="home-crafted" data-home-crafted>${body}</div>` : body;
   const scripts = isHome ? [...pageScripts, `/assets/js/home-magic.js?v=${homeAssetVersion}`] : pageScripts;
   const identitySurface = ["/about/", "/en/about/", "/credentials/", "/en/credentials/", "/media-kit/", "/en/media-kit/"].includes(path) || /^(\/en)?\/notes\//.test(path) || /^(\/en)?\/projects\/naqada-directory\/$/.test(path);
@@ -523,7 +523,7 @@ function homePage() {
     faqHtml: faqBlock(faq),
     insightsHtml: allPosts.slice(0, 3).map(post => postCard(post)).join("")
   });
-  return page({ title: "المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع بالرياض", description: site.description, path: "/", active: "home", body, modified: searchRevision, schema: [faqSchema(faq)], preloadImage: profilePhoto });
+  return page({ title: "المهندس إسلام الشيخ | أمن سيبراني وتطوير مواقع بالرياض", description: site.description, path: "/", active: "home", body, modified: homeOpeningRevision, schema: [faqSchema(faq)], preloadImage: profilePhoto });
 }
 
 function finalCta(title = "لنحوّل فكرتك أو مشكلتك إلى خطة واضحة قابلة للتنفيذ", text = "أرسل الهدف والوضع الحالي والروابط المتاحة والموعد المتوقع. ستحصل على نقطة بداية منظمة تساعدك على اتخاذ القرار الصحيح.") {
@@ -1657,7 +1657,7 @@ function englishPage() {
     english: true, site, esc, icon, button, mapsProjects, serviceItems: englishServices,
     faqHtml: faqBlock(englishHomeFaq), insightsHtml: insightCards
   });
-  return page({ title: `${site.nameEn} | Cybersecurity & Software Engineer`, description: "Eslam Elshikh is a Riyadh-based cybersecurity engineer and software developer specializing in web development, AI agents, Google Maps, and technical SEO.", path: "/en/", active: "home", body, lang: "en", modified: searchRevision, schema: [faqSchema(englishHomeFaq)], preloadImage: profilePhoto });
+  return page({ title: `${site.nameEn} | Cybersecurity & Software Engineer`, description: "Eslam Elshikh is a Riyadh-based cybersecurity engineer and software developer specializing in web development, AI agents, Google Maps, and technical SEO.", path: "/en/", active: "home", body, lang: "en", modified: homeOpeningRevision, schema: [faqSchema(englishHomeFaq)], preloadImage: profilePhoto });
 }
 
 function professionalIdentityPage(kind, english = false, note = null) {

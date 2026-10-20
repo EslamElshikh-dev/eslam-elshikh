@@ -1,4 +1,6 @@
 /* The home experience is isolated from service pages and case studies. */
+.home-service-link { text-decoration: underline; text-underline-offset: .18em; text-decoration-thickness: 1px; }
+.home-service-link:hover, .home-service-link:focus-visible { color: var(--home-accent); }
 .home-crafted {
   --home-accent: #93b9ff;
   --home-glow: rgb(105 147 233 / .14);
