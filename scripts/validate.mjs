@@ -9,7 +9,7 @@ import { products } from "../src/products.mjs";
 import { guides } from "../src/guides.mjs";
 import { articleVisuals } from "../src/article-visuals.mjs";
 import { practiceNotes, noteHref } from "../src/practice-notes.mjs";
-import { englishArticles, englishServices, englishTopics } from "../src/english.mjs";
+import { englishArticles, englishServices, englishTopics, englishProjectStudies } from "../src/english.mjs";
 
 const buildVersion = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8")).version;
 
@@ -454,7 +454,7 @@ for (const route of expectedCaseStudyRoutes) {
   const proof = caseStudies.find(study => `/projects/${study.slug}/` === route)?.proof;
   if (proof) validateVerifiedCaseEvidence(route, html, proof);
   else if (!html.includes("لا تتضمن هذه الدراسة أرقام زيارات أو تحويلات")) errors.push(`${route}: missing the evidence boundary for unverified business outcomes`);
-  for (const section of ["brief", "solution", "experience", "decisions", "output"]) if (!html.includes(`id="${section}"`)) errors.push(`${route}: missing case study section ${section}`);
+  for (const section of ["brief", "solution", "experience", "output"]) if (!html.includes(`id="${section}"`)) errors.push(`${route}: missing case study section ${section}`);
 }
 
 for (const english of [false, true]) {
@@ -462,10 +462,20 @@ for (const english of [false, true]) {
   const archive = pages.get(`${prefix}/projects/`) || "";
   if ((archive.match(/class="work-card-case"/g) || []).length !== caseStudies.length) errors.push(`${prefix}/projects/: every project needs a case-study action`);
   for (const study of caseStudies) {
-    const html = pages.get(`${prefix}/projects/${study.slug}/`) || "";
+    const route = `${prefix}/projects/${study.slug}/`;
+    const html = pages.get(route) || "";
     if (!html.includes(`data-case-study="${study.slug}"`)) errors.push(`${study.slug}: missing dedicated case content`);
     if (!html.includes(study.image)) errors.push(`${study.slug}: missing project interface`);
     if (!archive.includes(`href="${prefix}/projects/${study.slug}/"`)) errors.push(`${study.slug}: missing archive link`);
+    const authoredDecisions = english ? englishProjectStudies[study.slug]?.decisions : study.originalStudy?.decisions;
+    const expectsDecisions = Boolean(study.proof || authoredDecisions?.length);
+    if (html.includes('id="decisions"') !== expectsDecisions) errors.push(`${route}: decisions section must have project-specific source material`);
+    for (const match of html.matchAll(/href="#([^"]+)"/g)) {
+      if (!html.includes(`id="${match[1]}"`)) errors.push(`${route}: unresolved local section link #${match[1]}`);
+    }
+    const scopeParagraphs = [...html.matchAll(/class="case-scope-card">([\s\S]*?)<\/div>/g)]
+      .map(match => match[1].match(/<p>([\s\S]*?)<\/p>/)?.[1]).filter(Boolean);
+    if (scopeParagraphs.length !== new Set(scopeParagraphs).size) errors.push(`${route}: scope cards repeat the same explanatory paragraph`);
   }
   for (const product of products) {
     const route = `${prefix}/products/${product.slug}/`;

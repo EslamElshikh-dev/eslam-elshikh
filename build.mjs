@@ -17,7 +17,7 @@ import { mapsWorkAudit } from "./src/google-maps-work.mjs";
 import { renderRecentWork, renderAccountReview, renderWorkEvidence } from "./src/work-evidence.mjs";
 import { latestWorkReviewedAt } from "./src/latest-work.mjs";
 import { products, productText } from "./src/products.mjs";
-import { renderCaseStudy, renderProductCollection, renderProductsIndex, renderProductPage } from "./src/project-stories.mjs";
+import { renderCaseStudy, renderProductCollection, renderProductsIndex, renderProductPage, projectNarrativeRevision } from "./src/project-stories.mjs";
 import { guides } from "./src/guides.mjs";
 import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
 import { renderAbout } from "./src/about.mjs";
@@ -951,7 +951,8 @@ function projectCaseStudyPage(study, english = false) {
   const name = english ? study.englishName : study.title;
   const modified = study.proof?.updatedAt || projectAudit.auditedAt;
   const publicCredit = publicWorkCredits[study.slug];
-  const pageModified = publicCredit ? publicWorkCreditsReviewedAt : modified;
+  const pageModified = [publicCredit ? publicWorkCreditsReviewedAt : modified,
+    ...(study.proof ? [] : [projectNarrativeRevision])].sort().at(-1);
   const rawDescription = english
     ? `${name}: design decisions, user journey, and reviewable output. Explore the interface and project structure.`
     : `دراسة حالة ${name}: ${study.focus} اكتشف التحدي والحل وقرارات التصميم ورحلة المستخدم، مع صور الواجهة والمخرجات.`;
