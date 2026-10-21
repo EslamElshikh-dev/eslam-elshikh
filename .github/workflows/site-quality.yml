@@ -2,6 +2,8 @@ name: Site quality checks
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     paths:
@@ -14,6 +16,7 @@ on:
       - "build.mjs"
       - "package.json"
       - "vercel.json"
+      - "ops/link-check-policy.json"
       - ".github/workflows/site-quality.yml"
   schedule:
     - cron: "17 3 * * 1"
@@ -24,11 +27,16 @@ permissions:
 jobs:
   validate-site:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
+      - name: Test link result classification
+        run: node --test scripts/test-link-results.mjs
       - name: Build and validate production output
         run: npm run check
       - name: Validate required files
@@ -41,8 +49,38 @@ jobs:
           test -f dist/privacy/index.html
           test -f dist/terms/index.html
           grep -q "https://www.eslam-elshikh.com/" dist/sitemap.xml
-      - name: Check links
-        uses: lycheeverse/lychee-action@v2
+      - name: Validate final canonical, sitemap and structured data
+        run: node scripts/validate-final-seo.mjs --dir=dist
+      - name: Check internal links and fragments
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
         with:
-          args: --verbose --no-progress --accept 200,204,206,429 --root-dir "${{ github.workspace }}/dist" "./dist/**/*.html" "./dist/**/*.xml" "./dist/**/*.json"
+          lycheeVersion: v0.24.2
+          args: --offline --no-progress --include-fragments=anchor-only --index-files index.html --root-dir "${{ github.workspace }}/dist" "./dist/**/*.html" "./dist/**/*.xml" "./dist/**/*.json"
+          output: lychee/internal.md
           fail: true
+          failIfEmpty: true
+      - name: Check all links and retain raw responses
+        id: links
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
+        with:
+          lycheeVersion: v0.24.2
+          args: --no-progress --accept 200..=299 --max-concurrency 12 --max-retries 2 --timeout 25 --index-files index.html --root-dir "${{ github.workspace }}/dist" "./dist/**/*.html" "./dist/**/*.xml" "./dist/**/*.json"
+          format: json
+          output: lychee/results.json
+          jobSummary: false
+          # The required next step enforces failures and reports reviewed 403s.
+          fail: false
+          failIfEmpty: true
+      - name: Enforce link quality policy
+        if: ${{ !cancelled() && steps.links.outcome != 'skipped' }}
+        env:
+          LYCHEE_EXIT_CODE: ${{ steps.links.outputs.exit_code }}
+        run: node scripts/check-link-results.mjs
+      - name: Upload link reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: site-link-reports
+          path: lychee/
+          if-no-files-found: warn
+          retention-days: 14
