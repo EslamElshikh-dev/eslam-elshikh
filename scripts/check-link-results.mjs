@@ -2,7 +2,7 @@ import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-// Inspect every failed response; never accept 403 globally or exclude a host.
+// Inspect every failed response; never accept a blocked status globally.
 export function classifyLinks(report, policy, exitCode) {
   if (![0, 2].includes(Number(exitCode)) || exitCode === '') throw new Error(`Unexpected lychee exit code: ${exitCode}`);
   for (const key of ['total', 'unique', 'successful', 'errors', 'timeouts', 'unknown', 'unsupported']) {
@@ -11,7 +11,9 @@ export function classifyLinks(report, policy, exitCode) {
   if (!report.total || !report.unique || !report.successful) throw new Error('Empty or incomplete link check');
   if (!report.error_map || typeof report.error_map !== 'object' || Array.isArray(report.error_map)) throw new Error('Missing error_map');
   if (!Array.isArray(policy?.blocked403)) throw new Error('Missing reviewed 403 policy');
+  if (!Array.isArray(policy.blocked429 ?? [])) throw new Error('Invalid reviewed 429 policy');
   const allowed = new Set(policy.blocked403);
+  const rateLimited = new Set(policy.blocked429 ?? []);
   const grouped = new Map();
   let count = 0;
   for (const [source, entries] of Object.entries(report.error_map)) {
@@ -20,8 +22,10 @@ export function classifyLinks(report, policy, exitCode) {
       if (typeof entry?.url !== 'string' || typeof entry.status?.text !== 'string') throw new Error('Malformed failed response');
       count++;
       const code = entry.status.code;
-      const blocked = code === 403 && allowed.has(entry.url);
-      const key = JSON.stringify([entry.url, code, entry.status.text]);
+      const blocked = (code === 403 && allowed.has(entry.url)) || (code === 429 && rateLimited.has(entry.url));
+      // Cached and fresh responses to the same URL are one issue, with all
+      // references retained in the occurrence count.
+      const key = JSON.stringify([entry.url, code]);
       if (!grouped.has(key)) grouped.set(key, { url: entry.url, code, text: entry.status.text, blocked, sources: new Set(), occurrences: 0 });
       const item = grouped.get(key);
       item.sources.add(source);
@@ -43,12 +47,12 @@ export function formatReport(report, result) {
     '## Link quality results', '',
     `Scanned ${report.total} references (${report.unique} unique); ${report.successful} successful references.`,
     `Blocking failures: ${result.failures.length}; blocked automated checks: ${result.blocked.length}; timeouts/unknown/unsupported: ${result.unclassified}.`, '',
-    'A reviewed 403 is **unverified**, not a successful link. Only the exact URL and status pair is non-blocking; 404, 429, server/network errors and new 403 URLs still fail.', ''
+    'A reviewed automated block is **unverified**, not a successful link. Only the exact reviewed URL and status pair is non-blocking; 404, other 403/429 responses and server/network errors still fail.', ''
   ];
   for (const [title, items] of [['Blocking failures', result.failures], ['Blocked automated verification — manual review remains necessary', result.blocked]]) {
     if (!items.length) continue;
     lines.push(`### ${title}`, '', '| URL | Response | References | Example source |', '| --- | --- | --- | --- |');
-    for (const item of items) lines.push(`| ${cell(item.url)} | ${cell(item.text)} | ${item.occurrences} | ${cell([...item.sources][0])} |`);
+    for (const item of items) lines.push(`| ${cell(item.url)} | ${cell(item.code ?? '')} ${cell(item.text)} | ${item.occurrences} | ${cell([...item.sources][0])} |`);
     lines.push('');
   }
   return lines.join('\n') + '\n';
@@ -65,7 +69,7 @@ async function main() {
   await writeFile(output, markdown);
   if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, markdown);
   console.log(`Link check: ${report.unique} unique URLs; ${result.failures.length} blocking failures; ${result.blocked.length} blocked automated checks.`);
-  if (result.blocked.length) console.log(`::warning::${result.blocked.length} reviewed URLs blocked automated verification (HTTP 403). See the summary and raw report; they are not marked healthy.`);
+  if (result.blocked.length) console.log(`::warning::${result.blocked.length} reviewed URLs blocked automated verification (HTTP 403/429). See the summary and raw report; they are not marked healthy.`);
   for (const item of result.failures) console.error(`${item.text}: ${item.url}`);
   if (result.failed) process.exitCode = 1;
 }

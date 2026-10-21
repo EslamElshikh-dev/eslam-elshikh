@@ -54,3 +54,21 @@ test('a clean complete scan passes without warnings', () => {
   assert.equal(classifyLinks(r, policy, 0).failed, false);
   assert.throws(() => classifyLinks(r, policy, 2));
 });
+
+test('cached and fresh failures retain their references without duplicating URL counts', () => {
+  const r = report();
+  r.errors = 2;
+  r.error_map['dist/en/about/index.html'] = [{ url, status: { code: 403, text: 'Error (cached)' } }];
+  const result = classifyLinks(r, policy, 2);
+  assert.equal(result.blocked.length, 1);
+  assert.equal(result.blocked[0].occurrences, 2);
+});
+
+test('a reviewed Google rate limit does not exempt other URLs or status codes', () => {
+  const google = 'https://support.google.com/webmasters/answer/7440203';
+  const p = { ...policy, blocked429: [google] };
+  assert.equal(classifyLinks(report(google, 429), p, 2).failed, false);
+  for (const code of [403, 404, 500]) assert.equal(classifyLinks(report(google, code), p, 2).failed, true);
+  assert.equal(classifyLinks(report(`${google}?new=1`, 429), p, 2).failed, true);
+  assert.equal(classifyLinks(report(url, 429), p, 2).failed, true);
+});

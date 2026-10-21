@@ -14,9 +14,17 @@ link and `https://x.com/remoesoo10`. It reported no timeouts or other HTTP error
 That commit's Vercel production deployment was READY and assigned to the custom
 domains; the older deployment failure did not describe its state.
 
-Independent public GETs returned 200 for the X profile, the personal Maps short
-link, and a sampled Maps CID URL. This does not prove that all 80 listings still
+Independent public GETs returned 200 for all 82 affected URLs. This does not prove that all 80 listings still
 exist or validate their business details. A 403 alone cannot settle that question.
+
+The expanded online scan also returned 429 for ten exact Google Help, Community
+and Search URLs. Independent requests confirmed a Google `/sorry/index` automated
+traffic challenge for six; rechecking the other four challenge redirects timed
+out. The 429 responses remain explicitly unverified. The former global acceptance
+of 429 is replaced by a separate ten-URL policy; other rate limits still fail.
+The official Help articles were also independently found in Google's public
+search index. Neither that discovery nor a challenge response proves every
+Community reply or Knowledge Panel target is still present.
 
 The stronger local fragment check also found 26 references to `#map-CID`
 destinations that only JavaScript understood. Gallery images now have those
@@ -34,10 +42,11 @@ static IDs, preserving existing `proof-N` IDs and the JavaScript detail dialog.
 4. The online scan still requests every URL. It accepts only 2xx responses,
    follows redirects and retains its full JSON report. There are no HTTP host
    exclusions or globally accepted 403/429 responses.
-5. The required policy step fails for every error except HTTP 403 on an exact
-   reviewed URL in `ops/link-check-policy.json`. These exceptions are reported
+5. The required policy step fails for every error except an exact reviewed URL
+   and status pair in `ops/link-check-policy.json` (82 URLs for 403, ten for 429). These exceptions are reported
    separately as **blocked automated verification**, not successful links.
-   A 404/429/5xx/network error on the same URL still fails, as does a new 403 URL.
+   A 404/5xx/network error on the same URL still fails, as does an unreviewed
+   403/429 URL or a different status for a reviewed URL.
    Empty, missing or malformed reports and unexpected scanner exits also fail.
 
 Raw online JSON, local results and the classified Markdown summary are retained

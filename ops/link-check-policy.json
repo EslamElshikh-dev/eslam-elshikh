@@ -85,5 +85,18 @@
     "https://maps.google.com/maps?cid=979593305848799856",
     "https://maps.google.com/maps?cid=995433213391221534",
     "https://x.com/remoesoo10"
-  ]
+  ],
+  "blocked429": [
+    "https://support.google.com/business/answer/2853879?hl=ar",
+    "https://support.google.com/business/answer/2853879?hl=en",
+    "https://support.google.com/business/answer/9157481?hl=ar",
+    "https://support.google.com/business/answer/9157481?hl=en",
+    "https://support.google.com/business/answer/9918094?hl=ar",
+    "https://support.google.com/business/thread/473413848?hl=en&msgid=473421330",
+    "https://support.google.com/business/thread/473419252?hl=en&msgid=473421191",
+    "https://support.google.com/business/thread/473419294?hl=en&msgid=473421122",
+    "https://support.google.com/webmasters/answer/7440203",
+    "https://www.google.com/search?q=%D8%A5%D8%B3%D9%84%D8%A7%D9%85+%D8%A7%D9%84%D8%B4%D9%8A%D8%AE&kgmid=/g/11z3zxlvyt"
+  ],
+  "rateLimitEvidence": "2026-10-21: These ten exact Google URLs returned 429 after retries. Six independent requests confirmed redirects to www.google.com/sorry/index; the other four redirect rechecks timed out. These URLs are unverified, not healthy. Other statuses and unlisted rate limits remain blocking."
 }
