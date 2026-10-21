@@ -17,6 +17,9 @@ const PRIORITY_URLS = [
   `${DEFAULT_ORIGIN}/google-expert/`,
   `${DEFAULT_ORIGIN}/local-seo/riyadh/`,
   `${DEFAULT_ORIGIN}/services/google-business-profile/`,
+  `${DEFAULT_ORIGIN}/services/web-development/`,
+  `${DEFAULT_ORIGIN}/services/seo/`,
+  `${DEFAULT_ORIGIN}/google-business-profile-audit/`,
   `${DEFAULT_ORIGIN}/google-maps-projects/`
 ];
 

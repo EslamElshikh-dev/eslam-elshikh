@@ -1,6 +1,6 @@
 import { renderHomeSignature } from './home-signature.mjs';
 
-export const homeOpeningRevision = '2026-10-20';
+export const homeOpeningRevision = '2026-10-21';
 
 function renderExpertiseRibbon({ english, esc, icon }) {
  const prefix = english ? '/en' : '';
@@ -16,7 +16,7 @@ function renderExpertiseRibbon({ english, esc, icon }) {
 }
 
 function renderHomeJourney({ english, icon }) {
- const paths = [[english ? 'work' : 'home-work', 'layers', 'الأعمال', 'Work'], ['services', 'code', 'الخدمات', 'Services'], [english ? 'about' : 'home-method', 'shield', 'منهج العمل', 'Approach'], [english ? 'faq' : 'home-faq', 'search', 'الأسئلة', 'Questions'], [english ? 'contact' : 'home-contact', 'arrow', 'نبدأ مشروعك', 'Let’s talk']];
+ const paths = [['services', 'code', 'الخدمات', 'Services'], [english ? 'work' : 'home-work', 'layers', 'الأعمال', 'Work'], [english ? 'about' : 'home-method', 'shield', 'منهج العمل', 'Approach'], [english ? 'faq' : 'home-faq', 'search', 'الأسئلة', 'Questions'], [english ? 'contact' : 'home-contact', 'arrow', 'نبدأ مشروعك', 'Let’s talk']];
  return `<nav class="home-journey-nav" data-home-journey aria-label="${english ? 'Explore this page' : 'تنقل داخل الصفحة الرئيسية'}"><div class="container home-journey-inner"><a class="home-journey-home" href="#home-opening" aria-label="${english ? 'Back to the opening' : 'العودة إلى بداية الصفحة'}"><span dir="ltr">ES.</span></a><div class="home-journey-links">${paths.map(([id, glyph, ar, en], i) => `<a href="#${id}" data-home-section="${id}"><span class="home-journey-number" aria-hidden="true" dir="ltr">0${i+1}</span>${icon(glyph)}<span>${english ? en : ar}</span></a>`).join('')}</div><a class="home-journey-book" href="${english ? '/en' : ''}/book/">${icon('clock')}<span>${english ? 'Book a consultation' : 'احجز استشارة'}</span></a></div></nav>`;
 }
 
@@ -24,13 +24,13 @@ function renderHomeJourney({ english, icon }) {
 export function renderHomeOpening({ english = false, site, button, profilePhoto, esc, icon }) {
  const prefix = english ? '/en' : '';
  const routes = english ? [
-  ['code', 'web-development', 'A website that earns attention', 'Design, development & security'],
-  ['layers', 'crm-systems', 'A clearer way to run your business', 'Custom CRM & working trials'],
-  ['pin', 'local-seo', 'A presence customers can find', 'Search & Google Maps'],
+  ['code', 'web-development', 'Website or store', 'Design, development & security'],
+  ['layers', 'crm-systems', 'CRM or business system', 'Custom CRM & working trials'],
+  ['pin', 'local-seo', 'Search & Maps visibility', 'Search & Google Maps'],
  ] : [
-  ['code', 'web-development', 'موقعٌ يعكس قيمة عملك', 'تصميم وتطوير وأمان'],
-  ['layers', 'crm-systems', 'نظامٌ يجمع تفاصيل أعمالك', 'CRM وتجارب مخصصة'],
-  ['pin', 'local-seo', 'حضورٌ يصل إليه عملاؤك', 'البحث وخرائط Google'],
+  ['code', 'web-development', 'موقع أو متجر', 'تصميم وتطوير وأمان'],
+  ['layers', 'crm-systems', 'نظام لإدارة أعمالك', 'CRM وتجارب مخصصة'],
+  ['pin', 'local-seo', 'ظهور في البحث والخرائط', 'البحث وخرائط Google'],
  ];
  const statLabels = english ? ['Issuer-linked professional credentials', 'Selected evidence-led case studies', 'Public Google Maps examples', 'Web projects in the work registry'] : site.stats.map(stat => stat.label);
  return `<section class="hero section-pad home-opening home-magic${english ? ' hero-en' : ''}" id="home-opening" data-home-opening>
@@ -39,8 +39,9 @@ export function renderHomeOpening({ english = false, site, button, profilePhoto,
    <div class="hero-copy reveal">
     <p class="home-hero-kicker"><span aria-hidden="true"></span>${english ? 'DIGITAL ENGINEERING, SHAPED AROUND YOUR BUSINESS' : 'هندسة رقميّة تبدأ من طموحك'}</p>
     <h1><span class="home-hero-name">${english ? 'Eng. Eslam Elshikh' : 'المهندس إسلام الشيخ'}</span> <span class="home-hero-promise">${english ? 'A presence that persuades.<br><em>Systems that get things done.</em>' : 'أصنعُ لعملك حضورًا يُقنع،<br><em>وأنظمةً تُنجز.</em>'}</span></h1>
-    <p class="hero-lead">${english ? `I design and develop <a class="home-service-link" href="${prefix}/services/web-development/">websites and stores</a> and build custom systems from scratch. Cybersecurity and AI agents support the work, while <a class="home-service-link" href="${prefix}/services/google-business-profile/">Google Business Profile services</a>, <a class="home-service-link" href="${prefix}/services/seo/">SEO</a> and advertising connect it with your customers.` : `أصمّم وأبرمج <a class="home-service-link" href="${prefix}/services/web-development/">المواقع والمتاجر</a> والأنظمة من الصفر، وأربط التجربة بالأمن السيبراني ووكلاء الذكاء الاصطناعي و<a class="home-service-link" href="${prefix}/services/google-business-profile/">خدمات ملفات Google التجارية</a> و<a class="home-service-link" href="${prefix}/services/seo/">تحسين محركات البحث</a> وإعلاناته؛ لتخدم طموحك وطريقة عملك.`}</p>
+    <p class="hero-lead">${english ? `I build <a class="home-service-link" href="${prefix}/services/web-development/">websites, stores</a> and systems around your business. <a class="home-service-link" href="${prefix}/services/google-business-profile/">Google Business Profile services</a> and <a class="home-service-link" href="${prefix}/services/seo/">SEO</a> help customers find you.` : `أصمّم وأبرمج <a class="home-service-link" href="${prefix}/services/web-development/">مواقع ومتاجر</a> وأنظمة تناسب طريقة عملك. وأساعد عملاءك على الوصول إليك عبر <a class="home-service-link" href="${prefix}/services/google-business-profile/">خدمات ملفات Google التجارية</a> و<a class="home-service-link" href="${prefix}/services/seo/">تحسين محركات البحث</a>.`}</p>
     <p class="hero-support">${english ? 'Based in Riyadh. A clear scope, delivery in stages and work you can review.' : 'من الرياض، أبدأ بفهم أعمالك؛ ثم نحوّل احتياجك إلى نطاقٍ واضح، وتنفيذٍ متدرّج، وتسليمٍ يمكنك مراجعته.'}</p>
+    <nav class="home-quick-routes" aria-label="${english ? 'Choose a starting point for your project' : 'اختر نقطة البداية لمشروعك'}">${routes.map(([glyph, slug, title, detail]) => `<a href="${slug === 'local-seo' ? `${prefix}/local-seo/riyadh/` : `${prefix}/services/${slug}/`}">${icon(glyph)}<span><strong>${esc(title)}</strong><small>${esc(detail)}</small></span>${icon('arrow')}</a>`).join('')}</nav>
     <div class="hero-actions">${button(`${prefix}/contact/`, english ? 'Discuss your project' : 'ناقش مشروعك معي')}${button(`${prefix}/projects/`, english ? 'Explore the work' : 'شاهد الأعمال المنفّذة', 'button-ghost')}</div>
     <a class="home-trial-link" href="${prefix}/services/crm-systems/#crm-personal-trial"><span class="home-trial-icon">${icon('layers')}</span><span><strong>${english ? 'Picture a system with your business identity.' : 'تصوّر نظامًا يحمل هوية منشأتك.'}</strong><small>${english ? 'Add your name and logo. Explore how a sample request moves through your team.' : 'ضع اسمك وشعارك، واستكشف كيف ينتقل الطلب بين أعضاء فريقك.'}</small></span>${icon('arrow')}</a>
     <div class="hero-trust"><a href="${site.googleMapsProfile}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>${english ? 'Google Business Profile' : 'ملفي التجاري على Google'}</a><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot"></span>${english ? 'Google Developer Profile' : 'ملفي على Google للمطورين'}</a></div>
@@ -48,7 +49,6 @@ export function renderHomeOpening({ english = false, site, button, profilePhoto,
    ${renderExpertiseRibbon({ english, esc, icon })}
    ${renderHomeSignature({ english, site, portrait: profilePhoto, esc, icon })}
   </div>
-  <nav class="container home-starting-points" aria-label="${english ? 'Choose a starting point for your project' : 'اختر نقطة البداية لمشروعك'}"><div class="home-route-intro"><span dir="ltr">01 — 03</span><p>${english ? 'Where should<br>your next step begin?' : 'لكلّ طموحٍ<br><strong>نقطةُ بداية.</strong>'}</p></div>${routes.map(([glyph, slug, title, detail], index) => `<a href="${slug === 'local-seo' ? `${prefix}/local-seo/riyadh/` : `${prefix}/services/${slug}/`}"><span class="home-route-number" dir="ltr">0${index + 1}</span><span class="home-route-copy"><strong>${esc(title)}</strong><small>${esc(detail)}</small></span>${icon(glyph)}${icon('arrow')}</a>`).join('')}</nav>
   <div class="container stats-bar reveal">${site.stats.map((stat, index) => `<a href="${prefix}${['/credentials/', '/credentials/#selected-evidence', '/google-maps-projects/', '/work-evidence/'][index]}"><strong dir="ltr">${esc(stat.value)}</strong><span>${esc(statLabels[index])}</span></a>`).join('')}</div>
   <p class="container stats-note">${english ? 'Credentials link to issuer records. Project and Maps figures describe published portfolio entries, not unique clients or search-indexed pages.' : 'الشهادات مرتبطة بسجلات الجهات المانحة؛ وأرقام المواقع والخرائط تصف نماذج المعرض، وليست عدد عملاء مستقلين أو صفحات مفهرسة.'}</p>
  </section>${renderHomeJourney({ english, icon })}`;

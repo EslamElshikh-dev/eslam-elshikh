@@ -1,0 +1,15 @@
+.seo-offers { scroll-margin-top: 100px; }
+.seo-offer-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.seo-offer-card { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--line-strong); border-radius: 1.5rem; background: var(--surface); scroll-margin-top: 100px; }
+.seo-offer-icon { color: var(--primary); }
+.seo-offer-icon .icon { width: 1.7rem; height: 1.7rem; }
+.seo-offer-card h3 { margin: .85rem 0 .6rem; font-size: 1.35rem; line-height: 1.6; }
+.seo-offer-card p, .seo-offer-card li { font-size: .9rem; line-height: 1.9; }
+.seo-offer-card>p { color: var(--muted); margin: 0 0 1rem; }
+.seo-offer-card ul { margin: 0 0 1rem; padding-inline-start: 1.3rem; }
+.seo-offer-card li+li { margin-top: .5rem; }
+.seo-offer-card .seo-offer-boundary { padding-top: 1rem; border-top: 1px solid var(--line); font-size: .8rem; }
+.seo-offer-card .seo-offer-price { margin-top: auto; color: var(--text); font-weight: 650; }
+.seo-offer-card .button { min-height: 48px; max-width: 100%; white-space: normal; text-align: center; }
+.seo-offer-note { margin: 1.25rem 0 0; color: var(--muted); font-size: .8rem; line-height: 1.9; }
+@media (max-width: 700px) { .seo-offer-grid { grid-template-columns: minmax(0, 1fr); } }

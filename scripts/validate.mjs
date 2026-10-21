@@ -236,12 +236,15 @@ for (const route of sitemapRoutes) {
   const hasServiceStudio = ["/services/", "/en/services/"].includes(route);
   const hasVerifiedCase = caseStudies.some(study => study.proof && [`/projects/${study.slug}/`, `/en/projects/${study.slug}/`].includes(route));
   const hasHomeMagic = route === "/" || route === "/en/";
+  const hasSeoOffers = ["/services/seo/", "/en/services/seo/"].includes(route);
+  if (hasSeoOffers && !/\/assets\/css\/seo-offers\.css\?v=/.test(html)) errors.push(`${route}: missing SEO engagement stylesheet`);
+  if (hasSeoOffers && (!html.includes('id="seo-audit"') || !html.includes('id="seo-monthly"'))) errors.push(`${route}: missing one-time or monthly SEO scope`);
   const hasGoogleProfilePricing = ["/google-expert/", "/en/google-expert/", "/services/google-business-profile/", "/en/services/google-business-profile/"].includes(route);
   const hasMapsExpert = /class="maps-expert"/.test(html);
   const hasIdentityLayout = ["/about/", "/en/about/"].includes(route);
   const hasProfessionalIdentity = ["/about/", "/en/about/", "/credentials/", "/en/credentials/", "/media-kit/", "/en/media-kit/"].includes(route) || /^(\/en)?\/notes\//.test(route) || /^(\/en)?\/projects\/naqada-directory\/$/.test(route);
   if (hasProfessionalIdentity && !html.includes(`/assets/css/professional-identity.css?v=${buildVersion}`)) errors.push(`${route}: missing professional identity stylesheet`);
-  const expectedStylesheets = Number(hasProfessionalIdentity) + Number(hasMapsExpert) + Number(hasGoogleProfilePricing) + Number(hasHomeMagic) + Number(hasVerifiedCase) + Number(hasCrmShowcase) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories) + Number(hasIdentityLayout);
+  const expectedStylesheets = Number(hasProfessionalIdentity) + Number(hasMapsExpert) + Number(hasGoogleProfilePricing) + Number(hasHomeMagic) + Number(hasSeoOffers) + Number(hasVerifiedCase) + Number(hasCrmShowcase) + Number(hasServiceStudio) + Number(hasCrmStudio) + Number(hasWorkEvidence) + 2 + Number(hasMapsExhibition) + Number(route === "/about/" || growthStyleRoutes.has(route)) + Number(hasProjectGallery) + Number(hasProjectStories) + Number(hasIdentityLayout);
   if (hasIdentityLayout && !html.includes(`/assets/css/identity-layout.css?v=${buildVersion}`)) errors.push(`${route}: missing versioned identity layout stylesheet`);
   if (hasHomeMagic && (!html.includes('/assets/css/home-magic.css?v=') || !html.includes('/assets/js/home-magic.js?v='))) errors.push(`${route}: missing versioned home experience assets`);
   if (hasVerifiedCase && !html.includes("/assets/css/case-results.css?v=")) errors.push(`${route}: missing the versioned results stylesheet`);
