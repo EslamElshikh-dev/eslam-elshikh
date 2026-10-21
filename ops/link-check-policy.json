@@ -96,7 +96,9 @@
     "https://support.google.com/business/thread/473419252?hl=en&msgid=473421191",
     "https://support.google.com/business/thread/473419294?hl=en&msgid=473421122",
     "https://support.google.com/webmasters/answer/7440203",
-    "https://www.google.com/search?q=%D8%A5%D8%B3%D9%84%D8%A7%D9%85+%D8%A7%D9%84%D8%B4%D9%8A%D8%AE&kgmid=/g/11z3zxlvyt"
+    "https://www.google.com/search?q=%D8%A5%D8%B3%D9%84%D8%A7%D9%85+%D8%A7%D9%84%D8%B4%D9%8A%D8%AE&kgmid=/g/11z3zxlvyt",
+    "https://www.instagram.com/remoesoo10"
   ],
-  "rateLimitEvidence": "2026-10-21: These ten exact Google URLs returned 429 after retries. Six independent requests confirmed redirects to www.google.com/sorry/index; the other four redirect rechecks timed out. These URLs are unverified, not healthy. Other statuses and unlisted rate limits remain blocking."
+  "rateLimitEvidence": "2026-10-21: These ten exact Google URLs returned 429 after retries. Six independent requests confirmed redirects to www.google.com/sorry/index; the other four redirect rechecks timed out. These URLs are unverified, not healthy. Other statuses and unlisted rate limits remain blocking.",
+  "socialRateLimitEvidence": "2026-10-21: GitHub run 39626113829 returned 617 repeated 429 responses for this exact Instagram profile. An independent GET returned 200 and the expected Eslam Elshikh / remoesoo10 profile title. Keep automated 429 verification explicitly unverified."
 }

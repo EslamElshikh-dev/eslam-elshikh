@@ -22,6 +22,10 @@ and Search URLs. Independent requests confirmed a Google `/sorry/index` automate
 traffic challenge for six; rechecking the other four challenge redirects timed
 out. The 429 responses remain explicitly unverified. The former global acceptance
 of 429 is replaced by a separate ten-URL policy; other rate limits still fail.
+A later GitHub run also returned 617 repeated 429 responses for the exact
+Instagram profile `https://www.instagram.com/remoesoo10`. An independent GET
+returned 200 with the expected Eslam Elshikh / remoesoo10 profile title; its
+automated 429 is tracked separately, too.
 The official Help articles were also independently found in Google's public
 search index. Neither that discovery nor a challenge response proves every
 Community reply or Knowledge Panel target is still present.
@@ -43,7 +47,7 @@ static IDs, preserving existing `proof-N` IDs and the JavaScript detail dialog.
    follows redirects and retains its full JSON report. There are no HTTP host
    exclusions or globally accepted 403/429 responses.
 5. The required policy step fails for every error except an exact reviewed URL
-   and status pair in `ops/link-check-policy.json` (82 URLs for 403, ten for 429). These exceptions are reported
+   and status pair in `ops/link-check-policy.json` (82 URLs for 403, eleven for 429). These exceptions are reported
    separately as **blocked automated verification**, not successful links.
    A 404/5xx/network error on the same URL still fails, as does an unreviewed
    403/429 URL or a different status for a reviewed URL.
