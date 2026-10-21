@@ -43,7 +43,7 @@ static IDs, preserving existing `proof-N` IDs and the JavaScript detail dialog.
    is not a Google rich-result eligibility or indexing guarantee.
 3. Lychee checks local links, directory index files and anchor fragments with
    `--offline --include-fragments=anchor-only --index-files index.html`.
-4. The online scan still requests every URL. It accepts only 2xx responses,
+4. The online scan still requests every unique URL. It accepts only 2xx responses,
    follows redirects and retains its full JSON report. There are no HTTP host
    exclusions or globally accepted 403/429 responses.
 5. The required policy step fails for every error except an exact reviewed URL
@@ -52,6 +52,17 @@ static IDs, preserving existing `proof-N` IDs and the JavaScript detail dialog.
    A 404/5xx/network error on the same URL still fails, as does an unreviewed
    403/429 URL or a different status for a reviewed URL.
    Empty, missing or malformed reports and unexpected scanner exits also fail.
+
+Before the online scan, lychee extracts the complete eligible URL inventory from
+every HTML/XML/JSON input. Exact duplicates are removed with `sort -u`; query
+variants remain distinct. This avoids repeated retryable requests for hundreds
+of occurrences of one blocked destination. The offline scan still checks every
+reference and fragment in its original page context. Both `all-links.txt` and
+`urls.txt` are retained with the reports. Online error locations reference the
+unique inventory; use the URL to find its originating markup in the built `dist`.
+On the reviewed build, extraction yields 42,211 eligible references and 2,960
+unique URLs; the existing default exclusions account for 1,922 mail/tel references
+and two additional distinct schemes in the original 2,962-URL count.
 
 Raw online JSON, local results and the classified Markdown summary are retained
 as the `site-link-reports` Actions artifact for 14 days. The policy gate writes

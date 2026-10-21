@@ -59,12 +59,18 @@ jobs:
           output: lychee/internal.md
           fail: true
           failIfEmpty: true
+      - name: Build complete and unique link inventories
+        run: |
+          set -euo pipefail
+          lychee --dump --root-dir "${{ github.workspace }}/dist" "./dist/**/*.html" "./dist/**/*.xml" "./dist/**/*.json" > lychee/all-links.txt
+          LC_ALL=C sort -u lychee/all-links.txt > lychee/urls.txt
+          test -s lychee/urls.txt
       - name: Check all links and retain raw responses
         id: links
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
         with:
           lycheeVersion: v0.24.2
-          args: --no-progress --accept 200..=299 --max-concurrency 32 --max-retries 2 --timeout 25 --index-files index.html --root-dir "${{ github.workspace }}/dist" "./dist/**/*.html" "./dist/**/*.xml" "./dist/**/*.json"
+          args: --no-progress --accept 200..=299 --max-concurrency 32 --max-retries 2 --timeout 25 --index-files index.html --root-dir "${{ github.workspace }}/dist" lychee/urls.txt
           format: json
           output: lychee/results.json
           jobSummary: false
