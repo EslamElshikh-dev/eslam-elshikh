@@ -1,5 +1,5 @@
 // Fixed to the actual identity-content revision, not the build time.
-export const profileUpdatedAt = "2026-10-18T03:34:51+00:00";
+export const profileUpdatedAt = "2026-10-21T04:26:04+00:00";
 
 export function getOfficialProfiles(site, english = false) {
   return [
@@ -10,7 +10,8 @@ export function getOfficialProfiles(site, english = false) {
     ["Instagram", site.social.instagram, "@remoesoo10"],
     ["X", site.social.x, "@remoesoo10"],
     ["Threads", site.social.threads, "@remoesoo10"],
-    ["YouTube", site.social.youtube, "Eslam Elshikh"],
+    ["YouTube", site.social.youtube, "@remoesoo10"],
+    ["YouTube", site.social.youtubeTutorials, "@EslamElshikh10"],
     ["TikTok", site.social.tiktok, "@remoesoo"]
   ];
 }
@@ -49,6 +50,8 @@ export function renderContactCard(site) {
     `NOTE:${text("Cybersecurity, software and web development, AI agents and automation, Google Maps and local SEO. الرياض، السعودية.")}`,
     `X-SOCIALPROFILE;TYPE=github:${site.social.github}`,
     `X-SOCIALPROFILE;TYPE=google-developer:${site.social.googleDeveloper}`,
+    `X-SOCIALPROFILE;TYPE=youtube:${site.social.youtube}`,
+    `X-SOCIALPROFILE;TYPE=youtube:${site.social.youtubeTutorials}`,
     `REV:${new Date(profileUpdatedAt).toISOString().replace(/[-:]/g, "").replace(".000", "")}`,
     "END:VCARD"
   ];

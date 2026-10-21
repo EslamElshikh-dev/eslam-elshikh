@@ -47,6 +47,7 @@ export const site = {
     instagram: "https://www.instagram.com/remoesoo10",
     threads: "https://www.threads.com/@remoesoo10",
     youtube: "https://www.youtube.com/channel/UCzzymecmc8SAH8vtpYpKVqQ",
+    youtubeTutorials: "https://www.youtube.com/channel/UCsupPcGARQHyha6uIvYIwQA",
     tiktok: "https://www.tiktok.com/@remoesoo",
     googleKnowledgePanel: "https://www.google.com/search?q=%D8%A5%D8%B3%D9%84%D8%A7%D9%85+%D8%A7%D9%84%D8%B4%D9%8A%D8%AE&kgmid=/g/11z3zxlvyt",
     googleDeveloper: "https://me.developers.google.com/u/EslamElshikh",
