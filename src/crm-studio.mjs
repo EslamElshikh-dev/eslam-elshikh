@@ -2,6 +2,9 @@ import { renderCrmLab } from "./crm-lab.mjs";
 import { renderCrmShowcase } from "./crm-showcase.mjs";
 import { productText } from './products.mjs';
 import { crmQuestions, crmServiceQuestions, crmServiceAr, crmServiceEn } from './crm-content.mjs';
+// Interface tours and tailored-trial content were published in 3267844.
+// This is a content date, not the current build or the portfolio audit date.
+export const crmStudioRevision = '2026-10-10';
 const prefix = en => en ? '/en' : '';
 const num = n => String(n+1).padStart(2,'0');
 const topics = en => en ? [['all','All questions'],['daily','Daily work'],['connections','Connections & access'],['scope','Scope & delivery']] : [['all','كل الأسئلة'],['daily','العمل اليومي'],['connections','الربط والإدارة'],['scope','النطاق والتنفيذ']];

@@ -1,5 +1,8 @@
 import { renderServicePaths } from './service-paths.mjs';
 import { renderCrmServicePreview } from './crm-service-preview.mjs';
+// The sector-specific service cards were published in 38ca4cd on 7 October.
+// Keep this content revision separate from the older search-evidence review.
+export const serviceStudioRevision = '2026-10-07';
 const pair=(ar,en)=>({ar,en});
 const presentations={
  'crm-systems':{code:'YOUR BUSINESS / YOUR SYSTEM',question:pair('كيف سيعمل CRM داخل نشاطي؟','How would CRM work in my business?'),value:pair('اختبر مسارًا تفاعليًا، ثم اطلب تجربة فعلية بهوية منشأتك وأدوار فريقك ومهامه.','Try an interactive workflow, then request a working custom trial with your identity, team roles and tasks.'),points:[pair('تجربة مخصصة','Custom trial'),pair('عملاء ومتابعات','Customers & follow-up'),pair('أدوار وصلاحيات','Roles & access')]},
