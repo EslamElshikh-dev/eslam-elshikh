@@ -90,3 +90,32 @@ reviewed 403s, new/internal failures, rate limits, timeouts and incomplete repor
 References: [lychee CLI/config](https://lychee.cli.rs/guides/config/),
 [lychee-action](https://github.com/lycheeverse/lychee-action),
 [pinned JSON output format](https://github.com/lycheeverse/lychee/blob/lychee-v0.24.2/lychee-bin/src/formatters/stats/json.rs).
+
+## Published indexing metadata
+
+Vercel serves `dist`, produced by the complete `build:vercel` chain. The older
+HTML, `robots.txt` and `sitemap.xml` snapshots at the repository root are not
+the published Vercel output. Inspect the live files and the final build when
+investigating indexing; the root sitemap's 7 September date is not evidence
+that this date is being served to Google.
+
+Service cards changed in `38ca4cd` (7 October 2026), and CRM tours, answers and
+invitations changed in `3267844` (10 October). Some pages that render these
+components still used an older search-evidence or portfolio-audit date.
+Component revision constants now set a minimum page revision, preserving any
+later page-specific date. Neither a build nor a link-only CI repair advances
+these dates to the present day. The older portfolio audit date remains intact.
+
+The final SEO validator now runs inside the Vercel build as well as Actions.
+It checks the page's own revision, rather than unrelated entities, against both
+XML sitemaps, rejects invalid/future dates and prevents these pages from
+predating their shipped content. Article date checks and intentional noindex
+policies remain in place.
+
+A successful HTTP/build/link result establishes technical accessibility; it
+does not establish indexing. Compare Search Console's last crawl, declared and
+Google-selected canonicals, fetch/indexing states and sitemap read dates with
+the actual deployment. `Crawled - currently not indexed` alone does not prove
+a specific quality, duplicate-content or server failure. See
+[Google's indexing report](https://support.google.com/webmasters/answer/7440203)
+and [lastmod guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap).
