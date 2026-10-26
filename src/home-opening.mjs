@@ -1,6 +1,6 @@
 import { renderHomeSignature } from './home-signature.mjs';
 
-export const homeOpeningRevision = '2026-10-21';
+export const homeOpeningRevision = '2026-10-26';
 
 function renderExpertiseRibbon({ english, esc, icon }) {
  const prefix = english ? '/en' : '';
@@ -44,7 +44,7 @@ export function renderHomeOpening({ english = false, site, button, profilePhoto,
     <nav class="home-quick-routes" aria-label="${english ? 'Choose a starting point for your project' : 'اختر نقطة البداية لمشروعك'}">${routes.map(([glyph, slug, title, detail]) => `<a href="${slug === 'local-seo' ? `${prefix}/local-seo/riyadh/` : `${prefix}/services/${slug}/`}">${icon(glyph)}<span><strong>${esc(title)}</strong><small>${esc(detail)}</small></span>${icon('arrow')}</a>`).join('')}</nav>
     <div class="hero-actions">${button(`${prefix}/contact/`, english ? 'Discuss your project' : 'ناقش مشروعك معي')}${button(`${prefix}/projects/`, english ? 'Explore the work' : 'شاهد الأعمال المنفّذة', 'button-ghost')}</div>
     <a class="home-trial-link" href="${prefix}/services/crm-systems/#crm-personal-trial"><span class="home-trial-icon">${icon('layers')}</span><span><strong>${english ? 'Picture a system with your business identity.' : 'تصوّر نظامًا يحمل هوية منشأتك.'}</strong><small>${english ? 'Add your name and logo. Explore how a sample request moves through your team.' : 'ضع اسمك وشعارك، واستكشف كيف ينتقل الطلب بين أعضاء فريقك.'}</small></span>${icon('arrow')}</a>
-    <div class="hero-trust"><a href="${site.googleMapsProfile}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>${english ? 'Google Business Profile' : 'ملفي التجاري على Google'}</a><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot"></span>${english ? 'Google Developer Profile' : 'ملفي على Google للمطورين'}</a></div>
+    <div class="hero-trust"><a href="${site.googleMapsProfile}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>${english ? 'Google Business Profile' : 'ملفي التجاري على Google'}</a><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot"></span>${english ? 'Google Developer Profile' : 'ملفي على Google للمطورين'}</a><a href="${prefix}/about/#profile-evidence"><span class="trust-dot"></span>${english ? "About Eslam: background and work evidence" : "عن إسلام الشيخ: الدراسة وأدلة العمل"}</a></div>
    </div>
    ${renderExpertiseRibbon({ english, esc, icon })}
    ${renderHomeSignature({ english, site, portrait: profilePhoto, esc, icon })}

@@ -2,6 +2,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { serviceStudioRevision } from '../src/service-studio.mjs';
 import { crmStudioRevision } from '../src/crm-studio.mjs';
+import { profileSummaryRevision } from '../src/profile-summary.mjs';
 
 // Validate the actual published output after all HTML and sitemap transforms.
 const directory = resolve(process.argv.find(arg => arg.startsWith('--dir='))?.slice(6) || 'dist');
@@ -38,7 +39,8 @@ for (const file of entries.filter(file => file.endsWith('.html'))) {
   const routeWithoutLanguage = route.replace(/^\/en\//, '/');
   const minimumRevision = /^\/services\//.test(routeWithoutLanguage) ? serviceStudioRevision : '';
   const crmRevision = routeWithoutLanguage === '/services/crm-systems/' || routeWithoutLanguage === '/projects/' || /^\/products\/[^/]+\/$/.test(routeWithoutLanguage) ? crmStudioRevision : '';
-  const requiredRevision = [minimumRevision, crmRevision].sort().at(-1);
+  const profileRevision = routeWithoutLanguage === '/about/' ? profileSummaryRevision : '';
+  const requiredRevision = [minimumRevision, crmRevision, profileRevision].sort().at(-1);
   if (requiredRevision && (!modified[0] || modified[0] < requiredRevision)) errors.push(`${route}: page revision predates shipped content (${requiredRevision})`);
   const canonicals = [...html.matchAll(/<link\b[^>]*>/gi)].map(match => match[0]).filter(tag => attr(tag, 'rel') === 'canonical');
   if (canonicals.length !== 1 || attr(canonicals[0] || '', 'href') !== origin + route) errors.push(`${route}: final canonical is not unique and self-referencing`);
