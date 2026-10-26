@@ -766,12 +766,14 @@ input, textarea, select { min-width: 0; }
 .back-to-top.is-visible { opacity: 1; visibility: visible; transform: none; }
 .back-to-top .icon { transform: rotate(-90deg); width: 1.05rem; height: 1.05rem; }
 
-/* Reveal */
-.js .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
-.js .reveal.is-visible { opacity: 1; transform: none; }
+/* Content stays readable before scrolling and if the observer never runs. */
+.js .reveal { opacity: 1; transform: none; }
+.js .reveal.is-visible { animation: contentReveal 0.55s ease var(--reveal-delay, 0ms) both; }
+@keyframes contentReveal { from { transform: translateY(14px); } to { transform: none; } }
 .js .hero .hero-copy.reveal,
 .js .hero .hero-visual.reveal,
-.js .inner-hero .reveal { opacity: 1; transform: none; transition: none; }
+.js .inner-hero .reveal { animation: none; }
+@media (prefers-reduced-motion: reduce) { .js .reveal.is-visible { animation: none; } }
 
 /* LTR refinements */
 [dir="ltr"] body { font-family: Inter, "Segoe UI", Arial, sans-serif; line-height: 1.65; }
