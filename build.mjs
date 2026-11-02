@@ -1791,7 +1791,7 @@ async function build() {
   await writeText("404.html", notFoundPage());
 
   await writeText("sitemap.xml", sitemapXml());
-  await writeText("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\n`);
+  await writeText("robots.txt", `User-agent: *\nAllow: /\nDisallow: /marsad/\n\nSitemap: ${site.url}/sitemap.xml\n`);
   await writeText("manifest.webmanifest", JSON.stringify({ name: site.brandName, short_name: site.nameAr, description: site.description, lang: "ar", dir: "rtl", start_url: "/", scope: "/", display: "standalone", background_color: "#06131f", theme_color: "#06131f", icons: [{ src: "/assets/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }, { src: "/assets/brand/eslam-elshikh-logo-transparent.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }] }, null, 2));
   await writeText("feed.xml", feedXml());
   await writeText(join("en", "feed.xml"), englishFeedXml());
