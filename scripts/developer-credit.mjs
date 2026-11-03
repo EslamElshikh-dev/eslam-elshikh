@@ -21,6 +21,7 @@ function parse(text) {
 function normalize(text) {
  if(!/<html\b/i.test(text)||!/<footer\b/i.test(text))return text;
  text=text.replace(/<style\b[^>]*id="eslam-developer-credit-style"[^>]*>[\s\S]*?<\/style>/gi,'').replace(/<script\b[^>]*id="eslam-developer-credit-schema"[^>]*>[\s\S]*?<\/script>/gi,'');
+ text=text.replace(/<link\b[^>]*href=["']\/assets\/css\/developer-credit\.css["'][^>]*>/gi,'');
  const nodes=parse(text),candidates=[];
  const inside=n=>{for(let p=n.parent;p;p=p.parent)if(p.tag==='footer')return true;return false;};
  for(const n of nodes){
@@ -50,7 +51,7 @@ function normalize(text) {
   return start+JSON.stringify(obj).replace(/</g,'\\u003c')+end;
  });
  const graph={'@context':'https://schema.org','@graph':[config.developer,website]};
- const extras='<style id="eslam-developer-credit-style">'+creditCss+'</style><script id="eslam-developer-credit-schema" type="application/ld+json">'+JSON.stringify(graph).replace(/</g,'\\u003c')+'</script>';
+ const extras='<link id="eslam-developer-credit-style" rel="stylesheet" href="/assets/css/developer-credit.css"><script id="eslam-developer-credit-schema" type="application/ld+json">'+JSON.stringify(graph).replace(/</g,'\\u003c')+'</script>';
  if(!/<meta\b[^>]*name=["']creator["']/i.test(text))text=text.replace(/<\/head>/i,'<meta name="creator" content="المهندس إسلام الشيخ"></head>');
  text=text.replace(/<\/head>/i,()=>extras+'</head>');
  if((text.match(/data-eslam-signature="v1"/g)||[]).length!==1)throw Error('Expected one visible developer signature');
