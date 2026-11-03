@@ -4,6 +4,7 @@ import {createServer} from 'node:http';
 import {createHash, scryptSync} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {createHandler, createRemoteStore, ConflictError} from '../src/marsad/server.mjs';
+import {createRefreshController} from '../src/marsad/refresh.mjs';
 
 const token = 'test-only-one-time-activation-token';
 const password = 'test-only-long-owner-password';
@@ -39,6 +40,7 @@ test('private portal: activation, session, edits, conflicts, logout and login', 
   let response = await call('/marsad/');
   assert.equal(response.status, 303); assert.equal(response.headers.get('location'), '/marsad/login/');
   response = await call('/marsad/api/cases'); assert.equal(response.status, 401); assert.equal(store.reads, 0);
+  response = await call('/marsad/api/sync'); assert.equal(response.status, 401);
   response = await call('/api/marsad?route=/api/cases'); assert.equal(response.status, 401);
   response = await call('/marsad/login/');
   const login = await response.text(); assert.match(login, /dir="rtl"/); assert.match(login, /data-marsad-mode="login"/); assert.doesNotMatch(login, /Private fixture/);
@@ -53,6 +55,10 @@ test('private portal: activation, session, edits, conflicts, logout and login', 
   response = await call('/marsad/api/auth', {body: {action: 'setup', username: 'another', password, token}}); assert.equal(response.status, 409);
   response = await call('/marsad/cases/fixture/', {cookie}); assert.equal(response.status, 200); assert.match(await response.text(), /data-marsad-mode="app"/);
   response = await call('/marsad/api/cases', {cookie}); assert.equal(response.status, 200); assert.equal((await response.json()).cases.length, 1);
+  store.records.set('sync/status-v1.json', {etag:'1',data:{sourceObservedAt:'2026-11-02',google:{state:'needs_connection'}}});
+  response = await call('/marsad/api/sync', {cookie}); assert.equal(response.status, 200);
+  const sync = await response.json(); assert.equal(sync.status.google.state,'needs_connection'); assert.equal(sync.status.sourceObservedAt,'2026-11-02'); assert.ok(Date.parse(sync.fetchedAt));
+  response = await call('/marsad/api/sync', {cookie,body:{status:{google:{state:'connected'}}}}); assert.equal(response.status,405);
   response = await call('/marsad/api/cases', {cookie, body: {record: {id: 'fixture'}, expectedRevision: 1}}); assert.equal(response.status, 200); assert.equal((await response.json()).record.revision, 2);
   response = await call('/marsad/api/cases', {cookie, body: {record: {id: 'fixture'}, expectedRevision: 0}}); assert.equal(response.status, 409);
   response = await call('/marsad/api/cases', {cookie, body: {expectedRevision: 1}, origin: 'https://untrusted.example'}); assert.equal(response.status, 403); assert.equal(store.writes, 2);
@@ -123,4 +129,19 @@ test('deployment routes and client source keep data behind the authenticated API
   assert.doesNotMatch(source, /fetch\(['"]\/api\//); assert.doesNotMatch(source, /style=\{/);
   const model = await readFile('src/marsad/model.ts', 'utf8');
   assert.doesNotMatch(source + model, /chatgpt\.site|libfile_|MARSAD_DATA_TOKEN|seedCases/);
+});
+
+test('background refresh defers an in-flight response when editing starts and coalesces requests', async () => {
+  let release, editing=false, visible={revision:1}, reads=0;
+  const refresh=createRefreshController({read:()=>{reads++;return new Promise(resolve=>{release=resolve})},canApply:()=>!editing,apply:value=>{visible=value},onError:()=>assert.fail('unexpected refresh failure')});
+  const first=refresh(true);assert.equal(first,refresh(true));await Promise.resolve();assert.equal(reads,1);
+  editing=true;release({revision:2});assert.equal((await first).deferred,true);assert.equal(visible.revision,1);
+  editing=false;const next=refresh(true);await Promise.resolve();release({revision:2});assert.equal((await next).applied,true);assert.equal(visible.revision,2);
+});
+
+test('refresh failures retain displayed records and a subsequent pull can recover', async () => {
+  let count=0, visible={revision:1};const errors=[];
+  const refresh=createRefreshController({read:()=>{if(count++===0)throw new Error('Source unavailable');return {revision:3}},canApply:()=>true,apply:value=>{visible=value},onError:(error,quiet)=>errors.push({message:error.message,quiet})});
+  assert.equal((await refresh(true)).error,true);assert.equal(visible.revision,1);assert.deepEqual(errors,[{message:'Source unavailable',quiet:true}]);
+  assert.equal((await refresh()).applied,true);assert.equal(visible.revision,3);
 });

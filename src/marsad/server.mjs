@@ -77,7 +77,7 @@ async function attempt(store, secret, identity, maximum) {
 
 function html(mode, version, ownerEmail) {
   const email = ownerEmail.replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
-  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#0f3933"><title>مرصد — مساحة المتابعة الخاصة</title><link rel="stylesheet" href="/assets/marsad/style.css?v=${version}"><script type="module" src="/assets/marsad/app.js?v=${version}"></script></head><body data-marsad-mode="${mode}" data-owner-email="${email}"><div id="marsad-root"></div><noscript>يتطلب مرصد تفعيل JavaScript لتسجيل الدخول وإدارة الملفات.</noscript></body></html>`;
+  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#0f3933"><title>مرصد | إسلام الشيخ — إدارة الملفات التجارية</title><link rel="icon" href="/favicon.ico"><script src="/assets/js/theme.js"></script><link rel="stylesheet" href="/assets/marsad/style.css?v=${version}"><script type="module" src="/assets/marsad/app.js?v=${version}"></script></head><body data-marsad-mode="${mode}" data-owner-email="${email}"><div id="marsad-root"></div><noscript>يتطلب مرصد تفعيل JavaScript لتسجيل الدخول وإدارة الملفات.</noscript></body></html>`;
 }
 
 export function createHandler({env = process.env, store = createRemoteStore(env)} = {}) {
@@ -143,6 +143,12 @@ export function createHandler({env = process.env, store = createRemoteStore(env)
         const upstream = await store.cases(req.method, body);
         const payload = await upstream.json();
         return json(upstream.status, payload);
+      }
+      if (route === '/api/sync') {
+        if (!authenticated) fail(401, 'سجّل الدخول للوصول إلى مصادر البيانات.');
+        if (req.method !== 'GET') return json(405, {error: 'الطريقة غير مسموحة.'});
+        const status = await store.read('sync/status-v1.json');
+        return json(200, {status: status?.data || null, fetchedAt: new Date().toISOString()});
       }
       if (req.method !== 'GET' && req.method !== 'HEAD') return json(405, {error: 'الطريقة غير مسموحة.'});
       if (!['/', '/login', '/setup'].includes(route) && !/^\/cases\/[a-zA-Z0-9_-]{1,100}$/.test(route)) return json(404, {error: 'الصفحة غير موجودة.'});

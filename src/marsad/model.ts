@@ -1,4 +1,4 @@
-export const statuses = {review:'قيد المراجعة',verification:'بحاجة للتحقق',suspended:'معلّق',disabled:'موقوف',rejected:'اعتراض مرفوض',restored:'مستعاد',unknown:'غير مؤكد',archived:'مؤرشف'} as const;
+export const statuses = {review:'قيد المراجعة',verification:'بحاجة للتحقق',suspended:'معلّق',disabled:'موقوف',rejected:'اعتراض مرفوض',restored:'مستعاد',verified:'مثبت الملكية',unknown:'غير مؤكد',archived:'مؤرشف'} as const;
 export const priorities = {urgent:'عاجلة',high:'مرتفعة',medium:'متوسطة',low:'منخفضة'} as const;
 export const issues = {posting:'تقييد النشر',deceptive:'محتوى مخادع',existence:'وجود النشاط',video:'التحقق بالفيديو',ownership:'الملكية والوصول',edits:'تعديلات معلّقة',other:'مشكلة أخرى'} as const;
 export const evidenceStates = {available:'متوفر',needed:'ناقص',review:'يحتاج مراجعة',unconfirmed:'غير مؤكد',na:'لا ينطبق'} as const;
@@ -9,8 +9,13 @@ export type CaseRecord = {
  reason:string;priority:keyof typeof priorities;profileId:string;caseNumber:string;lastAction:string;lastVerified:string;nextFollowup:string;nextStep:string;
  businessModel:'sab'|'storefront'|'hybrid'|'unknown';addressHidden:'yes'|'no'|'unknown';website:string;email:string;notes:string;tags:string[];
  evidence:Evidence[];events:CaseEvent[];appealDraft:string;draftUpdated:string;source:string;sourceUrl:string;
+ provenance?:{kind:'review_record'|'google_api'|'email'|'manual';observedAt:string;importedAt:string;title:string;url:string;version:string;verification:'reported'|'direct'|'unconfirmed'};
 };
 export type SavedCase = CaseRecord & {revision:number;updatedAt:string};
+export type SyncStatus = {checkedAt?:string;importedAt?:string;sourceObservedAt?:string;sourceTitle?:string;sourceVersion?:string;sourceUrl?:string;caseCount?:number;automation?:{enabled:boolean;cadence?:string;id?:string;detail?:string};google?:{state:string;detail?:string};mail?:{state:string;account?:string;expectedAccount?:string;detail?:string};note?:string};
+export const sourceKinds = {review_record:'سجل متابعة موثّق',google_api:'Google API',email:'مراسلة Google',manual:'تحديث المدير'};
+export function formatMoment(value:string){if(!value)return 'لم يُسجّل بعد';const d=new Date(value);return Number.isNaN(d.getTime())?'غير مؤكد':new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{timeZone:'Asia/Riyadh',dateStyle:'medium',timeStyle:'short'}).format(d);}
+export function staleReview(value:string){if(!value)return true;const parsed=Date.parse(value);return !Number.isFinite(parsed)||Date.now()-parsed>72*3600000;}
 export const rank = {urgent:0,high:1,medium:2,low:3};
 export const models = {sab:'نشاط منطقة خدمة (SAB)',storefront:'مقر يستقبل العملاء',hybrid:'مقر + منطقة خدمة',unknown:'غير مؤكد'};
 export const hiddenStates = {yes:'مخفي',no:'ظاهر',unknown:'غير مؤكد'};
