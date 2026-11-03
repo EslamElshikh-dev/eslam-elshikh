@@ -75,8 +75,9 @@ async function attempt(store, secret, identity, maximum) {
   fail(429, 'يرجى الانتظار قليلًا قبل المحاولة.');
 }
 
-function html(mode, version) {
-  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#0f3933"><title>مرصد — مساحة المتابعة الخاصة</title><link rel="stylesheet" href="/assets/marsad/style.css?v=${version}"><script type="module" src="/assets/marsad/app.js?v=${version}"></script></head><body data-marsad-mode="${mode}"><div id="marsad-root"></div><noscript>يتطلب مرصد تفعيل JavaScript لتسجيل الدخول وإدارة الملفات.</noscript></body></html>`;
+function html(mode, version, ownerEmail) {
+  const email = ownerEmail.replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
+  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#0f3933"><title>مرصد — مساحة المتابعة الخاصة</title><link rel="stylesheet" href="/assets/marsad/style.css?v=${version}"><script type="module" src="/assets/marsad/app.js?v=${version}"></script></head><body data-marsad-mode="${mode}" data-owner-email="${email}"><div id="marsad-root"></div><noscript>يتطلب مرصد تفعيل JavaScript لتسجيل الدخول وإدارة الملفات.</noscript></body></html>`;
 }
 
 export function createHandler({env = process.env, store = createRemoteStore(env)} = {}) {
@@ -94,6 +95,8 @@ export function createHandler({env = process.env, store = createRemoteStore(env)
     try {
       const secure = env.VERCEL === '1' || env.NODE_ENV === 'production';
       if (!env.MARSAD_SESSION_SECRET || env.MARSAD_SESSION_SECRET.length < 32) throw new Error('Session configuration missing');
+      const ownerEmail = String(env.MARSAD_OWNER_EMAIL || '').trim().toLowerCase();
+      if (ownerEmail && (ownerEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ownerEmail))) throw new Error('Invalid owner configuration');
       const session = await getIronSession(req, res, {cookieName: 'marsad_owner', password: env.MARSAD_SESSION_SECRET, ttl: 43200, cookieOptions: {path: '/marsad', secure, httpOnly: true, sameSite: 'strict'}});
       const url = new URL(req.url, 'https://localhost');
       let route = url.pathname.startsWith('/marsad') ? url.pathname.slice(7) : url.searchParams.get('route') || '/';
@@ -107,14 +110,16 @@ export function createHandler({env = process.env, store = createRemoteStore(env)
         if (!body || typeof body !== 'object' || Array.isArray(body)) fail(400, 'الطلب غير صالح.');
         if (body.action === 'logout') { session.destroy(); return json(200, {ok: true}); }
         if (!['login', 'setup'].includes(body.action)) fail(400, 'الإجراء غير صالح.');
-        if (typeof body.username !== 'string' || !body.username.trim() || body.username.length > 80 || typeof body.password !== 'string' || body.password.length > 256) fail(400, 'أدخل اسم المستخدم وكلمة المرور.');
+        if (typeof body.username !== 'string' || !body.username.trim() || body.username.length > (ownerEmail ? 254 : 80) || typeof body.password !== 'string' || body.password.length > 256) fail(400, ownerEmail ? 'أدخل البريد الإلكتروني وكلمة المرور.' : 'أدخل اسم المستخدم وكلمة المرور.');
+        const identity = ownerEmail ? body.username.trim().toLowerCase() : body.username.trim();
         if (body.action === 'setup') {
           if (typeof body.token !== 'string' || body.token.length > 512 || !same(sha256(body.token), env.MARSAD_SETUP_TOKEN_HASH)) fail(403, 'رابط التفعيل غير صالح.');
+          if (ownerEmail && identity !== ownerEmail) fail(403, 'التفعيل متاح لبريد المالك فقط.');
           if (body.password.length < 12) fail(400, 'كلمة المرور تحتاج 12 حرفًا على الأقل.');
           if (await store.read(ADMIN)) fail(409, 'تم تفعيل الحساب بالفعل. استخدم تسجيل الدخول.');
           const salt = randomBytes(24).toString('hex');
           const hash = Buffer.from(await scrypt(body.password, salt, 64)).toString('hex');
-          try { await store.write(ADMIN, {username: body.username.trim(), salt, hash, createdAt: new Date().toISOString()}); }
+          try { await store.write(ADMIN, {username: identity, ...(ownerEmail ? {email: ownerEmail} : {}), salt, hash, createdAt: new Date().toISOString()}); }
           catch (error) { if (error instanceof ConflictError) fail(409, 'تم تفعيل الحساب بالفعل.'); throw error; }
         } else {
           const ip = String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
@@ -123,7 +128,8 @@ export function createHandler({env = process.env, store = createRemoteStore(env)
           const admin = await store.read(ADMIN);
           const salt = admin?.data.salt || 'uninitialized-owner-account';
           const hash = Buffer.from(await scrypt(body.password, salt, 64)).toString('hex');
-          if (!admin || !same(body.username.trim(), admin.data.username) || !same(hash, admin.data.hash)) fail(401, 'بيانات الدخول غير صحيحة.');
+          const registeredIdentity = ownerEmail ? String(admin?.data.email || admin?.data.username || '').trim().toLowerCase() : admin?.data.username;
+          if (!admin || (ownerEmail && identity !== ownerEmail) || !same(identity, registeredIdentity) || !same(hash, admin.data.hash)) fail(401, 'بيانات الدخول غير صحيحة.');
         }
         session.owner = true;
         await session.save();
@@ -145,7 +151,7 @@ export function createHandler({env = process.env, store = createRemoteStore(env)
       const mode = authenticated ? 'app' : route === '/setup' ? 'setup' : 'login';
       const version = /^[a-f0-9]{7,64}$/.test(env.VERCEL_GIT_COMMIT_SHA || '') ? env.VERCEL_GIT_COMMIT_SHA.slice(0,12) : '1';
       res.statusCode = 200; res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.end(req.method === 'HEAD' ? '' : html(mode, version));
+      res.end(req.method === 'HEAD' ? '' : html(mode, version, ownerEmail));
     } catch (error) {
       if (!res.writableEnded) json(error instanceof HttpError ? error.status : 503, {error: error instanceof HttpError ? error.message : 'تعذّر الاتصال بالخدمة. أعد المحاولة قليلًا.'});
     }

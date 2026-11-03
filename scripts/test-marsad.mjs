@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
-import {createHash} from 'node:crypto';
+import {createHash, scryptSync} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {createHandler, createRemoteStore, ConflictError} from '../src/marsad/server.mjs';
 
@@ -69,6 +69,30 @@ test('shared login limit blocks brute force before password verification', async
   for (let i = 0; i < 10; i++) assert.equal((await call('/marsad/api/auth', {body: {action: 'login', username: 'admin', password: 'wrong'}})).status, 401);
   assert.equal((await call('/marsad/api/auth', {body: {action: 'login', username: 'admin', password: 'wrong'}})).status, 429);
 }));
+
+test('owner email binding restricts activation and login to the configured mailbox', async () => harness(async ({store, call}) => {
+  const ownerEmail = 'owner@example.com';
+  const page = await call('/marsad/setup/');
+  assert.match(await page.text(), /data-owner-email="owner@example\.com"/);
+  let response = await call('/marsad/api/auth', {body: {action: 'setup', username: 'another@example.com', password, token}});
+  assert.equal(response.status, 403); assert.equal(store.records.size, 0);
+  response = await call('/marsad/api/auth', {body: {action: 'setup', username: ' OWNER@EXAMPLE.COM ', password, token}});
+  assert.equal(response.status, 200);
+  const admin = store.records.get('auth/admin-v1.json').data;
+  assert.equal(admin.username, ownerEmail); assert.equal(admin.email, ownerEmail);
+  for (const username of ['admin', 'another@example.com']) {
+    response = await call('/marsad/api/auth', {body: {action: 'login', username, password}}); assert.equal(response.status, 401);
+  }
+  response = await call('/marsad/api/auth', {body: {action: 'login', username: 'OWNER@EXAMPLE.COM', password}}); assert.equal(response.status, 200);
+  response = await call('/marsad/api/cases', {cookie: cookieFrom(response)}); assert.equal(response.status, 200);
+}, {...env, MARSAD_OWNER_EMAIL: 'owner@example.com'}));
+
+test('owner binding cannot grant an account registered to another mailbox', async () => harness(async ({store, call}) => {
+  // An existing password alone cannot override the server's owner binding.
+  store.records.set('auth/admin-v1.json', {etag: '1', data: {username: 'another@example.com', email: 'another@example.com', salt: 'legacy-test-salt', hash: scryptSync(password, 'legacy-test-salt', 64).toString('hex')}});
+  const response = await call('/marsad/api/auth', {body: {action: 'login', username: 'owner@example.com', password}});
+  assert.equal(response.status, 401);
+}, {...env, MARSAD_OWNER_EMAIL: 'owner@example.com'}));
 
 test('production sessions set a secure cookie and reject insecure origins', async () => harness(async ({call}) => {
   const body = {action: 'setup', username: 'admin', password, token};
