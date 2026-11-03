@@ -24,12 +24,12 @@
     "api/marsad.js": { "maxDuration": 30 }
   },
   "rewrites": [
-    { "source": "/marsad", "destination": "/api/marsad?route=/" },
-    { "source": "/marsad/:path*", "destination": "/api/marsad?route=/:path*" }
+    { "source": "/marsad/", "destination": "/api/marsad/?route=/" },
+    { "source": "/marsad/:path*/", "destination": "/api/marsad/?route=/:path*" }
   ],
   "headers": [
     {
-      "source": "/marsad/:path*",
+      "source": "/marsad/:path*/",
       "headers": [
         { "key": "Cache-Control", "value": "private, no-store" },
         { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }

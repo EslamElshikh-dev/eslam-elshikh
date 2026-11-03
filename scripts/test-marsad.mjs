@@ -94,7 +94,7 @@ test('remote storage keeps credentials server side and preserves revision confli
 
 test('deployment routes and client source keep data behind the authenticated API', async () => {
   const config = JSON.parse(await readFile('vercel.json', 'utf8'));
-  assert.ok(config.rewrites.some(rule => rule.source === '/marsad/:path*' && rule.destination === '/api/marsad?route=/:path*'));
+  assert.ok(config.rewrites.some(rule => rule.source === '/marsad/:path*/' && rule.destination === '/api/marsad/?route=/:path*'));
   const source = await readFile('src/marsad/casebook.tsx', 'utf8');
   assert.doesNotMatch(source, /fetch\(['"]\/api\//); assert.doesNotMatch(source, /style=\{/);
   const model = await readFile('src/marsad/model.ts', 'utf8');
