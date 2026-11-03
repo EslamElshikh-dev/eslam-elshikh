@@ -20,6 +20,9 @@
     { "source": "/blog/pro-guides/landing-pages-conversion/", "destination": "/blog/landing-pages-google-ads/", "permanent": true },
     { "source": "/blog/pro-guides/website-maintenance-security/", "destination": "/blog/website-maintenance-security-seo/", "permanent": true }
   ],
+  "functions": {
+    "api/marsad.js": { "maxDuration": 30 }
+  },
   "rewrites": [
     { "source": "/marsad", "destination": "/api/marsad?route=/" },
     { "source": "/marsad/:path*", "destination": "/api/marsad?route=/:path*" }
