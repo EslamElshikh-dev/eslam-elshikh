@@ -2,6 +2,7 @@ import { access, readFile, readdir, stat } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { mapsProjects } from "../src/google-maps-work.mjs";
+import { site } from "../src/content.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
@@ -47,6 +48,9 @@ for (const file of finalHtmlFiles) {
   const mainEnd = html.indexOf("</main>");
   const footerStart = html.indexOf('<footer class="site-footer">');
   if (!(headerEnd >= 0 && headerEnd < mainStart && mainStart < mainEnd && mainEnd < footerStart)) failures.push(`${file}: header, main, and footer must remain separate and ordered`);
+  const footer = html.match(/<footer class="site-footer">([\s\S]*?)<\/footer>/)?.[1] || "";
+  if (footer.split(`href="mailto:${site.email}"`).length - 1 !== 2) failures.push(`${file}: desktop and mobile footer email links must remain available`);
+  if (/data-eslam-signature=|eslam-developer-credit-|\/assets\/css\/developer-credit\.css/.test(html)) failures.push(`${file}: removed developer signature was reintroduced`);
   const header = html.match(/<header\b[^>]*>([\s\S]*?)<\/header>/)?.[1] || "";
   if (/<h1\b|<article\b|<section\b/.test(header) || !/data-theme-toggle/.test(header) || !/data-menu-toggle/.test(header)) failures.push(`${file}: navigation controls or header boundary were corrupted`);
   if (/^(?:en\/)?blog\/[^/]+\/index\.html$/.test(file.replaceAll("\\", "/"))) {
