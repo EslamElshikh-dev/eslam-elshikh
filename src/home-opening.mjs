@@ -1,4 +1,5 @@
 import { renderHomeSignature } from './home-signature.mjs';
+import { renderGooglePartnerBadge } from './google-partner.mjs';
 
 export const homeOpeningRevision = '2026-10-26';
 
@@ -51,5 +52,5 @@ export function renderHomeOpening({ english = false, site, button, profilePhoto,
   </div>
   <div class="container stats-bar reveal">${site.stats.map((stat, index) => `<a href="${prefix}${['/credentials/', '/credentials/#selected-evidence', '/google-maps-projects/', '/work-evidence/'][index]}"><strong dir="ltr">${esc(stat.value)}</strong><span>${esc(statLabels[index])}</span></a>`).join('')}</div>
   <p class="container stats-note">${english ? 'Credentials link to issuer records. Project and Maps figures describe published portfolio entries, not unique clients or search-indexed pages.' : 'الشهادات مرتبطة بسجلات الجهات المانحة؛ وأرقام المواقع والخرائط تصف نماذج المعرض، وليست عدد عملاء مستقلين أو صفحات مفهرسة.'}</p>
- </section>${renderHomeJourney({ english, icon })}`;
+ </section>${renderGooglePartnerBadge({ english, standalone: true })}${renderHomeJourney({ english, icon })}`;
 }

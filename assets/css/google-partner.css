@@ -1,0 +1,38 @@
+.google-partner-badge {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-block: 1.25rem;
+}
+
+.google-partner-badge--standalone {
+  margin-block: 0;
+  padding-block: 1.5rem;
+}
+
+.google-partner-badge__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 48px;
+  border-radius: 12px;
+  background: #fff;
+  line-height: 0;
+}
+
+.google-partner-badge__link img {
+  display: block;
+  width: 96px;
+  height: auto;
+  max-width: none;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  filter: none;
+}
+
+.google-partner-badge__link:focus-visible {
+  outline: 3px solid #3d608c;
+  outline-offset: 4px;
+}
