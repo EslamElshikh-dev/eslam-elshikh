@@ -47,10 +47,11 @@ export function renderHomeOpening({ english = false, site, button, profilePhoto,
     <a class="home-trial-link" href="${prefix}/services/crm-systems/#crm-personal-trial"><span class="home-trial-icon">${icon('layers')}</span><span><strong>${english ? 'Picture a system with your business identity.' : 'تصوّر نظامًا يحمل هوية منشأتك.'}</strong><small>${english ? 'Add your name and logo. Explore how a sample request moves through your team.' : 'ضع اسمك وشعارك، واستكشف كيف ينتقل الطلب بين أعضاء فريقك.'}</small></span>${icon('arrow')}</a>
     <div class="hero-trust"><a href="${site.googleMapsProfile}" target="_blank" rel="noopener"><span class="trust-dot trust-google"></span>${english ? 'Google Business Profile' : 'ملفي التجاري على Google'}</a><a href="${site.social.googleDeveloper}" target="_blank" rel="noopener"><span class="trust-dot"></span>${english ? 'Google Developer Profile' : 'ملفي على Google للمطورين'}</a><a href="${prefix}/about/#profile-evidence"><span class="trust-dot"></span>${english ? "About Eslam: background and work evidence" : "عن إسلام الشيخ: الدراسة وأدلة العمل"}</a></div>
    </div>
+   ${renderGooglePartnerBadge({ english, placement: "home" })}
    ${renderExpertiseRibbon({ english, esc, icon })}
    ${renderHomeSignature({ english, site, portrait: profilePhoto, esc, icon })}
   </div>
   <div class="container stats-bar reveal">${site.stats.map((stat, index) => `<a href="${prefix}${['/credentials/', '/credentials/#selected-evidence', '/google-maps-projects/', '/work-evidence/'][index]}"><strong dir="ltr">${esc(stat.value)}</strong><span>${esc(statLabels[index])}</span></a>`).join('')}</div>
   <p class="container stats-note">${english ? 'Credentials link to issuer records. Project and Maps figures describe published portfolio entries, not unique clients or search-indexed pages.' : 'الشهادات مرتبطة بسجلات الجهات المانحة؛ وأرقام المواقع والخرائط تصف نماذج المعرض، وليست عدد عملاء مستقلين أو صفحات مفهرسة.'}</p>
- </section>${renderGooglePartnerBadge({ english, standalone: true })}${renderHomeJourney({ english, icon })}`;
+ </section>${renderHomeJourney({ english, icon })}`;
 }

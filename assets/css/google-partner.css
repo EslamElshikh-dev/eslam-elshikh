@@ -1,13 +1,9 @@
 .google-partner-badge {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  margin-block: 1.25rem;
-}
-
-.google-partner-badge--standalone {
-  margin-block: 0;
-  padding-block: 1.5rem;
+  justify-content: center;
+  min-width: 0;
+  margin: 0;
 }
 
 .google-partner-badge__link {
@@ -16,8 +12,7 @@
   justify-content: center;
   flex: 0 0 auto;
   padding: 48px;
-  border-radius: 12px;
-  background: #fff;
+  background: transparent;
   line-height: 0;
 }
 
@@ -34,5 +29,83 @@
 
 .google-partner-badge__link:focus-visible {
   outline: 3px solid #3d608c;
-  outline-offset: 4px;
+  outline-offset: -4px;
+  border-radius: 12px;
+}
+
+/* Keep the original badge beside the opening copy, in the physical left column. */
+.inner-hero-grid.partner-hero-layout {
+  grid-template-areas: "copy proof";
+  align-items: start;
+}
+
+.partner-hero-layout > .inner-hero-copy { grid-area: copy; }
+.partner-hero-side {
+  grid-area: proof;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 1rem;
+  min-width: 0;
+}
+.partner-hero-side > .inner-hero-aside { width: 100%; }
+[dir="ltr"] .inner-hero-grid.partner-hero-layout {
+  grid-template-areas: "proof copy";
+  grid-template-columns: minmax(280px, .38fr) minmax(0, 1fr);
+}
+
+.home-crafted .hero.home-opening .hero-grid:has(> .google-partner-badge--home) {
+  grid-template-areas: "copy proof" "copy visual" "ticker ticker";
+  align-items: start;
+  row-gap: 1rem;
+}
+.google-partner-badge--home { grid-area: proof; align-self: start; }
+[dir="ltr"] .home-crafted .hero.home-opening .hero-grid:has(> .google-partner-badge--home) {
+  grid-template-areas: "proof copy" "visual copy" "ticker ticker";
+  grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+}
+
+.id-hero--partner .id-hero-grid {
+  grid-template-areas: "copy proof" "copy portrait";
+  align-items: start;
+  row-gap: 1rem;
+}
+.id-hero--partner .id-hero-copy { grid-area: copy; }
+.google-partner-badge--identity { grid-area: proof; }
+.id-hero--partner .id-portrait { grid-area: portrait; }
+[dir="ltr"] .id-hero--partner .id-hero-grid {
+  grid-template-areas: "proof copy" "portrait copy";
+  grid-template-columns: minmax(0, .7fr) minmax(0, 1.5fr);
+}
+
+@media (max-width: 900px) {
+  .inner-hero-grid.partner-hero-layout,
+  [dir="ltr"] .inner-hero-grid.partner-hero-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "copy" "proof" "aside";
+    gap: 1rem;
+  }
+  .partner-hero-side { display: contents; }
+  .partner-hero-side > .google-partner-badge { grid-area: proof; justify-self: end; }
+  .partner-hero-side > .inner-hero-aside { grid-area: aside; }
+  .home-crafted .hero.home-opening .hero-grid:has(> .google-partner-badge--home),
+  [dir="ltr"] .home-crafted .hero.home-opening .hero-grid:has(> .google-partner-badge--home) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "copy" "proof" "ticker" "visual";
+    row-gap: 1rem;
+  }
+  .google-partner-badge--home { justify-self: end; }
+  [dir="ltr"] .partner-hero-side > .google-partner-badge,
+  [dir="ltr"] .google-partner-badge--home { justify-self: start; }
+}
+
+@media (max-width: 760px) {
+  .id-hero--partner .id-hero-grid,
+  [dir="ltr"] .id-hero--partner .id-hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "copy" "proof" "portrait";
+    row-gap: 1rem;
+  }
+  .google-partner-badge--identity { justify-self: end; }
+  [dir="ltr"] .google-partner-badge--identity { justify-self: start; }
 }
