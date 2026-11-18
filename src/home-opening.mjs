@@ -1,7 +1,7 @@
 import { renderHomeSignature } from './home-signature.mjs';
 import { renderGooglePartnerBadge } from './google-partner.mjs';
 
-export const homeOpeningRevision = '2026-10-26';
+export const homeOpeningRevision = '2026-11-18';
 
 function renderExpertiseRibbon({ english, esc, icon }) {
  const prefix = english ? '/en' : '';

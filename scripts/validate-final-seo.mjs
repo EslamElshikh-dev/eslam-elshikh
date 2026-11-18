@@ -3,6 +3,7 @@ import { join, resolve } from 'node:path';
 import { serviceStudioRevision } from '../src/service-studio.mjs';
 import { crmStudioRevision } from '../src/crm-studio.mjs';
 import { profileSummaryRevision } from '../src/profile-summary.mjs';
+import { professionalCredentials } from '../src/professional-identity.mjs';
 
 // Validate the actual published output after all HTML and sitemap transforms.
 const directory = resolve(process.argv.find(arg => arg.startsWith('--dir='))?.slice(6) || 'dist');
@@ -10,6 +11,21 @@ const origin = 'https://www.eslam-elshikh.com';
 const errors = [];
 const pages = new Map();
 let schemaCount = 0;
+function checkCredentialRecords(records, location) {
+  for (const item of professionalCredentials) {
+    const record = records?.find(entry => entry.identifier === item.id);
+    if (!record || record.url !== item.url || record.name !== item.name ||
+        record.creator?.name !== item.issuer.name || record.creator?.url !== item.issuer.url ||
+        record.recognizedBy?.name !== item.issuer.name || record.recognizedBy?.url !== item.issuer.url ||
+        record.datePublished !== item.issued || record.expires !== item.expires) {
+      errors.push(`${location}: incorrect credential record for ${item.id}`);
+    }
+  }
+}
+
+const profile = JSON.parse(await readFile(join(directory, 'profile.json'), 'utf8'));
+checkCredentialRecords(profile.hasCredential, 'profile.json');
+
 const entries = await readdir(directory, { recursive: true });
 const attr = (tag, name) => tag.match(new RegExp(`\\b${name}=["']([^"']*)["']`, 'i'))?.[1];
 for (const file of entries.filter(file => file.endsWith('.html'))) {
@@ -23,10 +39,12 @@ for (const file of entries.filter(file => file.endsWith('.html'))) {
   if (!route) continue;
   if (!schemas.length) errors.push(`${route}: no final JSON-LD`);
   const pageDates = [];
+  let person;
   for (const [, json] of schemas) {
     try {
       const data = JSON.parse(json);
       for (const node of data['@graph'] || [data]) {
+        if (node['@id'] === origin + '/#person' && node['@type'] === 'Person') person = node;
         const pageId = ['', '#webpage', '#article', '#profile'].some(suffix => node['@id'] === origin + route + suffix);
         if (pageId && ['WebPage', 'CollectionPage', 'BlogPosting', 'Article', 'ProfilePage'].includes(node['@type']) && node.url === origin + route && node.dateModified) pageDates.push(node.dateModified.slice(0, 10));
       }
@@ -37,6 +55,18 @@ for (const file of entries.filter(file => file.endsWith('.html'))) {
   // A page cannot predate the shipped main-content components it renders.
   // Fixed source revisions preserve real history across later builds.
   const routeWithoutLanguage = route.replace(/^\/en\//, '/');
+  if (routeWithoutLanguage === '/credentials/') {
+    checkCredentialRecords(person?.hasCredential, route);
+    const cards = [...html.matchAll(/<article class="id-credential">([\s\S]*?)<\/article>/g)].map(match => match[1]);
+    if (cards.length !== professionalCredentials.length) errors.push(`${route}: incorrect number of credential cards`);
+    for (const item of professionalCredentials) {
+      const card = cards.find(content => content.includes(`data-identity-item="${item.id}"`));
+      if (!card || !card.includes(`>${item.issuer.name}</span>`) || !card.includes(`href="${item.url}"`) ||
+          (item.pdfUrl && !card.includes(`href="${item.pdfUrl}"`))) {
+        errors.push(`${route}: missing issuer or evidence link on the card for ${item.id}`);
+      }
+    }
+  }
   const minimumRevision = /^\/services\//.test(routeWithoutLanguage) ? serviceStudioRevision : '';
   const crmRevision = routeWithoutLanguage === '/services/crm-systems/' || routeWithoutLanguage === '/projects/' || /^\/products\/[^/]+\/$/.test(routeWithoutLanguage) ? crmStudioRevision : '';
   const profileRevision = routeWithoutLanguage === '/about/' ? profileSummaryRevision : '';

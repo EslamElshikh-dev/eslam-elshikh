@@ -1,5 +1,6 @@
 import { crmServiceAr } from "./crm-content.mjs";
 import { projectAudit } from "./web-projects.mjs";
+import { professionalCredentials } from "./professional-identity.mjs";
 import { mapsProjects } from "./google-maps-work.mjs";
 export { mapsProjects };
 
@@ -54,7 +55,7 @@ export const site = {
     blog: "https://blog.eslam-elshikh.com"
   },
   stats: [
-    { value: "2", label: "شهادتان مهنيتان بروابط الجهة المانحة" },
+    { value: String(professionalCredentials.length), label: "شهادات مهنية بروابط الجهات المانحة" },
     { value: "3", label: "دراسات مختارة بأدلة أداء وتنفيذ" },
     { value: String(mapsProjects.length), label: "نموذجًا منشورًا يمكن مراجعته على الخرائط" },
     { value: String(projectAudit.listedProjects), label: "مشروع ويب في سجل الأعمال" }

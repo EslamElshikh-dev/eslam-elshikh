@@ -1,7 +1,7 @@
 import { professionalCredentials } from "./professional-identity.mjs";
 
 // The profile's editorial revision is separate from account-link review dates.
-export const profileSummaryRevision = "2026-10-26";
+export const profileSummaryRevision = "2026-11-18";
 
 export function renderProfileSummary({ english = false, site, esc }) {
   const prefix = english ? "/en" : "";
@@ -22,7 +22,7 @@ export function renderProfileSummary({ english = false, site, esc }) {
     },
     {
       title: english ? "Issuer-linked credentials" : "الشهادات وروابط التحقق",
-      text: english ? "Search advertising and measurement certificates have individual issuer records. They describe their specific subjects; they do not make me a Google employee or guarantee a Search or Maps result." : "لشهادتَي إعلانات البحث وقياس الإعلانات سجلات مستقلة لدى الجهة المانحة. الشهادة تخص مجالها المحدد؛ ولا تعني أنني موظف في Google أو أضمن قرارًا في البحث أو الخرائط.",
+      text: english ? "Google Skillshop issued my search advertising and measurement credentials. Semrush Academy issued my certificate in local SEO. Each covers the subject shown and does not imply Google employment or guarantee a Search or Maps result." : "حصلت على شهادتي إعلانات البحث وقياس الإعلانات من Google Skillshop، وشهادة أساسيات السيو المحلي من Semrush Academy. تخص كل شهادة مجالها المحدد، ولا تعني أنني موظف في Google أو أضمن نتيجة في البحث أو الخرائط.",
       links: professionalCredentials.map(item => [item.url, item.name, true])
     }
   ];

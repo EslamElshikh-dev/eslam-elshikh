@@ -37,9 +37,11 @@ for (const choice of [null, 'denied']) {
   const s = setup();
   s.window.esAnalytics.track('identity_download', { item: 'full-kit', message: 'private message' });
   s.window.esAnalytics.track('credential_open', { item: 'private@example.com' });
+  s.window.esAnalytics.track('credential_open', { item: 'b201dcae31' });
   const identity = s.events().filter(e => ['identity_download', 'credential_open'].includes(e[1]));
   assert.equal(identity[0][2].item_id, 'full-kit');
   assert.equal(identity[1][2].item_id, 'other');
+  assert.equal(identity[2][2].item_id, 'b201dcae31');
   assert.ok(!JSON.stringify(identity).includes('private'), 'Identity measurement must exclude arbitrary content');
   assert.equal(s.events().filter(e => e[1] === 'conversion').length, 0, 'Downloads and credential visits must not become Ads contact conversions');
 }
