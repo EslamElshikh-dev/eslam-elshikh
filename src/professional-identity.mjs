@@ -1,6 +1,6 @@
 import { verifiedCaseResults } from "./verified-case-results.mjs";
 import { practiceNotes, noteHref } from "./practice-notes.mjs";
-import { renderGooglePartnerBadge } from "./google-partner.mjs";
+import { renderCredentialGallery } from "./credential-gallery.mjs";
 
 export const professionalRevision = "2026-10-18";
 export const credentialsRevision = "2026-11-18";
@@ -28,12 +28,16 @@ const googleSkillshop = { "@type": "Organization", name: "Google Skillshop", url
 export const professionalCredentials = [
   {
     name: "Google Ads Search Certification (2026)", issuer: googleSkillshop,
+    subject: ["إعلانات البحث", "Search advertising"],
+    artwork: { src: "/assets/credentials/google-ads-search.webp", width: 600, height: 464 },
     id: "196860691", issued: "2026-10-11", expires: "2027-10-11", reviewed: "2026-10-11",
     url: "https://skillshop.credential.net/f10c0d9f-1417-41a8-b35c-a56c6a2d358d#acc.BUlXLe7J",
     scope: ["إعلانات البحث: ربط هدف العمل بالكلمات والإعلانات والمزايدات والقياس.", "Search advertising: connecting business objectives with keywords, ads, bidding and measurement."]
   },
   {
     name: "Google Ads Measurement Certification", issuer: googleSkillshop,
+    subject: ["قياس الإعلانات", "Advertising measurement"],
+    artwork: { src: "/assets/credentials/google-ads-measurement.webp", width: 600, height: 464 },
     id: "191833453", issued: "2026-08-19", expires: "2027-08-19", reviewed: "2026-10-11",
     url: "https://skillshop.credential.net/2e22949d-fa03-429b-b367-58be9ee2350d#acc.4fkdDFEJ",
     scope: ["قياس الإعلانات: تحديد ما يُقاس، وقراءة المؤشرات، وربط التفاعل بأهداف النشاط.", "Advertising measurement: defining useful measures and interpreting interactions against business objectives."]
@@ -42,6 +46,8 @@ export const professionalCredentials = [
     name: "Local SEO Essentials with Semrush",
     issuer: { "@type": "Organization", name: "Semrush Academy", url: "https://www.semrush.com/academy/" },
     category: "Certificate of completion",
+    subject: ["أساسيات السيو المحلي", "Local SEO essentials"],
+    artwork: { src: "/assets/credentials/semrush-local-seo.webp", width: 1684, height: 1191 },
     id: "b201dcae31",
     // The PDF prints the expiry. The issuer's pass email supplies the confirmation date.
     passConfirmed: "2026-11-18", expires: "2027-11-18", reviewed: "2026-11-18",
@@ -89,19 +95,25 @@ export function identityNavigation(english, current = "") {
   return `<nav class="id-navigation" aria-label="${english ? "Professional profile sections" : "أقسام الملف المهني"}">${[["/about/", "التعريف", "Profile"], ["/credentials/", "الشهادات والمساهمات", "Credentials & contributions"], ["/notes/", "ملاحظات من العمل", "Practice notes"], ["/media-kit/", "ملف التعريف والمشاركة", "Media kit"]].map(([path, ar, en]) => `<a href="${prefix(english)}${path}"${path === current ? ' aria-current="page"' : ""}>${english ? en : ar}</a>`).join("")}</nav>`;
 }
 
-function studioHero({ english, title, lead, kicker, path, site, esc, portrait = true, partner = false }) {
-  return `<div class="id-hero${partner ? " id-hero--partner" : ""}"><div class="container"><p class="id-kicker">${kicker}<span dir="ltr">ESLAM ELSHIKH / RIYADH</span></p><div class="id-hero-grid"><div class="id-hero-copy"><h1>${title}</h1><p class="id-hero-lead">${lead}</p><a class="id-action" href="${prefix(english)}/contact/">${english ? "Discuss a project" : "ناقش مشروعك"}<span aria-hidden="true">↗</span></a></div>${partner ? renderGooglePartnerBadge({ english, placement: "identity" }) : ""}${portrait ? `<figure class="id-portrait"><img src="/assets/brand/eslam-elshikh-portrait-20260827.webp" width="280" height="280" alt="${english ? "Eslam Elshikh" : "إسلام الشيخ"}" decoding="async"><figcaption><strong>${esc(site.nameEn)}</strong><span>${english ? "Cybersecurity · Software · AI · Local search" : "أمن سيبراني · برمجيات · ذكاء اصطناعي · ظهور محلي"}</span></figcaption></figure>` : ""}</div>${identityNavigation(english, path)}</div></div>`;
+function studioHero({ english, title, lead, kicker, path, site, esc, portrait = true }) {
+  return `<div class="id-hero"><div class="container"><p class="id-kicker">${kicker}<span dir="ltr">ESLAM ELSHIKH / RIYADH</span></p><div class="id-hero-grid"><div class="id-hero-copy"><h1>${title}</h1><p class="id-hero-lead">${lead}</p><a class="id-action" href="${prefix(english)}/contact/">${english ? "Discuss a project" : "ناقش مشروعك"}<span aria-hidden="true">↗</span></a></div>${portrait ? `<figure class="id-portrait"><img src="/assets/brand/eslam-elshikh-portrait-20260827.webp" width="280" height="280" alt="${english ? "Eslam Elshikh" : "إسلام الشيخ"}" decoding="async"><figcaption><strong>${esc(site.nameEn)}</strong><span>${english ? "Cybersecurity · Software · AI · Local search" : "أمن سيبراني · برمجيات · ذكاء اصطناعي · ظهور محلي"}</span></figcaption></figure>` : ""}</div>${identityNavigation(english, path)}</div></div>`;
 }
 
-export function renderSelectedProof({ english = false, esc, icon, studies }) {
+export function renderSelectedProof({ english = false, esc, icon, studies, gallery = false }) {
   const cards = selectedWorkSlugs.map((slug, i) => {
     const study = studies.find(item => item.slug === slug);
     if (!study) throw new Error(`Missing selected case: ${slug}`);
     const proof = verifiedCaseResults[slug];
     const metric = proof?.metrics[0];
     const name = english ? study.englishName : study.title;
-    return `<article class="id-work-card"><a class="id-work-image" href="${prefix(english)}/projects/${slug}/"><img src="${study.image}" alt="${esc(english ? `${name} project interface` : `واجهة مشروع ${name}`)}" width="1200" height="750" loading="lazy" decoding="async"><span dir="ltr">0${i + 1} / CASE STUDY</span></a><div class="id-work-copy"><p class="id-kicker">${proof ? english ? "DATED PERFORMANCE EVIDENCE" : "أداء موثق بفترة قياس" : english ? "TECHNICAL DELIVERY" : "دراسة تنفيذ تقني"}</p><h3><a href="${prefix(english)}/projects/${slug}/">${esc(name)}</a></h3>${metric ? `<dl class="id-metric"><div><dt>${esc(label(metric.label, english))}</dt><dd dir="ltr">${metric.before.toLocaleString("en")} <span aria-hidden="true">→</span> ${metric.after.toLocaleString("en")}</dd></div></dl><p class="id-period"><time datetime="${proof.before.start}">${esc(label(proof.before.label, english))}</time><br><time datetime="${proof.after.start}">${esc(label(proof.after.label, english))}</time></p><p class="id-method-note">${english ? "Observed comparison. Contact interactions do not establish completed enquiries or sales." : "مقارنة وصفية؛ تفاعلات التواصل لا تعني طلبات مكتملة أو مبيعات."}</p>` : `<p>${english ? "An Arabic directory connecting business, category and location routes with normalized search and explicit publication rules." : "دليل عربي يربط الأنشطة والتصنيفات والمواضع، ببحث مطبّع وقواعد واضحة لنشر البيانات."}</p><p class="id-method-note">${english ? "Implementation and repository evidence; no audience-growth claim." : "الدليل هنا تقني ومن المستودع؛ لا يتضمن ادعاء نمو الجمهور."}</p>`}<a class="id-inline-link" href="${prefix(english)}/projects/${slug}/" data-identity-event="case_study_open" data-identity-item="${slug}">${english ? "Read the scope, evidence and results" : "اقرأ النطاق والأدلة والنتائج"}${icon("arrow")}</a></div></article>`;
+    return `<article class="id-work-card"><a class="id-work-image" href="${prefix(english)}/projects/${slug}/"><img src="${study.image}" alt="${esc(english ? `${name} project interface` : `واجهة مشروع ${name}`)}" width="1200" height="750" loading="lazy" decoding="async">${gallery ? "" : `<span dir="ltr">0${i + 1} / CASE STUDY</span>`}</a><div class="id-work-copy"><p class="id-kicker">${proof ? english ? "DATED PERFORMANCE EVIDENCE" : "أداء موثق بفترة قياس" : english ? "TECHNICAL DELIVERY" : "دراسة تنفيذ تقني"}</p><h3><a href="${prefix(english)}/projects/${slug}/">${esc(name)}</a></h3>${metric ? `<dl class="id-metric"><div><dt>${esc(label(metric.label, english))}</dt><dd dir="ltr">${metric.before.toLocaleString("en")} <span aria-hidden="true">→</span> ${metric.after.toLocaleString("en")}</dd></div></dl><p class="id-period"><time datetime="${proof.before.start}">${esc(label(proof.before.label, english))}</time><br><time datetime="${proof.after.start}">${esc(label(proof.after.label, english))}</time></p><p class="id-method-note">${english ? "Observed comparison. Contact interactions do not establish completed enquiries or sales." : "مقارنة وصفية؛ تفاعلات التواصل لا تعني طلبات مكتملة أو مبيعات."}</p>` : `<p>${english ? "An Arabic directory connecting business, category and location routes with normalized search and explicit publication rules." : "دليل عربي يربط الأنشطة والتصنيفات والمواضع، ببحث مطبّع وقواعد واضحة لنشر البيانات."}</p><p class="id-method-note">${english ? "Implementation and repository evidence; no audience-growth claim." : "الدليل هنا تقني ومن المستودع؛ لا يتضمن ادعاء نمو الجمهور."}</p>`}<a class="id-inline-link" href="${prefix(english)}/projects/${slug}/" data-identity-event="case_study_open" data-identity-item="${slug}">${english ? "Read the scope, evidence and results" : "اقرأ النطاق والأدلة والنتائج"}${icon("arrow")}</a></div></article>`;
   }).join("");
+  if (gallery) {
+    return `<section class="folio-work" id="selected-evidence" aria-labelledby="folio-work-title"><div class="folio-wrap">
+      <h2 id="folio-work-title">${english ? "Selected projects" : "من أعمالي"}</h2>
+      <div class="folio-projects">${cards}</div>
+    </div></section>`;
+  }
   return `<section class="identity-studio id-section" id="selected-evidence"><div class="container">${sectionHead("04", english ? "SELECTED WORK" : "أعمال مختارة", english ? "Three projects. A clear record of the work." : "ثلاثة أعمال، وسجل واضح لما نُفّذ.", english ? "Two measured comparisons and one technical case show different sides of my delivery. Each links to the full context." : "مقارنتا أداء ودراسة تقنية تعرض زوايا مختلفة من التنفيذ؛ ولكل عمل سياقه وتفاصيله.")}<div class="id-three-grid">${cards}</div></div></section>`;
 }
 
@@ -110,45 +122,13 @@ export function renderIdentityHighlights(options) {
   return `<section class="identity-studio id-profile-extension"><div class="container"><div class="id-profile-intro"><p class="id-kicker">${english ? "EXPERIENCE, WITH EVIDENCE" : "خبرة يمكن مراجعتها"}</p><h2>${english ? "Explore the credentials.<br>See the decisions behind the work." : "راجع الشهادات،<br>واكتشف القرارات وراء العمل."}</h2><p>${english ? "Issuer links, original practice notes, selected projects and a bilingual introduction you can share." : "روابط الجهات المانحة، وملاحظات أصلية من التنفيذ، وأعمال مختارة، وملف تعريفي جاهز للمشاركة."}</p></div><div class="id-three-grid">${[["shield", "/credentials/", "الشهادات والمساهمات", "Credentials & contributions", "شهادات في إعلانات Google والسيو المحلي، وعضويات ومساهمات مجتمعية.", "Credentials in Google Ads and local SEO, alongside memberships and community contributions."], ["code", "/notes/", "ملاحظات من العمل", "Notes from the work", "قرارات فعلية في القياس، والدليل العربي، وتوحيد الهوية.", "Practical decisions in measurement, Arabic directories and a shared identity."], ["globe", "/media-kit/", "ملف التعريف والمشاركة", "A bilingual media kit", "نبذات عربية وإنجليزية وصور مشاركة وقوالب قابلة للتنزيل.", "Arabic and English bios, sharing images and downloadable assets."]].map(([glyph, path, ar, en, arText, enText]) => `<a class="id-route-card" href="${prefix(english)}${path}">${icon(glyph)}<h3>${esc(english ? en : ar)}</h3><p>${esc(english ? enText : arText)}</p><span>${english ? "Explore" : "استعرض"}${icon("arrow")}</span></a>`).join("")}</div></div></section>${english ? renderSelectedProof(options) : ""}`;
 }
 
-function renderCredentialCard(item, index, options) {
-  const { english = false, site, esc } = options;
-  const dateRow = (title, value) => value
-    ? `<div><dt>${title}</dt><dd><time datetime="${esc(value)}">${esc(date(value, english))}</time></dd></div>`
-    : "";
-  const linkAttrs = `class="id-inline-link" data-identity-event="credential_open" data-identity-item="${esc(item.id)}"`;
-  return `<article class="id-credential">
-    <div class="id-card-top"><span class="id-pill" lang="en" dir="ltr">${esc(item.issuer.name)}</span><span dir="ltr">${String(index + 1).padStart(2, "0")}</span></div>
-    <h3 lang="en" dir="ltr">${esc(item.name)}</h3>
-    <p>${esc(label(item.scope, english))}</p>
-    <dl class="id-facts">
-      <div><dt>${english ? "Holder" : "الحاصل على الشهادة"}</dt><dd lang="en" dir="ltr">${esc(site.nameEn)}</dd></div>
-      <div><dt>${english ? "Credential ID" : "رقم الشهادة"}</dt><dd dir="ltr">${esc(item.id)}</dd></div>
-      ${dateRow(english ? "Issued" : "الإصدار", item.issued)}
-      ${dateRow(english ? "Exam pass confirmed" : "تأكيد اجتياز الاختبار", item.passConfirmed)}
-      ${dateRow(english ? "Expires" : "الانتهاء", item.expires)}
-    </dl>
-    <div class="id-section-action">
-      ${ext(item.url, english ? "View issuer credential" : "راجع الشهادة لدى الجهة المانحة", options, linkAttrs)}
-      ${item.pdfUrl ? ext(item.pdfUrl, english ? "Certificate (PDF)" : "نسخة الشهادة (PDF)", options, linkAttrs) : ""}
-    </div>
-    <p class="id-fine-print">${english ? "Credential record reviewed" : "مراجعة سجل الشهادة"}: <time datetime="${esc(item.reviewed)}">${esc(date(item.reviewed, english))}</time></p>
-  </article>`;
-}
-
 export function renderCredentials(options) {
-  const { site, english = false, esc, icon } = options;
-  const certCards = professionalCredentials.map((item, index) => renderCredentialCard(item, index, options)).join("");
-  const communities = [
-    ["Google Maps Platform Innovators", "عضوية مجتمع المطورين المهتمين ببناء حلول الخرائط.", "Developer community membership focused on building with mapping tools."],
-    ["Google Cloud Innovator", "عضوية برنامج مجتمع Google Cloud.", "Membership in the Google Cloud community program."],
-    ["Firebase Studio Developer Community", "عضوية مجتمع مطوري Firebase Studio.", "Membership in the Firebase Studio developer community."]
-  ];
-  return `<div class="identity-studio">${studioHero({ ...options, path: "/credentials/", partner: true, kicker: english ? "CREDENTIALS / COMMUNITY / DELIVERY" : "شهادات / مجتمع / تنفيذ", title: english ? "Experience you can<br><em>trace to its source.</em>" : "خبرة يمكنك<br><em>الرجوع إلى مصدرها.</em>", lead: english ? "Professional certifications, developer-community memberships and public contributions, connected to the work they support." : "شهادات مهنية وعضويات مجتمعات المطورين ومساهمات عامة، مرتبطة بالأعمال التي تدعمها." })}
-  <section class="id-section" id="certifications"><div class="container">${sectionHead("01", english ? "PROFESSIONAL CERTIFICATIONS" : "الشهادات المهنية", english ? "The credential, its scope and its issuer." : "الشهادة، ونطاقها، والجهة التي أصدرتها.", english ? "The issuer links are the reference for each credential's details and current status." : "روابط الجهات المانحة هي المرجع لتفاصيل كل شهادة وحالتها الحالية.")}<div class="id-three-grid">${certCards}</div></div></section>
-  <section class="id-section id-soft" id="developer-communities"><div class="container">${sectionHead("02", english ? "DEVELOPER COMMUNITIES" : "مجتمعات المطورين", english ? "Participation that supports continued practice." : "مشاركة تدعم التعلّم والممارسة.", english ? "Program and community badges appear on my Google Developer profile. They describe membership, separately from professional certifications." : "يعرض ملفي على Google للمطورين شارات البرامج والمجتمعات. تُذكر هنا بوصفها عضويات، بصورة مستقلة عن الشهادات المهنية.")}<div class="id-three-grid">${communities.map(([name, ar, en]) => `<article class="id-membership">${icon("nodes")}<span class="id-pill">${english ? "Program membership" : "عضوية برنامج"}</span><h3 lang="en" dir="ltr">${name}</h3><p>${esc(english ? en : ar)}</p></article>`).join("")}</div><div class="id-section-action">${ext(site.social.googleDeveloper, english ? "Open my Google Developer profile" : "افتح ملفي على Google للمطورين", options, 'class="id-inline-link"')}</div></div></section>
-  <section class="id-section" id="community-contributions"><div class="container">${sectionHead("03", english ? "PUBLIC CONTRIBUTIONS" : "مساهمات عامة", english ? "Helping people find the next useful step." : "تشخيص يساعد المستخدم على خطوته التالية.", english ? "Selected Google Business Profile help-community answers published on 18 October 2026. These links identify contributions, not an endorsement or a recommended-answer claim." : "نماذج من إجاباتي في مجتمع مساعدة الملف التجاري، منشورة في 18 أكتوبر 2026. الروابط توثق المساهمات، ولا تعني اعتمادًا أو تصنيفًا كإجابة مقترحة.")}<div class="id-three-grid">${communityContributions.map((item, i) => `<article class="id-contribution"><span class="id-index" dir="ltr">0${i + 1}</span><h3>${esc(label(item.title, english))}</h3><p>${esc(label(item.description, english))}</p>${ext(item.url, english ? "Read the published answer" : "اقرأ الإجابة المنشورة", options, `class="id-inline-link" data-identity-event="contribution_open" data-identity-item="community-${i + 1}"`)}</article>`).join("")}</div></div></section>
-  ${renderSelectedProof(options)}
-  <section class="id-section id-dark"><div class="container id-closing"><div><p class="id-kicker">${english ? "LET’S CONNECT" : "لنتواصل"}</p><h2>${english ? "Bring a clear problem.<br>We’ll define the next step." : "ابدأ بمشكلة واضحة،<br>لنحدد الخطوة المناسبة."}</h2></div><a class="id-action" href="${prefix(english)}/contact/">${english ? "Discuss your project" : "ناقش مشروعك"}${icon("arrow")}</a></div></section></div>`;
+  return renderCredentialGallery({
+    ...options,
+    credentials: professionalCredentials,
+    contributions: communityContributions,
+    work: renderSelectedProof({ ...options, gallery: true })
+  });
 }
 
 export function renderTechnicalEvidence(study, options) {
