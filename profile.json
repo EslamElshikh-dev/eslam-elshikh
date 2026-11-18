@@ -67,11 +67,18 @@
       "credentialCategory": "Professional certification",
       "identifier": "196860691",
       "url": "https://skillshop.credential.net/f10c0d9f-1417-41a8-b35c-a56c6a2d358d#acc.BUlXLe7J",
+      "creator": {
+        "@type": "Organization",
+        "name": "Google Skillshop",
+        "url": "https://skillshop.withgoogle.com/"
+      },
       "recognizedBy": {
         "@type": "Organization",
         "name": "Google Skillshop",
         "url": "https://skillshop.withgoogle.com/"
-      }
+      },
+      "datePublished": "2026-10-11",
+      "expires": "2027-10-11"
     },
     {
       "@type": "EducationalOccupationalCredential",
@@ -79,11 +86,36 @@
       "credentialCategory": "Professional certification",
       "identifier": "191833453",
       "url": "https://skillshop.credential.net/2e22949d-fa03-429b-b367-58be9ee2350d#acc.4fkdDFEJ",
+      "creator": {
+        "@type": "Organization",
+        "name": "Google Skillshop",
+        "url": "https://skillshop.withgoogle.com/"
+      },
       "recognizedBy": {
         "@type": "Organization",
         "name": "Google Skillshop",
         "url": "https://skillshop.withgoogle.com/"
-      }
+      },
+      "datePublished": "2026-08-19",
+      "expires": "2027-08-19"
+    },
+    {
+      "@type": "EducationalOccupationalCredential",
+      "name": "Local SEO Essentials with Semrush",
+      "credentialCategory": "Certificate of completion",
+      "identifier": "b201dcae31",
+      "url": "https://www.semrush.com/academy/certificates/id/bb47f6fd-785b-4a6f-adfc-fbac655848c6/",
+      "creator": {
+        "@type": "Organization",
+        "name": "Semrush Academy",
+        "url": "https://www.semrush.com/academy/"
+      },
+      "recognizedBy": {
+        "@type": "Organization",
+        "name": "Semrush Academy",
+        "url": "https://www.semrush.com/academy/"
+      },
+      "expires": "2027-11-18"
     },
     {
       "@type": "EducationalOccupationalCredential",

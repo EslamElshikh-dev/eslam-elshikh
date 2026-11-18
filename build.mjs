@@ -25,7 +25,7 @@ import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./sr
 import { renderAbout } from "./src/about.mjs";
 import { renderProfileSummary, profileSummaryRevision } from "./src/profile-summary.mjs";
 import { getOfficialProfiles, renderOfficialProfiles, renderContactCard } from "./src/identity.mjs";
-import { renderCredentials, renderMediaKit, renderNotesIndex, renderPracticeNote, renderIdentityHighlights, credentialGraph, professionalRevision, identityAssetRoot } from "./src/professional-identity.mjs";
+import { renderCredentials, renderMediaKit, renderNotesIndex, renderPracticeNote, renderIdentityHighlights, credentialGraph, professionalRevision, credentialsRevision, identityAssetRoot } from "./src/professional-identity.mjs";
 import { practiceNotes, noteHref } from "./src/practice-notes.mjs";
 import { publicWorkCredits, publicWorkCreditsReviewedAt } from "./src/public-work-credits.mjs";
 import { serviceEvidence, searchRevision } from "./src/service-evidence.mjs";
@@ -439,7 +439,7 @@ function page({ title, description, path, active = "", body, schema = [], lang =
   const identitySurface = ["/about/", "/en/about/", "/credentials/", "/en/credentials/", "/media-kit/", "/en/media-kit/"].includes(path) || /^(\/en)?\/notes\//.test(path) || /^(\/en)?\/projects\/naqada-directory\/$/.test(path);
   if (["/", "/en/", "/google-ads/", "/en/google-ads/", "/credentials/", "/en/credentials/"].includes(path)) {
     stylesheets = [...stylesheets, "/assets/css/google-partner.css?v=20261114.2"];
-    modified = googlePartnerBadgeRevision;
+    modified = latestRevision(modified, googlePartnerBadgeRevision);
   }
   if (identitySurface) {
     stylesheets = [...stylesheets, `/assets/css/professional-identity.css?v=${version}`];
@@ -1672,7 +1672,7 @@ function englishPage() {
 function professionalIdentityPage(kind, english = false, note = null) {
   const options = { site, english, esc, icon, studies: caseStudies };
   const pairs = {
-    credentials: ["الشهادات والمساهمات المهنية | إسلام الشيخ", "Credentials & Contributions | Eslam Elshikh", "شهادتا Google Ads Search وMeasurement لإسلام الشيخ بروابط الجهات المانحة، وعضويات مجتمعات المطورين ومساهمات عامة ودراسات حالة موثقة.", "Eslam Elshikh's issuer-linked Google Ads Search and Measurement credentials, developer-community memberships, public contributions and evidence-led case studies."],
+    credentials: ["الشهادات والمساهمات المهنية | إسلام الشيخ", "Credentials & Contributions | Eslam Elshikh", "شهادات إسلام الشيخ في إعلانات البحث وقياسها من Google Skillshop وفي السيو المحلي من Semrush Academy، مع روابط التحقق والمساهمات المجتمعية ودراسات الحالة.", "Explore Eslam Elshikh's Google Skillshop credentials in search ads and measurement, Semrush Academy certificate in local SEO, community contributions and case studies."],
     "media-kit": ["ملف التعريف والمشاركة | إسلام الشيخ", "Media Kit & Professional Introduction | Eslam Elshikh", "ملف إسلام الشيخ للتعريف والمشاركة: نبذات عربية وإنجليزية، ملف مهني PDF، صور مشاركة وأغلفة وقوالب قابلة للتنزيل، مع مراجع الشهادات والأعمال.", "Download Eslam Elshikh's bilingual biographies, professional profile PDF, sharing images, cover artwork and editable layouts for introductions and collaboration."],
     notes: ["ملاحظات هندسية من العمل | إسلام الشيخ", "Engineering Practice Notes | Eslam Elshikh", "ملاحظات أصلية لإسلام الشيخ من مشروعات فعلية: قياس التواصل، تنظيم دليل عربي، وتوحيد الهوية المهنية، مع مصادر التنفيذ ودراسات الحالة المرتبطة.", "First-hand notes by Eslam Elshikh on contact measurement, Arabic-directory engineering and professional identity, with implementation sources and related case studies."]
   };
@@ -1684,7 +1684,7 @@ function professionalIdentityPage(kind, english = false, note = null) {
   const crumbs = [{ name: english ? "Home" : "الرئيسية", path: english ? "/en/" : "/" }];
   if (note) crumbs.push({ name: english ? "Practice notes" : "ملاحظات من العمل", path: (english ? "/en" : "") + "/notes/" });
   crumbs.push({ name: title, path });
-  return page({ title, description, path, active: "about", body, lang: english ? "en" : "ar", modified: professionalRevision,
+  return page({ title, description, path, active: "about", body, lang: english ? "en" : "ar", modified: kind === "notes" ? professionalRevision : credentialsRevision,
     ...(note ? { type: "article", published: note.date, articleSection: note.category[english ? 1 : 0], keywords: ["Eslam Elshikh", "إسلام الشيخ", note.category[english ? 1 : 0]] } : {}),
     schema: [breadcrumbSchema(crumbs)] });
 }
