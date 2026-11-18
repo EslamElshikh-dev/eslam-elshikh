@@ -445,6 +445,10 @@ function page({ title, description, path, active = "", body, schema = [], lang =
     stylesheets = [...stylesheets, `/assets/css/professional-identity.css?v=${version}`];
     if (!image) image = `${identityAssetRoot}/${lang === "en" ? "share-en" : "share-ar"}-1200x630.png`;
   }
+  if (["/credentials/", "/en/credentials/"].includes(path)) {
+    stylesheets.push("/assets/css/credential-gallery.css?v=20261118.1");
+    scripts.push("/assets/js/credential-gallery.js?v=20261118.1");
+  }
   if (["/media-kit/", "/en/media-kit/"].includes(path)) scripts.push(`/assets/js/professional-identity.js?v=${version}`);
   const pageHead = head({ title, description, path, lang, schema, type, published, modified, image, keywords, articleSection, stylesheets, preloadImage, ...(robots ? { robots } : {}) });
   return `${isHome ? pageHead.replace("</head>", `  <link rel="stylesheet" href="/assets/css/home-magic.css?v=${homeAssetVersion}">\n</head>`) : pageHead}
