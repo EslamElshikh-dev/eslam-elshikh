@@ -39,8 +39,7 @@ export const latestWork = [
       pair("إنشاء الملف التجاري وتحسين السيو المحلي، ومطابقة بيانات المتجر وساعات العمل والخريطة، وتجهيز دليل استخدام للموقع ولوحة الإدارة.", "Google Business Profile creation and local SEO, aligned store details, opening hours and Maps, plus an illustrated website and administration guide.")
     ],
     links: [
-      { label: pair("كتالوج المنتجات", "Product catalog"), url: "https://dahanat-alya-riyadh.vercel.app/products" },
-      { label: pair("صفحة منتج فعلية", "A live product page"), url: "https://dahanat-alya-riyadh.vercel.app/products/alya-lux" }
+      { label: pair("كتالوج المنتجات", "Product catalog"), url: "https://dahanat-alya-riyadh.vercel.app/products" }
     ],
     editorial: {
       englishName: "Alya Paints Riyadh", focus: "من هوية جديدة إلى كتالوج يُدار من داخل النشاط.",
