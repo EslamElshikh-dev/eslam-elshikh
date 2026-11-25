@@ -43,6 +43,7 @@ export const site = {
   positioning: "هندسة رقمية تجمع الأمان والبرمجة والذكاء الاصطناعي وحلول خرائط Google والسيو في خطة واحدة قابلة للقياس.",
   social: {
     github: "https://github.com/EslamElshikh-dev",
+    wikidata: "https://www.wikidata.org/wiki/Q141800326",
     facebook: "https://www.facebook.com/eslamelshikhdev/",
     x: "https://x.com/remoesoo10",
     instagram: "https://www.instagram.com/remoesoo10",

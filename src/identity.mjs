@@ -1,9 +1,11 @@
 // Fixed to the actual identity-content revision, not the build time.
 export const profileUpdatedAt = "2026-10-21T04:26:04+00:00";
+export const profileLinksRevision = "2026-11-25";
 
 export function getOfficialProfiles(site, english = false) {
   return [
     ["GitHub", site.social.github, "EslamElshikh-dev"],
+    ["Wikidata", site.social.wikidata, site.nameEn],
     [english ? "Eslam Elshikh on Google" : "إسلام الشيخ على Google", site.social.googleKnowledgePanel, "Eslam Elshikh"],
     [english ? "Google Developer Program" : "Google للمطورين", site.social.googleDeveloper, "EslamElshikh"],
     ["Facebook", site.social.facebook, "@eslamelshikhdev"],
