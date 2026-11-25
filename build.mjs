@@ -24,7 +24,7 @@ import { guides } from "./src/guides.mjs";
 import { serviceTranslations, enrichPost, guideToPost, completeFaqs } from "./src/editorial.mjs";
 import { renderAbout } from "./src/about.mjs";
 import { renderProfileSummary, profileSummaryRevision } from "./src/profile-summary.mjs";
-import { getOfficialProfiles, renderOfficialProfiles, renderContactCard } from "./src/identity.mjs";
+import { getOfficialProfiles, renderOfficialProfiles, renderContactCard, profileLinksRevision } from "./src/identity.mjs";
 import { renderCredentials, renderMediaKit, renderNotesIndex, renderPracticeNote, renderIdentityHighlights, credentialGraph, professionalRevision, credentialsRevision, identityAssetRoot } from "./src/professional-identity.mjs";
 import { practiceNotes, noteHref } from "./src/practice-notes.mjs";
 import { publicWorkCredits, publicWorkCreditsReviewedAt } from "./src/public-work-credits.mjs";
@@ -753,14 +753,14 @@ function aboutPage() {
     mainEntity: { "@id": `${site.url}/#person` },
     relatedLink: ["/credentials/", "/notes/", "/media-kit/", "/projects/tawod-contracting/", "/projects/sama-scan/", "/projects/naqada-directory/"].map(path => `${site.url}${path}`),
     // Google ProfilePage expects DateTime rather than a date-only value.
-    dateModified: `${profileSummaryRevision}T00:00:00+03:00`
+    dateModified: `${latestRevision(profileSummaryRevision, profileLinksRevision)}T00:00:00+03:00`
   };
   return page({
     title: "عن المهندس إسلام الشيخ | مهندس برمجيات وأمن سيبراني",
     description: "تعرّف على المهندس إسلام الشيخ، مهندس أمن سيبراني ومطور مواقع وبرمجيات في الرياض، وشاهد مشروعات موثقة في الويب والذكاء الاصطناعي وخرائط Google والسيو.",
     path: "/about/",
     active: "about",
-    modified: profileSummaryRevision,
+    modified: latestRevision(profileSummaryRevision, profileLinksRevision),
     body,
     stylesheets: [`/assets/css/about.css?v=${version}`],
     pageScripts: [`/assets/js/about.js?v=${version}`],
@@ -1373,8 +1373,8 @@ ${renderOfficialProfiles({ site, english: true, esc, icon })}
 ${renderIdentityHighlights({ site, english: true, esc, icon, studies: caseStudies })}
 <section class="section-pad muted-section"><div class="container"><div class="section-heading reveal">${eyebrow("Public evidence")}<h2>Work you can open and review</h2><p>Explore selected case studies, the web-project archive, and public Google Maps examples.</p></div><div class="stats-bar reveal"><div><strong>${projectAudit.listedProjects}</strong><span>web projects in the portfolio</span></div><div><strong>${mapsProjects.length}</strong><span>public Google Maps examples</span></div><div><strong>${projectAudit.githubRepositories}</strong><span>GitHub repositories reviewed</span></div><div><strong>${projectAudit.vercelProjects}</strong><span>Vercel projects reviewed</span></div></div><div class="section-action">${button("/en/projects/", "Explore the work")}</div></div></section>
 ${englishFinalCta("Have a project that crosses several disciplines?", "Share the business objective and the current technical situation. We can separate the problem into a practical sequence without losing the connections between security, experience, visibility, and operations.")}`;
-  const profileSchema = { "@type": "ProfilePage", "@id": `${absolute(path)}#profile`, url: absolute(path), name: "Professional profile of Eslam Elshikh", mainEntity: { "@id": `${site.url}/#person` }, inLanguage: "en", dateModified: `${profileSummaryRevision}T00:00:00+03:00`, relatedLink: projects.filter((item) => item.slug && item.caseStudy).map((item) => absolute(`/en/projects/${item.slug}/`)) };
-  return page({ title: "About Eslam Elshikh | Cybersecurity & Software Engineer", description: "Meet Eslam Elshikh, a Riyadh-based cybersecurity engineer and software developer working across websites, AI agents, Google products, cloud systems, and SEO.", path, active: "about", stylesheets: [`/assets/css/about.css?v=${version}`], body, lang: "en", modified: profileSummaryRevision, schema: [profileSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "About", path }])], preloadImage: profilePhoto });
+  const profileSchema = { "@type": "ProfilePage", "@id": `${absolute(path)}#profile`, url: absolute(path), name: "Professional profile of Eslam Elshikh", mainEntity: { "@id": `${site.url}/#person` }, inLanguage: "en", dateModified: `${latestRevision(profileSummaryRevision, profileLinksRevision)}T00:00:00+03:00`, relatedLink: projects.filter((item) => item.slug && item.caseStudy).map((item) => absolute(`/en/projects/${item.slug}/`)) };
+  return page({ title: "About Eslam Elshikh | Cybersecurity & Software Engineer", description: "Meet Eslam Elshikh, a Riyadh-based cybersecurity engineer and software developer working across websites, AI agents, Google products, cloud systems, and SEO.", path, active: "about", stylesheets: [`/assets/css/about.css?v=${version}`], body, lang: "en", modified: latestRevision(profileSummaryRevision, profileLinksRevision), schema: [profileSchema, breadcrumbSchema([{ name: "Home", path: "/en/" }, { name: "About", path }])], preloadImage: profilePhoto });
 }
 
 function englishGoogleExpertPage() {
